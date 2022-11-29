@@ -4,23 +4,27 @@
 
 import { db } from './firebase';
 import { event, eventId, participant } from '../types';
+import { prototype } from 'events';
 
-function getEventById(id: eventId) {
+var emptyEvent = {id: "", details: {startDate: new Date(), endDate: new Date(), location: new Geolocation()}, participants: []};
 
+function getEventById(id: eventId): event | null { // TODO add return statements
+    return emptyEvent;
 }
 
-function createEvent(event: event) {
-
+// throws an Error on failure
+function createEvent(event: event): event {
+    return emptyEvent;
 }
 
 // hold off on working on this one
 // TODO: Discuss should events be editable after creation?
-function updateEvent(event: event) {
-
+// throws an Error on failure
+function updateEvent(event: event): void {
 }
 
-function updateEventWithParticipant(eventId: eventId, participant: participant) {
-
+// throws an Error on failure
+function updateEventWithParticipant(eventId: eventId, participant: participant): void {
 }
 
 export {

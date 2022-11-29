@@ -19,3 +19,6 @@ export interface participant {
     location?: Geolocation,
     accountId?: string,
 }
+
+// additional user fields
+// - km or miles
