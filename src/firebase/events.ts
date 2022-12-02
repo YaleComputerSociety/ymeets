@@ -3,17 +3,17 @@
 // https://levelup.gitconnected.com/structure-firestore-firebase-for-scalable-chat-app-939c7a6cd0f5
 
 import { db } from './firebase';
-import { event, eventId, participant } from '../types';
+import { event, EventId, participant } from '../types';
 import { prototype } from 'events';
 
 var emptyEvent = {id: "", details: {startDate: new Date(), endDate: new Date(), location: new Geolocation()}, participants: []};
 
-function getEventById(id: eventId): event | null { // TODO add return statements
+function getEventById(id: EventId): event | null { // TODO add return statements
     return emptyEvent;
 }
 
 // throws an Error on failure
-function createEvent(event: event): event {
+function createEvent(event: event): event | null {
     return emptyEvent;
 }
 
@@ -24,12 +24,26 @@ function updateEvent(event: event): void {
 }
 
 // throws an Error on failure
-function updateEventWithParticipant(eventId: eventId, participant: participant): void {
+function updateEventWithParticipant(eventId: EventId, participant: participant): void {
+}
+
+// given information about participant and event, return if available
+// day in days from first day
+// timestep nth 15-minute array on start
+function getAvailablityForParticipant(participantName: string, eventId: EventId, day: number, timeStep: number) {
+
+}
+
+// sum getAvailablityForParticipant for each participant
+function getAvailablity(eventId: EventId, day: number, timeStep: number) {
+
 }
 
 export {
     getEventById,
     createEvent,
     updateEvent,
-    updateEventWithParticipant
+    updateEventWithParticipant,
+    getAvailablityForParticipant,
+    getAvailablity
 }

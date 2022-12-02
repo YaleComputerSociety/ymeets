@@ -1,8 +1,12 @@
-export type eventId = string;
+export type EventId = string;
+export type Location = Geolocation | string;
+export type Availability = number[][];
+
+
 
 export interface event {
-    id: eventId,
-    details: eventDetails
+    id: EventId,
+    details: eventDetails,
     participants: participant[],
 }
 
@@ -15,8 +19,8 @@ export interface eventDetails {
 export interface participant {
     name: string,
     password?: string,
-    availability: unknown,
-    location?: Geolocation,
+    availability: Availability,
+    location?: Location,
     accountId?: string,
 }
 
