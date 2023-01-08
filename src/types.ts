@@ -3,19 +3,19 @@ export type Location = Geolocation | string;
 export type Availability = number[][];
 
 // pass this into createEvent (event without an id)
-export interface unsavedEvent {
-    details: eventDetails,
-    participants: participant[],
+export interface UnsavedEvent {
+    details: EventDetails,
+    participants: Participant[],
 }
 
 // once event is created, everything should be done with this type (it has an id)
-export interface event {
+export interface Event {
     id: EventId,
-    details: eventDetails,
-    participants: participant[],
+    details: EventDetails,
+    participants: Participant[],
 }
 
-export interface eventDetails {
+export interface EventDetails {
     startDate: Date,
     endDate: Date,
     startTime: number, // minutes; min: 0, max 24*60 = 1440
@@ -23,7 +23,7 @@ export interface eventDetails {
     location: Location,
 }
 
-export interface participant {
+export interface Participant {
     name: string,
     password?: string,
     availability: Availability,

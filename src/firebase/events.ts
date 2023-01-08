@@ -1,36 +1,30 @@
-// Take a look at this article to get started
-// Perhaps surprisingly, our use-case is not so different from this messaging service
-// https://levelup.gitconnected.com/structure-firestore-firebase-for-scalable-chat-app-939c7a6cd0f5
-
-import { db } from './firebase';
-import { unsavedEvent, event, EventId, participant } from '../types';
-import { prototype } from 'events';
+import { UnsavedEvent, Event, EventId, Participant } from '../types';
 
 var emptyEvent = {id: "", details: {startDate: new Date(), endDate: new Date(), startTime: 0, endTime: 1440, location: new Geolocation()}, participants: []};
 
-function getEventById(id: EventId): event | null { // TODO add return statements
-    return emptyEvent;
+async function getEventById(id: EventId): Promise<Event | null> { // TODO add return statements
+    return Promise.resolve(emptyEvent);
 }
 
 // throws an Error on failure
-function createEvent(event: unsavedEvent): event | null {
-    return emptyEvent;
+async function createEvent(event: UnsavedEvent): Promise<Event | null> {
+    return Promise.resolve(emptyEvent);
 }
 
 // hold off on working on this one
 // TODO: Discuss should events be editable after creation?
 // throws an Error on failure
-function updateEvent(event: event): void {
+function updateEvent(event: Event): void {
 }
 
 // throws an Error on failure
-function updateEventWithParticipant(eventId: EventId, participant: participant): void {
+function updateEventWithParticipant(eventId: EventId, participant: Participant): void {
 }
 
 // given information about participant and event, return if available
 // day in days from first day
 // timestep nth 15-minute array on start
-function getAvailablityForParticipant(participantName: string, event: event, day: number, timeStep: number): boolean {
+function getAvailablityForParticipant(participantName: string, event: Event, day: number, timeStep: number): boolean {
     return true;
 }
 
