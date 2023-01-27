@@ -1,22 +1,33 @@
-export type eventId = string;
+export type EventId = string;
+export type Location = Geolocation | string;
+export type Availability = number[][];
 
-export interface event {
-    id: eventId,
-    details: eventDetails
-    participants: participant[],
+// pass this into createEvent (event without an id)
+export interface UnsavedEvent {
+    details: EventDetails,
+    participants: Participant[],
 }
 
-export interface eventDetails {
+// once event is created, everything should be done with this type (it has an id)
+export interface Event {
+    id: EventId,
+    details: EventDetails,
+    participants: Participant[],
+}
+
+export interface EventDetails {
     startDate: Date,
     endDate: Date,
-    location: Geolocation
+    startTime: number, // minutes; min: 0, max 24*60 = 1440
+    endTime: number, // minutes; min: 0, max 24*60 = 1440
+    location: Location,
 }
 
-export interface participant {
+export interface Participant {
     name: string,
     password?: string,
-    availability: unknown,
-    location?: Geolocation,
+    availability: Availability,
+    location?: Location,
     accountId?: string,
 }
 

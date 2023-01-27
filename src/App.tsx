@@ -7,7 +7,7 @@ import 'react-calendar/dist/Calendar.css';
 function App() {
   return (
     <div className="App">
-      <Calendar showNeighboringMonth={false} minDetail="month" onClickDay={(value, event) => alert('Clicked day: ' + value)} />
+      <Calendar selectRange={true} showNeighboringMonth={false} minDetail="month" onClickDay={(value, event) => alert('Clicked day: ' + value)} />
     </div>
   );
 }
