@@ -1,13 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import DaySelectComponent from './components/day_select_component';
 
 function App() {
   return (
     <div className="App">
-      <Calendar selectRange={true} showNeighboringMonth={false} minDetail="month" onClickDay={(value, event) => alert('Clicked day: ' + value)} />
+      <DaySelectComponent />
     </div>
   );
 }
