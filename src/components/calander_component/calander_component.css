@@ -8,7 +8,7 @@
 }
 
 .react-calendar__tile--active {
-    color: white !important;
+    color: black !important;
     background-color: white !important;
 }
 
@@ -112,9 +112,9 @@ abbr {
 }
 
 .react-calendar__tile--active  .circle {
-    background-color: #00356B !important;
+    background-color: none !important;
 }
 
 .react-calendar__tile--active  .circle:hover {
-    background-color: #00356B !important;
+    background-color: none !important;
 }
