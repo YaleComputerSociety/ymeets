@@ -118,3 +118,43 @@ abbr {
 .react-calendar__tile--active  .circle:hover {
     background-color: none !important;
 }
+
+.calendar-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 50px;
+}
+
+.calendar-event-name-wrapper {
+    position: absolute;
+    top: -70px;
+    left: 0;
+    height: 30px;
+}
+
+.calendar-event-name-wrapper input {
+    border: none;
+    height: 30px;
+    border-bottom: 1px solid #a3a2a2;
+    font-size: 20px;
+    width: 200%;
+}
+
+.calendar-event-name-wrapper input:focus {
+    outline: none;
+}
+
+.next-button-wrapper {
+    display: grid;
+    justify-items: end;
+    height: 30px;
+}
+
+.next-button-wrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 60px;
+    cursor: pointer;
+}

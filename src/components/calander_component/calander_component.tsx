@@ -3,6 +3,7 @@ import './calander_component.css';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import CircleComponent from "../circle_component";
+import TimeSelectComponent from "../time_select_component";
 
 import { useState } from "react";
 
@@ -22,8 +23,29 @@ export const CalanderComponent = () => {
         updateDays(arr)
     }
 
+    const [startTime, updateStartTime] = useState("")
+
+    const handleUpdateStartTime = (time:any) => {
+        updateStartTime(time)
+    }
+
+    const [endTime, updateEndTime] = useState("")
+
+    const handleUpdateEndTime = (time:any) => {
+        updateEndTime(time)
+    }
+
+    const [eventName, updateEventName] = useState("")
+
+    const handleUpdateEventName = (name:any) => {
+        updateEventName(name)
+    }
+
     return (
-        <div className="App">
+        <div className="calendar-wrapper">
+            <div className='calendar-event-name-wrapper'>
+                <input placeholder="Name your event..." type="text" value={eventName} onChange={(event) => handleUpdateEventName(event.target.value)} />
+            </div>
             <Calendar 
             prev2Label={null} 
             next2Label={null} 
@@ -32,8 +54,11 @@ export const CalanderComponent = () => {
             minDetail="month" 
             tileContent={({ activeStartDate, date, view }) => <CircleComponent date={date} add={addDay} remove={removeDay} selectedDays={selectedDays} />}
             navigationLabel={({ date, label, locale, view }) => date.toLocaleString('default', { month: 'long' })}
-            onChange={() => {console.log(selectedDays)}}
-        />
+            />
+            <TimeSelectComponent updateStart={handleUpdateStartTime} updateEnd={handleUpdateEndTime} />
+            <div className='next-button-wrapper'>
+                <button onClick={() => {console.log(selectedDays); console.log(startTime); console.log(endTime); console.log(eventName)}}>Next</button>
+            </div>
         </div>
     );
 }

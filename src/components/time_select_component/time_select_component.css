@@ -1,0 +1,26 @@
+.time-select-wrapper {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    width: 35% !important;
+    display: grid;
+    grid-template-columns: 2fr 3fr 2fr 3fr;
+}
+
+.react-dropdown-select {
+    font-size: 0.8rem !important;
+    height: 28px !important;
+}
+
+.time-select-text {
+    font-size: 0.9rem;
+    text-align: right;
+    font-weight: bolder;
+    margin: 0px !important;
+}
+
+.time-select-text-wrapper {
+    display: grid;
+    align-items: center !important;
+    margin-right: 0.8rem;
+}
