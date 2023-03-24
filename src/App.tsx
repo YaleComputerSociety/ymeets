@@ -6,6 +6,7 @@ import DaySelectComponent from './components/day_select_component';
 function App() {
   return (
     <div className="App">
+      {/* Render root instead */}
       <DaySelectComponent />
     </div>
   );
