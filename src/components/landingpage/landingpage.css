@@ -1,0 +1,33 @@
+.createneweventwrapper {
+    margin-top: 17%;
+    text-align: center;
+    height: 30px;
+}
+
+.createneweventwrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 22vw;
+    height: 4vw;
+    cursor: pointer;
+    font-size: 1.3vw;
+}
+
+.eventcodewrapper {
+    margin-top: 5.5%;
+    text-align: center;
+    height: 30px;
+}
+
+.eventcodewrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 22vw;
+    height: 4vw;
+    cursor: pointer;
+    font-size: 1.3vw;
+}

@@ -1,0 +1,40 @@
+.appName {
+    margin-top: 11%;
+    font-size: 3.8vw;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+.googlesigninwrapper {
+    margin-top: 5%;
+    text-align: center;
+    height: 30px;
+}
+
+.googlesigninwrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 22vw;
+    height: 4vw;
+    cursor: pointer;
+    font-size: 1.3vw;
+}
+
+.nologinwrapper {
+    margin-top: 5%;
+    text-align: center;
+    height: 30px;
+}
+
+.nologinwrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 22vw;
+    height: 4vw;
+    cursor: pointer;
+    font-size: 1.3vw;
+}
