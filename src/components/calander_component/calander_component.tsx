@@ -57,7 +57,17 @@ export const CalanderComponent = () => {
             />
             <TimeSelectComponent updateStart={handleUpdateStartTime} updateEnd={handleUpdateEndTime} />
             <div className='next-button-wrapper'>
-                <button onClick={() => {console.log(selectedDays); console.log(startTime); console.log(endTime); console.log(eventName)}}>Next</button>
+                <button onClick={() => {
+                    if (startTime >= endTime) {
+                        alert('Make sure your end time is after your start time!');
+                        return;
+                    }
+
+                    console.log(selectedDays); 
+                    console.log(startTime); 
+                    console.log(endTime); 
+                    console.log(eventName);
+                }}>Next</button>
             </div>
         </div>
     );
