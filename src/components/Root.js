@@ -3,7 +3,7 @@
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import LandingPageButtons from './landingpage/index.tsx';
 import LoginPageButtons from './loginpage/index.tsx';
-import DaySelectComponent from './day_select_component/index.tsx';
+import DaySelectComponent from './daySelect/day_select_component/index.tsx';
 
 
 function Root() {

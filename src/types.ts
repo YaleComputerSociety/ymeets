@@ -5,7 +5,6 @@ export type Availability = number[][];
 // pass this into createEvent (event without an id)
 export interface UnsavedEvent {
     details: EventDetails,
-    participants: Participant[],
 }
 
 // once event is created, everything should be done with this type (it has an id)
@@ -16,8 +15,8 @@ export interface Event {
 }
 
 export interface EventDetails {
-    startDate: Date,
-    endDate: Date,
+    name: string,
+    dates: number[],
     startTime: number, // minutes; min: 0, max 24*60 = 1440
     endTime: number, // minutes; min: 0, max 24*60 = 1440
     location: Location,

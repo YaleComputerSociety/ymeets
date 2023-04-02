@@ -6,6 +6,7 @@ import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 
 import { useState } from "react";
+import { createEvent } from "../../../firebase/events";
 
 export const CalanderComponent = () => {
     const arr1 : any[] = []
@@ -23,13 +24,13 @@ export const CalanderComponent = () => {
         updateDays(arr)
     }
 
-    const [startTime, updateStartTime] = useState("")
+    const [startTime, updateStartTime] = useState(0)
 
     const handleUpdateStartTime = (time:any) => {
         updateStartTime(time)
     }
 
-    const [endTime, updateEndTime] = useState("")
+    const [endTime, updateEndTime] = useState(0)
 
     const handleUpdateEndTime = (time:any) => {
         updateEndTime(time)
@@ -62,6 +63,19 @@ export const CalanderComponent = () => {
                         alert('Make sure your end time is after your start time!');
                         return;
                     }
+                    if (eventName.length == 0) {
+                        alert('Make sure to name your event!');
+                        return;
+                    }
+
+                    createEvent({
+                        details: {
+                        name: eventName,
+                        dates: selectedDays,
+                        startTime: startTime,
+                        endTime: endTime,
+                        location: "",
+                    }})
 
                     console.log(selectedDays); 
                     console.log(startTime); 
