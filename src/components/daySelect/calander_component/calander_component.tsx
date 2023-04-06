@@ -12,14 +12,14 @@ export const CalanderComponent = () => {
     const arr1 : any[] = []
     const [selectedDays, updateDays] = useState(arr1);
 
-    const addDay = (date:any) => {
+    const addDay = (date: Date) => {
         const arr = [
             ...selectedDays, [date.getFullYear(), date.getMonth(), date.getDate()]
         ]
         updateDays(arr)
     }
 
-    const removeDay = (date:any) => {
+    const removeDay = (date: Date) => {
         const arr = selectedDays.filter((obj) => obj[0] !== date.getFullYear() || obj[1] !== date.getMonth() || obj[2] !== date.getDate());
         updateDays(arr)
     }
@@ -63,6 +63,8 @@ export const CalanderComponent = () => {
                         alert('Make sure your end time is after your start time!');
                         return;
                     }
+
+                    // Optional; backend supports an empty string for name
                     if (eventName.length == 0) {
                         alert('Make sure to name your event!');
                         return;
