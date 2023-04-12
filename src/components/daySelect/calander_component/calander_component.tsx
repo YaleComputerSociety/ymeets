@@ -1,90 +1,146 @@
 import * as React from "react";
-import './calander_component.css';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import "./calander_component.css";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 
 import { useState } from "react";
 import { createEvent } from "../../../firebase/events";
 
+
 export const CalanderComponent = () => {
-    const arr1 : any[] = []
-    const [selectedDays, updateDays] = useState(arr1);
+  const arr1: any[] = [];
+  const [selectedDays, updateDays] = useState(arr1);
 
-    const addDay = (date: Date) => {
-        const arr = [
-            ...selectedDays, [date.getFullYear(), date.getMonth(), date.getDate()]
-        ]
-        updateDays(arr)
-    }
+  const addDay = (date: any) => {
+    const arr = [
+      ...selectedDays, [date.getFullYear(), date.getMonth(), date.getDate()],
+    ]
+    updateDays(arr)
+  }
 
-    const removeDay = (date: Date) => {
-        const arr = selectedDays.filter((obj) => obj[0] !== date.getFullYear() || obj[1] !== date.getMonth() || obj[2] !== date.getDate());
-        updateDays(arr)
-    }
+  const removeDay = (date: any) => {
+    const arr = selectedDays.filter(
+      (obj) =>
+        obj[0] !== date.getFullYear() ||
+        obj[1] !== date.getMonth() ||
+        obj[2] !== date.getDate()
+    )
+    updateDays(arr)
+  }
 
-    const [startTime, updateStartTime] = useState(0)
+  const [startTime, updateStartTime] = useState(0);
 
-    const handleUpdateStartTime = (time:any) => {
-        updateStartTime(time)
-    }
+  const handleUpdateStartTime = (time:any) => {
+    updateStartTime(time)
+  }
 
-    const [endTime, updateEndTime] = useState(0)
+  const [endTime, updateEndTime] = useState(0);
 
-    const handleUpdateEndTime = (time:any) => {
-        updateEndTime(time)
-    }
+  const handleUpdateEndTime = (time: any) => {
+    updateEndTime(time)
+  }
 
-    const [eventName, updateEventName] = useState("")
+  const [eventName, updateEventName] = useState("");
 
-    const handleUpdateEventName = (name:any) => {
-        updateEventName(name)
-    }
+  const handleUpdateEventName = (name:any) => {
+    updateEventName(name)
+  }
 
-    return (
-        <div className="calendar-wrapper">
-            <div className='calendar-event-name-wrapper'>
-                <input placeholder="Name your event..." type="text" value={eventName} onChange={(event) => handleUpdateEventName(event.target.value)} />
-            </div>
-            <Calendar 
-            prev2Label={null} 
-            next2Label={null} 
-            selectRange={false} 
-            showNeighboringMonth={false} 
-            minDetail="month" 
-            tileContent={({ activeStartDate, date, view }) => <CircleComponent date={date} add={addDay} remove={removeDay} selectedDays={selectedDays} />}
-            navigationLabel={({ date, label, locale, view }) => date.toLocaleString('default', { month: 'long' })}
-            />
-            <TimeSelectComponent updateStart={handleUpdateStartTime} updateEnd={handleUpdateEndTime} />
-            <div className='next-button-wrapper'>
-                <button onClick={() => {
-                    if (startTime >= endTime) {
-                        alert('Make sure your end time is after your start time!');
-                        return;
-                    }
+  const dates = [
+    "September 5, 2022 00:00:00",
+    "September 5, 2022 23:59:59",
+    "October 18, 2022 00:00:00",
+    "October 23, 2022 23:59:59",
+    "November 18, 2022 00:00:00",
+    "November 27, 2022 23:59:59",
+    "December 21, 2022 00:00:00",
+    "January 15, 2023 23:59:59",
+    "January 16, 2023 00:00:00",
+    "January 16, 2023 23:59:59",
+    "March 10, 2023 00:00:00",
+    "March 27, 2023 23:59:59",
+  ];
+  const holidays = dates.map((item) => new Date(item));
 
-                    // Optional; backend supports an empty string for name
-                    if (eventName.length == 0) {
-                        alert('Make sure to name your event!');
-                        return;
-                    }
+  return (
+    <div className="calendar-wrapper">
+      <div className="calendar-event-name-wrapper">
+        <input
+          placeholder="Name your event..."
+          type="text"
+          value={eventName}
+          onChange={(event) => handleUpdateEventName(event.target.value)}
+        />
+      </div>
+      <Calendar
+        prev2Label={null}
+        next2Label={null}
+        selectRange={false}
+        showNeighboringMonth={false}
+        minDetail="month"
+        tileDisabled={({ activeStartDate, date, view }) => {
+          if (holidays[0] <= date && date <= holidays[1]) {
+            return true;
+          } else if (holidays[2] <= date && date <= holidays[3]) {
+            return true;
+          } else if (holidays[4] <= date && date <= holidays[5]) {
+            return true;
+          } else if (holidays[6] <= date && date <= holidays[7]) {
+            return true;
+          } else if (holidays[8] <= date && date <= holidays[9]) {
+            return true;
+          } else if (holidays[10] <= date && date <= holidays[11]) {
+            return true;
+          } else {
+            return false;
+          }
+        }}
+        tileContent={({ activeStartDate, date, view }) => (
+          <CircleComponent
+            date={date}
+            add={addDay}
+            remove={removeDay}
+            selectedDays={selectedDays}
+          />
+        )}
+        navigationLabel={({ date, label, locale, view }) =>
+          date.toLocaleString('default', { month: 'long' })
+        }
+      />
+      <TimeSelectComponent
+        updateStart={handleUpdateStartTime}
+        updateEnd={handleUpdateEndTime}
+      />
+      <div className="next-button-wrapper">
+      <button onClick={() => {
+            if (startTime >= endTime) {
+                alert('Make sure your end time is after your start time!');
+                return;
+            }
 
-                    createEvent({
-                        details: {
-                        name: eventName,
-                        dates: selectedDays,
-                        startTime: startTime,
-                        endTime: endTime,
-                        location: "",
-                    }})
+            // Optional; backend supports an empty string for name
+            if (eventName.length == 0) {
+                alert('Make sure to name your event!');
+                return;
+            }
 
-                    console.log(selectedDays); 
-                    console.log(startTime); 
-                    console.log(endTime); 
-                    console.log(eventName);
-                }}>Next</button>
-            </div>
-        </div>
-    );
-}
+            createEvent({
+                details: {
+                name: eventName,
+                dates: selectedDays,
+                startTime: startTime,
+                endTime: endTime,
+                location: "",
+            }})
+
+            console.log(selectedDays); 
+            console.log(startTime); 
+            console.log(endTime); 
+            console.log(eventName);
+        }}>Next</button>
+      </div>
+    </div>
+  );
+};
