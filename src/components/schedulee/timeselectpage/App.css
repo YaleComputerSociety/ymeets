@@ -1,0 +1,218 @@
+
+
+/*Divs for individual calendars (schedulee, combine, admin)*/
+.schedulee {
+  display: flex;
+  align-items: center;
+  left: 0;
+  margin-left: 2%;
+  margin-top: 12%;
+}
+
+.scheduleetitle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-top: 7.5%;
+  margin-left: 18.5%;
+  align-items: center;
+  justify-content: center;
+}
+
+.combine {
+  display: flex;
+  align-items: center;
+
+}
+.admin {
+  display: flex;
+  align-items: center;
+
+}
+/*Container: Contains entire calendar component*/
+.container { 
+  display: flex;
+  width: 40%;
+  height: 80vh;
+  font-family: 'Roboto', sans-serif;
+  /* border: 0.5px solid #D0CFCF; */
+  /* overflow: auto; */
+
+}
+
+p { 
+  font-weight: lighter;
+}
+
+ 
+.TimeColumn .label { 
+  height: 48px;
+} 
+
+/*Contains the weekday names (i.e MON)*/
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom: 1px solid black;
+  font-weight: 100;
+  font-size: auto;
+  height: 10%; 
+  display: block;
+  text-align: center;
+}
+.timezone { /*EST*/
+  border-bottom: 1px solid white;
+}
+
+/*Previous and Next buttons*/
+.button {
+  background-color: transparent;
+  color: #D0CFCF;
+  border: none;
+  cursor: pointer;
+  font-size: 40px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.button:hover {
+  color: hsl(210, 100%, 90%); /* change the color when the button is hovered */
+}
+#time {
+  border: 0.5px solid white;
+}
+#time_combined {
+  border: 0.5px solid white;
+}
+#time_admin {
+  border: 0.5px solid white;
+}
+
+
+/*--------------------------------------*/
+/*Column component, runs down the screen. 8 columns total, 1 for the time and 1 for each day*/
+.column {
+  width: 12.5%; /* 100 / 8 */
+  height: auto;
+  border: 0.5px solid #D0CFCF;
+
+}
+/*--------------------------------------*/
+.column_combined {
+  width: 12.5%; /* 100 / 8 */
+  height: auto;
+  border: 0.5px solid #D0CFCF;
+
+}
+/*--------------------------------------*/
+.column_admin {
+  width: 12.5%; /* 100 / 8 */
+  height: auto;
+  border: 0.5px solid #D0CFCF;
+
+}
+
+
+/*--------------------------------------*/
+.Weekday .box { /*Boxes within the calendar*/
+  height: 10px;
+  background-color: white;
+  border: .5px solid #EEEEEE;
+  /*display: block;*/
+  position: relative;
+}
+.box.is-divisible-by-4 {
+  border-bottom: .5px solid #D0CFCF;
+}
+
+/*--------------------------------------*/
+
+/*--------------------------------------*/
+.Weekday .box_combined { /*Boxes within the calendar*/
+  height: 10px;
+  background-color: white;
+  border: .5px solid #EEEEEE;
+  /*display: block;*/
+  position: relative;
+}
+.box_combined.is-divisible-by-4 {
+  border-bottom: .5px solid #D0CFCF;
+}
+/*--------------------------------------*/
+
+/*--------------------------------------*/
+.Weekday .box_admin { /*Boxes within the calendar*/
+  height: 10px;
+  background-color: white;
+  border: .5px solid #EEEEEE;
+  /*display: block;*/
+  position: relative;
+}
+.box_admin.is-divisible-by-4 {
+  border-bottom: .5px solid #D0CFCF;
+}
+
+
+
+.box_admin .tooltiptext {
+  visibility: hidden;
+
+
+  color: black;
+  text-align: center;
+
+ 
+
+
+  position: relative;
+  z-index: 1;
+}
+
+.box_admin:hover .tooltiptext {
+  visibility: visible;
+}
+/*--------------------------------------*/
+
+
+
+/*--------------------------------------*/
+.TimeColumn .box { /*Aligning the times to the center-right*/
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+
+  color: black;
+  padding-right: 10px;
+  font-weight: lighter;
+  height: 43px;
+}
+/*--------------------------------------*/
+.TimeColumn .box_combined { /*Aligning the times to the center-right*/
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+ 
+  color: black;
+  padding-right: 10px;
+  font-weight: lighter;
+  height: 43px;
+}
+/*--------------------------------------*/
+.TimeColumn .box_admin { /*Aligning the times to the center-right*/
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+
+  color: black;
+  padding-right: 10px;
+  font-weight: lighter;
+  height: 43px;
+}
+.invisible { /*This class is added to parts of the calendar that is outside of the time range*/
+  display: none !important;
+}
+

@@ -4,6 +4,8 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
+import { Link } from 'react-router-dom';
+
 
 import { useState } from "react";
 import { createEvent } from "../../../firebase/events";
@@ -114,32 +116,35 @@ export const CalanderComponent = () => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
-      <button onClick={() => {
-            if (startTime >= endTime) {
-                alert('Make sure your end time is after your start time!');
-                return;
-            }
+        <Link to='/timeselect'>
+          <button onClick={() => {
+                if (startTime >= endTime) {
+                    alert('Make sure your end time is after your start time!');
+                    return;
+                }
 
-            // Optional; backend supports an empty string for name
-            if (eventName.length == 0) {
-                alert('Make sure to name your event!');
-                return;
-            }
+                // Optional; backend supports an empty string for name
+                if (eventName.length == 0) {
+                    alert('Make sure to name your event!');
+                    return;
+                }
 
-            createEvent({
-                details: {
-                name: eventName,
-                dates: selectedDays,
-                startTime: startTime,
-                endTime: endTime,
-                location: "",
-            }})
+                createEvent({
+                    details: {
+                    name: eventName,
+                    dates: selectedDays,
+                    startTime: startTime,
+                    endTime: endTime,
+                    location: "",
+                }})
 
-            console.log(selectedDays); 
-            console.log(startTime); 
-            console.log(endTime); 
-            console.log(eventName);
-        }}>Next</button>
+                console.log(selectedDays); 
+                console.log(startTime); 
+                console.log(endTime); 
+                console.log(eventName);
+                                
+            }}>Next</button>
+        </Link>
       </div>
     </div>
   );
