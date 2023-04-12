@@ -1,12 +1,20 @@
 
 
 /*Divs for individual calendars (schedulee, combine, admin)*/
+.schedulesdiv {
+  display: flex;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 8%;
+  margin-bottom: 13%;
+}
+
 .schedulee {
   display: flex;
   align-items: center;
   left: 0;
-  margin-left: 2%;
-  margin-top: 12%;
+  width: 50%;
+  margin-right: 3%;
 }
 
 .scheduleetitle {
@@ -14,26 +22,44 @@
   top: 0;
   left: 0;
   margin-top: 7.5%;
-  margin-left: 18.5%;
+  margin-left: 16%;
   align-items: center;
   justify-content: center;
 }
 
 .combine {
+  /* display: flex; */
+  /* align-items: center;
+  margin-top: 12%;
+  width: 100%;  */
   display: flex;
-  align-items: center;
-
+  right: 0;
+  width: 50%;
+  margin-left: 3%;
 }
+
+.combinetitle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 7.5%;
+  margin-right: 15%;
+  align-items: center;
+  justify-content: center;
+}
+
 .admin {
   display: flex;
   align-items: center;
 
 }
 /*Container: Contains entire calendar component*/
-.container { 
+.container {
   display: flex;
-  width: 40%;
-  height: 80vh;
+  width: 100%;
+  margin-top: 10%;
+  
+  /* height: 80vh; This needs to flex depending on length of time*/
   font-family: 'Roboto', sans-serif;
   /* border: 0.5px solid #D0CFCF; */
   /* overflow: auto; */

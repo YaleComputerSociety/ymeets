@@ -130,7 +130,6 @@ const DisplayScreen = ({startDate, endDate, startTime, endTime, availability,
             const y_coord = box.getAttribute('row_id') - 1;
             const x_coord = column.getAttribute('id') - 1;
             box.style.backgroundColor = '#BEDEFF';
-
             
             //Updates the 3D array
             setArray3D(prevState => {

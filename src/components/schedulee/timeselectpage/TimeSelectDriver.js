@@ -2,7 +2,7 @@
 import './App.css';
 import React, { useState } from 'react';
 import DisplayScreen from './DisplayScreen';
-// import DisplayScreenCombine from './DisplayScreenCombine'; split
+import DisplayScreenCombine from './DisplayScreenCombine';
 // import DisplayScreenAdmin from '../DisplayScreenAdmin'; split
 
 
@@ -99,7 +99,7 @@ function App() {
 
   //Hardcoded Event, should get this from backend
   const event = {
-    details: {startDate: [10, 14], endDate: [12, 16], startTime: [60, 0], endTime: [720, 120], location: "location"}, 
+    details: {startDate: [10, 14], endDate: [17, 16], startTime: [60, 0], endTime: [720, 120], location: "location"}, 
     participants: [{availability: array3D, name: "Eric"}, {availability: array3D2, name: "Tam"}, {availability: array3D3, name: "Burt"}]
   }
 
@@ -198,30 +198,33 @@ function App() {
 
   return (
     <>
-    
-    <div className='schedulee'>
-      <h1 className='scheduleetitle'>Your Availability</h1>
-      <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
-      <DisplayScreen 
-    startDate={passingInStartDate} 
-    endDate={passingInEndDate} startTime={passingInStartTime} 
-    endTime={passingInEndTime} availability={passingInAvailability} 
-    setArray3D={setCurrParticipantAvailability} currIndex={currIndex} 
-    />
-     <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
+    <div className='schedulesdiv'>
+      <div className='schedulee'>
+        <h1 className='scheduleetitle'>Your Availability</h1>
+        <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
+        <DisplayScreen className='scheduleedays'
+      startDate={passingInStartDate} 
+      endDate={passingInEndDate} startTime={passingInStartTime} 
+      endTime={passingInEndTime} availability={passingInAvailability} 
+      setArray3D={setCurrParticipantAvailability} currIndex={currIndex} 
+      />
+      <button className = "next button" onClick={() => {console.log(startDate); if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
+      </div>
+        
+      {/* <div className='combine' style={{marginTop: "20rem"}}> */}
+      <div className='combine'>
+        <h1 className='combinetitle'>Group Availability</h1>
+        <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
+        <DisplayScreenCombine
+      startDate={passingInStartDate} 
+      endDate={passingInEndDate} startTime={passingInStartTime} 
+      endTime={passingInEndTime} availability={passingInMergedAvailability} 
+      currIndex={currIndex} />
+          <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
+      </div>
     </div>
       
-    {/* <div className='combine' style={{marginTop: "20rem"}}>
-      <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
-      <DisplayScreenCombine
-    startDate={passingInStartDate} 
-    endDate={passingInEndDate} startTime={passingInStartTime} 
-    endTime={passingInEndTime} availability={passingInMergedAvailability} 
-    currIndex={currIndex} />
-        <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
-    </div>
-      
-    <div className='admin' style={{marginTop: "20rem"}}>
+    {/* <div className='admin' style={{marginTop: "20rem"}}>
       <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
       <DisplayScreenAdmin
     startDate={passingInStartDate} 

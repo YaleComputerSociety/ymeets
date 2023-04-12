@@ -2,7 +2,7 @@
 import './App.css';
 import React, { useState } from 'react';
 // import DisplayScreen from './DisplayScreen'; was split
-import DisplayScreenCombine from './DisplayScreenCombine';
+import DisplayScreenCombine from './timeselectpage/DisplayScreenCombine';
 import DisplayScreenAdmin from '../DisplayScreenAdmin';
 
 
