@@ -293,7 +293,7 @@ const [selectedOption, setSelectedOption] = useState("");
 
   return (
     <>
-    <div className='schedulesdiv'>
+    <div className='groupschedulediv'>
       <div className='schedulee'>
         <h1 className='scheduleetitle'>Your Availability</h1>
         <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 
@@ -331,9 +331,9 @@ const [selectedOption, setSelectedOption] = useState("");
           />
         </div>
         <div className="next-button-wrapper1">
-          <Link to='/dayselect'>
+          <Link to='/groupview'>
             <button onClick={() => {console.log("hi");
-                //Firebase Push (availability and preferred location)             
+                //Firebase Push (individual availability and preferred location, updating group availability)     
               }}>Submit</button>
           </Link>
         </div>
