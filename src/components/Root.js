@@ -5,6 +5,7 @@ import LandingPageButtons from './landingpage/index.tsx';
 import LoginPageButtons from './loginpage/index.tsx';
 import DaySelectComponent from './daySelect/day_select_component/index.tsx';
 import TimeSelectComponent from './schedulee/timeselectpage/TimeSelectDriver.js';
+import EnterCodeComp from './entercodepage/index.tsx';
 
 function Root() {
     return (
@@ -13,6 +14,7 @@ function Root() {
                 <Route path='/' element={<LoginPageButtons />} />
                 <Route path='/landingpage' element={<LandingPageButtons />} />
                 <Route path='/dayselect' element={<DaySelectComponent />} />
+                <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect' element={<TimeSelectComponent />} />
             </Routes>
         </Router>

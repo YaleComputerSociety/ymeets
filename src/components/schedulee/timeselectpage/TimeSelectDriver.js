@@ -334,7 +334,7 @@ const [selectedOption, setSelectedOption] = useState("");
           <Link to='/dayselect'>
             <button onClick={() => {console.log("hi");
                 //Firebase Push (availability and preferred location)             
-              }}>Next</button>
+              }}>Submit</button>
           </Link>
         </div>
 
