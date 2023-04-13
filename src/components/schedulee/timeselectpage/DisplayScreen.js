@@ -1,5 +1,6 @@
-
 import React, { useState } from 'react';
+import SelectComponent from "./SelectComponent";
+
 
 const DisplayScreen = ({startDate, endDate, startTime, endTime, availability, 
    setArray3D, currIndex}) => {
@@ -195,14 +196,14 @@ const DisplayScreen = ({startDate, endDate, startTime, endTime, availability,
       }
 
     };
-  
+
   
     return (
     <div class="container" style={{ fontFamily: 'Roboto, sans-serif', cursor: 'pointer' }}>
      
       <div class="column" id = "0">
         <div class="TimeColumn">
-        <div className="label timezone">EST
+        <div className="label timezone">
           </div>
           <div class="box" id = "time" id2 = "1">8 AM</div>
           <div class="box" id = "time" id2 = "2">9 AM</div>
@@ -330,8 +331,6 @@ const DisplayScreen = ({startDate, endDate, startTime, endTime, availability,
           ))}
         </div>
       </div>
-
-  
     </div>
     );
 }

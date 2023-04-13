@@ -3,6 +3,8 @@ import './App.css';
 import React, { useState } from 'react';
 import DisplayScreen from './DisplayScreen';
 import DisplayScreenCombine from './DisplayScreenCombine';
+import SelectComponent from "./SelectComponent";
+import { Link } from 'react-router-dom';
 // import DisplayScreenAdmin from '../DisplayScreenAdmin'; split
 
 
@@ -196,6 +198,99 @@ function App() {
   //For group view
   const passingInMergedAvailability = mergedAvailabilities[currIndex]
 
+//---------------Code for location select component------------------
+//Won't need from here to after var totalvotes = []; line since this is just hardcoded data
+class Person {
+  constructor(vote) {
+    this.vote = vote;
+  }
+}
+
+const Nicholas = new Person("STERLING LIBRARY");
+const Ethan = new Person("SSS");
+const Jiakang = new Person("BASS LIBRARY");
+const Lailah = new Person("STERLING LIBRARY");
+
+//Make group a class once we have more 
+const group = [
+  Nicholas,
+  Ethan,
+  Jiakang,
+  Lailah
+]
+
+var totalVotes = [];
+//We would fill this with all the possible meeting locations
+var voteArray = {
+  "17 HILLHOUSE": 0,
+  "ARTHUR K. WATSON HALL (AKW)": 0,
+  "BASS LIBRARY": 0,
+  "BECTON CENTER": 0,
+  "DOW HALL": 0,
+  "DUNHAM LABORATORY": 0,
+  "HAAS FAMILY ARTS LIBRARY": 0,
+  "HENRY R. LUCE HALL": 0,
+  "HUMANITIES QUADRANGLE": 0,
+  "KROON HALL": 0,
+  "LEET OLIVER MEMORIAL HALL (LOM)": 0,
+  "LINSLY-CHITTENDEN HALL (LC)": 0,
+  "LORIA CENTER": 0,
+  "OTHER": 0,
+  "ROSENKRANZ HALL": 0,
+  "SSS": 0,
+  "STERLING MEMORIAL LIBRARY": 0,
+  "TSAI CENTER": 0,
+  "WATSON CENTER": 0,
+  "WILLIAM L. HARKNESS HALL (WLH)": 0,
+  "YALE SCHOOL OF MANAGEMENT": 0,
+  "YALE SCIENCE BUILDING": 0
+}
+
+group.forEach(member => {
+  auxtopasscorrvars(member);
+});
+
+function auxtopasscorrvars(member) {
+  voteArray[member.vote]++;
+}
+
+const sortedVotes = Object.entries(voteArray).sort((a, b) => b[1] - a[1])
+
+//We would fill this with all the possible meeting locations
+const options = [
+  { key: "17 HILLHOUSE", value: "17 HILLHOUSE" },
+  { key: "ARTHUR K. WATSON HALL (AKW)", value: "ARTHUR K. WATSON HALL (AKW)" },
+  { key: "BASS LIBRARY", value: "BASS LIBRARY" },
+  { key: "BECTON CENTER", value: "BECTON CENTER" },
+  { key: "DOW HALL", value: "DOW HALL" },
+  { key: "DUNHAM LABORATORY", value: "DUNHAM LABORATORY" },
+  { key: "HAAS FAMILY ARTS LIBRARY", value: "HAAS FAMILY ARTS LIBRARY" },
+  { key: "HENRY R. LUCE HALL", value: "HENRY R. LUCE HALL" },
+  { key: "HUMANITIES QUADRANGLE", value: "HUMANITIES QUADRANGLE" },
+  { key: "KROON HALL", value: "KROON HALL" },
+  { key: "LEET OLIVER MEMORIAL HALL (LOM)", value: "LEET OLIVER MEMORIAL HALL (LOM)" },
+  { key: "LINSLY-CHITTENDEN HALL (LC)", value: "LINSLY-CHITTENDEN HALL (LC)" },
+  { key: "LORIA CENTER", value: "LORIA CENTER" },
+  { key: "OTHER", value: "OTHER" },
+  { key: "ROSENKRANZ HALL", value: "ROSENKRANZ HALL" },
+  { key: "SSS", value: "SSS" },
+  { key: "STERLING MEMORIAL LIBRARY", value: "STERLING MEMORIAL LIBRARY" },
+  { key: "TSAI CENTER", value: "TSAI CENTER" },
+  { key: "WATSON CENTER", value: "WATSON CENTER" },
+  { key: "WILLIAM L. HARKNESS HALL (WLH)", value: "WILLIAM L. HARKNESS HALL (WLH)" },
+  { key: "YALE SCHOOL OF MANAGEMENT", value: "YALE SCHOOL OF MANAGEMENT" },
+  { KEY: "YALE SCIENCE BUILDING", value: "YALE SCIENCE BUILDING" }
+];
+
+const [clickedLocation, setClickedLocation] = useState(null);
+
+  const handleRowClick = (location) => {
+    setClickedLocation(location);
+  };
+  
+const [selectedOption, setSelectedOption] = useState("");
+  
+
   return (
     <>
     <div className='schedulesdiv'>
@@ -223,6 +318,30 @@ function App() {
           <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
       </div>
     </div>
+
+    {/* - - - - - - Location Select Component - - - - - - */}
+    <div className='memberselectdiv'>
+      <div className='dropdownandbutton'>
+        <div className = "memberselect">
+          <SelectComponent
+            options={options}
+            onChange={(item) => setSelectedOption(item)}
+            selectedKey={selectedOption}
+            placeholder={"Select your preferred location"}
+          />
+        </div>
+        <div className="next-button-wrapper1">
+          <Link to='/dayselect'>
+            <button onClick={() => {console.log("hi");
+                //Firebase Push (availability and preferred location)             
+              }}>Next</button>
+          </Link>
+        </div>
+
+      </div>
+    </div>
+
+
       
     {/* <div className='admin' style={{marginTop: "20rem"}}>
       <button className = "prev button" onClick={() => {if(currIndex !== 0) {setCurrentIndex(currIndex - 1)}}}>{"<"}</button> 

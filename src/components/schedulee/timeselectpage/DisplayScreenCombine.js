@@ -108,7 +108,7 @@ const DisplayScreenCombine = ({startDate, endDate, startTime, endTime, availabil
      
       <div class="column_combined" id = "0">
         <div class="TimeColumn">
-        <div className="label timezone">EST
+        <div className="label timezone">
           </div>
           <div class="box_combined" id = "time_combined" id2 = "1">8 AM</div>
           <div class="box_combined" id = "time_combined" id2 = "2">9 AM</div>
