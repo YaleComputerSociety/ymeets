@@ -205,7 +205,100 @@ function App() {
             navigate('./timeselect')
         });
     }
+
+
+    //---------------Code for location select component------------------
+//Won't need from here to after var totalvotes = []; line since this is just hardcoded data
+class Person {
+    constructor(vote) {
+      this.vote = vote;
+    }
+  }
+  
+  const Nicholas = new Person("STERLING LIBRARY");
+  const Ethan = new Person("SSS");
+  const Jiakang = new Person("BASS LIBRARY");
+  const Lailah = new Person("STERLING LIBRARY");
+  
+  //Make group a class once we have more 
+  const group = [
+    Nicholas,
+    Ethan,
+    Jiakang,
+    Lailah
+  ]
+  
+  var totalVotes = [];
+  //We would fill this with all the possible meeting locations
+  var voteArray = {
+    "17 HILLHOUSE": 0,
+    "ARTHUR K. WATSON HALL (AKW)": 0,
+    "BASS LIBRARY": 0,
+    "BECTON CENTER": 0,
+    "DOW HALL": 0,
+    "DUNHAM LABORATORY": 0,
+    "HAAS FAMILY ARTS LIBRARY": 0,
+    "HENRY R. LUCE HALL": 0,
+    "HUMANITIES QUADRANGLE": 0,
+    "KROON HALL": 0,
+    "LEET OLIVER MEMORIAL HALL (LOM)": 0,
+    "LINSLY-CHITTENDEN HALL (LC)": 0,
+    "LORIA CENTER": 0,
+    "OTHER": 0,
+    "ROSENKRANZ HALL": 0,
+    "SSS": 0,
+    "STERLING MEMORIAL LIBRARY": 0,
+    "TSAI CENTER": 0,
+    "WATSON CENTER": 0,
+    "WILLIAM L. HARKNESS HALL (WLH)": 0,
+    "YALE SCHOOL OF MANAGEMENT": 0,
+    "YALE SCIENCE BUILDING": 0
+  }
+  
+  group.forEach(member => {
+    auxtopasscorrvars(member);
+  });
+  
+  function auxtopasscorrvars(member) {
+    voteArray[member.vote]++;
+  }
+  
+  const sortedVotes = Object.entries(voteArray).sort((a, b) => b[1] - a[1])
+  
+  //We would fill this with all the possible meeting locations
+  const options = [
+    { key: "17 HILLHOUSE", value: "17 HILLHOUSE" },
+    { key: "ARTHUR K. WATSON HALL (AKW)", value: "ARTHUR K. WATSON HALL (AKW)" },
+    { key: "BASS LIBRARY", value: "BASS LIBRARY" },
+    { key: "BECTON CENTER", value: "BECTON CENTER" },
+    { key: "DOW HALL", value: "DOW HALL" },
+    { key: "DUNHAM LABORATORY", value: "DUNHAM LABORATORY" },
+    { key: "HAAS FAMILY ARTS LIBRARY", value: "HAAS FAMILY ARTS LIBRARY" },
+    { key: "HENRY R. LUCE HALL", value: "HENRY R. LUCE HALL" },
+    { key: "HUMANITIES QUADRANGLE", value: "HUMANITIES QUADRANGLE" },
+    { key: "KROON HALL", value: "KROON HALL" },
+    { key: "LEET OLIVER MEMORIAL HALL (LOM)", value: "LEET OLIVER MEMORIAL HALL (LOM)" },
+    { key: "LINSLY-CHITTENDEN HALL (LC)", value: "LINSLY-CHITTENDEN HALL (LC)" },
+    { key: "LORIA CENTER", value: "LORIA CENTER" },
+    { key: "OTHER", value: "OTHER" },
+    { key: "ROSENKRANZ HALL", value: "ROSENKRANZ HALL" },
+    { key: "SSS", value: "SSS" },
+    { key: "STERLING MEMORIAL LIBRARY", value: "STERLING MEMORIAL LIBRARY" },
+    { key: "TSAI CENTER", value: "TSAI CENTER" },
+    { key: "WATSON CENTER", value: "WATSON CENTER" },
+    { key: "WILLIAM L. HARKNESS HALL (WLH)", value: "WILLIAM L. HARKNESS HALL (WLH)" },
+    { key: "YALE SCHOOL OF MANAGEMENT", value: "YALE SCHOOL OF MANAGEMENT" },
+    { KEY: "YALE SCIENCE BUILDING", value: "YALE SCIENCE BUILDING" }
+  ];
+  
+  const [clickedLocation, setClickedLocation] = useState(null);
+  
+    const handleRowClick = (location) => {
+      setClickedLocation(location);
+    };
     
+  const [selectedOption, setSelectedOption] = useState("");
+
   
     return (
       <>
@@ -225,6 +318,39 @@ function App() {
         currIndex={currIndex} />
             <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
         </div>
+        <div className="adminTableContainer">
+        <h2 className='adminTitle'><u>Admin View</u></h2>
+        <div className='adminTable'>
+          {/* <b classname="lochead">LOCATION</b>
+          <b classname="vothead">NUMBER OF VOTES</b> */}
+          {/* <tr>
+            <td></td>
+          </tr> */}
+          <table>
+            <thead>
+              {/* <tr>
+              <td className='lochead'></td>
+              <td className='vothead'></td>
+              </tr> */}
+              <tr className="theader">
+                <td className='locationhead'><b>LOCATION</b></td>
+                <td className='voteshead'><b>NUMBER OF VOTES</b></td>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(sortedVotes).map((key) => (
+                  <tr className='data' onClick={() => handleRowClick(sortedVotes[key][0])}>
+                    <td className='location'>{sortedVotes[key][0]}</td>
+                    <td className='numberofvotes'>{sortedVotes[key][1]}</td>
+                  </tr>
+              ))}            
+            </tbody>
+          </table>
+        </div>
+        {clickedLocation && (
+          <p class='selection'>The meeting will be at <b>{clickedLocation}</b></p>
+        )}
+      </div>
       </div>
   
       {/* - - - - - - Location Select Component - - - - - - */}
@@ -242,7 +368,7 @@ function App() {
           <div className="signin-button-wrapper">
             <Link to='/timeselect'>
             <div>
-                <button onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
+                <button className='signinbutton' onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
             </div>
             </Link>
           </div>

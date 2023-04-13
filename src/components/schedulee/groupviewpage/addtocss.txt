@@ -1,0 +1,262 @@
+table {
+    /*border: 2px solid black;*/
+    /* background-color: #aaa; */
+    width: 30vw;
+    /* border-radius: 8px; */
+    /*overflow: hidden;*/
+    font-family: 'Roboto', sans-serif;
+    font-weight: 100;
+    font-size: 1.1vw;
+    border-collapse: collapse;
+  }
+  
+  @media (width < 951px) {
+    table {
+      width: 360px;
+    }
+  
+    tbody {
+      font-size: 13px;
+    }
+  
+    .locationhead {
+      font-size: 13px;
+    }
+  
+    .voteshead {
+      font-size: 13px;
+    }
+  }
+    
+  th {
+    /* border-bottom: 1px solid black; */
+    padding: 3px;
+  }
+    
+  td {
+    text-align: center;
+    padding: 9px 0px 9px 0px; /*To change spacing between rows*/
+    display: inline-block;
+    width: 49%;
+    box-sizing: border-box;
+  }
+  
+  tr, tbody {
+    display: block;
+    text-align: center;
+  }
+  
+  @media (width > 950px) {
+    tbody {
+      font-size: 90%;
+    }  
+  }
+  
+  tr.data:hover {
+    background-color: rgba(1,53,107,255);
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .locationhead {
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+  }
+  
+  .voteshead {
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+  }
+  
+  .location {
+    padding-left: 0.5vw;
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+  }
+  
+  .numberofvotes {
+    text-align: center;
+    padding-left: 1.7vw;
+    border-bottom: 1px solid lightgray;
+  }
+  
+  tbody {
+    height: 175px;
+    overflow: auto;
+  }
+  
+  .votes {
+    padding-left: 40px;
+  }
+  
+  .userTableContainer {
+    margin-right: 5%;
+  }
+  
+  .userTitle {
+    position: absolute;
+    margin-bottom: 22%;
+    margin-left: -40%;
+  }
+  
+  .adminTitle {
+    position: relative;
+    margin-bottom: 12%;
+    margin-left: 38%;
+  }
+  
+  .adminTableContainer {
+    position: absolute;
+    margin-left: 40%;
+  }
+  
+  .selection {
+    position: relative;
+    margin-top: 20%;
+    text-align: center;
+  }
+  
+  .location {
+    width: 55%;
+  }
+  
+  .locationhead {
+    width: 50.8%;
+    /* width: 47.2%; */
+  }
+  
+  @media (width < 1400px) and (width > 1275px) {
+    .locationhead {
+      width: 50.2%;
+    }
+  }
+  
+  @media (width < 1276px) and (width > 1150px) {
+    .locationhead {
+      width: 49.8%;
+    }
+  }
+  
+  @media (width < 1151px) and (width > 1050px) {
+    .locationhead {
+      width: 49.5%;
+    }
+  }
+  
+  @media (width < 1051px) and (width > 950px) {
+    .locationhead {
+      width: 48.8%;
+    }
+  }
+  
+  .voteshead {
+    width: 45%;
+  }
+  
+  .numberofvotes {
+    width: 45%;
+    padding-right: 5%;
+  }
+  
+  .dropdown-container {
+    width: 250px;
+    position: relative;
+  }
+  
+  .dropdown {
+    border: 1px solid black;
+    width: 100%;
+    border-bottom: none;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 40px;
+    display: none;
+    height: 250px;
+    overflow-y: scroll;
+  }
+  
+  .dropdown.visible {
+    display: block;
+  }
+  
+  .dropdown-container .dropdown.visible {
+    bottom: 100%;
+    top: auto;
+  }
+  
+  .option {
+    height: 36px;
+    border-bottom: 1px solid black;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    cursor: pointer;
+    background-color: white;
+  }
+  
+  .option:hover {
+    background-color: rgba(1,53,107,255);
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .input-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .dropdown-container input {
+    width: 100%;
+    padding: 0;
+    border-width: 1px;
+    height: 36px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  
+  .input-arrow-container {
+    position: absolute;
+    right: 10px;
+    top: 60%;
+    transform: translateY(-50%);
+    margin-top: -2px;
+    cursor: pointer;
+  }
+  
+  .input-arrow {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(225deg);
+    -webkit-transform: rotate(225deg);
+  }
+  
+  .input-clean-container {
+    position: absolute;
+    right: 30px;
+    top: 55%;
+    transform: translateY(-50%);
+    margin-top: -2px;
+    cursor: pointer;
+  }
+  
+  .input-clean {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 4px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+  
+  .confirmselection {
+    margin-top: 10%;
+    font-size: medium;
+  }
