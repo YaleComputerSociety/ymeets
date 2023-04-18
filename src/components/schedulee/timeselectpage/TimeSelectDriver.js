@@ -223,7 +223,7 @@ var totalVotes = [];
 //We would fill this with all the possible meeting locations
 var voteArray = {
   "17 HILLHOUSE": 0,
-  "ARTHUR K. WATSON HALL (AKW)": 0,
+  "ARTHUR K. WATSON HALL": 0,
   "BASS LIBRARY": 0,
   "BECTON CENTER": 0,
   "DOW HALL": 0,
@@ -232,8 +232,8 @@ var voteArray = {
   "HENRY R. LUCE HALL": 0,
   "HUMANITIES QUADRANGLE": 0,
   "KROON HALL": 0,
-  "LEET OLIVER MEMORIAL HALL (LOM)": 0,
-  "LINSLY-CHITTENDEN HALL (LC)": 0,
+  "LEET OLIVER MEMORIAL HALL": 0,
+  "LINSLY-CHITTENDEN HALL": 0,
   "LORIA CENTER": 0,
   "OTHER": 0,
   "ROSENKRANZ HALL": 0,
@@ -241,7 +241,7 @@ var voteArray = {
   "STERLING MEMORIAL LIBRARY": 0,
   "TSAI CENTER": 0,
   "WATSON CENTER": 0,
-  "WILLIAM L. HARKNESS HALL (WLH)": 0,
+  "WILLIAM L. HARKNESS HALL": 0,
   "YALE SCHOOL OF MANAGEMENT": 0,
   "YALE SCIENCE BUILDING": 0
 }
@@ -259,7 +259,7 @@ const sortedVotes = Object.entries(voteArray).sort((a, b) => b[1] - a[1])
 //We would fill this with all the possible meeting locations
 const options = [
   { key: "17 HILLHOUSE", value: "17 HILLHOUSE" },
-  { key: "ARTHUR K. WATSON HALL (AKW)", value: "ARTHUR K. WATSON HALL (AKW)" },
+  { key: "ARTHUR K. WATSON HALL", value: "ARTHUR K. WATSON HALL" },
   { key: "BASS LIBRARY", value: "BASS LIBRARY" },
   { key: "BECTON CENTER", value: "BECTON CENTER" },
   { key: "DOW HALL", value: "DOW HALL" },
@@ -268,8 +268,8 @@ const options = [
   { key: "HENRY R. LUCE HALL", value: "HENRY R. LUCE HALL" },
   { key: "HUMANITIES QUADRANGLE", value: "HUMANITIES QUADRANGLE" },
   { key: "KROON HALL", value: "KROON HALL" },
-  { key: "LEET OLIVER MEMORIAL HALL (LOM)", value: "LEET OLIVER MEMORIAL HALL (LOM)" },
-  { key: "LINSLY-CHITTENDEN HALL (LC)", value: "LINSLY-CHITTENDEN HALL (LC)" },
+  { key: "LEET OLIVER MEMORIAL HALL", value: "LEET OLIVER MEMORIAL HALL" },
+  { key: "LINSLY-CHITTENDEN HALL", value: "LINSLY-CHITTENDEN HALL" },
   { key: "LORIA CENTER", value: "LORIA CENTER" },
   { key: "OTHER", value: "OTHER" },
   { key: "ROSENKRANZ HALL", value: "ROSENKRANZ HALL" },
@@ -277,7 +277,7 @@ const options = [
   { key: "STERLING MEMORIAL LIBRARY", value: "STERLING MEMORIAL LIBRARY" },
   { key: "TSAI CENTER", value: "TSAI CENTER" },
   { key: "WATSON CENTER", value: "WATSON CENTER" },
-  { key: "WILLIAM L. HARKNESS HALL (WLH)", value: "WILLIAM L. HARKNESS HALL (WLH)" },
+  { key: "WILLIAM L. HARKNESS HALL", value: "WILLIAM L. HARKNESS HALL" },
   { key: "YALE SCHOOL OF MANAGEMENT", value: "YALE SCHOOL OF MANAGEMENT" },
   { KEY: "YALE SCIENCE BUILDING", value: "YALE SCIENCE BUILDING" }
 ];
