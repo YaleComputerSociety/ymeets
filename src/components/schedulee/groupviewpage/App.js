@@ -323,7 +323,7 @@ class Person {
             {/* Pull whether admin has selected a location or not and write this conditional based off of that */}
             {clickedLocation ? (
               <h2 className="adminTitle1">
-                 <b>{clickedLocation}</b> */}
+                 <b>{clickedLocation}</b>
               </h2>
             ) : (
               <h2 className="defaultmessageadmin">The administrator has not selected meeting details for this event yet.</h2>
