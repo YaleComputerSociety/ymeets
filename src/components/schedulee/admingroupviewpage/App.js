@@ -1,4 +1,4 @@
-import './groupviewpage.css';
+import './admingroupviewpage.css';
 import React, { useState } from 'react';
 import DisplayScreen from '../timeselectpage/DisplayScreen';
 import DisplayScreenCombine from '../timeselectpage/DisplayScreenCombine';
@@ -320,16 +320,16 @@ class Person {
           </div>
           <div className = 'selectoptions'>
             <h3 className='selectedmeetingtitle'>Meeting Time and Location:</h3>
-            {/* Pull whether admin has selected a location or not and write this conditional based off of that */}
             {clickedLocation ? (
               <h2 className="adminTitle1">
-                 <b>{clickedLocation}</b>
+                <b>{clickedLocation}</b>
               </h2>
             ) : (
-              <h2 className="defaultmessageadmin">The administrator has not selected meeting details for this event yet.</h2>
+              <h2 className="defaultmessageadmin">You have not selected meeting details for this event yet.</h2>
             )}
             <h2 className='personavailtable'>Person Availability Table Goes Here</h2>
-            {/* <div className="adminTableContainer1">
+            <div className="adminTableContainer1">
+              {/* <h2 className='adminTitle1'>The meeting details have not been finalized by the administrator yet</h2> */}
               <div className='adminTable'>
                 <table>
                   <thead>
@@ -348,7 +348,7 @@ class Person {
                   </tbody>
                 </table>
               </div>
-            </div> */}
+            </div>
 
           </div>
       </div>
