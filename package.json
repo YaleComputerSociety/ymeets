@@ -12,6 +12,7 @@
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
+    "@types/react-router-dom": "^5.3.3",
     "firebase": "^9.15.0",
     "react": "^18.2.0",
     "react-calendar": "^4.0.0",

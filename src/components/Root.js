@@ -6,7 +6,8 @@ import LoginPageButtons from './loginpage/index.tsx';
 import DaySelectComponent from './daySelect/day_select_component/index.tsx';
 import TimeSelectComponent from './schedulee/timeselectpage/TimeSelectDriver.js';
 import EnterCodeComp from './entercodepage/index.tsx';
-import GroupViewComp from './schedulee/groupviewpage/App.js'
+import GroupViewComp from './schedulee/groupviewpage/App.js';
+import randomURL from './randomization/randomURL.tsx';
 
 function Root() {
     return (
@@ -18,7 +19,7 @@ function Root() {
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect' element={<TimeSelectComponent />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
-
+                <Route path='/testbutton' element={<randomURL />} />
             </Routes>
         </Router>
     )
