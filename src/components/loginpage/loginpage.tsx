@@ -32,15 +32,15 @@ export const LoginPageButtons = () => {
                 </div>
                 <div className='buttonslog'>
                     <div className='googlesigninwrapper'>
-                            <button onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
+                            <button className='standbutton' onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
                     </div>
                     <div className='nologinwrapper'>
-                            <button onClick={() => {handleSignInAnonymous()}}>Continue Without Login</button>
+                            <button className='standbutton' onClick={() => {handleSignInAnonymous()}}>Continue Without Login</button>
                     </div>
                 </div>
             </div>
             <div className='graphic'>
-                <img src={graphic}></img>
+                <img src={graphic} className='graphicpic'></img>
             </div>
         </div>
     );

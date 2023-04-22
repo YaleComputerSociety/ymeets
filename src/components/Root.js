@@ -9,7 +9,7 @@ import TimeSelectComponent from './schedulee/timeselectpage/TimeSelectDriver.js'
 import EnterCodeComp from './entercodepage/index.tsx';
 import AdminGroupViewComp from './schedulee/admingroupviewpage/App.js'
 import GroupViewComp from './schedulee/groupviewpage/App.js'
-import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
+// import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
 
 // TODO require auth on some pages
 
@@ -30,7 +30,7 @@ function Root() {
                 <Route path='/timeselect/:code' element={<TimeSelectComponent />} />
                 <Route path='/adminview' element={<AdminGroupViewComp />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
-                <Route path='/shareinvitebutton' element={<ShareInviteButton ending="obama"/>} />
+                {/* <Route path='/shareinvitebutton' element={<ShareInviteButton ending="obama"/>} /> */}
             </Routes>
         </Router>
         </>
