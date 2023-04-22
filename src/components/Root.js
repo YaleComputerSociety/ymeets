@@ -8,6 +8,7 @@ import TimeSelectComponent from './schedulee/timeselectpage/TimeSelectDriver.js'
 import EnterCodeComp from './entercodepage/index.tsx';
 import AdminGroupViewComp from './schedulee/admingroupviewpage/App.js'
 import GroupViewComp from './schedulee/groupviewpage/App.js'
+import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
 
 
 function Root() {
@@ -21,6 +22,7 @@ function Root() {
                 <Route path='/timeselect' element={<TimeSelectComponent />} />
                 <Route path='/adminview' element={<AdminGroupViewComp />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
+                <Route path='/shareinvitebutton' element={<ShareInviteButton ending="obama"/>} />
             </Routes>
         </Router>
     )
