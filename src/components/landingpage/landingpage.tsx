@@ -18,6 +18,9 @@ export const LandingPageButtons = () => {
                     <button onClick={() => {console.log("Hilogin")}}>Use Event Code</button>
                 </Link>
             </div>
+            <div className='graphic'>
+                <img src='calendargraphic.png'></img>
+            </div>
         </div>
     );
 }

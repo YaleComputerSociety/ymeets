@@ -5,10 +5,19 @@
     font-family: 'Roboto', sans-serif;
 }
 
+.buttonslog {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin-top: 10%;
+}
+
 .googlesigninwrapper {
     margin-top: 5%;
     text-align: center;
     height: 30px;
+    margin-left: 0px;
+    margin-right: 15px;
 }
 
 .googlesigninwrapper button {
@@ -16,16 +25,18 @@
     color: white;
     border: none;
     border-radius: 10px;
-    width: 22vw;
-    height: 4vw;
+    width: 14vw;
+    height: 3vw;
     cursor: pointer;
-    font-size: 1.3vw;
+    font-size: 1.1vw;
 }
 
 .nologinwrapper {
     margin-top: 5%;
     text-align: center;
     height: 30px;
+    margin-left: 15px;
+    margin-right: 5px;
 }
 
 .nologinwrapper button {
@@ -33,8 +44,43 @@
     color: white;
     border: none;
     border-radius: 10px;
-    width: 22vw;
-    height: 4vw;
+    width: 14vw;
+    height: 3vw;
     cursor: pointer;
-    font-size: 1.3vw;
+    font-size: 1.1vw;
+}
+
+.homepage {
+    background-image: url('landingbackground.jpg');
+    height: 100vh;
+    /* width: 100%; */
+    /* margin-top: -1.3%; */
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+}
+
+.aboutinfo {
+    margin-left: 20%;
+    /* margin-right: 45%; */
+    width: 100%;
+}
+
+.slogan {
+    /* margin-top: 15%; */
+    margin-right: 15%;
+}
+
+.slogantext {
+    margin-right: 15%;
+    margin-top: 35%;
+}
+
+.moreinfo {
+    line-height: 130%;
+    color: rgb(70, 70, 70);
+}
+
+.graphic {
+    width: 100%;
 }

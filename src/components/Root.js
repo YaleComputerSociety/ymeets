@@ -1,5 +1,6 @@
 // where the Routing thing goes.
-//import './Root.css';
+import './Root.css';
+import logo from './ymeetslogo.png';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import LandingPageButtons from './landingpage/index.tsx';
 import LoginPageButtons from './loginpage/index.tsx';
@@ -13,6 +14,12 @@ import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
 
 function Root() {
     return (
+        <>
+        <header>
+            <div class="header-logo">
+                <img src={logo} alt="YMeets"></img>
+            </div>
+        </header>
         <Router>
             <Routes>
                 <Route path='/' element={<LoginPageButtons />} />
@@ -25,6 +32,7 @@ function Root() {
                 <Route path='/shareinvitebutton' element={<ShareInviteButton ending="obama"/>} />
             </Routes>
         </Router>
+        </>
     )
 }
 
