@@ -117,7 +117,7 @@ export const CalanderComponent = () => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
-          <button onClick={() => {
+          <button className='nextbuttondaysel' onClick={() => {
                 if (startTime >= endTime) {
                     alert('Make sure your end time is after your start time!');
                     return;

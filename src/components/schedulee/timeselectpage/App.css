@@ -484,6 +484,7 @@ tbody {
 
 .dropdown.visible {
   display: block;
+  background-color: white;
 }
 
 .dropdown-container .dropdown.visible {

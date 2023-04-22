@@ -162,6 +162,18 @@ abbr {
     cursor: pointer;
     font-size: 100%;
     position: fixed;
-    bottom: 7.6vh;
+    bottom: 5vh;
     right: 10.2vw;
+}
+
+.nextbuttondaysel {
+    box-shadow: 2px 4px 3px 0px rgba(0, 0, 0, 0.4);
+}
+
+.nextbuttondaysel:hover {
+    /* transform: translateY(5px);
+    transform: translateX(3px); */
+    transform: translate3d(1.5px, 3px, 0px);
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+    /* transform: translateX(4px); */
 }

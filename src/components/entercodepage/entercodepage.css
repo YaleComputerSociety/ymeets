@@ -4,7 +4,7 @@
 } */
 
 .eventtitle {
-    margin-top: 11%;
+    margin-top: 20%;
     font-size: 3vw;
     text-align: center;
     font-family: 'Roboto', sans-serif;
@@ -34,7 +34,7 @@
     text-align: center;
     border: 2px solid #ccc;
     outline: none;
-    margin-bottom: 5%;
+    margin-bottom: 10%;
     border-radius: 40px;
 }
 
@@ -42,6 +42,7 @@
     /* margin-top: 17%; */
     text-align: center;
     height: 30px;
+    margin-top: 10%;
 }
 
 .eventcontwrapper button {
@@ -71,3 +72,12 @@
 .next-button:hover {
     background-color: #0056b3;
 } */
+
+.eventcodeback {
+    background-image: url('../landingbackground.jpg');
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+}

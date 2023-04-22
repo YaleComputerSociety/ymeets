@@ -33,19 +33,21 @@ export const EnterCodeComp = () => {
     }
 
     return (
-        <div className="container1">
-            <h1 className="eventtitle">Enter Event Code</h1>
-            <input
-                id="eventCodeInput"
-                className="event-code-input"
-                type="text"
-                placeholder="e.g. DFMPRH"
-                value={input}
-                onChange={handleInputChange}
-            ></input>
-            {error && <p className="error-msg">{error}</p>}
-            <div className='eventcontwrapper'>
-                <button onClick={handleButtonClick}>Join</button>
+        <div className='eventcodeback'>
+            <div className="container1">
+                <h1 className="eventtitle">Enter Event Code</h1>
+                <input
+                    id="eventCodeInput"
+                    className="event-code-input"
+                    type="text"
+                    placeholder="e.g. DFMPRH"
+                    value={input}
+                    onChange={handleInputChange}
+                ></input>
+                {error && <p className="error-msg">{error}</p>}
+                <div className='eventcontwrapper'>
+                    <button className='standbutton' onClick={handleButtonClick}>Join</button>
+                </div>
             </div>
         </div>
     );

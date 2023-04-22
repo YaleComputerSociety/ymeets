@@ -28,7 +28,7 @@ export const LoginPageButtons = () => {
             <div className='aboutinfo'>
                 <div className='slogan'>
                     <h1 className='slogantext'><b>Group meetings made easy.</b></h1>
-                    <h3 className='moreinfo'>Find the optimal meeting time and location with ease with YMeets!</h3>
+                    <h3 className='moreinfo'>Find the optimal meeting time and location with ease with ymeets!</h3>
                 </div>
                 <div className='buttonslog'>
                     <div className='googlesigninwrapper'>
