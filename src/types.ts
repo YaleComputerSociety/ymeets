@@ -9,7 +9,7 @@ export interface UnsavedEvent {
 }
 
 // once event is created, everything should be done with this type (it has an id)
-export interface Event extends UnsavedEvent {
+export interface Event extends UnsavedEvent { // Firebase ID is EventID
     publicId: EventId,
     participants: Participant[],
 }
@@ -17,9 +17,10 @@ export interface Event extends UnsavedEvent {
 export interface EventDetails {
     name: string,
     dates: YearMonthDayTuple[],
-    startTime: number, // minutes; min: 0, max 24*60 = 1440
-    endTime: number, // minutes; min: 0, max 24*60 = 1440
+    startTimes: number[], // minutes; min: 0, max 24*60 = 1440
+    endTimes: number[], // minutes; min: 0, max 24*60 = 1440
     location: Location,
+    chosenTime?: Date,
 }
 
 export interface Participant {
@@ -29,3 +30,11 @@ export interface Participant {
     location?: Location,
     accountId?: string,
 }
+
+export interface Account { // Firebase ID is accountId
+    accountId: string,
+    eventIds: EventId[]
+}
+
+// additional user fields
+// - km or miles

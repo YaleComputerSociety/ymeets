@@ -11,6 +11,7 @@ import AdminGroupViewComp from './schedulee/admingroupviewpage/App.js'
 import GroupViewComp from './schedulee/groupviewpage/App.js'
 import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
 
+// TODO require auth on some pages
 
 function Root() {
     return (
@@ -26,7 +27,7 @@ function Root() {
                 <Route path='/landingpage' element={<LandingPageButtons />} />
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
-                <Route path='/timeselect' element={<TimeSelectComponent />} />
+                <Route path='/timeselect/:code' element={<TimeSelectComponent />} />
                 <Route path='/adminview' element={<AdminGroupViewComp />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
                 <Route path='/shareinvitebutton' element={<ShareInviteButton ending="obama"/>} />

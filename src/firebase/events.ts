@@ -1,4 +1,4 @@
-import { addDoc, doc, collection, DocumentReference, getDoc } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc } from 'firebase/firestore';
 import { UnsavedEvent, Event, EventId, Participant } from '../types';
 import { db } from './firebase';
 
@@ -15,19 +15,19 @@ const generateUniqueId = (): string => {
     return id;
 }
 
-async function getEventById(id: EventId): Promise<Event | null> { // TODO add return statements
+async function getEventById(id: EventId): Promise<Event> { // TODO add return statements
     const eventsRef = collection(db, "events")
-    return new Promise(() => {
-        getDoc(doc(eventsRef, id)).then((result) => {         
+    return new Promise((resolve, reject) => {
+        getDoc(doc(eventsRef, id)).then((result) => {  
             if (result) {
-                console.log(result);
-                return result;
+                // @ts-ignore
+                resolve(result.data());
             } else {
-                return null;
+                reject();
             }
         }).catch((err) => {
-            console.log(err.msg);
-            return null;
+            console.log("Catch " + err + " with message " + err.msg);
+                reject();
         });
     });
 }
@@ -36,19 +36,24 @@ async function getEventById(id: EventId): Promise<Event | null> { // TODO add re
 async function createEvent(event: UnsavedEvent): Promise<Event | null> {
     const id = generateUniqueId();
     const newEvent: Event = {
-        ...event,
+        details: {
+            ...event.details,
+            // @ts-ignore
+            dates: dateToObject(event.details.dates)
+        },
         publicId: id,
         participants: [],
     };
 
-    return new Promise(() => {
-        addDoc(collection(db, "events"), newEvent)
-            .then((result: DocumentReference) => {
-                return result;
+    return new Promise((resolve, reject) => {
+        const eventsRef = collection(db, "events")
+        setDoc(doc(eventsRef, id), newEvent) // addDoc as overwrite-safe alt
+            .then((result: void) => {
+                resolve(newEvent);
 
             }).catch((err) => {
                 console.log(err.msg);
-                return null;
+                reject(err);
 
         });
     });
@@ -83,4 +88,28 @@ export {
     updateEventWithParticipant,
     getAvailablityForParticipant,
     getAvailablity
+}
+
+function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
+    const dateObject: {[key: number]: number[]} = {};
+    dateArray.forEach((date: number[], index: number) => {
+      dateObject[index + 1] = date;
+    });
+    return dateObject;
+  }
+
+function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
+    const result: Array<[number, number, number]> = [];  
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+        result.push(obj[key]);
+        }
+    }
+    return result;
+}
+
+function eventToArray(data: any): Event | null {
+    if (!data) return null;
+    data.details.dates = dateToArray(data.details.dates);
+    return data;
 }

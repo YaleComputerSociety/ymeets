@@ -4,16 +4,17 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 import { useState } from "react";
-import { createEvent } from "../../../firebase/events";
+import { createEvent, getEventById } from "../../../firebase/events";
 
 
 export const CalanderComponent = () => {
   const arr1: any[] = [];
   const [selectedDays, updateDays] = useState(arr1);
+  const navigate = useNavigate();
 
   const addDay = (date: any) => {
     const arr = [
@@ -116,7 +117,6 @@ export const CalanderComponent = () => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
-        <Link to='/timeselect'>
           <button onClick={() => {
                 if (startTime >= endTime) {
                     alert('Make sure your end time is after your start time!');
@@ -133,18 +133,18 @@ export const CalanderComponent = () => {
                     details: {
                     name: eventName,
                     dates: selectedDays,
-                    startTime: startTime,
-                    endTime: endTime,
+                    startTimes: new Array(selectedDays.length).fill(endTime),
+                    endTimes: new Array(selectedDays.length).fill(endTime),
                     location: "",
-                }})
-
-                console.log(selectedDays); 
-                console.log(startTime); 
-                console.log(endTime); 
-                console.log(eventName);
+                }}).then((result) => {
+                  if (result && result.publicId) {
+                    navigate('/timeselect/' + result.publicId);
+                  } else {
+                    alert("Something went wrong!");
+                  }
+                })
                                 
             }}>Next</button>
-        </Link>
       </div>
     </div>
   );

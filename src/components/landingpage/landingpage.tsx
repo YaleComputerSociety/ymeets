@@ -10,12 +10,12 @@ export const LandingPageButtons = () => {
         <div>
             <div className='createneweventwrapper'>
                 <Link to='/dayselect'>
-                    <button onClick={() => {console.log("Hilogin")}}>Create New Event</button>
+                    <button>Create New Event</button>
                 </Link>
             </div>
             <div className='eventcodewrapper'>
                 <Link to='/eventcode'>
-                    <button onClick={() => {console.log("Hilogin")}}>Use Event Code</button>
+                    <button>Use Event Code</button>
                 </Link>
             </div>
             <div className='graphic'>

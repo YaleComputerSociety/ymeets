@@ -2,17 +2,23 @@ import * as React from "react";
 import graphic from './calendargraphic.png';
 import './loginpage.css';
 
-import { Link } from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
-
+import { signInAnonymously } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
 
     const handleSignInWithGoogle = () => {
         signInWithGoogle().then(() => {
-            navigate('./landingpage')
+            navigate('./landingpage');
+        });
+    }
+
+    const handleSignInAnonymous = () => {
+        signInAnonymously(auth).then(() => {
+            navigate('./landingpage');
         });
     }
 
@@ -29,9 +35,7 @@ export const LoginPageButtons = () => {
                             <button onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
                     </div>
                     <div className='nologinwrapper'>
-                        <Link to='./landingpage'>
-                            <button onClick={() => {console.log("Hi login")}}>Continue Without Login</button>
-                        </Link>
+                            <button onClick={() => {handleSignInAnonymous()}}>Continue Without Login</button>
                     </div>
                 </div>
             </div>
@@ -41,3 +45,4 @@ export const LoginPageButtons = () => {
         </div>
     );
 }
+

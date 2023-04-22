@@ -1,9 +1,11 @@
 // import * as React from "react";
 import './entercodepage.css';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { getEventById } from '../../firebase/events';
 
 export const EnterCodeComp = () => {
+    const navigate = useNavigate();
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
 
@@ -17,7 +19,16 @@ export const EnterCodeComp = () => {
             alert('Please enter a valid code.');
         } else {
             setError('');
-            // Proceed with the code check logic using the 'input' value
+            getEventById(input).then((result) => {
+                if (result) {
+                    // @ts-ignore
+                    navigate('/timeselect', { code: input });
+                } else {
+                    alert('Please enter a valid code.');
+                }
+            }).catch(() => {
+                alert('Please enter a valid code.');
+            });
         }
     }
 
@@ -34,9 +45,7 @@ export const EnterCodeComp = () => {
             ></input>
             {error && <p className="error-msg">{error}</p>}
             <div className='eventcontwrapper'>
-                <Link to='/timeselect'>
-                    <button onClick={handleButtonClick}>Join</button>
-                </Link>
+                <button onClick={handleButtonClick}>Join</button>
             </div>
         </div>
     );

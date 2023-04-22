@@ -1,17 +1,15 @@
 
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DisplayScreen from './DisplayScreen';
 import DisplayScreenCombine from './DisplayScreenCombine';
 import SelectComponent from "./SelectComponent";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 // import DisplayScreenAdmin from '../DisplayScreenAdmin'; split
+import { getEventById } from '../../../firebase/events';
 
 
-function App() {
-  //Index of the current contigious chunk being displayed
-  const[currIndex, setCurrentIndex] = useState(0)
-  
+
   //-------------------------------------------------------------------------------------------------------------------------------------------
   //Hardcoded availability 3d array: List of 2d arrays, each 2d array representing one contigious chunk of time. 
   //The first array is 3x44, the second is 3x8. There are 3 of these 3D arrays for each hardcoded participant
@@ -87,7 +85,36 @@ function App() {
         }  
   }
   //-------------------------------------------------------------------------------------------------------------------------------------------
+  
 
+function App() {
+  //Index of the current contigious chunk being displayed
+  const[currIndex, setCurrentIndex] = useState(0);
+  const[loaded, setLoaded] = useState();
+  const navigate = useNavigate();
+  let event1;
+
+  const { code: eventCode } = useParams();
+  useEffect(() => {
+    if (eventCode && eventCode.length == 6) {
+      getEventById("ABC123").then((result) => {
+        if (result) {
+          event1 = result;
+          console.log("Success!");
+
+          // console.log(event);
+          // console.log(event1);
+        } else {
+          navigate('/eventcode');
+        }
+      }).catch((err) => {
+        console.log(err);
+        navigate('/eventcode');
+      });
+    } else {
+      navigate('/eventcode');
+    }
+  }, []);
 
   //Turning availability 3D arrays to states for dynamic updating
   const [array3D] = useState(listOfArrays)
@@ -104,6 +131,7 @@ function App() {
     details: {startDate: [10, 14], endDate: [17, 16], startTime: [60, 0], endTime: [720, 120], location: "location"}, 
     participants: [{availability: array3D, name: "Eric"}, {availability: array3D2, name: "Tam"}, {availability: array3D3, name: "Burt"}]
   }
+
 
   //Array of Participant availabilities, this is a 4D array (list of 3D arrays)
   const arrayOfAvailabilities = []
@@ -303,7 +331,7 @@ const [selectedOption, setSelectedOption] = useState("");
       endTime={passingInEndTime} availability={passingInAvailability} 
       setArray3D={setCurrParticipantAvailability} currIndex={currIndex} 
       />
-      <button className = "next button" onClick={() => {console.log(startDate); if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
+      <button className = "next button" onClick={() => {if(currIndex !== arrayOfAvailabilities.length - 2) {setCurrentIndex(currIndex + 1)}}}>{">"}</button>
       </div>
         
       {/* <div className='combine' style={{marginTop: "20rem"}}> */}
