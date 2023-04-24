@@ -118,6 +118,19 @@ export const CalanderComponent = () => {
       />
       <div className="next-button-wrapper">
           <button className='nextbuttondaysel' onClick={() => {
+                console.log("Hi");  
+                console.log(startTime);
+                console.log(endTime);
+                if (selectedDays.length == 0) {
+                  alert('Make sure to enter dates!');
+                  return;
+                }
+
+                if (startTime == 0 && endTime == 0) {
+                  alert('Make sure to enter times!');
+                  return;
+                }
+
                 if (startTime >= endTime) {
                     alert('Make sure your end time is after your start time!');
                     return;
@@ -128,6 +141,8 @@ export const CalanderComponent = () => {
                     alert('Make sure to name your event!');
                     return;
                 }
+
+
 
                 createEvent({
                     details: {

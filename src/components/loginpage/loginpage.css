@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     justify-content: left;
-    margin-top: 10%;
+    margin-top: 2%;
 }
 
 .googlesigninwrapper {
@@ -66,16 +66,48 @@
 
 .slogan {
     /* margin-top: 15%; */
-    margin-right: 15%;
+    margin-right: 2%;
 }
 
 .slogantext {
-    margin-right: 15%;
-    margin-top: 35%;
+    margin-right: 14%;
+    margin-top: 25%;
+    /* overflow: hidden; */
+    /* border-right: .15em solid orange; */
+    /* white-space: nowrap; */
+    font-size: 230%;
+    /* width: 0; */
+    /* animation: typing 3s steps(20, end) forwards; */
+}
+
+/* .input-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 42px;
+    background-color: black;
+    margin-left: 8px;
+} */
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }
 
 .moreinfo {
     line-height: 130%;
+    color: rgb(70, 70, 70);
+    margin-right: 15%;
+}
+
+.moreinfolistintro {
+    margin-top: 30px;
+    color: rgb(70, 70, 70);
+    margin-right: 15%;
+    margin-bottom: 10px;
+}
+
+.moreinfolist {
+    line-height: 200%;
     color: rgb(70, 70, 70);
 }
 

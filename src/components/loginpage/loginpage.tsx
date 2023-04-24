@@ -29,13 +29,17 @@ export const LoginPageButtons = () => {
                 <div className='slogan'>
                     <h1 className='slogantext'><b>Group meetings made easy.</b></h1>
                     <h3 className='moreinfo'>Find the optimal meeting time and location with ease with ymeets!</h3>
+                    <h3 className='moreinfolistintro'>Now featuring:</h3>
+                    <li className='moreinfolist'>Aggregated availabilities and location preferences for your group</li>
+                    <li className='moreinfolist'>Yale-specific location preference options</li>
+                    <li className='moreinfolist'>Integrated key academic dates and holidays on the calendar</li>
                 </div>
                 <div className='buttonslog'>
                     <div className='googlesigninwrapper'>
-                            <button className='standbutton' onClick={() => {handleSignInWithGoogle()}}>Sign in with Google</button>
+                            <button className='standbutton' onClick={() => {handleSignInWithGoogle()}}>Sign In with Google</button>
                     </div>
                     <div className='nologinwrapper'>
-                            <button className='standbutton' onClick={() => {handleSignInAnonymous()}}>Continue Without Login</button>
+                            <button className='standbutton' onClick={() => {handleSignInAnonymous()}}>Continue without Login</button>
                     </div>
                 </div>
             </div>
