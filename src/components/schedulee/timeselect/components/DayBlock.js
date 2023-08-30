@@ -25,11 +25,15 @@ export default function DayBlock(props) {
     }, [dayColumnDockState])
 
     const handleDragStart = (event) => {
-        var img = new Image();
-        img.src = '../testimage.jpg';
-        event.dataTransfer.setDragImage(img, 0, 0);
-    };
-
+        const crt = event.target.cloneNode(true);
+        crt.style.backgroundColor = "red";
+        crt.style.position = "absolute";
+        crt.style.left = "-9999px"; 
+        crt.style.opacity = "0"
+        document.body.appendChild(crt);
+        event.dataTransfer.setDragImage(crt, 0, 0);
+      };
+      
     const handleDragEnter = () => {
         if (dayColumnDockState[columnID][blockID] === true) {
             setBgColor("white");
