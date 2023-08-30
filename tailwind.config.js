@@ -12,11 +12,11 @@ module.exports = {
   },
   safelist: [
     {
-      pattern: /grid-cols-.|bg-.|border-.*/, // This regex pattern includes grid-cols-*, bg-*, and border-* classes
+      pattern: /grid-cols-.|bg-.|border-.*/,
     }
   ],
   fontFamily: {
-    roboto: ['Roboto', 'sans-serif'], // 'Roboto' is the font name
+    roboto: ['Roboto', 'sans-serif'],
   },
   plugins: [],
 }
