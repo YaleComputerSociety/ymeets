@@ -13,7 +13,7 @@
   display: flex;
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 6%;
+  margin-top: 2%;
   margin-bottom: 6%;
   /* display: inline-block; */
 }
@@ -576,6 +576,7 @@ tbody {
   height: 60px;
   margin-top: 0%;
   margin-left: 60%;
+  margin-right: 5%; 
 }
 
 .next-button-wrapper1 button {

@@ -1,8 +1,8 @@
 import './groupviewpage.css';
 import React, { useState } from 'react';
-import DisplayScreen from '../timeselectpage/DisplayScreen';
-import DisplayScreenCombine from '../timeselectpage/DisplayScreenCombine';
-import SelectComponent from "../timeselectpage/SelectComponent";
+// import DisplayScreen from '../timeselect/DisplayScreen';
+// import DisplayScreenCombine from '../timeselect/DisplayScreenCombine';
+// import SelectComponent from "../timeselect/SelectComponent";
 import DisplayScreenAdmin from './DisplayScreenAdmin';
 import { Link } from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
