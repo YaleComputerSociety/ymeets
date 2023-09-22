@@ -2,7 +2,7 @@ import React from "react";
 import DayBlock from "./DayBlock";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks.js";
 
-export default function DayColumn(props) {
+export default function DayColumn(props: any) {
   const startTime = props.startTime;
   const endTime = props.endTime;
   const columnID = props.columnID

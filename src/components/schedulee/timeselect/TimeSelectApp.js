@@ -1,15 +1,11 @@
-import './App.css';
-import AvailCal from "./components/AvailCal"
-import GroupAvailCal from "./components/GroupAvailCal"
+import AvailCal from "../../scheduleComponents/components/AvailCal"
+import GroupAvailCal from "../../scheduleComponents/components/GroupAvailCal"
 import { useState, useEffect } from "react"
-import { generateTimeBlocks } from "./utils/generateTimeBlocks"
-import { getDatesFromRange } from "./utils/getDatesFromRange"
-import { getDateWithDay } from "./utils/getDateWithDay"
-import SelectComponent from "./SelectComponent";
+import { generateTimeBlocks } from "../../scheduleComponents/utils/generateTimeBlocks"
+import { getDatesFromRange } from "../../scheduleComponents/utils/getDatesFromRange"
+import { getDateWithDay } from "../../scheduleComponents/utils/getDateWithDay"
+import SelectComponent from "../../../deprecated/SelectComponent";
 import { Link, useNavigate, useParams } from 'react-router-dom';
-
-//import "semantic-ui-css/semantic.min.css";
-
 
 function App() {
 
@@ -74,8 +70,7 @@ function App() {
         Jiakang,
         Lailah
     ]
-    
-    var totalVotes = [];
+
     //We would fill this with all the possible meeting locations
     var voteArray = {
         "17 HILLHOUSE": 0,
@@ -159,7 +154,7 @@ function App() {
                 <div className="grid col-span-1"> 
 
                 <GroupAvailCal 
-                    calendarState={ [calendarState, setCalendarState]}
+                    calendarState={[calendarState, setCalendarState]}
                     calendarFramework={[calendarFramework, setCalendarFramework]}
                 />
                 </div>

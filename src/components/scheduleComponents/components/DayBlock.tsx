@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-export default function DayBlock(props) {
+export default function DayBlock(props: any) {
 
     
     const blockID = props.blockID;
@@ -24,7 +24,7 @@ export default function DayBlock(props) {
 
     }, [dayColumnDockState])
 
-    const handleDragStart = (event) => {
+    const handleDragStart = (event: any) => {
         const crt = event.target.cloneNode(true);
         crt.style.backgroundColor = "red";
         crt.style.position = "absolute";
@@ -57,7 +57,7 @@ export default function DayBlock(props) {
             onDragStart={handleDragStart}
             onDragEnter={handleDragEnter}
             className={`h-15 bg-${bgColor}`}
-            style={{ userDrag: "none" }} // Disable drag animation
+            // style={{ userDrag: "none" }} // Disable drag animation
         >
             
             <div

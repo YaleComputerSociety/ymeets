@@ -1,12 +1,12 @@
 import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 
-export default function TimeColumn(props) {
+export default function TimeColumn(props: any) {
 
     const {startTime, endTime} = props;
 
     let blocks = generateTimeBlocks(startTime, endTime);
 
-    let military_to_normal = {
+    let military_to_normal: Record<string, string> = {
         "00:00": "12AM",
         "01:00": "1AM",
         "02:00": "2AM",

@@ -1,7 +1,7 @@
 import SelectCalander from "./SelectCalendar";
 import TimeColumn from "./TimeColumn"
 
-export default function AvailCal(props) {
+export default function AvailCal(props: any) {
 
     const [calendarFramework, setCalendarFramework] = props.calendarFramework;
     const [calendarState, setCalendarState] = props.calendarState;
