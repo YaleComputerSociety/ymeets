@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
+import "tailwindcss/tailwind.css";
 
 export default function DayBlock(props: any) {
 
-    
-    const blockID = props.blockID;
-    const columnID = props.columnID
+    const blockID = props.blockID; // x
+    const columnID = props.columnID // y
+
 
     const [bgColor, setBgColor] = useState("white");
-    // const [isActivated, setIsActivated] = useState(false);
     const [dayColumnDockState, setDayColumnDockState] = props.columnData;
-
-    // refactor with useEffect o be more redeable?
 
     useEffect(() => {
 
-        if (dayColumnDockState[columnID][blockID] === true) {
+        if (dayColumnDockState[columnID][blockID] === 1) {
             setBgColor("sky-100");
-        } else if (dayColumnDockState[columnID][blockID] === false) {
+        } else if (dayColumnDockState[columnID][blockID] === 0) {
             setBgColor("white");
         } else {
             setBgColor("white");
@@ -25,48 +23,58 @@ export default function DayBlock(props: any) {
     }, [dayColumnDockState])
 
     const handleDragStart = (event: any) => {
-        const crt = event.target.cloneNode(true);
-        crt.style.backgroundColor = "red";
-        crt.style.position = "absolute";
-        crt.style.left = "-9999px"; 
-        crt.style.opacity = "0"
-        document.body.appendChild(crt);
-        event.dataTransfer.setDragImage(crt, 0, 0);
+
+        if (props.draggable === true) {
+
+            const crt = event.target.cloneNode(true);
+            crt.style.position = "absolute";
+            crt.style.left = "-9999px"; 
+            crt.style.opacity = "0"
+            document.body.appendChild(crt);
+            event.dataTransfer.setDragImage(crt, 0, 0);
+        }
       };
       
     const handleDragEnter = () => {
-        if (dayColumnDockState[columnID][blockID] === true) {
-            setBgColor("white");
-            let oldData = {...dayColumnDockState};
-            oldData[columnID][blockID] = false;
-            setDayColumnDockState(oldData);
-        } else {
-            let oldData = {...dayColumnDockState};
-            console.log(oldData);
-            oldData[columnID][blockID] = true;
-            setDayColumnDockState(oldData);
-            setBgColor("sky-100")
+
+        if (props.draggable === true) {
+            if (dayColumnDockState[columnID][blockID] === 1) {
+                setBgColor("white");
+                let oldData = {...dayColumnDockState};
+                oldData[columnID][blockID] = 0;
+                setDayColumnDockState(oldData);
+            } else {
+                let oldData = {...dayColumnDockState};
+                console.log(oldData);
+                oldData[columnID][blockID] = 1;
+                setDayColumnDockState(oldData);
+                setBgColor("sky-100")
+            }
         }
 
         console.log(dayColumnDockState);
     };
 
     return (
-        <div
-            onClick={handleDragEnter}
-            onDragStart={handleDragStart}
-            onDragEnter={handleDragEnter}
-            className={`h-15 bg-${bgColor}`}
-            // style={{ userDrag: "none" }} // Disable drag animation
-        >
+    
+            // <div className="border border-black h-10">
+
+
+            // </div>
             
             <div
+                onClick={handleDragEnter}
+                onDragStart={handleDragStart}
+                onDragEnter={handleDragEnter}
                 className={` \
-                    m-1 mt-0 mb-0 ml-0 mr-0 h-10 border border-solid border-D0CFCF min-h-10 \
-                    col-span-2
-                `}
+                bg-${bgColor} \
+                m-1 mt-0 mb-0 ml-0 mr-0 min-h-[10px] h-10 \
+                col-span-2 border border-[#787878] \
+                `
+                }
                 draggable="true" // This attribute makes the div draggable
-            ></div>
-        </div>
+            >
+
+            </div>
     );
 }

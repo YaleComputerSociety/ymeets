@@ -6,6 +6,8 @@ export default function TimeColumn(props: any) {
 
     let blocks = generateTimeBlocks(startTime, endTime);
 
+    console.log("blocks " + blocks);
+
     let military_to_normal: Record<string, string> = {
         "00:00": "12AM",
         "01:00": "1AM",
@@ -37,8 +39,10 @@ export default function TimeColumn(props: any) {
     return (
         <div className="mr-1 ml-1">
         <div className="h-24 lg:h-24 md:h-24 xs:h-24 sm:h-20"></div>
-            {
+            {  
+            
                 blocks.map((block) => {
+                    
                     return (
                         <div>
                             <p className="text-xs text-[#787878] font-roboto">{block in military_to_normal ? military_to_normal[block] : "-"}</p>
