@@ -148,6 +148,7 @@ export const CalanderComponent = () => {
                     details: {
                     name: eventName,
                     dates: selectedDays,
+                    // @ts-ignore
                     startTimes: new Array(selectedDays.length).fill(endTime),
                     endTimes: new Array(selectedDays.length).fill(endTime),
                     location: "",

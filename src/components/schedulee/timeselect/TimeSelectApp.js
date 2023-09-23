@@ -1,13 +1,11 @@
 import AvailCal from '../AvailCal';
+// import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
 import { generateTimeBlocks } from '../../scheduleComponents/utils/generateTimeBlocks';
 import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRange';
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 
-//import "semantic-ui-css/semantic.min.css";
-
-
-function App() {
+function TimeSelectApp() {
 
     const [calendarState, setCalendarState] = useState({});
 
@@ -54,15 +52,15 @@ function App() {
 
             <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
                 <div className="grid col-start-2 col-span-1"> 
-                <AvailCal 
-                    calendarState={[calendarState, setCalendarState]}
-                    calendarFramework={[calendarFramework, setCalendarFramework] }
-                />
+                    <AvailCal 
+                        calendarState={[calendarState, setCalendarState]}
+                        calendarFramework={[calendarFramework, setCalendarFramework] }
+                        draggable={true}
+                    />
                 </div>
-
             </div>
         </div>
     )
 }
 
-export default App;
+export default TimeSelectApp;
