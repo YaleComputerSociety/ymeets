@@ -20,6 +20,7 @@ export const EnterCodeComp = () => {
         } else {
             setError('');
             getEventById(input).then((result) => {
+                // @ts-ignore
                 if (result) {
                     // @ts-ignore
                     navigate('/timeselect', { code: input });

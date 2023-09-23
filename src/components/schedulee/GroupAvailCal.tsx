@@ -12,22 +12,14 @@ export default function GroupAvailCal(props: any) {
 
     let numberOfBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length;
 
-    const handleColumnDataUpdate = (colIndex: any) => {
-        setCalendarState((prevDayColumnDockState: any) => ({
-        ...prevDayColumnDockState,
-        [colIndex]: Array.from({ length: numberOfBlocks }, (_, index) => undefined),
-        }));
-    };
-
     useEffect(() => {
         let dates = [];
         // let curColIndex = 0;
-        
+
         for (let i = 0; i < calendarFramework.theInputtedDates.length; i++) {
             let newDateWithDay = getDateWithDay(calendarFramework.theInputtedDates[i]);
-        
             dates.push(newDateWithDay);
-        }
+        }    
         
         let oldFramework = {...calendarFramework};
         oldFramework.numberOfColumns = dates.length;
