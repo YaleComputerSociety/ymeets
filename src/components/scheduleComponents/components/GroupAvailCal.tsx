@@ -1,7 +1,7 @@
 import TimeColumn from "./TimeColumn"
 import SelectCalander from "./SelectCalendar";
 
-export default function GroupAvailCal(props) {
+export default function GroupAvailCal(props: any) {
 
     const [calendarFramework, setCalendarFramework] = props.calendarFramework;
     const [calendarState, setCalendarState] = props.calendarState;

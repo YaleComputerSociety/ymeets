@@ -9,7 +9,7 @@ import DaySelectComponent from './daySelect/day_select_component/index.tsx';
 import TimeSelectComponent from './schedulee/timeselect/TimeSelectApp.js';
 import EnterCodeComp from './entercodepage/index.tsx';
 import AdminGroupViewComp from './schedulee/admingroupviewpage/App.js'
-import GroupViewComp from './schedulee/groupviewpage/App.js'
+import GroupViewComp from './schedulee/groupviewpage/GroupViewApp.tsx'
 // import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
 
 // TODO require auth on some pages
