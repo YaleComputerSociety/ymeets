@@ -74,7 +74,7 @@
 } */
 
 .eventcodeback {
-    background-image: url('../landingbackground.jpg');
+    background-image: url('../landingpage/landingbackground.jpg');
     height: 100vh;
     background-repeat: no-repeat;
     background-size: cover;

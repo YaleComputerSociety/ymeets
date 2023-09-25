@@ -34,7 +34,7 @@
 }
 
 .background {
-    background-image: url('../landingbackground.jpg');
+    background-image: url('./landingbackground.jpg');
     height: 100vh;
     background-repeat: no-repeat;
     background-size: cover;

@@ -1,5 +1,5 @@
-import SelectCalander from "../scheduleComponents/components/SelectCalendar";
-import TimeColumn from "../scheduleComponents/components/TimeColumn"
+import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalendar";
+import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
 
 export default function AvailCal(props: any) {
 

@@ -15,7 +15,6 @@ export default function DayBlock(props: any) {
         let count = 0
 
         for (let i = 0; i < dayColumnDockState.length; i++) {
-            console.log("happened!")
             if (dayColumnDockState[i][columnID][blockID] == 1) {
                 count += 1
             }
@@ -34,18 +33,6 @@ export default function DayBlock(props: any) {
         }
 
     }, [])
-
-    // useEffect(() => {
-
-    //     if (dayColumnDockState[columnID][blockID] === 1) {
-    //         setBgColor("sky-100");
-    //     } else if (dayColumnDockState[columnID][blockID] === 0) {
-    //         setBgColor("white");
-    //     } else {
-    //         setBgColor("white");
-    //     }
-
-    // }, [dayColumnDockState])
 
     const handleDragStart = (event: any) => {
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import './landingpage.css';
-import '../landingbackground.jpg';
+import "./landingbackground.jpg"
 
 import { useState } from "react";
 import { Link } from 'react-router-dom';

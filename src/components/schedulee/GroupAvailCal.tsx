@@ -1,5 +1,5 @@
-import TimeColumn from "../scheduleComponents/components/TimeColumn"
-import SelectCalander from "../scheduleComponents/components/SelectCalendar";
+import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
+import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalendar";
 import { generateTimeBlocks } from "../scheduleComponents/utils/generateTimeBlocks";
 import { useEffect } from "react";
 import { getDateWithDay } from "../scheduleComponents/utils/getDateWithDay";

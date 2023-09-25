@@ -1,19 +1,16 @@
 // where the Routing thing goes.
 import './Root.css';
-import logo from './ymeetslogo.png';
+import logo from './static/ymeetslogo.png';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import LandingPageButtons from './landingpage/index.tsx';
-import LoginPageButtons from './loginpage/index.tsx';
-import DaySelectComponent from './daySelect/day_select_component/index.tsx';
-// import TimeSelectComponent from './schedulee/timeselectpage/TimeSelectDriver.js';
-import TimeSelectApp from './schedulee/timeselect/TimeSelectApp.js';
-import EnterCodeComp from './entercodepage/index.tsx';
-import AdminGroupViewComp from './schedulee/admingroupviewpage/App.js'
-import GroupViewComp from './schedulee/groupviewpage/GroupViewApp.tsx'
-// import ShareInviteButton from './ShareInviteButton/ShareInviteButton.js';
+import LandingPageButtons from './components/landingpage';
+import LoginPageButtons from './components/loginpage';
+import DaySelectComponent from './components/daySelect/day_select_component';
+import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.js';
+import EnterCodeComp from './components/entercodepage';
+import AdminGroupViewComp from './components/schedulee/admingroupviewpage/App.js'
+import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
 
 // TODO require auth on some pages
-
 function Root() {
     return (
         <>
@@ -38,3 +35,8 @@ function Root() {
 }
 
 export default Root;
+
+// TODO : Reintegrate the select component into the necessary pages, and also code review it
+// convert selectCalander to use contexts 
+// 
+// 

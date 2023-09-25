@@ -1,8 +1,11 @@
-import SelectCalander from "../../scheduleComponents/components/SelectCalendar";
+import SelectCalander from "../../scheduleComponents/calendarComponents/SelectCalendar";
 import GroupAvailCal from "../GroupAvailCal";
 import { useState } from "react";
+import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
 
 export default function GroupViewApp() {
+
+    const [chartedUsers, setChartedUsers] = useState([])
 
     const [calendarState, setCalendarState] = useState(
       [
@@ -47,12 +50,18 @@ export default function GroupViewApp() {
       <>
          <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
                 <div className="grid col-start-1 col-span-1"> 
-                <GroupAvailCal 
-                    calendarState={[calendarState, setCalendarState]}
-                    calendarFramework={[calendarFramework, setCalendarFramework] }
-                    draggable={false}
-                />
-            </div>
+                  <GroupAvailCal 
+                      calendarState={[calendarState, setCalendarState]}
+                      calendarFramework={[calendarFramework, setCalendarFramework] }
+                      draggable={false}
+                  />
+                </div>
+                <div className="grid col-start-2 col-span-1">
+                    <UserChart 
+                      chartedUsers={[chartedUsers, setChartedUsers]}
+      
+                    />
+                </div>
         </div>
       </>
     )
