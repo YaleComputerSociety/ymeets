@@ -94,7 +94,7 @@ export default function DayBlock(props: any) {
                 className={` \
                 bg-${bgColor} \
                 m-1 mt-0 mb-0 ml-0 mr-0 min-h-[10px] h-10 \
-                col-span-2 border border-[#787878] \
+                col-span-2 border border-solid-1 border-[#d6d6d6] \
                 `
                 }
                 draggable="true" // This attribute makes the div draggable
