@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { generateTimeBlocks } from '../../scheduleComponents/utils/generateTimeBlocks';
 import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRange';
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
-import { CalandarDate } from '../../scheduleComponents/scheduletypes';
+import { calandarDate, calanderState } from '../../scheduleComponents/scheduletypes';
+import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 function TimeSelectApp() {
 
-    const [calendarState, setCalendarState] = useState([
+    const [calendarState, setCalendarState] = useState<calanderState>({
+        schedules : [
         {
             0: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -18,10 +20,10 @@ function TimeSelectApp() {
             6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         }
         ]
-    );
+});
 
-    const [calendarFramework, setCalendarFramework] = useState({
-        theDates : [
+    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>({
+        dates : [
             {   
                 id : 0,
                 shortenedWeekDay : "SUN",
@@ -74,29 +76,15 @@ function TimeSelectApp() {
         ],
         startTime : "10:00:00", 
         endTime : "23:32:00",
-        numberOfColumns : 0
     })
-
-    // let numberOfBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length;
-
-    // useEffect(() => {
-  
-    //     console.log(dates);
-
-    //     let oldFramework = {...calendarFramework};
-    //     oldFramework.numberOfColumns = dates.length;
-    //     oldFramework.theDates = dates;
-    //     setCalendarFramework(oldFramework);
-    // }, []);
 
     return (
         <div>
-
             <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
                 <div className="grid col-start-2 col-span-1"> 
                     <AvailCal 
-                        calendarState={[calendarState, setCalendarState]}
-                        calendarFramework={[calendarFramework, setCalendarFramework] }
+                        theCalendarState={[calendarState, setCalendarState]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}
                     />
                 </div>

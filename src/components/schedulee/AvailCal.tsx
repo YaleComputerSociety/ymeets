@@ -1,10 +1,18 @@
 import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalendar";
 import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
+import { calendarDimensions, calanderState } from "../scheduleComponents/scheduletypes";
 
-export default function AvailCal(props: any) {
 
-    const [calendarFramework, setCalendarFramework] = props.calendarFramework;
-    const [calendarState, setCalendarState] = props.calendarState;
+interface AvailCalProps {
+    theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+    draggable : boolean
+  }
+
+export default function AvailCal({theCalendarFramework, theCalendarState}: AvailCalProps) {
+
+    const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+    const [calendarState, setCalendarState] = theCalendarState;
 
     return (
         <>
@@ -18,10 +26,8 @@ export default function AvailCal(props: any) {
                         endTime={calendarFramework.endTime}
                     />
                     <SelectCalander 
-                        calendarState={[calendarState, setCalendarState]}
-                        calendarFramework={[calendarFramework, setCalendarFramework]}
-                        startTime={calendarFramework.startTime}
-                        endTime={calendarFramework.endTime}
+                        theCalendarState={[calendarState, setCalendarState]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
                         draggable={true}
                     />
                 </div>

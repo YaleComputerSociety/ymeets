@@ -2,13 +2,13 @@ import SelectCalander from "../../scheduleComponents/calendarComponents/SelectCa
 import GroupAvailCal from "../GroupAvailCal";
 import { useState } from "react";
 import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
-
+import { calanderState } from "../../scheduleComponents/scheduletypes";
 export default function GroupViewApp() {
 
-    const [chartedUsers, setChartedUsers] = useState([])
+    const [chartedUsers, setChartedUsers] = useState<Array<string>>([])
 
-    const [calendarState, setCalendarState] = useState(
-      [
+    const [calendarState, setCalendarState] = useState<calanderState>({
+      schedules: [
         {
           0: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           1: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -36,10 +36,11 @@ export default function GroupViewApp() {
           5: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
           6: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         }
-  ]);
+  ]
+});
 
     const [calendarFramework, setCalendarFramework] = useState({
-      theDates : [
+      dates : [
           {   
               id : 0,
               shortenedWeekDay : "SUN",
@@ -92,7 +93,6 @@ export default function GroupViewApp() {
       ],
       startTime : "10:00:00", 
       endTime : "23:32:00",
-      numberOfColumns : 0
     })
 
     return (
@@ -100,8 +100,8 @@ export default function GroupViewApp() {
          <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
                 <div className="grid col-start-1 col-span-1"> 
                   <GroupAvailCal 
-                      calendarState={[calendarState, setCalendarState]}
-                      calendarFramework={[calendarFramework, setCalendarFramework] }
+                      theCalendarState={[calendarState, setCalendarState]}
+                      theCalendarFramework={[calendarFramework, setCalendarFramework] }
                       draggable={false}
                   />
                 </div>

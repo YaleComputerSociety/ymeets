@@ -1,9 +1,8 @@
-export interface userSchedule {
-    id : number,
-    schedule : Record<number, Array<number>>
-}
+export interface calanderState {
+    schedules: Array<Record<number, number[]>>;
 
-export interface CalandarDate {
+}
+export interface calandarDate {
     id : number,
     shortenedWeekDay : string,
     calanderDay : string
@@ -11,9 +10,8 @@ export interface CalandarDate {
     year : string
 }
 
-export interface CalendarDimensions<T> {
-    dates: Array<CalandarDate>;
+export interface calendarDimensions {
+    dates: Array<calandarDate>;
     startTime: string;
     endTime: string;
-    numberOfColumns: number;
 }

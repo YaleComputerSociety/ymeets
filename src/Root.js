@@ -5,9 +5,9 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import LandingPageButtons from './components/landingpage';
 import LoginPageButtons from './components/loginpage';
 import DaySelectComponent from './components/daySelect/day_select_component';
-import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.js';
+import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.tsx';
 import EnterCodeComp from './components/entercodepage';
-import AdminGroupViewComp from './components/schedulee/admingroupviewpage/App.js'
+// import AdminGroupViewComp from './components/schedulee/admingroupviewpage/App.js'
 import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
 
 // TODO require auth on some pages
@@ -26,7 +26,7 @@ function Root() {
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />
-                <Route path='/adminview' element={<AdminGroupViewComp />} />
+                {/* <Route path='/adminview' element={<AdminGroupViewComp />} /> */}
                 <Route path='/groupview' element={<GroupViewComp />} />
             </Routes>
         </Router>

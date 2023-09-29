@@ -8,6 +8,14 @@ module.exports = {
       fontFamily: {
         roboto: ['Roboto', 'sans'],
       },
+      colors : {
+        "ymeets-gray" : "#D0CFCF",
+        "ymeets-med-blue" : "#0056AE",
+        "ymeets-light-blue" : "#BEDEFF",
+        "ymeets-dark-blue" : "#00356B",
+        "selection-made-red" : "#D86969"
+
+      }
     },
   },
   safelist: [

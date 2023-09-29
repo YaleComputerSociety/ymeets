@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import withClickOutside from "./withClickOutside";
 
+// TODO - Reintegrate SELECT
+
 const SelectComponent = React.forwardRef(
   (
     { options, placeholder = "", onChange, selectedKey, open, setOpen },

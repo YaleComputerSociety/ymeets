@@ -3,20 +3,21 @@ import React from "react";
 import DayBlock from "./DayBlock";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks.js";
 import "tailwindcss/tailwind.css";
+import { calanderState } from "../scheduletypes";
 
+interface DayColumnProps {
+  startTime: string
+  endTime: string
+  theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+  columnID: number
+  weekDay: string
+  numberDay : string
+  draggable : boolean
+}
 
-export default function DayColumn(props: any) {
-  const startTime = props.startTime;
-  const endTime = props.endTime;
-  const columnID = props.columnID
-  const [dayColumnDockState, setDayColumnDockState] = props.columnData;
+export default function DayColumn({startTime, draggable, endTime, weekDay, numberDay, columnID, theCalendarState}: DayColumnProps) {
 
-  const weekDay = props.weekDay;
-  const numberDay = props.numberDay;
-
-  console.log(weekDay)
-  console.log(numberDay)
-
+  const [calendarState, setCalendarState] = theCalendarState;
 
   let blocks = generateTimeBlocks(startTime, endTime);
 
@@ -45,8 +46,8 @@ export default function DayColumn(props: any) {
                           columnID={columnID}
                           blockID={index}
                           key={index}
-                          draggable={props.draggable}
-                          columnData={[dayColumnDockState, setDayColumnDockState]}
+                          draggable={draggable}
+                          theCalendarState={[calendarState, setCalendarState]}
                           />
                   
                         </>

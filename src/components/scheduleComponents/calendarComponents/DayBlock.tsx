@@ -1,37 +1,41 @@
 import React, { useEffect, useState } from "react";
 import "tailwindcss/tailwind.css";
+import { calanderState } from "../scheduletypes";
 
-export default function DayBlock(props: any) {
+interface DayBlockProps {
+    blockID: number
+    columnID: number
+    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+    draggable: boolean
+}
 
-    const blockID = props.blockID; // x
-    const columnID = props.columnID // y
-
-    console.log(blockID);
-    console.log(columnID);
+export default function DayBlock({blockID, columnID, theCalendarState, draggable}: DayBlockProps) {
 
     const [bgColor, setBgColor] = useState("white");
-    const [dayColumnDockState, setDayColumnDockState] = props.columnData;
+    const [calendarState, setCalanderState] = theCalendarState;
 
+    // for group view calander.
     useEffect(() => {
 
         let count = 0
 
-        for (let i = 0; i < dayColumnDockState.length; i++) {
-            if (dayColumnDockState[i][columnID][blockID] == 1) {
+        for (let i = 0; i < calendarState.schedules.length; i++) {
+            if (calendarState.schedules[i][columnID][blockID] == 1) {
                 count += 1
             }
         }
         
+        // todo - refine this algorithm
         if (count == 0) {
             setBgColor("white");
-        } else if (count <= Math.ceil(dayColumnDockState.length * .25)) {
-            setBgColor("sky-100");
-        } else if (count <= Math.ceil(dayColumnDockState.length * .50)) {
-            setBgColor("sky-200");
-        } else if (count <=Math.ceil(dayColumnDockState.length * .75)) {
-            setBgColor("sky-300");
+        } else if (count <= Math.ceil(calendarState.schedules.length * .25)) {
+            setBgColor("ymeets-light-blue");
+        } else if (count <= Math.ceil(calendarState.schedules.length * .50)) {
+            setBgColor("ymeets-light-blue");
+        } else if (count <=Math.ceil(calendarState.schedules.length * .75)) {
+            setBgColor("ymeets-med-blue");
         } else {
-            setBgColor("sky-400")
+            setBgColor("ymeets-dark-blue")
         }
 
     }, [])
@@ -47,32 +51,29 @@ export default function DayBlock(props: any) {
       };
       
     const handleDragEnter = () => {
+        if (draggable === true) {
 
-        if (props.draggable === true) {
-            if (dayColumnDockState[0][columnID][blockID] === 1) {
+            // if we're draggable
+            // then there must be only one calander in schedules, in which case we can just
+            // directly edit it to reflect the state.
+
+            if (calendarState.schedules[0][columnID][blockID] === 1) {
                 setBgColor("white");
-                let oldData = [...dayColumnDockState];
-                oldData[0][columnID][blockID] = 0;
-                setDayColumnDockState(oldData);
+                let oldData = {...calendarState};
+                oldData.schedules[0][columnID][blockID] = 0;
+                setCalanderState(oldData);
             } else {
-                let oldData = [...dayColumnDockState];
+                let oldData = {...calendarState};
                 console.log(oldData);
-                oldData[0][columnID][blockID] = 1;
-                setDayColumnDockState(oldData);
-                setBgColor("sky-100")
+                oldData.schedules[0][columnID][blockID] = 1;
+                setCalanderState(oldData);
+                setBgColor("ymeets-light-blue")
             }
         }
-
-        console.log(dayColumnDockState);
     };
 
     return (
-    
-            // <div className="border border-black h-10">
 
-
-            // </div>
-            
             <div
                 onClick={handleDragEnter}
                 onDragStart={handleDragStart}
@@ -80,12 +81,11 @@ export default function DayBlock(props: any) {
                 className={` \
                 bg-${bgColor} \
                 m-1 mt-0 mb-0 ml-0 mr-0 min-h-[10px] h-10 \
-                col-span-2 border border-solid-1 border-[#d6d6d6] \
+                col-span-2 border border-solid-1 border-ymeets-gray \
                 `
                 }
-                draggable="true" // This attribute makes the div draggable
+                draggable="true"
             >
-
             </div>
     );
 }

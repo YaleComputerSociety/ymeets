@@ -3,37 +3,18 @@ import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalen
 import { generateTimeBlocks } from "../scheduleComponents/utils/generateTimeBlocks";
 import { useEffect } from "react";
 import { getDateWithDay } from "../scheduleComponents/utils/getDateWithDay";
-// import "tailwindcss/tailwind.css";
+import { calendarDimensions, calanderState } from "../scheduleComponents/scheduletypes";
 
-export default function GroupAvailCal(props: any) {
+interface GroupAvailCal {
+    theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+    draggable : boolean
+}
 
-    const [calendarFramework, setCalendarFramework] = props.calendarFramework;
-    const [calendarState, setCalendarState] = props.calendarState;
+export default function GroupAvailCal({theCalendarFramework, theCalendarState, draggable}: GroupAvailCal) {
 
-    // let numberOfBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length;
-
-    // const handleColumnDataUpdate = (colIndex: any) => {
-    //     setCalendarState((prevDayColumnDockState: any) => ({
-    //     ...prevDayColumnDockState,
-    //     [colIndex]: Array.from({ length: numberOfBlocks }, (_, index) => undefined),
-    //     }));
-    // };
-
-    // useEffect(() => {
-    //     let dates = [];
-    //     // let curColIndex = 0;
-        
-    //     for (let i = 0; i < calendarFramework.theInputtedDates.length; i++) {
-    //         let newDateWithDay = getDateWithDay(calendarFramework.theInputtedDates[i]);
-        
-    //         dates.push(newDateWithDay);
-    //     }
-        
-    //     let oldFramework = {...calendarFramework};
-    //     oldFramework.numberOfColumns = dates.length;
-    //     oldFramework.theDates = dates;
-    //     setCalendarFramework(oldFramework);
-    // }, []);
+    const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+    const [calendarState, setCalendarState] = theCalendarState;
     
     return (
 
@@ -48,10 +29,8 @@ export default function GroupAvailCal(props: any) {
                     endTime={calendarFramework.endTime}
                 />
                 <SelectCalander            
-                    calendarState={[calendarState, setCalendarState]}
-                    calendarFramework={[calendarFramework, setCalendarFramework]}
-                    startTime={calendarFramework.startTime}
-                    endTime={calendarFramework.endTime}
+                    theCalendarState={[calendarState, setCalendarState]}
+                    theCalendarFramework={[calendarFramework, setCalendarFramework]}
                     draggable={false}
                 />
             </div>

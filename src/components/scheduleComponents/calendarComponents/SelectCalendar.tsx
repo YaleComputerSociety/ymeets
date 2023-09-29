@@ -3,21 +3,25 @@ import DayColumn from "./DayColumn";
 // import {userSchedule, CalendarDimensions} from "../scheduletypes.ts"
 import { createContext } from "react";
 import "tailwindcss/tailwind.css";
-import { CalandarDate } from "../scheduletypes";
+import { calandarDate, calendarDimensions, calanderState } from "../scheduletypes";
 
-function SelectCalander(props: any) {
+interface SelectCalanderProps {
+  theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+  theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+  draggable : boolean
+}
 
-    const [calendarState, setCalendarState] = props.calendarState;
-    const [calendarFramework, setCalendarFramework] = props.calendarFramework;
+function SelectCalander({theCalendarFramework, theCalendarState, draggable}: SelectCalanderProps) {
+
+    const [calendarState, setCalendarState] = theCalendarState;
+    const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
     return (
 
-        <div className={`grid grid-cols-${calendarFramework.theDates.length}`}>
+        <div className={`grid grid-cols-${calendarFramework.dates.length}`}>
             {
-              calendarFramework.theDates.map((d: CalandarDate, index: any) => {
-
-                console.log(d);
-
+              calendarFramework.dates.map((d: calandarDate, index: any) => {
+                
                 return <DayColumn
                   key={d.id}
                   numberDay={d.calanderDay}
@@ -25,8 +29,8 @@ function SelectCalander(props: any) {
                   startTime={calendarFramework.startTime}
                   endTime={calendarFramework.endTime}
                   columnID={index}
-                  draggable={props.draggable}
-                  columnData={[calendarState, setCalendarState]}
+                  draggable={draggable}
+                  theCalendarState={[calendarState, setCalendarState]}
                 />
           })}
         </div>
