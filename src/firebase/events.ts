@@ -226,6 +226,22 @@ function getChosenLocation(): Location | undefined {
 export {
     getEventById,
     createEvent,
+    
+    getChosenLocation,
+    getChosenDayAndTime,
+    getAllAvailabilities,
+    getAllAvailabilitiesNames,
+    getAvailabilityByAccountId,
+    getAvailabilityByName,
+    getEventOnPageload,
+    getEventDescription,
+    getEventName,
+    getLocationOptions,
+
+    setChosenLocation,
+    setChosenDate,
+    setLocationPreference,
+    setAvailability
 }
 
 // function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
