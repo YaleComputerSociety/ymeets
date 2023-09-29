@@ -6,6 +6,8 @@ export default function DayBlock(props: any) {
     const blockID = props.blockID; // x
     const columnID = props.columnID // y
 
+    console.log(blockID);
+    console.log(columnID);
 
     const [bgColor, setBgColor] = useState("white");
     const [dayColumnDockState, setDayColumnDockState] = props.columnData;
@@ -35,30 +37,27 @@ export default function DayBlock(props: any) {
     }, [])
 
     const handleDragStart = (event: any) => {
-
-        if (props.draggable === true) {
-
-            const crt = event.target.cloneNode(true);
-            crt.style.position = "absolute";
-            crt.style.left = "-9999px"; 
-            crt.style.opacity = "0"
-            document.body.appendChild(crt);
-            event.dataTransfer.setDragImage(crt, 0, 0);
-        }
+        const crt = event.target.cloneNode(true);
+        crt.style.position = "absolute";
+        crt.style.left = "-9999px"; 
+        crt.style.opacity = "0"
+        document.body.appendChild(crt);
+        event.dataTransfer.setDragImage(crt, 0, 0);
+        
       };
       
     const handleDragEnter = () => {
 
         if (props.draggable === true) {
-            if (dayColumnDockState[columnID][blockID] === 1) {
+            if (dayColumnDockState[0][columnID][blockID] === 1) {
                 setBgColor("white");
-                let oldData = {...dayColumnDockState};
-                oldData[columnID][blockID] = 0;
+                let oldData = [...dayColumnDockState];
+                oldData[0][columnID][blockID] = 0;
                 setDayColumnDockState(oldData);
             } else {
-                let oldData = {...dayColumnDockState};
+                let oldData = [...dayColumnDockState];
                 console.log(oldData);
-                oldData[columnID][blockID] = 1;
+                oldData[0][columnID][blockID] = 1;
                 setDayColumnDockState(oldData);
                 setBgColor("sky-100")
             }

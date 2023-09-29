@@ -10,30 +10,30 @@ export default function GroupAvailCal(props: any) {
     const [calendarFramework, setCalendarFramework] = props.calendarFramework;
     const [calendarState, setCalendarState] = props.calendarState;
 
-    let numberOfBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length;
+    // let numberOfBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length;
 
-    const handleColumnDataUpdate = (colIndex: any) => {
-        setCalendarState((prevDayColumnDockState: any) => ({
-        ...prevDayColumnDockState,
-        [colIndex]: Array.from({ length: numberOfBlocks }, (_, index) => undefined),
-        }));
-    };
+    // const handleColumnDataUpdate = (colIndex: any) => {
+    //     setCalendarState((prevDayColumnDockState: any) => ({
+    //     ...prevDayColumnDockState,
+    //     [colIndex]: Array.from({ length: numberOfBlocks }, (_, index) => undefined),
+    //     }));
+    // };
 
-    useEffect(() => {
-        let dates = [];
-        // let curColIndex = 0;
+    // useEffect(() => {
+    //     let dates = [];
+    //     // let curColIndex = 0;
         
-        for (let i = 0; i < calendarFramework.theInputtedDates.length; i++) {
-            let newDateWithDay = getDateWithDay(calendarFramework.theInputtedDates[i]);
+    //     for (let i = 0; i < calendarFramework.theInputtedDates.length; i++) {
+    //         let newDateWithDay = getDateWithDay(calendarFramework.theInputtedDates[i]);
         
-            dates.push(newDateWithDay);
-        }
+    //         dates.push(newDateWithDay);
+    //     }
         
-        let oldFramework = {...calendarFramework};
-        oldFramework.numberOfColumns = dates.length;
-        oldFramework.theDates = dates;
-        setCalendarFramework(oldFramework);
-    }, []);
+    //     let oldFramework = {...calendarFramework};
+    //     oldFramework.numberOfColumns = dates.length;
+    //     oldFramework.theDates = dates;
+    //     setCalendarFramework(oldFramework);
+    // }, []);
     
     return (
 

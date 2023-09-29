@@ -3,6 +3,7 @@ import DayColumn from "./DayColumn";
 // import {userSchedule, CalendarDimensions} from "../scheduletypes.ts"
 import { createContext } from "react";
 import "tailwindcss/tailwind.css";
+import { CalandarDate } from "../scheduletypes";
 
 function SelectCalander(props: any) {
 
@@ -10,13 +11,17 @@ function SelectCalander(props: any) {
     const [calendarFramework, setCalendarFramework] = props.calendarFramework;
 
     return (
-        <div className={`grid grid-cols-${calendarFramework.numberOfColumns}`}>
+
+        <div className={`grid grid-cols-${calendarFramework.theDates.length}`}>
             {
-              calendarFramework.theDates.map((d: any, index: any) => {
+              calendarFramework.theDates.map((d: CalandarDate, index: any) => {
+
+                console.log(d);
+
                 return <DayColumn
-                  key={d.date}
-                  numberDay={d.date.getDate()}
-                  weekDay={d.dayOfWeek}
+                  key={d.id}
+                  numberDay={d.calanderDay}
+                  weekDay={d.shortenedWeekDay}
                   startTime={calendarFramework.startTime}
                   endTime={calendarFramework.endTime}
                   columnID={index}

@@ -39,8 +39,57 @@ export default function GroupViewApp() {
   ]);
 
     const [calendarFramework, setCalendarFramework] = useState({
-      theInputtedDates : ["2023-08-20", "2023-08-21", "2023-08-22", "2023-08-23", "2023-08-24", "2023-08-25", "2023-08-26",],
-      theDates : [], 
+      theDates : [
+          {   
+              id : 0,
+              shortenedWeekDay : "SUN",
+              calanderDay : "20",
+              year : "2023",
+              month : 8
+          },
+          {   
+              id : 1,
+              shortenedWeekDay : "MON",
+              calanderDay : "21",
+              year : "2023",
+              month : 8
+          },
+          {
+              id : 3,
+              shortenedWeekDay : "TUE",
+              calanderDay : "22",
+              year : "2023",
+              month : 8
+          },
+          {
+              id : 4,
+              shortenedWeekDay : "WED",
+              calanderDay : "23",
+              year : "2023",
+              month : 8
+          },
+          {
+              id : 5,
+              shortenedWeekDay : "THU",
+              calanderDay : "24",
+              year : "2023",
+              month : 8
+          },
+          {
+              id : 6,
+              shortenedWeekDay : "FRI",
+              calanderDay : "25",
+              year : "2023",
+              month : 8
+          },
+          {
+              id : 7,
+              shortenedWeekDay : "SAT",
+              calanderDay : "26",
+              year : "2023",
+              month : 8
+          }
+      ],
       startTime : "10:00:00", 
       endTime : "23:32:00",
       numberOfColumns : 0

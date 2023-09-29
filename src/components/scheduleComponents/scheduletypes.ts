@@ -3,9 +3,16 @@ export interface userSchedule {
     schedule : Record<number, Array<number>>
 }
 
+export interface CalandarDate {
+    id : number,
+    shortenedWeekDay : string,
+    calanderDay : string
+    month : number
+    year : string
+}
+
 export interface CalendarDimensions<T> {
-    theInputtedDates: Array<string>;
-    theDates: Array<T>;
+    dates: Array<CalandarDate>;
     startTime: string;
     endTime: string;
     numberOfColumns: number;

@@ -14,6 +14,10 @@ export default function DayColumn(props: any) {
   const weekDay = props.weekDay;
   const numberDay = props.numberDay;
 
+  console.log(weekDay)
+  console.log(numberDay)
+
+
   let blocks = generateTimeBlocks(startTime, endTime);
 
   return (
@@ -26,6 +30,7 @@ export default function DayColumn(props: any) {
           <center>
             <p className="text-lg p-1 text-[#787878]">
               {weekDay}
+            
               <br />
               {numberDay}
             </p>
