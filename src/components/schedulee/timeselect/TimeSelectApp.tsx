@@ -23,57 +23,86 @@ function TimeSelectApp() {
 });
 
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>({
-        dates : [
+        dates : {
+            "2023-08" : [
             {   
                 id : 0,
                 shortenedWeekDay : "SUN",
                 calanderDay : "20",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {   
                 id : 1,
                 shortenedWeekDay : "MON",
                 calanderDay : "21",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {
                 id : 3,
                 shortenedWeekDay : "TUE",
                 calanderDay : "22",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {
                 id : 4,
                 shortenedWeekDay : "WED",
                 calanderDay : "23",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {
                 id : 5,
                 shortenedWeekDay : "THU",
                 calanderDay : "24",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {
                 id : 6,
                 shortenedWeekDay : "FRI",
                 calanderDay : "25",
                 year : "2023",
-                month : 8
+                month : "AUG"
             },
             {
                 id : 7,
                 shortenedWeekDay : "SAT",
                 calanderDay : "26",
                 year : "2023",
-                month : 8
+                month : "AUG"
             }
         ],
+        "2023-09" : [
+            {
+                id : 8,
+                shortenedWeekDay : "SAT",
+                calanderDay : "01",
+                year : "2023",
+                month : "SEPT"
+            },
+
+            {
+                id : 9,
+                shortenedWeekDay : "SUN",
+                calanderDay : "02",
+                year : "2023",
+                month : "SEPT"
+            },
+            
+            {
+                id : 10,
+                shortenedWeekDay : "MON",
+                calanderDay : "03",
+                year : "2023",
+                month : "SEPT"
+            },
+
+        ]
+
+    },
         startTime : "10:00:00", 
         endTime : "23:32:00",
     })

@@ -9,18 +9,20 @@ interface SelectCalanderProps {
   theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
   theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
   draggable : boolean
+  date : string
 }
 
-function SelectCalander({theCalendarFramework, theCalendarState, draggable}: SelectCalanderProps) {
+function SelectCalander({theCalendarFramework, theCalendarState, draggable, date}: SelectCalanderProps) {
 
     const [calendarState, setCalendarState] = theCalendarState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
     return (
 
-        <div className={`grid grid-cols-${calendarFramework.dates.length}`}>
+      <div className="mr-4">
+      <div className={`grid grid-cols-${calendarFramework.dates[date].length}`}>
             {
-              calendarFramework.dates.map((d: calandarDate, index: any) => {
+              calendarFramework.dates[date].map((d: calandarDate, index: any) => {
                 
                 return <DayColumn
                   key={d.id}
@@ -28,11 +30,13 @@ function SelectCalander({theCalendarFramework, theCalendarState, draggable}: Sel
                   weekDay={d.shortenedWeekDay}
                   startTime={calendarFramework.startTime}
                   endTime={calendarFramework.endTime}
+                  month={d.month}
                   columnID={index}
                   draggable={draggable}
                   theCalendarState={[calendarState, setCalendarState]}
                 />
           })}
+        </div>
         </div>
 
   );

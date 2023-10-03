@@ -21,15 +21,21 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
             </p>
             <div className="border border-1 border-gray-600 m-5 w-fit">
                 <div className="flex">
-                    <TimeColumn 
+                    <TimeColumn     
                         startTime={calendarFramework.startTime}
                         endTime={calendarFramework.endTime}
                     />
-                    <SelectCalander 
-                        theCalendarState={[calendarState, setCalendarState]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                        draggable={true}
-                    />
+                    {
+                        Object.keys(calendarFramework.dates).map((theDate) =>
+                            <SelectCalander 
+                                theCalendarState={[calendarState, setCalendarState]}
+                                date={theDate}
+                                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                                draggable={true}
+                            />
+                        ) 
+                    }
+                   
                 </div>
             </div>
         </>

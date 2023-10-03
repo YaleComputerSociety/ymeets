@@ -6,12 +6,12 @@ export interface calandarDate {
     id : number,
     shortenedWeekDay : string,
     calanderDay : string
-    month : number
+    month : string
     year : string
 }
 
 export interface calendarDimensions {
-    dates: Array<calandarDate>;
+    dates: Record<string, Array<calandarDate>>;
     startTime: string;
     endTime: string;
 }
