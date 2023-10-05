@@ -24,7 +24,7 @@ function TimeSelectApp() {
 
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>({
         dates : {
-            "2023-08" : [
+            "1" : [
             {   
                 id : 0,
                 shortenedWeekDay : "SUN",
@@ -75,33 +75,32 @@ function TimeSelectApp() {
                 month : "AUG"
             }
         ],
-        "2023-09" : [
+
+        "2" : [
             {
                 id : 8,
-                shortenedWeekDay : "SAT",
-                calanderDay : "01",
+                shortenedWeekDay : "SUN",
+                calanderDay : "02",
                 year : "2023",
                 month : "SEPT"
             },
 
             {
                 id : 9,
-                shortenedWeekDay : "SUN",
-                calanderDay : "02",
+                shortenedWeekDay : "MON",
+                calanderDay : "03",
                 year : "2023",
                 month : "SEPT"
             },
             
             {
                 id : 10,
-                shortenedWeekDay : "MON",
-                calanderDay : "03",
+                shortenedWeekDay : "TUE",
+                calanderDay : "04",
                 year : "2023",
                 month : "SEPT"
             },
-
         ]
-
     },
         startTime : "10:00:00", 
         endTime : "23:32:00",
