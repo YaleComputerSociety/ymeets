@@ -2,6 +2,8 @@ import { doc, collection, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { db } from './firebase';
 
+// ASSUME names are unique within an event
+
 var workingEvent: Event = {
     publicId: "ABABAB", 
     details: {
@@ -17,6 +19,16 @@ var workingEvent: Event = {
     participants: []
 };
 
+const checkIfLoggedIn = (): boolean => {
+    return false
+}
+
+const checkIfAdmin = (): boolean => {
+    return false
+}
+
+// https://firebase.google.com/docs/firestore/manage-data/add-data
+// may have better way to generate id (Firestore can do it automatically)
 const generateUniqueId = (): string => {
     // new method will generate a random string indexing [0,9,a,b,c...,z] - [i,l,0,o]
     // to generate a 6-character code. Not currently checking if already in the database
@@ -29,24 +41,31 @@ const generateUniqueId = (): string => {
     return id;
 }
 
-async function getEventById(id: EventId): Promise<void> { // TODO add return statements
+// PURPOSE: Internal use and to check if event of id exists.
+// Retreives an event from the backend given the id
+// Will throw an error if the document cannot be found
+// Event is not return; rather, it is stored internally
+// for other getters and settings defined in this file.
+async function getEventById(id: EventId): Promise<void> {
     const eventsRef = collection(db, "events")
     return new Promise((resolve, reject) => {
         getDoc(doc(eventsRef, id)).then((result) => {  
-            if (result) {
+            if (result.exists()) {
                 // @ts-ignore
                 workingEvent = result.data()
                 resolve();
             } else {
-                reject();
+                console.log("Document does not exist.");
+                reject("Document not found");
             }
         }).catch((err) => {
-            console.log("Catch " + err + " with message " + err.msg);
-                reject();
+            console.log("Caught " + err + " with message " + err.msg);
+            reject(err);
         });
     });
 }
 
+// Stores a new event passed in as a parameter to the backend
 async function createEvent(event: Event): Promise<Event | null> {
     const id = generateUniqueId();
     const newEvent: Event = {
@@ -70,10 +89,12 @@ async function createEvent(event: Event): Promise<Event | null> {
                 console.log(err.msg);
                 reject(err);
 
-        });
+            });
     });
 }
 
+// Updates (overwrites) the event details of the working event 
+// with the eventDetails parameter 
 function saveEventDetails(eventDetails: EventDetails) {
     return new Promise<void>((resolve, reject) => {
         const eventsRef = collection(db, "events")
@@ -91,6 +112,8 @@ function saveEventDetails(eventDetails: EventDetails) {
     });
 }
 
+// Updates the participants list of the working event 
+// with the participant passed in, overwriting if they already exist
 function saveParticipantDetails(participant: Participant) {
     return new Promise<void>((resolve, reject) => {
         const eventsRef = collection(db, "events");
@@ -119,7 +142,9 @@ function saveParticipantDetails(participant: Participant) {
     });
 }
 
-function setAvailability(name: string, availability: Availability, accountId?: string) {
+// Sets the availability of a participant of the name parameter with their 
+// availability object; passing in their accountId is optional addition verification
+function setAvailability(name: string, availability: Availability, accountId: string = "") {
     let index;
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].name == name || workingEvent.participants[i].accountId == accountId) {
@@ -135,6 +160,8 @@ function setAvailability(name: string, availability: Availability, accountId?: s
     saveParticipantDetails(workingEvent.participants[index]);
 }
 
+// Sets the location preference of a participant of the name parameter with 
+// location parameter object; passing in their accountId is optional addition verification
 function setLocationPreference(name: string, location: Location, accountId: string = "") {
     let index;
     for (let i = 0; i < workingEvent.participants.length; i++) {
@@ -151,6 +178,7 @@ function setLocationPreference(name: string, location: Location, accountId: stri
     saveParticipantDetails(workingEvent.participants[index]);
 }
 
+// Sets the official date for the event; must be called by the admin 
 function setChosenDate(chosenStartDate: Date, chosenEndDate: Date) {
     workingEvent.details.chosenStartDate = chosenStartDate
     workingEvent.details.chosenEndDate = chosenEndDate
@@ -158,29 +186,39 @@ function setChosenDate(chosenStartDate: Date, chosenEndDate: Date) {
     saveEventDetails(workingEvent.details)
 }
 
+// Sets the official location for the event; must be called by the admin 
 function setChosenLocation(chosenLocation: Location) {
     workingEvent.details.chosenLocation = chosenLocation
 
     saveEventDetails(workingEvent.details)
 }
 
+// Retrieves the list of locations to be considered for the event
 function getLocationOptions(): Location[] {
     return workingEvent.details.plausibleLocations
 }
 
+// Retrieves the name of the event
 function getEventName(): string {
     return workingEvent.details.name
 }
 
+// Retrieves the description of the event
 function getEventDescription(): string {
     return workingEvent.details.description
 }
 
-// called on render when a page loads with event id in url
+// To be called on render when a page loads with event id in url
 async function getEventOnPageload(id: string): Promise<void> {
-    return getEventById(id)
+    if (workingEvent && workingEvent.publicId == id) {
+        console.log("Exists, skipping")
+        return Promise.resolve()
+    } else {
+        return getEventById(id)
+    }
 }
 
+// Retrieves the availability object of the participant of the parameter name
 function getAvailabilityByName(name: string): Availability | undefined {
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].name == name) {
@@ -189,6 +227,7 @@ function getAvailabilityByName(name: string): Availability | undefined {
     }
 }
 
+// Retrieves the availability object of the participant of the parameter accountId
 function getAvailabilityByAccountId(accountId: string): Availability | undefined {
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].accountId == accountId) {
@@ -197,6 +236,8 @@ function getAvailabilityByAccountId(accountId: string): Availability | undefined
     }
 }
 
+// Retrieves the list of participants
+// GUARANTEED to be the in the same order as getAllAvailabilities
 function getAllAvailabilitiesNames(): string[] {
     let names: string[] = []
     for (let i = 0; i < workingEvent.participants.length; i++) {
@@ -205,6 +246,8 @@ function getAllAvailabilitiesNames(): string[] {
     return names
 }
 
+// Retrieves the list of availabilities
+// GUARANTEED to be the in the same order as getAllAvailabilitiesNames
 function getAllAvailabilities(): Availability[] {
     let avails: Availability[] = []
     for (let i = 0; i < workingEvent.participants.length; i++) {
@@ -213,17 +256,37 @@ function getAllAvailabilities(): Availability[] {
     return avails
 }
 
+// Retrieves the official date and time of the event as chosen by the admin
 function getChosenDayAndTime(): [startDate: Date, endDate: Date] | undefined  {
     if (workingEvent.details.chosenStartDate && workingEvent.details.chosenEndDate) {
         return [workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate]
     }
 }
 
+// Retrieves the official location of the event as chosen by the admin
 function getChosenLocation(): Location | undefined {
     return workingEvent.details.chosenLocation
 }
 
+// Retrieves the dict objects mapping locations (keys) to number of votes (items)
+function getLocationsVotes(): { [id: Location]: number; } {
+    const votes: { [id: Location]: number; } = {}
+    for (const location in workingEvent.details.plausibleLocations) {
+        votes[location] = 0
+        for (var participant in workingEvent.participants) {
+            // @ts-ignore
+            if (participant.location == location) {
+                votes[location] += 1
+            }
+        }
+    }
+    return votes
+}
+
 export {
+    checkIfLoggedIn,
+    checkIfAdmin,
+
     getEventById,
     createEvent,
     
@@ -237,33 +300,34 @@ export {
     getEventDescription,
     getEventName,
     getLocationOptions,
+    getLocationsVotes,
 
     setChosenLocation,
     setChosenDate,
     setLocationPreference,
-    setAvailability
+    setAvailability,
 }
 
-// function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
-//     const dateObject: {[key: number]: number[]} = {};
-//     dateArray.forEach((date: number[], index: number) => {
-//       dateObject[index + 1] = date;
-//     });
-//     return dateObject;
-//   }
+function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
+    const dateObject: {[key: number]: number[]} = {};
+    dateArray.forEach((date: number[], index: number) => {
+      dateObject[index + 1] = date;
+    });
+    return dateObject;
+  }
 
-// function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
-//     const result: Array<[number, number, number]> = [];  
-//     for (const key in obj) {
-//         if (obj.hasOwnProperty(key)) {
-//         result.push(obj[key]);
-//         }
-//     }
-//     return result;
-// }
+function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
+    const result: Array<[number, number, number]> = [];  
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+        result.push(obj[key]);
+        }
+    }
+    return result;
+}
 
-// function eventToArray(data: any): Event | null {
-//     if (!data) return null;
-//     data.details.dates = dateToArray(data.details.dates);
-//     return data;
-// }
+function eventToArray(data: any): Event | null {
+    if (!data) return null;
+    data.details.dates = dateToArray(data.details.dates);
+    return data;
+}
