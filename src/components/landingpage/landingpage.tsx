@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export const LandingPageButtons = () => {
     return (
-        <div className='bg-gradient-to-b from-blue-400 to-blue-300 h-screen w-screen flex justify-center'>
+        <div className='bg-gradient-to-r from-blue-400 via-blue-300 to-blue-200 h-screen w-screen flex justify-center'>
             <div className='w-4/5 sm:w-4/6 md:w-1/2 mx-auto'>
                 <div className='text-center h-30 mb-16 mt-40'>
                     <Link to='/dayselect'>
