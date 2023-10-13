@@ -1,0 +1,11 @@
+.App {
+    margin: auto;
+    margin-top: 3rem;
+    display: grid;
+    justify-items: center;
+    width: 80%;
+  }
+  
+  .react-calendar {
+    width: 100% !important;
+  }

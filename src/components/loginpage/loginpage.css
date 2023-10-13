@@ -1,0 +1,134 @@
+.appName {
+    margin-top: 11%;
+    font-size: 3.8vw;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+.buttonslog {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin-top: 2%;
+}
+
+.googlesigninwrapper {
+    margin-top: 5%;
+    text-align: center;
+    height: 30px;
+    margin-left: 0px;
+    margin-right: 15px;
+}
+
+.googlesigninwrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 14vw;
+    height: 3vw;
+    cursor: pointer;
+    font-size: 1.1vw;
+}
+
+.nologinwrapper {
+    margin-top: 5%;
+    text-align: center;
+    height: 30px;
+    margin-left: 15px;
+    margin-right: 5px;
+}
+
+.nologinwrapper button {
+    background-color: #00356B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    width: 14vw;
+    height: 3vw;
+    cursor: pointer;
+    font-size: 1.1vw;
+}
+
+.homepage {
+    background-image: url('../landingpage/landingbackground.jpg');
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+}
+
+.aboutinfo {
+    margin-left: 20%;
+    /* margin-right: 45%; */
+    width: 100%;
+}
+
+.slogan {
+    /* margin-top: 15%; */
+    margin-right: 2%;
+}
+
+.slogantext {
+    margin-right: 14%;
+    margin-top: 25%;
+    /* overflow: hidden; */
+    /* border-right: .15em solid orange; */
+    /* white-space: nowrap; */
+    font-size: 230%;
+    /* width: 0; */
+    /* animation: typing 3s steps(20, end) forwards; */
+}
+
+/* .input-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 42px;
+    background-color: black;
+    margin-left: 8px;
+} */
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.moreinfo {
+    line-height: 130%;
+    color: rgb(70, 70, 70);
+    margin-right: 15%;
+}
+
+.moreinfolistintro {
+    margin-top: 30px;
+    color: rgb(70, 70, 70);
+    margin-right: 15%;
+    margin-bottom: 10px;
+}
+
+.moreinfolist {
+    line-height: 200%;
+    color: rgb(70, 70, 70);
+}
+
+.graphic {
+    width: 100%;
+}
+
+.graphicpic {
+    margin-top: 20%;
+    margin-left: -15%;
+    height: 350px;
+}
+
+.standbutton {
+    box-shadow: 2px 5px 3px 0px rgba(0, 0, 0, 0.4);
+}
+
+.standbutton:hover {
+    /* transform: translateY(5px);
+    transform: translateX(3px); */
+    transform: translate3d(2px, 3.5px, 0px);
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+    /* transform: translateX(4px); */
+}
