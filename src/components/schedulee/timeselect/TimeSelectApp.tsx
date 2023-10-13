@@ -103,7 +103,7 @@ function TimeSelectApp() {
         ]
     },
         startTime : "10:00:00", 
-        endTime : "23:32:00",
+        endTime : "12:00:00",
     })
 
     return (

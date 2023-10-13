@@ -39,21 +39,24 @@ export default function DayColumn({startTime, draggable, endTime, weekDay, numbe
           </center>
         </div>
         <div>
-          {blocks.map((block, index) => {   
-            return    (
-                      <>
-                        
-                        <DayBlock
-                          columnID={columnID}
-                          blockID={index}
-                          key={index}
-                          draggable={draggable}
-                          theCalendarState={[calendarState, setCalendarState]}
-                          />
-                  
-                        </>
-                        );
-          })}
+          {
+          blocks.
+            map((block, index) => {   
+              return    (
+                        <>
+                          
+                          <DayBlock
+                            columnID={columnID}
+                            blockID={index}
+                            key={index}
+                            draggable={draggable}
+                            theCalendarState={[calendarState, setCalendarState]}
+                            />
+                    
+                          </>
+                          );
+            })
+          }
         </div>
       </div>
     </div>

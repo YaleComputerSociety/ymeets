@@ -6,11 +6,18 @@ export function generateTimeBlocks(startTime, endTime) {
     const start = new Date(`2023-08-19 ${startTime}`);
     const end = new Date(`2023-08-19 ${endTime}`);
     
-    // Iterate over the time range in 30-minute intervals
+    // Iterate over the time range in 15-minute intervals
     while (start < end) {
         const formattedTime = start.toLocaleTimeString('en-US', format);
+        
+        // if (formattedTime.substring(3) == "45") {
+        //     start.setMinutes(start.getMinutes() + 15);
+        //     continue;
+        // }
+
         blocks.push(formattedTime);
-        start.setMinutes(start.getMinutes() + 30);
+        start.setMinutes(start.getMinutes() + 15);
+
     }
     
     return blocks

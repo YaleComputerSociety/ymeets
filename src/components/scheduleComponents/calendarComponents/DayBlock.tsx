@@ -80,7 +80,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, draggable
                 onDragEnter={handleDragEnter}
                 className={` \
                 bg-${bgColor} \
-                m-1 mt-0 mb-0 ml-0 mr-0 min-h-[10px] h-10 \
+                m-1 mt-0 mb-0 ml-0 mr-0 min-h-[5px] h-5 \
                 col-span-2 border border-solid-1 border-ymeets-gray \
                 `
                 }

@@ -5,7 +5,8 @@ export default function TimeColumn(props: any) {
     const {startTime, endTime} = props;
 
     let blocks = generateTimeBlocks(startTime, endTime);
-
+    
+    console.log(blocks)
     let military_to_normal: Record<string, string> = {
         "00:00": "12AM",
         "01:00": "1AM",
@@ -36,15 +37,17 @@ export default function TimeColumn(props: any) {
 
     return (
         <div className="mr-1 ml-1">
+        {/* This is a one time height appied to align the top of the column to the select stuff */}
         <div className="lg:h-28 md:h-24 xs:h-24 sm:h-20"></div>
             {  
-            
-                blocks.map((block) => {
+                blocks
+                .filter((block) => block.substring(3) !== "45")
+                .map((block) => {
                     
                     return (
                         <div>
                             <p className="text-xs text-[#787878] font-roboto">{block in military_to_normal ? military_to_normal[block] : "-"}</p>
-                            <div className="h-6"></div>
+                            <div className="h-3"></div>
                         </div>
                     )
                 })
