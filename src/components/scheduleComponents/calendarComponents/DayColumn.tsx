@@ -29,14 +29,13 @@ export default function DayColumn({startTime, draggable, endTime, weekDay, numbe
                         m-1 ml-0 mr-0 border-solid border-D0CFCF border-b-4 border-r-2 \
                       bg-white text-black flex place-content-center items-center
           ">
-          <center>
-            <p className="text-xs text-[#787878]">{month}</p>
+   
             <p className="text-lg p-1 text-[#787878]">
               {weekDay}
               <br />
               {numberDay}
             </p>
-          </center>
+
         </div>
         <div>
           {

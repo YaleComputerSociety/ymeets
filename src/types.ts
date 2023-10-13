@@ -13,7 +13,7 @@ export interface EventDetails {
     name: string,
     description: string,
     adminName: string
-    adminAccountId?: string,
+    adminAccountId: string, // firebase uid
     dates: Date[],
     startTime: number, // minutes; min: 0, max 24*60 = 1440
     endTime: number, // minutes; min: 0, max 24*60 = 1440
