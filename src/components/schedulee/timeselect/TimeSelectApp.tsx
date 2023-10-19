@@ -1,11 +1,11 @@
 import AvailCal from '../AvailCal';
+import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
 import { generateTimeBlocks } from '../../scheduleComponents/utils/generateTimeBlocks';
 import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRange';
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
-import { calandarDate, calanderState } from '../../scheduleComponents/scheduletypes';
-import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
+import { calandarDate, calanderState, calendarDimensions } from '../../scheduleComponents/scheduletypes';
 function TimeSelectApp() {
 
     const [calendarState, setCalendarState] = useState<calanderState>({
@@ -106,9 +106,25 @@ function TimeSelectApp() {
         endTime : "12:00:00",
     })
 
+    const [selectedLocations, updateSelectedLocations] = useState([]);
+
+    const handleUpdateSelectedLocations = (locations:any) => {
+        updateSelectedLocations(locations);
+    }
+    
+    /* Testing Purposes */
+    useEffect(() => {
+        console.log(selectedLocations);
+    }, [selectedLocations]);
+
     return (
         <div>
             <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
+                <div className="grid col-start-1 col-span-1"> 
+                    <LocationSelectionComponent 
+                        update={handleUpdateSelectedLocations}
+                    />
+                </div>
                 <div className="grid col-start-2 col-span-1"> 
                     <AvailCal 
                         theCalendarState={[calendarState, setCalendarState]}
