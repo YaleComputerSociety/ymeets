@@ -123,12 +123,12 @@ abbr {
 .calendar-wrapper {
     position: relative;
     width: 100%;
-    margin-top: 50px;
+    margin-top: 65px;
 }
 
 .calendar-event-name-wrapper {
     position: absolute;
-    top: -70px;
+    top: -80px;
     left: 0;
     height: 30px;
 }
@@ -147,7 +147,7 @@ abbr {
 
 .next-button-wrapper {
     display: grid;
-    justify-items: end;
+    justify-items: start;
     height: 60px;
     margin-top: 5%;
 }
@@ -164,6 +164,15 @@ abbr {
     position: fixed;
     bottom: 5vh;
     right: 10.2vw;
+}
+
+/* Media query for screens smaller than 500px */
+@media (max-width: 500px) {
+    .next-button-wrapper button {
+        position: fixed;
+        bottom: 25vh;
+        left: 10.2vw;
+    }
 }
 
 .nextbuttondaysel {
