@@ -31,9 +31,9 @@ export const LandingPageButtons = () => {
     }
 
     return (
-        <div className='bg-gradient-to-r from-blue-400 via-blue-300 to-blue-200 h-screen w-screen flex flex-col justify-center'>
-            <div className='w-4/5 sm:w-4/6 md:w-1/2 mt-0 mx-auto flex justify-center items-center'>
-                    <img src={graphic} alt="graphic" className='w-[120] h-64'></img>
+        <div className='bg-gradient-to-r from-blue-400 via-blue-300 to-blue-200 h-screen w-screen flex flex-col'>
+            <div className='w-4/5 sm:w-4/6 md:w-1/2 mx-auto flex justify-center items-center mt-[40px] h-2/5'>
+                    <img src={graphic} alt="graphic" className='w-[100] h-5/6 sm:w-[140] sm:h-full'></img>
             </div>
             <div className='w-4/5 sm:w-4/6 md:w-1/2 m-0 mx-auto'>
                 <div className='text-center h-30 mb-16 mt-2'>
