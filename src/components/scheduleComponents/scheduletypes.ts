@@ -15,3 +15,15 @@ export interface calendarDimensions {
     startTime: string;
     endTime: string;
 }
+
+// The User ID MUST match the schedule in the position calandarState
+export interface user{
+    name: string,
+    id: number
+}
+
+export interface userData {
+    users: Array<user>,
+    available: Array<user>,
+    unavailable: Array<user>
+}

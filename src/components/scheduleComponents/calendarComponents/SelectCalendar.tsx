@@ -3,19 +3,20 @@ import DayColumn from "./DayColumn";
 // import {userSchedule, CalendarDimensions} from "../scheduletypes.ts"
 import { createContext } from "react";
 import "tailwindcss/tailwind.css";
-import { calandarDate, calendarDimensions, calanderState } from "../scheduletypes";
+import { calandarDate, calendarDimensions, calanderState, userData } from "../scheduletypes";
 
 interface SelectCalanderProps {
   theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
   theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+  chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
   draggable : boolean
   date : string
 }
 
-function SelectCalander({theCalendarFramework, theCalendarState, draggable, date}: SelectCalanderProps) {
-
+function SelectCalander({theCalendarFramework, theCalendarState, chartedUsersData, draggable, date}: SelectCalanderProps) {
     const [calendarState, setCalendarState] = theCalendarState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+
 
     return (
 
@@ -33,6 +34,7 @@ function SelectCalander({theCalendarFramework, theCalendarState, draggable, date
                   month={d.month}
                   columnID={index}
                   draggable={draggable}
+                  chartedUsersData={chartedUsersData}
                   theCalendarState={[calendarState, setCalendarState]}
                 />
           })}

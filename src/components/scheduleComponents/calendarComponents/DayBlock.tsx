@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import "tailwindcss/tailwind.css";
-import { calanderState } from "../scheduletypes";
+import { calanderState, userData, user } from "../scheduletypes";
 
 interface DayBlockProps {
     blockID: number
     columnID: number
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+    chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
     draggable: boolean
 }
 
-export default function DayBlock({blockID, columnID, theCalendarState, draggable}: DayBlockProps) {
-
+export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable}: DayBlockProps) {
+    const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
 
@@ -64,7 +65,6 @@ export default function DayBlock({blockID, columnID, theCalendarState, draggable
                 setCalanderState(oldData);
             } else {
                 let oldData = {...calendarState};
-                console.log(oldData);
                 oldData.schedules[0][columnID][blockID] = 1;
                 setCalanderState(oldData);
                 setBgColor("ymeets-light-blue")
@@ -72,12 +72,33 @@ export default function DayBlock({blockID, columnID, theCalendarState, draggable
         }
     };
 
+    const handleHover = (event : any) => {
+        var availableUsers : user[] = []
+        var unavailableUsers : user[] = []
+        if(chartedUsers){
+            for(let i = 0; i < chartedUsers.users.length; i++){
+                let user = chartedUsers.users[i]
+                let oldData = {...calendarState}
+                if(oldData.schedules[user.id][columnID][blockID] == 1){
+                    availableUsers.push(user)
+                }
+                else{
+                    unavailableUsers.push(user)
+                }
+            }
+            setChartedUsers({users: chartedUsers.users, 
+                             available: availableUsers, 
+                             unavailable: unavailableUsers})
+        }
+    }
+
     return (
 
             <div
                 onClick={handleDragEnter}
                 onDragStart={handleDragStart}
                 onDragEnter={handleDragEnter}
+                onMouseOver={handleHover}
                 className={` \
                 bg-${bgColor} \
                 m-1 mt-0 mb-0 ml-0 mr-0 min-h-[5px] h-5 \
