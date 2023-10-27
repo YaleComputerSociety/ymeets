@@ -6,6 +6,8 @@ import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRa
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 import { calandarDate, calanderState } from '../../scheduleComponents/scheduletypes';
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
+import YMDataParser from "../dataParser/dataparser"
+
 function TimeSelectApp() {
 
     const [calendarState, setCalendarState] = useState<calanderState>({

@@ -19,14 +19,8 @@ export const EnterCodeComp = () => {
             alert('Please enter a valid code.');
         } else {
             setError('');
-            getEventById(input).then((result) => {
-                // @ts-ignore
-                if (result) {
-                    // @ts-ignore
-                    navigate('/timeselect', { code: input });
-                } else {
-                    alert('Please enter a valid code.');
-                }
+            getEventById(input).then(() => {
+                navigate('/timeselect/' + input);
             }).catch(() => {
                 alert('Please enter a valid code.');
             });

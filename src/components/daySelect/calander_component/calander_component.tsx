@@ -145,14 +145,13 @@ export const CalanderComponent = () => {
 
 
                 createEvent({
-                    details: {
                     name: eventName,
                     dates: selectedDays,
                     // @ts-ignore
                     startTimes: new Array(selectedDays.length).fill(endTime),
                     endTimes: new Array(selectedDays.length).fill(endTime),
                     location: "",
-                }}).then((result) => {
+                }).then((result) => {
                   if (result && result.publicId) {
                     navigate('/timeselect/' + result.publicId);
                   } else {
