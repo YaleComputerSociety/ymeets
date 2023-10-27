@@ -38,10 +38,10 @@ export const LoginPageButtons = () => {
                 </div>
                 <div className='flex flex-col md:flex-row justify-center items-center w-full my-8'>
                     <div className='flex text-center w-full justify-center lg:ml-[12%]'>
-                        <button className='flex shadow-lg bg-blue-900 text-white justify-center rounded-lg cursor-pointer min-w-[80%] text-lg p-2 md:p-3 md:w-11/12 lg:min-w-[0%] lg:w-9/12 transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none' onClick={() => {handleSignInWithGoogle()}}>Sign In with Google</button>
+                        <button className='flex shadow-custom bg-blue-900 text-white justify-center rounded-lg cursor-pointer min-w-[80%] text-lg p-2 md:p-3 md:w-11/12 lg:min-w-[0%] lg:w-[80%] transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none' onClick={() => {handleSignInWithGoogle()}}>Sign In with Google</button>
                     </div>
                     <div className='flex text-center w-full justify-center mt-8 md:mt-0'>
-                        <button className='flex shadow-lg bg-blue-900 text-white justify-center rounded-lg cursor-pointer min-w-[80%] text-lg p-2 md:p-3 md:w-11/12 lg:min-w-[0%] lg:w-9/12 transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none' onClick={() => {handleSignInAnonymous()}}>Continue without Login</button>
+                        <button className='flex shadow-custom bg-blue-900 text-white justify-center rounded-lg cursor-pointer min-w-[80%] text-lg p-2 md:p-3 md:w-11/12 lg:min-w-[0%] lg:w-[80%] transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none' onClick={() => {handleSignInAnonymous()}}>Continue without Login</button>
                     </div>
                 </div>
             </div>

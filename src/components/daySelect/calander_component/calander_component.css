@@ -166,15 +166,6 @@ abbr {
     right: 10.2vw;
 }
 
-/* Media query for screens smaller than 500px */
-@media (max-width: 500px) {
-    .next-button-wrapper button {
-        position: fixed;
-        bottom: 25vh;
-        left: 10.2vw;
-    }
-}
-
 .nextbuttondaysel {
     box-shadow: 2px 4px 3px 0px rgba(0, 0, 0, 0.4);
 }
