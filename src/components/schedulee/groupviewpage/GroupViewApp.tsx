@@ -4,10 +4,10 @@ import { useState } from "react";
 import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
 import { calanderState, userData } from "../../scheduleComponents/scheduletypes";
 import { calendarDimensions } from "../../scheduleComponents/scheduletypes";
-import YMDataParser from "../dataParser/dataparser";
+import eventAPI from "../../../eventAPI";
 
 export default function GroupViewApp() {
-    const testData = YMDataParser.getTestData()
+    const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
     const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleData);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)

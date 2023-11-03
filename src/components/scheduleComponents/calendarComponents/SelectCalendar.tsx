@@ -11,9 +11,10 @@ interface SelectCalanderProps {
   chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
   draggable : boolean
   date : string
+  isAdmin? : boolean
 }
 
-function SelectCalander({theCalendarFramework, theCalendarState, chartedUsersData, draggable, date}: SelectCalanderProps) {
+function SelectCalander({theCalendarFramework, theCalendarState, chartedUsersData, draggable, date, isAdmin}: SelectCalanderProps) {
     const [calendarState, setCalendarState] = theCalendarState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
@@ -36,6 +37,7 @@ function SelectCalander({theCalendarFramework, theCalendarState, chartedUsersDat
                   draggable={draggable}
                   chartedUsersData={chartedUsersData}
                   theCalendarState={[calendarState, setCalendarState]}
+                  isAdmin={isAdmin}
                 />
           })}
         </div>
