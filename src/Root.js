@@ -1,7 +1,7 @@
 // where the Routing thing goes.
 import './Root.css';
 import logo from './static/ymeetslogo.png';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import LandingPageButtons from './components/landingpage';
 import LoginPageButtons from './components/loginpage';
 import DaySelectComponent from './components/daySelect/day_select_component';
@@ -15,12 +15,16 @@ import AdminCal from './components/schedulee/AdminCal';
 function Root() {
     return (
         <>
+        <Router>
+            
         <header>
-            <div class="header-logo">
-                <img src={logo} alt="YMeets"></img>
+            <div className="header-logo">
+                <Link to="/">
+                    <img src={logo} alt="YMeets" />
+                </Link>
             </div>
         </header>
-        <Router>
+
             <Routes>
                 <Route path='/' element={<LoginPageButtons />} />
                 <Route path='/landingpage' element={<LandingPageButtons />} />

@@ -14,7 +14,9 @@ interface SelectCalanderProps {
   isAdmin? : boolean
 }
 
+
 function SelectCalander({theCalendarFramework, theCalendarState, chartedUsersData, draggable, date, isAdmin}: SelectCalanderProps) {
+
     const [calendarState, setCalendarState] = theCalendarState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 

@@ -19,6 +19,7 @@ interface DayColumnProps {
 }
 
 export default function DayColumn({startTime, draggable, endTime, weekDay, numberDay, columnID, theCalendarState, chartedUsersData, month, isAdmin}: DayColumnProps) {
+
   const [calendarState, setCalendarState] = theCalendarState;
 
   let blocks = generateTimeBlocks(startTime, endTime);

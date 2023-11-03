@@ -11,6 +11,7 @@ interface DayBlockProps {
     isAdmin? : boolean
 }
 
+
 export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin}: DayBlockProps) {
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
@@ -69,6 +70,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 }
 
             } else {
+
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
@@ -94,6 +96,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
+
                 if(oldData[user.id][columnID][blockID] == 1){
                     availableUsers.push(user)
                 }

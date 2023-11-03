@@ -10,8 +10,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
 
+interface CalanderComponentProps {
+  eventName: string;
+}
 
-export const CalanderComponent = () => {
+export const CalanderComponent = (props: CalanderComponentProps) => {
   const arr1: any[] = [];
   const [selectedDays, updateDays] = useState(arr1);
   const navigate = useNavigate();
@@ -45,12 +48,6 @@ export const CalanderComponent = () => {
     updateEndTime(time)
   }
 
-  const [eventName, updateEventName] = useState("");
-
-  const handleUpdateEventName = (name:any) => {
-    updateEventName(name)
-  }
-
   const dates = [
     "September 5, 2022 00:00:00",
     "September 5, 2022 23:59:59",
@@ -69,14 +66,6 @@ export const CalanderComponent = () => {
 
   return (
     <div className="calendar-wrapper">
-      <div className="calendar-event-name-wrapper">
-        <input
-          placeholder="Name your event..."
-          type="text"
-          value={eventName}
-          onChange={(event) => handleUpdateEventName(event.target.value)}
-        />
-      </div>
       <Calendar
         prev2Label={null}
         next2Label={null}
@@ -135,14 +124,6 @@ export const CalanderComponent = () => {
                     alert('Make sure your end time is after your start time!');
                     return;
                 }
-
-                // Optional; backend supports an empty string for name
-                if (eventName.length == 0) {
-                    alert('Make sure to name your event!');
-                    return;
-                }
-
-
 
                 createEvent({
                     name: eventName,
