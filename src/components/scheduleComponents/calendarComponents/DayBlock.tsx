@@ -8,9 +8,11 @@ interface DayBlockProps {
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
     chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
     draggable: boolean
+    isAdmin? : boolean
 }
 
-export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable}: DayBlockProps) {
+
+export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin}: DayBlockProps) {
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
@@ -20,8 +22,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
 
         let count = 0
 
-        for (let i = 0; i < calendarState.schedules.length; i++) {
-            if (calendarState.schedules[i][columnID][blockID] == 1) {
+        for (let i = 0; i < calendarState.length; i++) {
+            if (calendarState[i][columnID][blockID] == 1) {
                 count += 1
             }
         }
@@ -29,11 +31,11 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         // todo - refine this algorithm
         if (count == 0) {
             setBgColor("white");
-        } else if (count <= Math.ceil(calendarState.schedules.length * .25)) {
+        } else if (count <= Math.ceil(calendarState.length * .25)) {
             setBgColor("ymeets-light-blue");
-        } else if (count <= Math.ceil(calendarState.schedules.length * .50)) {
+        } else if (count <= Math.ceil(calendarState.length * .50)) {
             setBgColor("ymeets-light-blue");
-        } else if (count <=Math.ceil(calendarState.schedules.length * .75)) {
+        } else if (count <=Math.ceil(calendarState.length * .75)) {
             setBgColor("ymeets-med-blue");
         } else {
             setBgColor("ymeets-dark-blue")
@@ -47,27 +49,42 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         crt.style.left = "-9999px"; 
         crt.style.opacity = "0"
         document.body.appendChild(crt);
-        event.dataTransfer.setDragImage(crt, 0, 0);
-        
+        event.dataTransfer.setDragImage(crt, 0, 0);        
       };
       
     const handleDragEnter = () => {
         if (draggable === true) {
 
-            // if we're draggable
-            // then there must be only one calander in schedules, in which case we can just
-            // directly edit it to reflect the state.
+            if (isAdmin == true) {
 
-            if (calendarState.schedules[0][columnID][blockID] === 1) {
-                setBgColor("white");
-                let oldData = {...calendarState};
-                oldData.schedules[0][columnID][blockID] = 0;
-                setCalanderState(oldData);
+                if (calendarState[0][columnID][blockID] === 1) {
+                    setBgColor("selection-made-red");
+                    let oldData = {...calendarState};
+                    oldData[0][columnID][blockID] = 0;
+                    setCalanderState(oldData);
+                } else {
+                    let oldData = {...calendarState};
+                    oldData[0][columnID][blockID] = 1;
+                    setCalanderState(oldData);
+                    setBgColor("selection-made-red")
+                }
+
             } else {
-                let oldData = {...calendarState};
-                oldData.schedules[0][columnID][blockID] = 1;
-                setCalanderState(oldData);
-                setBgColor("ymeets-light-blue")
+
+                // if we're draggable
+                // then there must be only one calander in schedules, in which case we can just
+                // directly edit it to reflect the state.
+                if (calendarState[0][columnID][blockID] === 1) {
+                    setBgColor("white");
+                    let oldData = {...calendarState};
+                    oldData[0][columnID][blockID] = 0;
+                    setCalanderState(oldData);
+                } else {
+                    let oldData = {...calendarState};
+                    oldData[0][columnID][blockID] = 1;
+                    setCalanderState(oldData);
+                    setBgColor("ymeets-light-blue")
+                }
             }
         }
     };
@@ -79,7 +96,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
-                if(oldData.schedules[user.id][columnID][blockID] == 1){
+
+                if(oldData[user.id][columnID][blockID] == 1){
                     availableUsers.push(user)
                 }
                 else{

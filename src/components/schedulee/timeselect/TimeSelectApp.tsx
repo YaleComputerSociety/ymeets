@@ -6,12 +6,12 @@ import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRa
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 import { calandarDate, calanderState } from '../../scheduleComponents/scheduletypes';
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
-import YMDataParser from "../dataParser/dataparser"
+import eventAPI from "../../../eventAPI"
 
 function TimeSelectApp() {
 
-    const [calendarState, setCalendarState] = useState<calanderState>({
-        schedules : [
+    const [calendarState, setCalendarState] = useState<calanderState>(
+        [
         {
             0: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -22,7 +22,7 @@ function TimeSelectApp() {
             6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         }
         ]
-});
+        );
 
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>({
         dates : {

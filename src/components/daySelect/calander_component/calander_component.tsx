@@ -126,7 +126,7 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
                 }
 
                 createEvent({
-                    name: props.eventName,
+                    name: eventName,
                     dates: selectedDays,
                     // @ts-ignore
                     startTimes: new Array(selectedDays.length).fill(endTime),

@@ -7,8 +7,9 @@ import LoginPageButtons from './components/loginpage';
 import DaySelectComponent from './components/daySelect/day_select_component';
 import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.tsx';
 import EnterCodeComp from './components/entercodepage';
-// import AdminGroupViewComp from './components/schedulee/admingroupviewpage/App.js'
+import AdminGroupViewApp from './components/scheduler/admingroupviewpage/AdminGroupViewApp';
 import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
+import AdminCal from './components/schedulee/AdminCal';
 
 // TODO require auth on some pages
 function Root() {
@@ -30,7 +31,7 @@ function Root() {
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />
-                {/* <Route path='/adminview' element={<AdminGroupViewComp />} /> */}
+                <Route path='/adminview' element={<AdminGroupViewApp />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
             </Routes>
         </Router>
