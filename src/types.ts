@@ -14,8 +14,8 @@ export interface EventDetails {
     adminName: string,
     adminAccountId: string, // firebase uid
     dates: Date[],
-    startTime: number, // minutes; min: 0, max 24*60 = 1440
-    endTime: number, // minutes; min: 0, max 24*60 = 1440
+    // startTime: number, // minutes; min: 0, max 24*60 = 1440
+    // endTime: number, // minutes; min: 0, max 24*60 = 1440
     plausibleLocations: Location[],
     chosenLocation?: Location,
     chosenStartDate?: Date,
