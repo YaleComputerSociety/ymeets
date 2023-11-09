@@ -15,6 +15,9 @@ interface testData {
     dateData : calendarDimensions
 }
 
+
+// frontendEventAPI().method()
+
 export default class frontendEventAPI{
     constructor(){}
 
@@ -24,7 +27,6 @@ export default class frontendEventAPI{
 
         return (parseInt(hour) * 60) + parseInt(minute)
 
-    
     }
 
     static convertFromEventTime(time : Number) {
