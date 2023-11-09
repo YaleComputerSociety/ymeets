@@ -12,8 +12,8 @@ var workingEvent: Event = {
         description: "description",
         adminAccountId: "WJCCE0YA2fY5gpPxG58l8Ax3T9m2",
         dates: [],
-        startTime: 100, // minutes; min: 0, max 24*60 = 1440
-        endTime: 200, // minutes; min: 0, max 24*60 = 1440
+        // startTime: 100, // minutes; min: 0, max 24*60 = 1440
+        // endTime: 200, // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
     }, 
     participants: []
@@ -146,7 +146,7 @@ const getParticipantIndex = (name: string, accountId: string = ""): number => {
     return index
 } 
 
-// for internal use
+// For internal use
 const getParticipants = async (reference: CollectionReference<DocumentData>): Promise<Participant[]> => {
     return new Promise((resolve, reject) => {getDocs(reference).then((docs) => {
             let parts: Participant[] = []
@@ -359,6 +359,10 @@ function getLocationsVotes(): { [id: Location]: number; } {
     return votes
 }
 
+function getDates(): Date[] {
+    return workingEvent.details.dates;
+}
+
 export { workingEvent } // For interal use; use getters and setters below
 
 export {
@@ -376,6 +380,7 @@ export {
     createEvent,
     
     // Getters (Sync)
+    getDates,
     getChosenLocation,
     getChosenDayAndTime,
     getAllAvailabilities,
