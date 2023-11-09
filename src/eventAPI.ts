@@ -34,36 +34,36 @@ export default class frontendEventAPI{
     }
     
 
-    static createNewEvent(
-        title : string, description : string, adminName : string, adminAccountId : string, dates : Date[],
-        startTime : string, endTime : string, plausibleLocations : Location[]
-    ) { 
+    // static createNewEvent(
+    //     title : string, description : string, adminName : string, adminAccountId : string, dates : Date[],
+    //     startTime : string, endTime : string, plausibleLocations : Location[]
+    // ) { 
 
-        function convertTime(time : string) {
+    //     function convertTime(time : string) {
 
-            let [hour, minute] = time.split(":");
+    //         let [hour, minute] = time.split(":");
 
-            return (parseInt(hour) * 60) + parseInt(minute)
+    //         return (parseInt(hour) * 60) + parseInt(minute)
 
-        }
+    //     }
 
-        let convertedStartTime = convertTime(startTime)
-        let convertedEndTime = convertTime(endTime)
+    //     let convertedStartTime = convertTime(startTime)
+    //     let convertedEndTime = convertTime(endTime)
 
-        createEvent(
-            {
-                name : title,
-                description : description,
-                adminName : adminName,
-                adminAccountId : adminAccountId,
-                dates : dates,
-                startTime : convertedStartTime,
-                endTime : convertedEndTime,
-                plausibleLocations : plausibleLocations
+    //     createEvent(
+    //         {
+    //             name : title,
+    //             description : description,
+    //             adminName : adminName,
+    //             adminAccountId : adminAccountId,
+    //             dates : dates,
+    //             // startTime : convertedStartTime,
+    //             // endTime : convertedEndTime,
+    //             plausibleLocations : plausibleLocations
 
-            }
-        )
-    }
+    //         }
+    //     )
+    // }
 
     static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
