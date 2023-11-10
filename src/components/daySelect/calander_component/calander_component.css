@@ -58,7 +58,7 @@ abbr {
 
 .react-calendar {
     border: none !important;
-    position: absolute;
+    position: relative;
 }
 
 .react-calendar__tile {
