@@ -364,7 +364,7 @@ function getDates(): Date[] {
 }
 
 function getStartAndEndTimes(): Date[] {
-    return [workingEvent.details.startTime, workingEvent.details.startTime];
+    return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
 export { workingEvent } // For interal use; use getters and setters below
