@@ -1,6 +1,6 @@
 import { start } from "repl";
 import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
-import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates } from "./firebase/events";
+import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
 
 // TODO fetch event details -> calendarFramework
@@ -18,8 +18,8 @@ export default class frontendEventAPI{
     constructor(){}
 
     static createNewEvent(
-        title : string, description : string, adminName : string, adminAccountId : string, dates : Date[],
-        plausibleLocations : Location[]
+        title : string, description : string, adminName : string, adminAccountId : string, 
+        dates : Date[], plausibleLocations : Location[], startDate : Date, endDate : Date
     ) { 
 
         createEvent(
@@ -29,6 +29,8 @@ export default class frontendEventAPI{
                 adminName : adminName,
                 adminAccountId : adminAccountId,
                 dates : dates,
+                startTime : startDate, 
+                endTime : endDate,
                 plausibleLocations : plausibleLocations
 
             }
@@ -155,10 +157,9 @@ export default class frontendEventAPI{
 
         return {
             dates : theCalendarDates,
-            startDate : theDates[0],
-            endDate : theDates[theDates.length - 1]
+            startDate : getStartAndEndTimes()[0],
+            endDate : getStartAndEndTimes()[1],
         }
-
     }
 
     static getCalendar() : calendar {
