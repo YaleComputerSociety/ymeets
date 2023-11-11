@@ -12,8 +12,8 @@ var workingEvent: Event = {
         description: "description",
         adminAccountId: "WJCCE0YA2fY5gpPxG58l8Ax3T9m2",
         dates: [],
-        // startTime: 100, // minutes; min: 0, max 24*60 = 1440
-        // endTime: 200, // minutes; min: 0, max 24*60 = 1440
+        startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
+        endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
     }, 
     participants: []
@@ -363,6 +363,10 @@ function getDates(): Date[] {
     return workingEvent.details.dates;
 }
 
+function getStartAndEndTimes(): Date[] {
+    return [workingEvent.details.startTime, workingEvent.details.endTime];
+}
+
 export { workingEvent } // For interal use; use getters and setters below
 
 export {
@@ -381,6 +385,7 @@ export {
     
     // Getters (Sync)
     getDates,
+    getStartAndEndTimes,
     getChosenLocation,
     getChosenDayAndTime,
     getAllAvailabilities,
