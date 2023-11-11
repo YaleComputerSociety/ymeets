@@ -13,6 +13,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
+    let columnIndexOffset = 0
 
     return (
         <>
@@ -22,21 +23,28 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
             <div className="border border-1 border-gray-600 m-5 w-fit">
                 <div className="flex">
                     <TimeColumn     
-                        startTime={calendarFramework.startTime}
-                        endTime={calendarFramework.endTime}
+                        startDate={calendarFramework.startDate}
+                        endDate={calendarFramework.endDate}
                     />
                     {
-                        Object.keys(calendarFramework.dates).map((theDate) =>
-                            <SelectCalander 
-                                theCalendarState={[calendarState, setCalendarState]}
-                                date={theDate}
-                                theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                                draggable={true}
-                                isAdmin={false}
-                            />
-                        ) 
-                    }
-                   
+                    calendarFramework.dates.map((bucket, index) => {
+
+                        if (index != 0) {
+                            columnIndexOffset += bucket.length
+                        }
+                        
+                        return <SelectCalander 
+                            theCalendarState={[calendarState, setCalendarState]}
+                            bucket={bucket}
+                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                            draggable={true}
+                            isAdmin={false}
+                            columnIndexOffset={columnIndexOffset}
+                        />
+
+                        
+                    }) 
+                    }    
                 </div>
             </div>
         </>

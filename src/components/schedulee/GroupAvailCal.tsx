@@ -17,6 +17,7 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
     const [chartedUsers, setChartedUsers] = chartedUsersData;
+    let columnIndexOffset = 0
     
     return (
 
@@ -25,22 +26,30 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
         
             <div className="border border-1 border-gray-600 m-5 w-fit">
             
-            <div className="flex">    
+            <div className="flex">  
+
                 <TimeColumn 
-                    startTime={calendarFramework.startTime}
-                    endTime={calendarFramework.endTime}
+                    startDate={calendarFramework.startDate}
+                    endDate={calendarFramework.endDate}
                 />
                 {
-                    Object.keys(calendarFramework.dates).map((theDate) =>
-                        <SelectCalander 
+                    calendarFramework.dates.map((bucket, index) => {
+
+                        if (index != 0) {
+                            columnIndexOffset += bucket.length
+                        }
+                        
+                        return <SelectCalander 
                             theCalendarState={[calendarState, setCalendarState]}
-                            date={theDate}
+                            bucket={bucket}
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                            chartedUsersData={[chartedUsers, setChartedUsers]}
                             draggable={false}
                             isAdmin={false}
+                            columnIndexOffset={columnIndexOffset}
                         />
-                    ) 
+
+                        
+                    }) 
                     }
             </div>
         </div>

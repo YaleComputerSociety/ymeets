@@ -54,6 +54,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
       
     const handleDragEnter = () => {
         if (draggable === true) {
+            console.log("here!")
 
             if (isAdmin == true) {
 
@@ -71,6 +72,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
 
             } else {
 
+                console.log("here!")
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
@@ -109,6 +111,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                              unavailable: unavailableUsers})
         }
     }
+
+    console.log([columnID, blockID])
 
     return (
 

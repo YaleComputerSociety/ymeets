@@ -14,6 +14,7 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
+    let columnIndexOffset = 0
 
     return (
         <>
@@ -23,21 +24,28 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
             <div className="border border-1 border-gray-600 m-5 w-fit">
                 <div className="flex">
                     <TimeColumn     
-                        startTime={calendarFramework.startTime}
-                        endTime={calendarFramework.endTime}
+                        startTime={calendarFramework.startDate}
+                        endTime={calendarFramework.endDate}
                     />
                     {
-                        Object.keys(calendarFramework.dates).map((theDate) =>
-                            <SelectCalander 
-                                theCalendarState={[calendarState, setCalendarState]}
-                                date={theDate}
-                                theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                                draggable={draggable}
-                                isAdmin={isAdmin}
-                            />
-                        ) 
+                    calendarFramework.dates.map((bucket, index) => {
+
+                        if (index != 0) {
+                            columnIndexOffset += bucket.length
+                        }
+                        
+                        return <SelectCalander 
+                            theCalendarState={[calendarState, setCalendarState]}
+                            bucket={bucket}
+                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                            draggable={false}
+                            isAdmin={false}
+                            columnIndexOffset={columnIndexOffset}
+                        />
+
+                        
+                    }) 
                     }
-                   
                 </div>
             </div>
         </>

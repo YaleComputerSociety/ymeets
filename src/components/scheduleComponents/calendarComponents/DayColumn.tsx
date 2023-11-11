@@ -6,8 +6,8 @@ import "tailwindcss/tailwind.css";
 import { calanderState, userData } from "../scheduletypes";
 
 interface DayColumnProps {
-  startTime: string
-  endTime: string
+  startHour: number
+  endHour: number
   theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
   chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
   columnID: number
@@ -18,12 +18,12 @@ interface DayColumnProps {
   isAdmin? : boolean
 }
 
-export default function DayColumn({startTime, draggable, endTime, weekDay, numberDay, columnID, theCalendarState, chartedUsersData, month, isAdmin}: DayColumnProps) {
+export default function DayColumn({startHour, draggable, endHour, weekDay, numberDay, columnID, theCalendarState, chartedUsersData, month, isAdmin}: DayColumnProps) {
 
   const [calendarState, setCalendarState] = theCalendarState;
 
-  let blocks = generateTimeBlocks(startTime, endTime);
-
+  let blocks = generateTimeBlocks(startHour, endHour);
+  
   return (
     <div className="">
       <div className="flex flex-col">
@@ -44,7 +44,9 @@ export default function DayColumn({startTime, draggable, endTime, weekDay, numbe
         <div>
           {
           blocks.
-            map((block, index) => {   
+            map((block, index) => {  
+              
+              
               return    (
                         <>
                           

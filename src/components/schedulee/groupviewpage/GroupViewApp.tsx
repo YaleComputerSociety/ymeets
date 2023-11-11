@@ -9,7 +9,7 @@ import eventAPI from "../../../eventAPI";
 export default function GroupViewApp() {
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
-    const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleData);
+    const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleDataFull);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
 
     return (

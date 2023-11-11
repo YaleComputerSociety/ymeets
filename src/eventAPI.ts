@@ -1,69 +1,39 @@
 import { start } from "repl";
 import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
-import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime } from "./firebase/events";
+import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
 
 // TODO fetch event details -> calendarFramework
 
 interface testData {
-
-    // name, getAllAvailablilitiesNames
     userData : userData,
-
-    // schedules, getAllAvailabilities
-    scheduleData : calanderState,
+    scheduleDataEmpty : calanderState,
+    scheduleDataFull : calanderState,
     dateData : calendarDimensions
 }
-
 
 // frontendEventAPI().method()
 
 export default class frontendEventAPI{
     constructor(){}
 
-    static convertToEventTime(time : string) {
+    static createNewEvent(
+        title : string, description : string, adminName : string, adminAccountId : string, dates : Date[],
+        plausibleLocations : Location[]
+    ) { 
 
-        let [hour, minute] = time.split(":");
+        createEvent(
+            {
+                name : title,
+                description : description,
+                adminName : adminName,
+                adminAccountId : adminAccountId,
+                dates : dates,
+                plausibleLocations : plausibleLocations
 
-        return (parseInt(hour) * 60) + parseInt(minute)
-
+            }
+        )
     }
-
-    static convertFromEventTime(time : Number) {
-
-    }
-    
-
-    // static createNewEvent(
-    //     title : string, description : string, adminName : string, adminAccountId : string, dates : Date[],
-    //     startTime : string, endTime : string, plausibleLocations : Location[]
-    // ) { 
-
-    //     function convertTime(time : string) {
-
-    //         let [hour, minute] = time.split(":");
-
-    //         return (parseInt(hour) * 60) + parseInt(minute)
-
-    //     }
-
-    //     let convertedStartTime = convertTime(startTime)
-    //     let convertedEndTime = convertTime(endTime)
-
-    //     createEvent(
-    //         {
-    //             name : title,
-    //             description : description,
-    //             adminName : adminName,
-    //             adminAccountId : adminAccountId,
-    //             dates : dates,
-    //             // startTime : convertedStartTime,
-    //             // endTime : convertedEndTime,
-    //             plausibleLocations : plausibleLocations
-
-    //         }
-    //     )
-    // }
 
     static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
@@ -103,7 +73,6 @@ export default class frontendEventAPI{
 
     static submitCalendar(cal : calendar) {
         
-        // expensive operation, potentially change.
         let numOfPariticipants = cal.participants.users.length;
 
         for (let i = 0; i < numOfPariticipants; i++) {
@@ -116,20 +85,81 @@ export default class frontendEventAPI{
         }
     }
 
-    // static getCalendarDimensions(ev : Event) : calendarDimensions {
+    static getCalendarDimensions() : calendarDimensions {
     
+        let theDates = getDates();
+        let theCalendarDates : calandarDate[][] = []
+        let curCalendarBucket : calandarDate[] = []
+        
+        let getShortDay = {
+            0 : "SUN",
+            1 : "MON",
+            2 : "TUE",
+            3 : "WED", 
+            4 : "THU",
+            5 : "FRI",
+            6 : "SAT"
+        }
 
-        // for (let i = 0; i < ev.details.dates.length; i++) {
+        let getMonth = {
+            0 : "January",
+            1 : "February",
+            2 : "March",
+            3 : "April", 
+            4 : "May",
+            5 : "June",
+            6 : "July",
+            7 : "August",
+            8 : "September",
+            9 : "October",
+            10 : "November",
+            11 : "December"
+        }
 
-        // }
+        for (let i = 0; i < theDates.length; i++) {
 
-        // return {
-        //     dates : {},
-        //     startTime : ev.details.startTime,
-        //     endTime : ev.details.endTime
-        // }
+            if (i == 0) {
+                curCalendarBucket.push(
+                    {   
+                        "id" : i,
+                        // @ts-ignore
+                        "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                        "calanderDay" : theDates[i].getDay().toString(),
+                        // @ts-ignore
+                        "month" : getMonth[theDates[i].getMonth()],
+                        "date" : theDates[i]
+                    }
+                )
+            } else {
+                const isSameYear = theDates[i].getFullYear() === theDates[i - 1].getFullYear();
+                const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
 
-    // }
+                if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
+                    curCalendarBucket.push(
+                        {   
+                            "id" : i,
+                            // @ts-ignore
+                            "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                            "calanderDay" : theDates[i].getDay().toString(),
+                            // @ts-ignore
+                            "month" : getMonth[theDates[i].getMonth()],
+                            "date" : theDates[i]
+                        }
+                    )
+                } else {
+                    theCalendarDates.push([...curCalendarBucket])
+                    curCalendarBucket = []
+                }
+            }
+        }
+
+        return {
+            dates : theCalendarDates,
+            startDate : theDates[0],
+            endDate : theDates[theDates.length - 1]
+        }
+
+    }
 
     static getCalendar() : calendar {
 
@@ -156,41 +186,9 @@ export default class frontendEventAPI{
             }
     }
 
-    static setAdminDecision(
-        startTime : string, endTime : string, 
-        startDate : calandarDate, endDate : calandarDate, location : string) {
+    static setAdminDecision(startDate : Date, endDate : Date, location : string) {
         
-        function convertTimeToDateTime(timeString: string) {
-            const [hours, minutes] = timeString.split(':').map(Number);
-            const now = new Date();
-            now.setHours(hours);
-            now.setMinutes(minutes);
-            return now;
-        
-        }
-
-        const newStartTime = convertTimeToDateTime(startTime);
-        const newEndTime = convertTimeToDateTime(endTime);
-
-        const startYear = parseInt(startDate.year);
-        const startMonth = startDate.month;
-        const startDay = parseInt(startDate.calanderDay);
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-
-        const newStartDate = new Date(startYear, months.indexOf(startMonth), startDay);
-        newStartDate.setHours(newStartTime.getHours());
-        newStartDate.setMinutes(newStartTime.getMinutes());
-
-        
-        const endYear = parseInt(endDate.year);
-        const endMonth = endDate.month;
-        const endDay = parseInt(endDate.calanderDay);
-        
-        const newEndDate = new Date(endYear, months.indexOf(endMonth), endDay);
-        newEndDate.setHours(newEndTime.getHours());
-        newEndDate.setMinutes(newEndTime.getMinutes());
-
-        setChosenDate(newStartDate, newEndDate)
+        setChosenDate(startDate, endDate)
 
         setChosenLocation(location)
     }
@@ -217,7 +215,27 @@ export default class frontendEventAPI{
                 available: [],
                 unavailable: []
             },
-            scheduleData :
+            
+            // @ts-ignore
+            scheduleDataEmpty : [                
+                    {
+                        0: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        7: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        8: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        9: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],                          
+                    }
+                
+            
+            ],
+
+            // calendarState
+            scheduleDataFull :
                 [
                   {
                     0: [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -247,10 +265,12 @@ export default class frontendEventAPI{
                     6: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
                   }
             ],
-
+            
+            // calendarFramework
             dateData : {
-                dates : {
-                    "1" : [
+                dates : [
+                
+                [
                     {   
                         id : 0,
                         shortenedWeekDay : "SUN",
@@ -258,6 +278,7 @@ export default class frontendEventAPI{
                         year : "2023",
                         month : "AUG"
                     },
+
                     {   
                         id : 1,
                         shortenedWeekDay : "MON",
@@ -302,7 +323,7 @@ export default class frontendEventAPI{
                     }
                 ],
         
-                "2" : [
+                [
                     {
                         id : 8,
                         shortenedWeekDay : "SUN",
@@ -327,9 +348,9 @@ export default class frontendEventAPI{
                         month : "SEPT"
                     },
                 ]
-            },
-                startTime : "10:00:00", 
-                endTime : "12:00:00",
+            ],
+                startDate : new Date('2023-08-20T10:00:00'),
+                endDate : new Date('2023-09-04T12:00:00'),
             }
         }
     
