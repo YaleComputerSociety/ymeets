@@ -7,7 +7,7 @@ import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
 
 interface CalanderComponentProps {
@@ -38,7 +38,7 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
 
   const [startTime, updateStartTime] = useState(0);
 
-  const handleUpdateStartTime = (time:any) => {
+  const handleUpdateStartTime = (time: any) => {
     updateStartTime(time)
   }
 
@@ -46,6 +46,12 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
 
   const handleUpdateEndTime = (time: any) => {
     updateEndTime(time)
+  }
+
+  const [eventName, updateEventName] = useState("");
+
+  const handleUpdateEventName = (name: any) => {
+    updateEventName(name)
   }
 
   const dates = [
@@ -64,9 +70,29 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
   ];
   const holidays = dates.map((item) => new Date(item));
 
+  const getHolidayName = (date: Date) => {
+    if (holidays[0] <= date && date <= holidays[1]) {
+      return "Labor Day";
+    } else if (holidays[2] <= date && date <= holidays[3]) {
+      return "October Recess";
+    } else if (holidays[4] <= date && date <= holidays[5]) {
+      return "November Recess";
+    } else if (holidays[6] <= date && date <= holidays[7]) {
+      return "Winter Recess";
+    } else if (holidays[8] <= date && date <= holidays[9]) {
+      return "MLK Day";
+    } else if (holidays[10] <= date && date <= holidays[11]) {
+      return "Spring Recess";
+    } else {
+      return "";
+    }
+  };
+
   return (
     <div className="calendar-wrapper">
       <Calendar
+        locale="en-US"
+        calendarType="US"
         prev2Label={null}
         next2Label={null}
         selectRange={false}
@@ -89,14 +115,38 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
             return false;
           }
         }}
-        tileContent={({ activeStartDate, date, view }) => (
-          <CircleComponent
-            date={date}
-            add={addDay}
-            remove={removeDay}
-            selectedDays={selectedDays}
-          />
-        )}
+
+        
+        tileContent={({ activeStartDate, date, view }) => {
+          const holidayName = getHolidayName(date); 
+        
+          return (
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              {holidayName && (
+                <div 
+                  className="tooltip-overlay has-tooltip" 
+                  data-title={holidayName} 
+                  style={{ 
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    zIndex: 3
+                  }}
+                ></div>
+              )}
+              <CircleComponent
+                date={date}
+                add={addDay}
+                remove={removeDay}
+                selectedDays={selectedDays}
+              />
+            </div>
+          );
+        }}
+        
+
         navigationLabel={({ date, label, locale, view }) =>
           date.toLocaleString('default', { month: 'long' })
         }
@@ -106,41 +156,51 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
-          <button className='nextbuttondaysel' onClick={() => {
-                console.log("Hi");  
-                console.log(startTime);
-                console.log(endTime);
-                if (selectedDays.length == 0) {
-                  alert('Make sure to enter dates!');
-                  return;
-                }
+        <button className='nextbuttondaysel' onClick={() => {
+          console.log("Hi");
+          console.log(startTime);
+          console.log(endTime);
+          if (selectedDays.length == 0) {
+            alert('Make sure to enter dates!');
+            return;
+          }
 
-                if (startTime == 0 && endTime == 0) {
-                  alert('Make sure to enter times!');
-                  return;
-                }
+          if (startTime == 0 && endTime == 0) {
+            alert('Make sure to enter times!');
+            return;
+          }
 
-                if (startTime >= endTime) {
-                    alert('Make sure your end time is after your start time!');
-                    return;
-                }
+          if (startTime >= endTime) {
+            alert('Make sure your end time is after your start time!');
+            return;
+          }
 
-                // createEvent({
-                //     name: eventName,
-                //     dates: selectedDays,
-                //     // @ts-ignore
-                //     startTimes: new Array(selectedDays.length).fill(endTime),
-                //     endTimes: new Array(selectedDays.length).fill(endTime),
-                //     location: "",
-                // }).then((result) => {
-                //   if (result && result.publicId) {
-                //     navigate('/timeselect/' + result.publicId);
-                //   } else {
-                //     alert("Something went wrong!");
-                //   }
-                // })
-                                
-            }}>Next</button>
+          // Optional; backend supports an empty string for name
+          if (eventName.length == 0) {
+            alert('Make sure to name your event!');
+            return;
+          }
+
+
+
+          createEvent({
+            details: {
+              name: eventName,
+              dates: selectedDays,
+              // @ts-ignore
+              startTimes: new Array(selectedDays.length).fill(endTime),
+              endTimes: new Array(selectedDays.length).fill(endTime),
+              location: "",
+            }
+          }).then((result) => {
+            if (result && result.publicId) {
+              navigate('/timeselect/' + result.publicId);
+            } else {
+              alert("Something went wrong!");
+            }
+          })
+
+        }}>Next</button>
       </div>
     </div>
   );
