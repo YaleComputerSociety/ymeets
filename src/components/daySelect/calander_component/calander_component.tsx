@@ -183,22 +183,22 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
 
 
 
-          createEvent({
-            details: {
-              name: eventName,
-              dates: selectedDays,
-              // @ts-ignore
-              startTimes: new Array(selectedDays.length).fill(endTime),
-              endTimes: new Array(selectedDays.length).fill(endTime),
-              location: "",
-            }
-          }).then((result) => {
-            if (result && result.publicId) {
-              navigate('/timeselect/' + result.publicId);
-            } else {
-              alert("Something went wrong!");
-            }
-          })
+          // createEvent({
+          //   details: {
+          //     name: eventName,
+          //     dates: selectedDays,
+          //     // @ts-ignore
+          //     startTimes: new Array(selectedDays.length).fill(endTime),
+          //     endTimes: new Array(selectedDays.length).fill(endTime),
+          //     location: "",
+          //   }
+          // }).then((result) => {
+          //   if (result && result.publicId) {
+          //     navigate('/timeselect/' + result.publicId);
+          //   } else {
+          //     alert("Something went wrong!");
+          //   }
+          // })
 
         }}>Next</button>
       </div>

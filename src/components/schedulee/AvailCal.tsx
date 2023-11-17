@@ -30,7 +30,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
                     calendarFramework.dates.map((bucket, index) => {
 
                         if (index != 0) {
-                            columnIndexOffset += bucket.length
+                            columnIndexOffset += bucket.length - 1
                         }
                         
                         return <SelectCalander 

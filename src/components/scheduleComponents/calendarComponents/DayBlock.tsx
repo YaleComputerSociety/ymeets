@@ -28,7 +28,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
             }
         }
         
-        // todo - refine this algorithm
+        // TODO - refine this algorithm
         if (count == 0) {
             setBgColor("white");
         } else if (count <= Math.ceil(calendarState.length * .25)) {
@@ -112,7 +112,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         }
     }
 
-    console.log([columnID, blockID])
+    console.log(columnID)
+    console.log(calendarState);
 
     return (
 
