@@ -4,11 +4,10 @@ import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
+import graphic from './calendargraphic.png';
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
-
-    const graphic = './calendargraphic.png';
 
     const handleSignInWithGoogle = () => {
         signInWithGoogle().then(() => {

@@ -1,3 +1,4 @@
+import React from 'react';
 import AvailCal from '../AvailCal';
 import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
@@ -5,12 +6,14 @@ import { useState, useEffect } from "react"
 import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRange';
 import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 
-
 import { calandarDate, calanderState, userData } from '../../scheduleComponents/scheduletypes';
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
+import { useParams } from 'react-router-dom';
+import { getEventOnPageload } from '../../../firebase/events';
 
 function TimeSelectApp() {
+    const { code } = useParams();
 
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
@@ -19,14 +22,35 @@ function TimeSelectApp() {
 
     const [selectedLocations, updateSelectedLocations] = useState([]);
 
+    const [ loading, setLoading ] = useState(true);
+    useEffect(() => {
+
+        const fetchData = async () => {
+            if (code && code.length == 6) {
+                await getEventOnPageload(code).then(() => {
+                    const { availabilities, participants } = eventAPI.getCalendar();
+                    const dates = eventAPI.getCalendarDimensions();
+
+                    setChartedUsers(participants);
+                    setCalendarState(availabilities);
+                    setCalendarFramework(dates);
+                });
+    
+            } else { // url is malformed
+                console.error("The event code in the URL doesn't exist");
+            }
+            setLoading(false);
+        }
+
+        fetchData();
+    }, []);
+    if (loading) {
+        return <p>Loading...</p>
+    }
+
     const handleUpdateSelectedLocations = (locations:any) => {
         updateSelectedLocations(locations);
     }
-    
-    /* Testing Purposes */
-    useEffect(() => {
-        console.log(selectedLocations);
-    }, [selectedLocations]);
 
     return (
         <div>

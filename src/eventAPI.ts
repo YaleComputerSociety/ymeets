@@ -161,7 +161,7 @@ convertedRow.push(true);
             }
         }
 
-        return {
+       return {
             dates : theCalendarDates,
             startDate : getStartAndEndTimes()[0],
             endDate : getStartAndEndTimes()[1],
@@ -185,10 +185,15 @@ convertedRow.push(true);
                 id : i
             })
         }
-        
+
+        const availMatrix: calanderState = [];
+        for (let i = 0; i < avails.length; i++) {
+            availMatrix.push(this.availabilitytoAvailabilityMatrix(avails[i]));
+        }
+
         return {
             // @ts-ignore
-            availabilities : this.AvailabilitytoCalendarState(avails),
+            availabilities : availMatrix,
             participants : userData
             }
     }

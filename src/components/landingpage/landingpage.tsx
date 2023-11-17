@@ -6,25 +6,23 @@ import { getEventById } from '../../firebase/events';
 import graphic from '../loginpage/calendargraphic.png';
 
 export const LandingPageButtons = () => {
+    const navigate = useNavigate();
     const [showEventCode, setShowEventCode] = useState(false);
     const [input, setInput] = useState('');
     const [error, setError] = useState('');
 
-    const handleJoinClick = () => {
-        console.log(input);
+    const handleJoinClick: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+
         if (input.length !== 6) {
             alert('Please enter a valid code.');
         } else {
             setError('');
             getEventById(input).then((result) => {
-                // @ts-ignore
-                if (result) {
-                    // @ts-ignore
-                    navigate('/timeselect', { code: input });
-                } else {
-                    alert('Please enter a valid code.');
-                }
-            }).catch(() => {
+                navigate('/timeselect/' + input);
+
+            }).catch((err) => {
+                console.log(err);
                 alert('Please enter a valid code.');
             });
         }

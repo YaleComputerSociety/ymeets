@@ -112,8 +112,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         }
     }
 
-    console.log(columnID)
-    console.log(calendarState);
+    // console.log(columnID)
+    // console.log(calendarState);
 
     return (
 
