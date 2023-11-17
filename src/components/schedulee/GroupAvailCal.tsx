@@ -45,6 +45,7 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
                             draggable={false}
                             isAdmin={false}
+                            chartedUsersData={[chartedUsers, setChartedUsers]}
                             columnIndexOffset={columnIndexOffset}
                         />
 
