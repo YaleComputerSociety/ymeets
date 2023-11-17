@@ -1,5 +1,5 @@
 import { auth, googleProvider } from './firebase';
-import { signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 
 // Google sign in
 // returns error message
@@ -26,6 +26,14 @@ const signInWithGoogle = async () => {
         return err;
     }
 };
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        console.log("Logged in ", user)
+    }else{
+        console.log("Logged out");
+    }
+});
 
 // logout
 const logout = () => {

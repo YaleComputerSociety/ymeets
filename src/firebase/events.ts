@@ -1,6 +1,6 @@
-import { doc, collection, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
-import { db } from './firebase';
+import { auth, db } from './firebase';
 
 // ASSUME names are unique within an event
 
@@ -10,21 +10,38 @@ var workingEvent: Event = {
         name: "name",
         adminName: "string",
         description: "description",
-        adminAccountId: "admin_account_id",
+        adminAccountId: "WJCCE0YA2fY5gpPxG58l8Ax3T9m2",
         dates: [],
-        startTime: 100, // minutes; min: 0, max 24*60 = 1440
-        endTime: 200, // minutes; min: 0, max 24*60 = 1440
+        startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
+        endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
     }, 
     participants: []
 };
 
 const checkIfLoggedIn = (): boolean => {
-    return false
+    return (auth.currentUser && auth.currentUser.isAnonymous == false) || false;
 }
 
 const checkIfAdmin = (): boolean => {
+    if (workingEvent && auth.currentUser) {
+        if (workingEvent.details.adminAccountId && workingEvent.details.adminAccountId == getAccountId()) {
+            return true
+        }
+    }
     return false
+}
+
+const getAccountId = (): string => {
+    if (auth.currentUser !== null) {
+        return auth.currentUser.uid;
+    } else {
+        return "";
+    }
+}
+
+const getAccountName = (): string | null => {
+    return auth.currentUser?.displayName ? auth.currentUser.displayName : "";
 }
 
 // https://firebase.google.com/docs/firestore/manage-data/add-data
@@ -49,10 +66,19 @@ const generateUniqueId = (): string => {
 async function getEventById(id: EventId): Promise<void> {
     const eventsRef = collection(db, "events")
     return new Promise((resolve, reject) => {
-        getDoc(doc(eventsRef, id)).then((result) => {  
+        getDoc(doc(eventsRef, id)).then(async (result) => {  
             if (result.exists()) {
                 // @ts-ignore
                 workingEvent = result.data()
+
+                // Retrieve all participants as sub-collection
+                getParticipants(collection(db, "events", id, "participants")).then((parts) => {
+                    workingEvent.participants = parts
+                }).catch((err) => {
+                    console.log("Issue retrieving participants.");
+                    reject(err);
+                })
+
                 resolve();
             } else {
                 console.log("Document does not exist.");
@@ -66,22 +92,34 @@ async function getEventById(id: EventId): Promise<void> {
 }
 
 // Stores a new event passed in as a parameter to the backend
-async function createEvent(event: Event): Promise<Event | null> {
+async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     const id = generateUniqueId();
     const newEvent: Event = {
         details: {
-            ...event.details,
+            ...eventDetails,
             // TODO map dates to JSON
             // @ts-ignore
-            dates: dateToObject(event.details.dates)
+            dates: dateToObject(eventDetails.dates)
         },
         publicId: id,
         participants: [],
     };
 
+    // Update local copy
+    workingEvent = newEvent
+
+    // Update backend
     return new Promise((resolve, reject) => {
         const eventsRef = collection(db, "events")
-        setDoc(doc(eventsRef, id), newEvent) // addDoc as overwrite-safe alt
+        setDoc(doc(eventsRef, id), {
+            details: {
+                ...eventDetails,
+                // TODO map dates to JSON
+                // @ts-ignore
+                dates: dateToObject(eventDetails.dates)
+            },
+            publicId: id,
+        }) // addDoc as overwrite-safe alt
             .then((result: void) => {
                 resolve(newEvent);
 
@@ -93,15 +131,51 @@ async function createEvent(event: Event): Promise<Event | null> {
     });
 }
 
+
+// For internal use
+const getParticipantIndex = (name: string, accountId: string = ""): number => {
+    let index;
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].name == name || (accountId && workingEvent.participants[i].accountId == accountId)) {
+            index = i;
+        }
+    }
+    if (!index) {
+        throw new Error('Cannot find participant');
+    }
+    return index
+} 
+
+// For internal use
+const getParticipants = async (reference: CollectionReference<DocumentData>): Promise<Participant[]> => {
+    return new Promise((resolve, reject) => {getDocs(reference).then((docs) => {
+            let parts: Participant[] = []
+            docs.forEach((data) => {
+                // @ts-ignore
+                parts.push(data.data());
+            });
+
+            resolve(parts);
+        }).catch((err) => {
+            console.log("Caught " + err + " with message " + err.msg);
+            reject(err);
+        })
+    });
+}
+
+// For internal use
 // Updates (overwrites) the event details of the working event 
 // with the eventDetails parameter 
 function saveEventDetails(eventDetails: EventDetails) {
+    // Update local copy
+    workingEvent.details = eventDetails
+
+    // Update backend
     return new Promise<void>((resolve, reject) => {
         const eventsRef = collection(db, "events")
         updateDoc(doc(eventsRef, workingEvent.publicId), {
             details: eventDetails
-            
-          }).then(() => {
+        }).then(() => {
                 resolve();
 
             }).catch((err) => {
@@ -112,12 +186,27 @@ function saveEventDetails(eventDetails: EventDetails) {
     });
 }
 
+// For internal use
 // Updates the participants list of the working event 
 // with the participant passed in, overwriting if they already exist
-function saveParticipantDetails(participant: Participant) {
+async function saveParticipantDetails(participant: Participant): Promise<void> {
+    // Update local copy
+    let flag = false
+    workingEvent.participants.forEach((part, index) => {
+        if ((participant.accountId && part.accountId == participant.accountId) || (participant.name == part.name)) {
+            workingEvent.participants[index] = participant;
+            flag = true;
+        }
+    });
+    if (!flag) {
+        console.log("Adding new participant")
+        workingEvent.participants.push(participant)
+    }
+
+    // Update backend
     return new Promise<void>((resolve, reject) => {
         const eventsRef = collection(db, "events");
-        const participantsRef = collection(eventsRef, "participants");
+        const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
         let partRef;
         if (participant.accountId) {
             partRef = doc(participantsRef, participant.accountId);
@@ -125,11 +214,11 @@ function saveParticipantDetails(participant: Participant) {
             partRef = doc(participantsRef, participant.name);
         }
 
-        setDoc(doc(partRef, participant.name), {
+        setDoc(partRef, {
             name: participant.name,
-            accountId: participant.accountId,
+            accountId: participant.accountId || "",
             availability: JSON.stringify(participant.availability),
-            location: participant.location,
+            location: participant.location || "",
 
           }).then(() => {
                 resolve();
@@ -144,53 +233,37 @@ function saveParticipantDetails(participant: Participant) {
 
 // Sets the availability of a participant of the name parameter with their 
 // availability object; passing in their accountId is optional addition verification
-function setAvailability(name: string, availability: Availability, accountId: string = "") {
-    let index;
-    for (let i = 0; i < workingEvent.participants.length; i++) {
-        if (workingEvent.participants[i].name == name || workingEvent.participants[i].accountId == accountId) {
-            index = i;
-        }
-    }
-    if (!index) {
-        throw new Error('Cannot find participant');
-    }
+async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
+    let index = getParticipantIndex(name, accountId);
 
     workingEvent.participants[index].availability = JSON.stringify(availability);
 
-    saveParticipantDetails(workingEvent.participants[index]);
+    return saveParticipantDetails(workingEvent.participants[index]);
 }
 
 // Sets the location preference of a participant of the name parameter with 
 // location parameter object; passing in their accountId is optional addition verification
-function setLocationPreference(name: string, location: Location, accountId: string = "") {
-    let index;
-    for (let i = 0; i < workingEvent.participants.length; i++) {
-        if (workingEvent.participants[i].name == name || workingEvent.participants[i].accountId == accountId) {
-            index = i;
-        }
-    }
-    if (!index) {
-        throw new Error('Cannot find participant');
-    }
+async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
+    let index = getParticipantIndex(name, accountId);
 
     workingEvent.participants[index].location = location;
 
-    saveParticipantDetails(workingEvent.participants[index]);
+    return saveParticipantDetails(workingEvent.participants[index]);
 }
 
 // Sets the official date for the event; must be called by the admin 
-function setChosenDate(chosenStartDate: Date, chosenEndDate: Date) {
-    workingEvent.details.chosenStartDate = chosenStartDate
-    workingEvent.details.chosenEndDate = chosenEndDate
+async function setChosenDate(chosenStartDate: Date, chosenEndDate: Date): Promise<void> {
+    workingEvent.details.chosenStartDate = chosenStartDate;
+    workingEvent.details.chosenEndDate = chosenEndDate;
 
-    saveEventDetails(workingEvent.details)
+    return saveEventDetails(workingEvent.details);
 }
 
 // Sets the official location for the event; must be called by the admin 
-function setChosenLocation(chosenLocation: Location) {
+async function setChosenLocation(chosenLocation: Location): Promise<void> {
     workingEvent.details.chosenLocation = chosenLocation
 
-    saveEventDetails(workingEvent.details)
+    return saveEventDetails(workingEvent.details)
 }
 
 // Retrieves the list of locations to be considered for the event
@@ -211,26 +284,28 @@ function getEventDescription(): string {
 // To be called on render when a page loads with event id in url
 async function getEventOnPageload(id: string): Promise<void> {
     if (workingEvent && workingEvent.publicId == id) {
-        console.log("Exists, skipping")
-        return Promise.resolve()
+        console.log("Already loaded event, skipping");
+        return Promise.resolve();
     } else {
-        return getEventById(id)
+        return getEventById(id);
     }
 }
 
-// Retrieves the availability object of the participant of the parameter name
+// Retrieves the availability object of the participant matching `name`
 function getAvailabilityByName(name: string): Availability | undefined {
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].name == name) {
+            // @ts-ignore
             return JSON.parse(workingEvent.participants[i].availability)
         }
     }
 }
 
-// Retrieves the availability object of the participant of the parameter accountId
+// Retrieves the availability object of the participant matching `accountId`
 function getAvailabilityByAccountId(accountId: string): Availability | undefined {
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].accountId == accountId) {
+            // @ts-ignore
             return JSON.parse(workingEvent.participants[i].availability)
         }
     }
@@ -251,13 +326,14 @@ function getAllAvailabilitiesNames(): string[] {
 function getAllAvailabilities(): Availability[] {
     let avails: Availability[] = []
     for (let i = 0; i < workingEvent.participants.length; i++) {
+        // @ts-ignore
         avails.push(JSON.parse(workingEvent.participants[i].availability))
     }
     return avails
 }
 
-// Retrieves the official date and time of the event as chosen by the admin
-function getChosenDayAndTime(): [startDate: Date, endDate: Date] | undefined  {
+// Retrieves the official datetime (start and end) of the event as chosen by the admin
+function getChosenDayAndTime(): [Date, Date] | undefined  {
     if (workingEvent.details.chosenStartDate && workingEvent.details.chosenEndDate) {
         return [workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate]
     }
@@ -283,29 +359,51 @@ function getLocationsVotes(): { [id: Location]: number; } {
     return votes
 }
 
-export {
-    checkIfLoggedIn,
-    checkIfAdmin,
+function getDates(): Date[] {
+    return workingEvent.details.dates;
+}
 
+function getStartAndEndTimes(): Date[] {
+    return [workingEvent.details.startTime, workingEvent.details.endTime];
+}
+
+export { workingEvent } // For interal use; use getters and setters below
+
+export {
+    // Firebase Wrappers
+    getAccountId,
+    getAccountName,
+    checkIfLoggedIn,
+
+    // Misc
+    checkIfAdmin,
+    
+    // High Level (Async)
+    getEventOnPageload,
     getEventById,
     createEvent,
     
+    // Getters (Sync)
+    getDates,
+    getStartAndEndTimes,
     getChosenLocation,
     getChosenDayAndTime,
     getAllAvailabilities,
     getAllAvailabilitiesNames,
     getAvailabilityByAccountId,
     getAvailabilityByName,
-    getEventOnPageload,
     getEventDescription,
     getEventName,
     getLocationOptions,
     getLocationsVotes,
 
+    // All Participants (Async)
+    setAvailability,
+    setLocationPreference,
+
+    // Admin Only (Async)
     setChosenLocation,
     setChosenDate,
-    setLocationPreference,
-    setAvailability,
 }
 
 function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
@@ -314,7 +412,7 @@ function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
       dateObject[index + 1] = date;
     });
     return dateObject;
-  }
+}
 
 function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
     const result: Array<[number, number, number]> = [];  
@@ -324,10 +422,4 @@ function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[n
         }
     }
     return result;
-}
-
-function eventToArray(data: any): Event | null {
-    if (!data) return null;
-    data.details.dates = dateToArray(data.details.dates);
-    return data;
 }

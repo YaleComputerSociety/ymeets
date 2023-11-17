@@ -1,8 +1,7 @@
 export type EventId = string;
 export type Location = string;
-export type Availability = boolean[][];
+export type Availability = string | boolean[][];
 
-// once event is created, everything should be done with this type (it has an id)
 export interface Event { // Firebase ID is EventID
     publicId: EventId, // field
     details: EventDetails, // map (nested object)
@@ -12,11 +11,11 @@ export interface Event { // Firebase ID is EventID
 export interface EventDetails {
     name: string,
     description: string,
-    adminName: string
+    adminName: string,
     adminAccountId: string, // firebase uid
     dates: Date[],
-    startTime: number, // minutes; min: 0, max 24*60 = 1440
-    endTime: number, // minutes; min: 0, max 24*60 = 1440
+    startTime: Date, 
+    endTime: Date, 
     plausibleLocations: Location[],
     chosenLocation?: Location,
     chosenStartDate?: Date,
@@ -26,6 +25,6 @@ export interface EventDetails {
 export interface Participant {
     name: string,
     accountId?: string,
-    availability: string, // JSON string of Availability type
+    availability: Availability, // Availability || JSON string of Availability type
     location: Location,
 }

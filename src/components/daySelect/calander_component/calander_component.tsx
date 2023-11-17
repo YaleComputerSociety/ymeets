@@ -10,8 +10,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
 
+interface CalanderComponentProps {
+  eventName: string;
+}
 
-export const CalanderComponent = () => {
+export const CalanderComponent = (props: CalanderComponentProps) => {
   const arr1: any[] = [];
   const [selectedDays, updateDays] = useState(arr1);
   const navigate = useNavigate();
@@ -87,14 +90,6 @@ export const CalanderComponent = () => {
 
   return (
     <div className="calendar-wrapper">
-      <div className="calendar-event-name-wrapper">
-        <input
-          placeholder="Name your event..."
-          type="text"
-          value={eventName}
-          onChange={(event) => handleUpdateEventName(event.target.value)}
-        />
-      </div>
       <Calendar
         locale="en-US"
         calendarType="US"

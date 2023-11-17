@@ -21,18 +21,18 @@ export const TimeSelectComponent = (props:any) => {
     const options = Array.from({length: 24}, (_, i) => ({
         value: i + 1,
         label: turnToTimeString(i)
-    }))
-
+    }));
+    
     return (
-        <div className={`time-select-wrapper`}>
-            <div className='time-select-text-wrapper'>
-                <p className='time-select-text'>FROM</p>
+        <div className='absolute top-[-35px] right-0 flex flex-row'>
+            <div className='grid items-center px-1 sm:px-2'>
+                <p className='text-right font-bold m-0 text-sm sm:text-base'>FROM</p>
             </div>
-            <Select searchable={false} options={options} values={[]} onChange={(values:any) => {props.updateStart((values[0]['value']-1) * 60)}} />
-            <div className='time-select-text-wrapper'>
-                <p className='time-select-text'>TO</p>
+            <Select className="" searchable={false} options={options} values={[]} onChange={(values:any) => {props.updateStart((values[0]['value']-1) * 60)}} />
+            <div className='grid items-center px-1 sm:px-2'>
+            <p className='text-right font-bold m-0 text-sm sm:text-base'>TO</p>
             </div>
-            <Select searchable={false} options={options} values={[]} onChange={(values:any) => {props.updateEnd((values[0]['value']-1) * 60)}} />
+            <Select className="" searchable={false} options={options} values={[]} onChange={(values:any) => {props.updateEnd((values[0]['value']-1) * 60)}} />
         </div>
     );
 }
