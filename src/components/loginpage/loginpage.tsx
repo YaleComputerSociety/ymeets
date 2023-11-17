@@ -1,5 +1,4 @@
 import * as React from "react";
-import graphic from './calendargraphic.png';
 // import background from '../landingpage/landingbackground.jpg'
 import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
@@ -8,6 +7,8 @@ import { auth } from "../../firebase/firebase";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
+
+    const graphic = './calendargraphic.png';
 
     const handleSignInWithGoogle = () => {
         signInWithGoogle().then(() => {
