@@ -5,6 +5,7 @@
       "dom",
       "dom.iterable",
       "esnext"
+      
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -19,7 +20,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "downlevelIteration": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["react", "react-dom", "reactjs-popup"],
+
   },
   "include": [
     "src", "tailwind.config.js"  

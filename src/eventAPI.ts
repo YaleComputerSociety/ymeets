@@ -34,7 +34,13 @@ export default class frontendEventAPI{
                 plausibleLocations : plausibleLocations
 
             }
-        )
+        ).then((ev) => {
+
+            console.log(ev);
+
+        })
+
+        
     }
 
     static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
@@ -46,7 +52,7 @@ export default class frontendEventAPI{
             let convertedRow : boolean[] = []
         
             if (avail === 1) {
-                convertedRow.push(true);
+convertedRow.push(true);
             } else {
                 convertedRow.push(false);
             }
