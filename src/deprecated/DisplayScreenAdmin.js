@@ -119,36 +119,36 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
    
   
     return (
-    <div class="container" style={{ fontFamily: 'Roboto, sans-serif', cursor: 'pointer' }}>
+    <div className="container" style={{ fontFamily: 'Roboto, sans-serif', cursor: 'pointer' }}>
      
-      <div class="column_admin" id = "0">
-        <div class="TimeColumn">
+      <div className="column_admin" id = "0">
+        <div className="TimeColumn">
         <div className="label timezone">EST
           </div>
-          <div class="box_admin" id = "time_admin" id2 = "1">8 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "2">9 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "3">10 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "4">11 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "5">12 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "6">1 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "7">2 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "8">3 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "9">4 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "10">8 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "11">9 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "12">10 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "13">11 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "14">12 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "15">1 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "16">2 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "17">3 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "18">4 PM</div>
-          <div class="box_admin" id = "time_admin" id2 = "19">8 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "20">9 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "21">10 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "22">11 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "23">12 AM</div>
-          <div class="box_admin" id = "time_admin" id2 = "24">1 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "1">8 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "2">9 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "3">10 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "4">11 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "5">12 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "6">1 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "7">2 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "8">3 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "9">4 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "10">8 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "11">9 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "12">10 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "13">11 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "14">12 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "15">1 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "16">2 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "17">3 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "18">4 PM</div>
+          <div className="box_admin" id = "time_admin" id2 = "19">8 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "20">9 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "21">10 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "22">11 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "23">12 AM</div>
+          <div className="box_admin" id = "time_admin" id2 = "24">1 PM</div>
 
           
         </div>
@@ -160,7 +160,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "1" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -172,7 +172,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "2" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -184,7 +184,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "3" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -196,7 +196,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "4" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -208,7 +208,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "5" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -220,7 +220,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "6" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
@@ -232,7 +232,7 @@ const DisplayScreenAdmin = ({startDate, endDate, startTime, endTime, availabilit
           </div>
           {Array.from({ length: 96 }, (_, index) => (
             <div className="box_admin" row_id_admin={index + 1} col_id_admin = "7" key={index}>
-              <span class="tooltiptext">Tooltip text</span>
+              <span className="tooltiptext">Tooltip text</span>
             </div>
           ))}
         </div>
