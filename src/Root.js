@@ -1,32 +1,37 @@
 // where the Routing thing goes.
 import './Root.css';
 import logo from './static/ymeetslogo.png';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import LandingPageButtons from './components/landingpage';
 import LoginPageButtons from './components/loginpage';
 import DaySelectComponent from './components/daySelect/day_select_component';
 import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.tsx';
 import EnterCodeComp from './components/entercodepage';
-// import AdminGroupViewComp from './components/schedulee/admingroupviewpage/App.js'
+import AdminGroupViewApp from './components/scheduler/admingroupviewpage/AdminGroupViewApp';
 import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
+import AdminCal from './components/schedulee/AdminCal';
 
 // TODO require auth on some pages
 function Root() {
     return (
         <>
+        <Router>
+            
         <header>
-            <div class="header-logo">
-                <img src={logo} alt="YMeets"></img>
+            <div className="header-logo">
+                <Link to="/">
+                    <img src={logo} alt="YMeets" />
+                </Link>
             </div>
         </header>
-        <Router>
+
             <Routes>
                 <Route path='/' element={<LoginPageButtons />} />
                 <Route path='/landingpage' element={<LandingPageButtons />} />
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />
-                {/* <Route path='/adminview' element={<AdminGroupViewComp />} /> */}
+                <Route path='/adminview' element={<AdminGroupViewApp />} />
                 <Route path='/groupview' element={<GroupViewComp />} />
             </Routes>
         </Router>

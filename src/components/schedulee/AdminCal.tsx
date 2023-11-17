@@ -1,38 +1,33 @@
-import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
 import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalendar";
-import { generateTimeBlocks } from "../scheduleComponents/utils/generateTimeBlocks";
-import { useEffect } from "react";
-import { getDateWithDay } from "../scheduleComponents/utils/getDateWithDay";
-import { calendarDimensions, calanderState, userData } from "../scheduleComponents/scheduletypes";
+import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
+import { calendarDimensions, calanderState } from "../scheduleComponents/scheduletypes";
 
-interface GroupAvailCal {
+
+interface AdminCalProps {
     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>]
     draggable : boolean
+    isAdmin? : boolean
 }
 
-export default function GroupAvailCal({theCalendarFramework, theCalendarState, chartedUsersData, draggable}: GroupAvailCal) {
+export default function AdminCal({theCalendarFramework, theCalendarState, draggable, isAdmin}: AdminCalProps) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
-    const [chartedUsers, setChartedUsers] = chartedUsersData;
     let columnIndexOffset = 0
-    
+
     return (
-
         <>
-         <h1 className="text-4xl m-5 mb-0 font-bold">Group Availibility</h1>
-        
+            <p className="text-4xl m-5 mb-1 font-bold">
+                Group Availibility - Admin
+            </p>
             <div className="border border-1 border-gray-600 m-5 w-fit">
-            
-            <div className="flex">  
-
-                <TimeColumn 
-                    startDate={calendarFramework.startDate}
-                    endDate={calendarFramework.endDate}
-                />
-                {
+                <div className="flex">
+                    <TimeColumn     
+                        startTime={calendarFramework.startDate}
+                        endTime={calendarFramework.endDate}
+                    />
+                    {
                     calendarFramework.dates.map((bucket, index) => {
 
                         if (index != 0) {
@@ -51,10 +46,8 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                         
                     }) 
                     }
+                </div>
             </div>
-        </div>
         </>
-        
     )
-
 }

@@ -8,6 +8,9 @@ module.exports = {
       fontFamily: {
         roboto: ['Roboto', 'sans'],
       },
+      boxShadow: {
+        custom: '2px 4px 3px 0px rgba(0, 0, 0, 0.4)',
+      },
       colors : {
         "ymeets-gray" : "#D0CFCF",
         "ymeets-med-blue" : "#0056AE",
