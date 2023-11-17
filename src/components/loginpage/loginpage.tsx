@@ -29,9 +29,9 @@ export const LoginPageButtons = () => {
                         <h3 className='flex justify-start p-2 pb-0 md:w-12/12 md:ml-[11%] lg:ml-[24%] lg:text-xl'>Find the optimal meeting time and location with ease with ymeets!</h3>
                         <h3 className='flex justify-start p-2 pb-0 md:w-12/12 md:ml-[11%] lg:ml-[24%] lg:text-xl'>Now featuring:</h3>
                         <ul className='list-disc pl-4 md:ml-[13%] lg:ml-[26%]'>
-                            <li className="p-1 md:p-0 lg:text-xl">Aggregated availabilities and location preferences for your group</li>
-                            <li className="p-1 md:p-0 lg:text-xl">Yale-specific location preference options</li>
-                            <li className="p-1 md:p-0 lg:text-xl">Integrated key academic dates and holidays on the calendar</li>
+                            <li className="p-1 md:p-0 lg:text-xl">Aggregated availabilities and location preferences for your group.</li>
+                            <li className="p-1 md:p-0 lg:text-xl">Yale-specific location preference options.</li>
+                            <li className="p-1 md:p-0 lg:text-xl">Integrated key academic dates and holidays on the calendar.</li>
                         </ul>
                     </div>
                     <div className='flex flex-col md:flex-row justify-center items-center w-full my-8'>
