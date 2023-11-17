@@ -5,6 +5,7 @@ import "react-calendar/dist/Calendar.css";
 import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
+import Popup from 'reactjs-popup';
 
 
 import { useState, useEffect } from "react";
@@ -37,6 +38,14 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
   }
 
   const [startTime, updateStartTime] = useState(0);
+
+  const [popupIsOpen, setPopupIsOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+
+  const showAlert = (message: string) => {
+    setPopupMessage(message);
+    setPopupIsOpen(true);
+  };
 
   const handleUpdateStartTime = (time: any) => {
     updateStartTime(time)
@@ -156,28 +165,35 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
+        <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>
+          <div className="custom-popup">
+            <button className="close-button" onClick={() => setPopupIsOpen(false)}>
+            </button>
+            <p>{popupMessage}</p>
+          </div>
+        </Popup>
         <button className='nextbuttondaysel' onClick={() => {
           console.log("Hi");
           console.log(startTime);
           console.log(endTime);
           if (selectedDays.length == 0) {
-            alert('Make sure to enter dates!');
+            showAlert('Make sure to enter dates!');
             return;
           }
 
           if (startTime == 0 && endTime == 0) {
-            alert('Make sure to enter times!');
+            showAlert('Make sure to enter times!');
             return;
           }
 
           if (startTime >= endTime) {
-            alert('Make sure your end time is after your start time!');
+            showAlert('Make sure your end time is after your start time!');
             return;
           }
 
           // Optional; backend supports an empty string for name
           if (eventName.length == 0) {
-            alert('Make sure to name your event!');
+            showAlert('Make sure to name your event!');
             return;
           }
 
