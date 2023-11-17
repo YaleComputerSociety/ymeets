@@ -21,6 +21,11 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/calendar');
+
+// import("https://apis.google.com/js/api.js").then(() => {
+//   gapi.loaded("clien:auth2");
+// })
 
 export {
     auth,
