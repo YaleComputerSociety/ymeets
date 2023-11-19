@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { auth, db } from './firebase';
 
@@ -12,8 +12,8 @@ var workingEvent: Event = {
         description: "description",
         adminAccountId: "WJCCE0YA2fY5gpPxG58l8Ax3T9m2",
         dates: [],
-        // startTime: 100, // minutes; min: 0, max 24*60 = 1440
-        // endTime: 200, // minutes; min: 0, max 24*60 = 1440
+        startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
+        endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
     }, 
     participants: []
@@ -69,11 +69,14 @@ async function getEventById(id: EventId): Promise<void> {
         getDoc(doc(eventsRef, id)).then(async (result) => {  
             if (result.exists()) {
                 // @ts-ignore
-                workingEvent = result.data()
+                workingEvent = result.data();
+                workingEvent.details.startTime = (workingEvent.details.startTime as unknown as Timestamp).toDate()
+                workingEvent.details.endTime = (workingEvent.details.endTime as unknown as Timestamp).toDate()
+                workingEvent.details.dates = dateToArray(workingEvent.details.dates);
 
                 // Retrieve all participants as sub-collection
                 getParticipants(collection(db, "events", id, "participants")).then((parts) => {
-                    workingEvent.participants = parts
+                    workingEvent.participants = parts;
                 }).catch((err) => {
                     console.log("Issue retrieving participants.");
                     reject(err);
@@ -111,15 +114,7 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     // Update backend
     return new Promise((resolve, reject) => {
         const eventsRef = collection(db, "events")
-        setDoc(doc(eventsRef, id), {
-            details: {
-                ...eventDetails,
-                // TODO map dates to JSON
-                // @ts-ignore
-                dates: dateToObject(eventDetails.dates)
-            },
-            publicId: id,
-        }) // addDoc as overwrite-safe alt
+        setDoc(doc(eventsRef, id), newEvent) // addDoc as overwrite-safe alt
             .then((result: void) => {
                 resolve(newEvent);
 
@@ -283,11 +278,11 @@ function getEventDescription(): string {
 
 // To be called on render when a page loads with event id in url
 async function getEventOnPageload(id: string): Promise<void> {
-    if (workingEvent && workingEvent.publicId == id) {
+    if (workingEvent && workingEvent.publicId == id.toUpperCase()) {
         console.log("Already loaded event, skipping");
         return Promise.resolve();
     } else {
-        return getEventById(id);
+        return getEventById(id.toUpperCase());
     }
 }
 
@@ -363,6 +358,10 @@ function getDates(): Date[] {
     return workingEvent.details.dates;
 }
 
+function getStartAndEndTimes(): Date[] {
+    return [workingEvent.details.startTime, workingEvent.details.endTime];
+}
+
 export { workingEvent } // For interal use; use getters and setters below
 
 export {
@@ -381,6 +380,7 @@ export {
     
     // Getters (Sync)
     getDates,
+    getStartAndEndTimes,
     getChosenLocation,
     getChosenDayAndTime,
     getAllAvailabilities,
@@ -409,11 +409,11 @@ function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
     return dateObject;
 }
 
-function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
-    const result: Array<[number, number, number]> = [];  
+function dateToArray(obj: { [key: number]: Date }): Array<Date> {
+    const result: Array<Date> = [];  
     for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-        result.push(obj[key]);
+        result.push((obj[key] as unknown as Timestamp).toDate());
         }
     }
     return result;

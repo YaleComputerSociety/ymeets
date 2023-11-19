@@ -58,7 +58,7 @@ abbr {
 
 .react-calendar {
     border: none !important;
-    position: absolute;
+    position: relative;
 }
 
 .react-calendar__tile {
@@ -177,3 +177,76 @@ abbr {
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
     /* transform: translateX(4px); */
 }
+
+.react-calendar__tile:disabled,
+.react-calendar__tile:disabled:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.tooltip-overlay.has-tooltip:hover::before {
+    content: attr(data-title);
+    position: absolute;
+    bottom: calc(100% - 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: #333;
+    color: white;
+    white-space: nowrap;
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.8;
+    font-size: 1em;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .tooltip-overlay.has-tooltip:hover::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% - 30px);
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    pointer-events: none;
+  }
+  
+  .custom-popup {
+    background-color: #fff;
+    padding: 30px; /* Increase padding to make it larger */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px; /* Set a specific width for the popup */
+    position: relative; /* Required for absolute positioning */
+    color: #00356B;
+    border-color: #00356B
+
+  }
+
+.close-button {
+    background-color: #ccc;
+    color: #fff;
+    border: none;
+    padding: 5px;
+    border-radius: 50%; /* Make it a circle */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px; /* Increase font size to make it an X */
+    width: 24px; /* Adjust width to align X */
+    height: 24px; /* Adjust height to align X */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s; /* Add transition for hover effect */
+    }
+
+.close-button:hover {
+    background-color: #00356B;
+    }
+
+.close-button::before {
+    content: "X"; /* Use the '×' character as content for the close button */
+    }

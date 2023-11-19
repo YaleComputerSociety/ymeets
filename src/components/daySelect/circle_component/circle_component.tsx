@@ -49,43 +49,43 @@ export const CircleComponent = (props: any) => {
     }
   };
 
-  useEffect(() => {
-    tippy("#laborDay", {
-      content: "Labor Day",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  // useEffect(() => {
+  //   tippy("#laborDay", {
+  //     content: "Labor Day",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#octoberRecess", {
-      content: "October Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#octoberRecess", {
+  //     content: "October Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#novemberRecess", {
-      content: "November Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#novemberRecess", {
+  //     content: "November Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#winterRecess", {
-      content: "Winter Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#winterRecess", {
+  //     content: "Winter Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#mlkDay", {
-      content: "MLK Day",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#mlkDay", {
+  //     content: "MLK Day",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#springRecess", {
-      content: "Spring Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
-  }, [props.date, props.selectedDays]);
+  //   tippy("#springRecess", {
+  //     content: "Spring Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
+  // }, [props.date, props.selectedDays]);
 
   return (
     <div className={`circle ${active}`}>

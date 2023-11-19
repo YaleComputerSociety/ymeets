@@ -2,11 +2,13 @@ import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 
 export default function TimeColumn(props: any) {
 
-    const {startTime, endTime} = props;
+    const {startDate, endDate} = props;
 
-    let blocks = generateTimeBlocks(startTime, endTime);
-    
-    console.log(blocks)
+    console.log("start date " + startDate)
+    console.log("end date " + endDate)
+
+    let blocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
+
     let military_to_normal: Record<string, string> = {
         "00:00": "12AM",
         "01:00": "1AM",
@@ -32,7 +34,8 @@ export default function TimeColumn(props: any) {
         "21:00": "9PM",
         "22:00": "10PM",
         "23:00": "11PM"
-    }
+    };
+    
     
 
     return (
@@ -41,8 +44,8 @@ export default function TimeColumn(props: any) {
         <div className="lg:h-28 md:h-24 xs:h-24 sm:h-20"></div>
             {  
                 blocks
-                .filter((block) => block.substring(3) !== "45")
-                .map((block) => {
+                .filter((block : any) => block.substring(3) !== "45")
+                .map((block : any) => {
                     
                     return (
                         <div>

@@ -22,6 +22,7 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
+    let columnIndexOffset = 0
     const testData = eventAPI.getTestData();
     const [chartedUsers, setChartedUsers] = useState<userData>(
         testData.userData
@@ -102,20 +103,27 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
                     <div className="border border-1 border-gray-600 m-5">
                         <div className="flex">
                             <TimeColumn     
-                                startTime={calendarFramework.startTime}
-                                endTime={calendarFramework.endTime}
+                                startTime={calendarFramework.startDate}
+                                endTime={calendarFramework.endDate}
                             />
                             {
-                                Object.keys(calendarFramework.dates).map((theDate) =>
-                                    <SelectCalander 
+                                calendarFramework.dates.map((bucket, index) => {
+
+                                    if (index != 0) {
+                                        columnIndexOffset += bucket.length
+                                    }
+                                    
+                                    return <SelectCalander 
                                         theCalendarState={[calendarState, setCalendarState]}
-                                        date={theDate}
+                                        bucket={bucket}
                                         theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                                        chartedUsersData={[chartedUsers, setChartedUsers]}
-                                        draggable={draggable}
-                                        isAdmin={isAdmin}
+                                        draggable={false}
+                                        isAdmin={false}
+                                        columnIndexOffset={columnIndexOffset}
                                     />
-                                ) 
+            
+                                    
+                                }) 
                             }
                         
                         </div>

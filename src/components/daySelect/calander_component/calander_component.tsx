@@ -5,47 +5,70 @@ import "react-calendar/dist/Calendar.css";
 import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
-
-
-import { useState } from "react";
+import Popup from 'reactjs-popup';
+import frontendEventAPI from "../../../eventAPI";
+import { useState, useEffect } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
+import "../calander_component/calander_component.css"
 
 interface CalanderComponentProps {
-  eventName: string;
+  theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
+  selectedStartDate: [Date, React.Dispatch<React.SetStateAction<Date>>],
+  selectedEndDate : [Date, React.Dispatch<React.SetStateAction<Date>>],
+  selectedDates : [Date[], React.Dispatch<React.SetStateAction<Date[]>>],
+  popUpOpen : [boolean, React.Dispatch<React.SetStateAction<boolean>>],
+  popUpMessage : [string, React.Dispatch<React.SetStateAction<string>>]
 }
 
-export const CalanderComponent = (props: CalanderComponentProps) => {
+export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, selectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
+  
+
   const arr1: any[] = [];
-  const [selectedDays, updateDays] = useState(arr1);
+  const [selectedDays, updateDays] = selectedDates
   const navigate = useNavigate();
 
-  const addDay = (date: any) => {
+  useEffect(() => {
+    console.log(selectedDays);
+  }, [selectedDays]);
+  
+
+  const addDay = (date: Date) => {
     const arr = [
-      ...selectedDays, [date.getFullYear(), date.getMonth(), date.getDate()],
+      ...selectedDays
     ]
-    updateDays(arr)
+    arr.push(date);
+    updateDays(arr);
+
   }
 
-  const removeDay = (date: any) => {
+  const removeDay = (date: Date) => {
     const arr = selectedDays.filter(
       (obj) =>
-        obj[0] !== date.getFullYear() ||
-        obj[1] !== date.getMonth() ||
-        obj[2] !== date.getDate()
+        obj == date
     )
     updateDays(arr)
   }
 
-  const [startTime, updateStartTime] = useState(0);
+  const [startDate, updateStartDate] = selectedStartDate;
 
-  const handleUpdateStartTime = (time:any) => {
-    updateStartTime(time)
+  const [popupIsOpen, setPopupIsOpen] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+
+
+  const handleUpdateStartTime = (time: Date) => {
+    updateStartDate(time)
   }
 
-  const [endTime, updateEndTime] = useState(0);
+  const [endDate, updateEndDate] = selectedEndDate;
 
-  const handleUpdateEndTime = (time: any) => {
-    updateEndTime(time)
+  const handleUpdateEndTime = (time: Date) => {
+    updateEndDate(time)
+  }
+
+  const [eventName, updateEventName] = theEventName
+
+  const handleUpdateEventName = (name: any) => {
+    updateEventName(name)
   }
 
   const dates = [
@@ -64,9 +87,29 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
   ];
   const holidays = dates.map((item) => new Date(item));
 
+  const getHolidayName = (date: Date) => {
+    if (holidays[0] <= date && date <= holidays[1]) {
+      return "Labor Day";
+    } else if (holidays[2] <= date && date <= holidays[3]) {
+      return "October Recess";
+    } else if (holidays[4] <= date && date <= holidays[5]) {
+      return "November Recess";
+    } else if (holidays[6] <= date && date <= holidays[7]) {
+      return "Winter Recess";
+    } else if (holidays[8] <= date && date <= holidays[9]) {
+      return "MLK Day";
+    } else if (holidays[10] <= date && date <= holidays[11]) {
+      return "Spring Recess";
+    } else {
+      return "";
+    }
+  };
+
   return (
     <div className="calendar-wrapper">
       <Calendar
+        locale="en-US"
+        calendarType="US"
         prev2Label={null}
         next2Label={null}
         selectRange={false}
@@ -89,14 +132,38 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
             return false;
           }
         }}
-        tileContent={({ activeStartDate, date, view }) => (
-          <CircleComponent
-            date={date}
-            add={addDay}
-            remove={removeDay}
-            selectedDays={selectedDays}
-          />
-        )}
+
+        
+        tileContent={({ activeStartDate, date, view }) => {
+          const holidayName = getHolidayName(date); 
+        
+          return (
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              {holidayName && (
+                <div 
+                  className="tooltip-overlay has-tooltip" 
+                  data-title={holidayName} 
+                  style={{ 
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    zIndex: 3
+                  }}
+                ></div>
+              )}
+              <CircleComponent
+                date={date}
+                add={addDay}
+                remove={removeDay}
+                selectedDays={selectedDays}
+              />
+            </div>
+          );
+        }}
+        
+
         navigationLabel={({ date, label, locale, view }) =>
           date.toLocaleString('default', { month: 'long' })
         }
@@ -106,41 +173,13 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
         updateEnd={handleUpdateEndTime}
       />
       <div className="next-button-wrapper">
-          <button className='nextbuttondaysel' onClick={() => {
-                console.log("Hi");  
-                console.log(startTime);
-                console.log(endTime);
-                if (selectedDays.length == 0) {
-                  alert('Make sure to enter dates!');
-                  return;
-                }
-
-                if (startTime == 0 && endTime == 0) {
-                  alert('Make sure to enter times!');
-                  return;
-                }
-
-                if (startTime >= endTime) {
-                    alert('Make sure your end time is after your start time!');
-                    return;
-                }
-
-                createEvent({
-                    name: eventName,
-                    dates: selectedDays,
-                    // @ts-ignore
-                    startTimes: new Array(selectedDays.length).fill(endTime),
-                    endTimes: new Array(selectedDays.length).fill(endTime),
-                    location: "",
-                }).then((result) => {
-                  if (result && result.publicId) {
-                    navigate('/timeselect/' + result.publicId);
-                  } else {
-                    alert("Something went wrong!");
-                  }
-                })
-                                
-            }}>Next</button>
+        <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>
+          <div className="custom-popup">
+            <button className="close-button" onClick={() => setPopupIsOpen(false)}>
+            </button>
+            <p>{popupMessage}</p>
+          </div>
+        </Popup>
       </div>
     </div>
   );
