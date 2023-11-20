@@ -29,11 +29,12 @@ function TimeSelectApp() {
             if (code && code.length == 6) {
                 await getEventOnPageload(code).then(() => {
                     const { availabilities, participants } = eventAPI.getCalendar();
-                    const dates = eventAPI.getCalendarDimensions();
+                    const dim = eventAPI.getCalendarDimensions();
 
                     setChartedUsers(participants);
                     setCalendarState(availabilities);
-                    setCalendarFramework(dates);
+                    setCalendarFramework(dim);
+
                 });
     
             } else { // url is malformed
@@ -44,6 +45,7 @@ function TimeSelectApp() {
 
         fetchData();
     }, []);
+
     if (loading) {
         return <p>Loading...</p>
     }

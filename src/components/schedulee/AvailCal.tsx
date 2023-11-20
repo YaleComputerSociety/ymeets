@@ -39,6 +39,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
                             draggable={true}
                             isAdmin={false}
+                            key={index}
                             columnIndexOffset={columnIndexOffset}
                         />
 

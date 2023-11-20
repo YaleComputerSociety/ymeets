@@ -54,7 +54,7 @@ export default function DayColumn({startHour, draggable, endHour, weekDay, numbe
                             isAdmin={isAdmin}
                             columnID={columnID}
                             blockID={index}
-                            key={index}
+                            key={index + "b"}
                             draggable={draggable}
                             theCalendarState={[calendarState, setCalendarState]}
                             chartedUsersData={chartedUsersData}

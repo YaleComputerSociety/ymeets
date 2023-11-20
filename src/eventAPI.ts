@@ -95,9 +95,11 @@ convertedRow.push(true);
 
     static getCalendarDimensions() : calendarDimensions {
     
-        let theDates = getDates();
+        let theDates : Date[] = getDates();
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
+
+        console.log("the dates" + theDates);
         
         let getShortDay = {
             0 : "SUN",
@@ -127,6 +129,9 @@ convertedRow.push(true);
         for (let i = 0; i < theDates.length; i++) {
 
             if (i == 0) {
+
+                console.log("first push");
+
                 curCalendarBucket.push(
                     {   
                         "id" : i,
@@ -143,6 +148,9 @@ convertedRow.push(true);
                 const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
 
                 if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
+
+                    console.log("got here ");
+
                     curCalendarBucket.push(
                         {   
                             "id" : i,
@@ -155,17 +163,24 @@ convertedRow.push(true);
                         }
                     )
                 } else {
+
+                    console.log("new bucket!");
+
                     theCalendarDates.push([...curCalendarBucket])
                     curCalendarBucket = []
                 }
             }
         }
 
-       return {
-            dates : theCalendarDates,
-            startDate : getStartAndEndTimes()[0],
-            endDate : getStartAndEndTimes()[1],
+        if (curCalendarBucket.length > 0) {
+            theCalendarDates.push(curCalendarBucket);
         }
+
+        return {
+                dates : theCalendarDates,
+                startDate : getStartAndEndTimes()[0],
+                endDate : getStartAndEndTimes()[1],
+            }
     }
 
     static getCalendar() : calendar {

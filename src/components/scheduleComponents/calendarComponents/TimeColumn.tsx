@@ -44,11 +44,11 @@ export default function TimeColumn(props: any) {
         <div className="lg:h-28 md:h-24 xs:h-24 sm:h-20"></div>
             {  
                 blocks
-                .filter((block : any) => block.substring(3) !== "45")
-                .map((block : any) => {
+                .filter((block : string ) => block.substring(3) !== "45")
+                .map((block : any, index : number) => {
                     
                     return (
-                        <div>
+                        <div key={index}>
                             <p className="text-xs text-[#787878] font-roboto">{block in military_to_normal ? military_to_normal[block] : "-"}</p>
                             <div className="h-3"></div>
                         </div>
