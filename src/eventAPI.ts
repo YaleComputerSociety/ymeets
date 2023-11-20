@@ -34,7 +34,13 @@ export default class frontendEventAPI{
                 plausibleLocations : plausibleLocations
 
             }
-        )
+        ).then((ev) => {
+
+            console.log(ev);
+
+        })
+
+        
     }
 
     static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
@@ -46,7 +52,7 @@ export default class frontendEventAPI{
             let convertedRow : boolean[] = []
         
             if (avail === 1) {
-                convertedRow.push(true);
+convertedRow.push(true);
             } else {
                 convertedRow.push(false);
             }
@@ -89,9 +95,11 @@ export default class frontendEventAPI{
 
     static getCalendarDimensions() : calendarDimensions {
     
-        let theDates = getDates();
+        let theDates : Date[] = getDates();
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
+
+        console.log("the dates" + theDates);
         
         let getShortDay = {
             0 : "SUN",
@@ -121,6 +129,9 @@ export default class frontendEventAPI{
         for (let i = 0; i < theDates.length; i++) {
 
             if (i == 0) {
+
+                console.log("first push");
+
                 curCalendarBucket.push(
                     {   
                         "id" : i,
@@ -137,6 +148,9 @@ export default class frontendEventAPI{
                 const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
 
                 if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
+
+                    console.log("got here ");
+
                     curCalendarBucket.push(
                         {   
                             "id" : i,
@@ -149,17 +163,24 @@ export default class frontendEventAPI{
                         }
                     )
                 } else {
+
+                    console.log("new bucket!");
+
                     theCalendarDates.push([...curCalendarBucket])
                     curCalendarBucket = []
                 }
             }
         }
 
-        return {
-            dates : theCalendarDates,
-            startDate : getStartAndEndTimes()[0],
-            endDate : getStartAndEndTimes()[1],
+        if (curCalendarBucket.length > 0) {
+            theCalendarDates.push(curCalendarBucket);
         }
+
+        return {
+                dates : theCalendarDates,
+                startDate : getStartAndEndTimes()[0],
+                endDate : getStartAndEndTimes()[1],
+            }
     }
 
     static getCalendar() : calendar {
@@ -179,10 +200,15 @@ export default class frontendEventAPI{
                 id : i
             })
         }
-        
+
+        const availMatrix: calanderState = [];
+        for (let i = 0; i < avails.length; i++) {
+            availMatrix.push(this.availabilitytoAvailabilityMatrix(avails[i]));
+        }
+
         return {
             // @ts-ignore
-            availabilities : this.AvailabilitytoCalendarState(avails),
+            availabilities : availMatrix,
             participants : userData
             }
     }

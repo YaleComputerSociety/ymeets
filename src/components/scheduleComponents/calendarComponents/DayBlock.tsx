@@ -110,7 +110,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                              unavailable: unavailableUsers})
         }
     }
-
+    
     return (
 
             <div

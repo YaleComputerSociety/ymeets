@@ -6,58 +6,66 @@ import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
-
-
+import frontendEventAPI from "../../../eventAPI";
 import { useState, useEffect } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
+import "../calander_component/calander_component.css"
 
 interface CalanderComponentProps {
-  eventName: string;
+  theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
+  selectedStartDate: [Date, React.Dispatch<React.SetStateAction<Date>>],
+  selectedEndDate : [Date, React.Dispatch<React.SetStateAction<Date>>],
+  selectedDates : [Date[], React.Dispatch<React.SetStateAction<Date[]>>],
+  popUpOpen : [boolean, React.Dispatch<React.SetStateAction<boolean>>],
+  popUpMessage : [string, React.Dispatch<React.SetStateAction<string>>]
 }
 
-export const CalanderComponent = (props: CalanderComponentProps) => {
+export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, selectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
+  
+
   const arr1: any[] = [];
-  const [selectedDays, updateDays] = useState(arr1);
+  const [selectedDays, updateDays] = selectedDates
   const navigate = useNavigate();
 
-  const addDay = (date: any) => {
+  useEffect(() => {
+    console.log(selectedDays);
+  }, [selectedDays]);
+  
+
+  const addDay = (date: Date) => {
     const arr = [
-      ...selectedDays, [date.getFullYear(), date.getMonth(), date.getDate()],
+      ...selectedDays
     ]
-    updateDays(arr)
+    arr.push(date);
+    updateDays(arr);
+
   }
 
-  const removeDay = (date: any) => {
+  const removeDay = (date: Date) => {
     const arr = selectedDays.filter(
       (obj) =>
-        obj[0] !== date.getFullYear() ||
-        obj[1] !== date.getMonth() ||
-        obj[2] !== date.getDate()
+        obj == date
     )
     updateDays(arr)
   }
 
-  const [startTime, updateStartTime] = useState(0);
+  const [startDate, updateStartDate] = selectedStartDate;
 
   const [popupIsOpen, setPopupIsOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
 
-  const showAlert = (message: string) => {
-    setPopupMessage(message);
-    setPopupIsOpen(true);
-  };
 
-  const handleUpdateStartTime = (time: any) => {
-    updateStartTime(time)
+  const handleUpdateStartTime = (time: Date) => {
+    updateStartDate(time)
   }
 
-  const [endTime, updateEndTime] = useState(0);
+  const [endDate, updateEndDate] = selectedEndDate;
 
-  const handleUpdateEndTime = (time: any) => {
-    updateEndTime(time)
+  const handleUpdateEndTime = (time: Date) => {
+    updateEndDate(time)
   }
 
-  const [eventName, updateEventName] = useState("");
+  const [eventName, updateEventName] = theEventName
 
   const handleUpdateEventName = (name: any) => {
     updateEventName(name)
@@ -172,51 +180,6 @@ export const CalanderComponent = (props: CalanderComponentProps) => {
             <p>{popupMessage}</p>
           </div>
         </Popup>
-        <button className='nextbuttondaysel' onClick={() => {
-          console.log("Hi");
-          console.log(startTime);
-          console.log(endTime);
-          if (selectedDays.length == 0) {
-            showAlert('Make sure to enter dates!');
-            return;
-          }
-
-          if (startTime == 0 && endTime == 0) {
-            showAlert('Make sure to enter times!');
-            return;
-          }
-
-          if (startTime >= endTime) {
-            showAlert('Make sure your end time is after your start time!');
-            return;
-          }
-
-          // Optional; backend supports an empty string for name
-          if (eventName.length == 0) {
-            showAlert('Make sure to name your event!');
-            return;
-          }
-
-
-
-          // createEvent({
-          //   details: {
-          //     name: eventName,
-          //     dates: selectedDays,
-          //     // @ts-ignore
-          //     startTimes: new Array(selectedDays.length).fill(endTime),
-          //     endTimes: new Array(selectedDays.length).fill(endTime),
-          //     location: "",
-          //   }
-          // }).then((result) => {
-          //   if (result && result.publicId) {
-          //     navigate('/timeselect/' + result.publicId);
-          //   } else {
-          //     alert("Something went wrong!");
-          //   }
-          // })
-
-        }}>Next</button>
       </div>
     </div>
   );
