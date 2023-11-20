@@ -36,7 +36,8 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                     calendarFramework.dates.map((bucket, index) => {
 
                         if (index != 0) {
-                            columnIndexOffset += bucket.length
+                            let prev_bucket = calendarFramework.dates[index - 1]
+                            columnIndexOffset += prev_bucket.length
                         }
                         
                         return <SelectCalander 

@@ -23,7 +23,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         let count = 0
 
         for (let i = 0; i < calendarState.length; i++) {
-            if (calendarState[i][columnID][blockID] == 1) {
+            let indexOfCol = columnID % 7
+            if (calendarState[i][indexOfCol][blockID] == 1) {
                 count += 1
             }
         }
@@ -53,9 +54,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
       };
       
     const handleDragEnter = () => {
+        console.log(columnID)
         if (draggable === true) {
-            console.log("here!")
-
             if (isAdmin == true) {
 
                 if (calendarState[0][columnID][blockID] === 1) {
@@ -71,8 +71,6 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 }
 
             } else {
-
-                console.log("here!")
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
@@ -98,8 +96,9 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
-
-                if(oldData[user.id][columnID][blockID] == 1){
+                
+                let indexOfCol = columnID % 7 
+                if(oldData[user.id][indexOfCol][blockID] == 1){
                     availableUsers.push(user)
                 }
                 else{
@@ -111,10 +110,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                              unavailable: unavailableUsers})
         }
     }
-
-    // console.log(columnID)
-    // console.log(calendarState);
-
+    
     return (
 
             <div

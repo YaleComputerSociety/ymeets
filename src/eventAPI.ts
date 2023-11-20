@@ -11,7 +11,7 @@ interface testData {
     scheduleDataFull : calanderState,
     dateData : calendarDimensions
 }
-
+ 
 // frontendEventAPI().method()
 
 export default class frontendEventAPI{
