@@ -4,8 +4,8 @@ export default function TimeColumn(props: any) {
 
     const {startDate, endDate} = props;
 
-    console.log("start date " + startDate)
-    console.log("end date " + endDate)
+    console.log("start time " + startDate);
+    console.log("end time " + endDate);
 
     let blocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
 

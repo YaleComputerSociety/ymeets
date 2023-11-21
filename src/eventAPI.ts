@@ -14,36 +14,37 @@ interface testData {
  
 // frontendEventAPI().method()
 
-export default class frontendEventAPI{
-    constructor(){}
+export default class FrontendEventAPI {
+    
+    constructor() {}
 
-    static createNewEvent(
-        title : string, description : string, adminName : string, adminAccountId : string, 
-        dates : Date[], plausibleLocations : Location[], startDate : Date, endDate : Date
-    ) { 
+    static async createNewEvent(
+        title: string, description: string, adminName: string, adminAccountId: string, 
+        dates: Date[], plausibleLocations: Location[], startDate: Date, endDate: Date
+    ): Promise<Event | null> {
+        try {
 
-        createEvent(
-            {
-                name : title,
-                description : description,
-                adminName : adminName,
-                adminAccountId : adminAccountId,
-                dates : dates,
-                startTime : startDate, 
-                endTime : endDate,
-                plausibleLocations : plausibleLocations
-
-            }
-        ).then((ev) => {
+            const ev: Event | null = await createEvent({
+                name: title,
+                description: description,
+                adminName: adminName,
+                adminAccountId: adminAccountId,
+                dates: dates,
+                startTime: startDate,
+                endTime: endDate,
+                plausibleLocations: plausibleLocations
+            });
 
             console.log(ev);
 
-        })
-
-        
+            return ev;
+        } catch (error) {
+            console.error("Error creating event:", error);
+            throw error;
+        }
     }
 
-    static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
+static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
         let convertedAvailabilites : boolean[][] = []
         
@@ -99,8 +100,8 @@ convertedRow.push(true);
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
 
-        console.log("the dates" + theDates);
-        
+        console.log("pulled dates " + theDates);
+                
         let getShortDay = {
             0 : "SUN",
             1 : "MON",
@@ -112,51 +113,49 @@ convertedRow.push(true);
         }
 
         let getMonth = {
-            0 : "January",
-            1 : "February",
-            2 : "March",
-            3 : "April", 
-            4 : "May",
-            5 : "June",
-            6 : "July",
-            7 : "August",
-            8 : "September",
-            9 : "October",
-            10 : "November",
-            11 : "December"
+            0 : "JAN",
+            1 : "FEB",
+            2 : "MAR",
+            3 : "APR", 
+            4 : "MAY",
+            5 : "JUN",
+            6 : "JUL",
+            7 : "AUG",
+            8 : "SEP",
+            9 : "OCT",
+            10 : "NOV",
+            11 : "DEC"
         }
 
         for (let i = 0; i < theDates.length; i++) {
 
             if (i == 0) {
 
-                console.log("first push");
-
                 curCalendarBucket.push(
                     {   
                         "id" : i,
                         // @ts-ignore
                         "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                        "calanderDay" : theDates[i].getDay().toString(),
+                        "calanderDay" : theDates[i].getDate().toString(),
                         // @ts-ignore
                         "month" : getMonth[theDates[i].getMonth()],
                         "date" : theDates[i]
                     }
                 )
+
+        
             } else {
                 const isSameYear = theDates[i].getFullYear() === theDates[i - 1].getFullYear();
                 const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
 
                 if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
 
-                    console.log("got here ");
-
                     curCalendarBucket.push(
                         {   
                             "id" : i,
                             // @ts-ignore
                             "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                            "calanderDay" : theDates[i].getDay().toString(),
+                            "calanderDay" : theDates[i].getDate().toString(),
                             // @ts-ignore
                             "month" : getMonth[theDates[i].getMonth()],
                             "date" : theDates[i]

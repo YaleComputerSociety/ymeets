@@ -33,7 +33,12 @@ export default function DayColumn({startHour, draggable, endHour, weekDay, numbe
           ">
             
             <center>
+              <p className="text-sm text-[#787878]">
+                {month}
+                <br/>
+              </p>
               <p className="text-lg p-1 text-[#787878]">
+                
                 {weekDay}
                 <br />
                 {numberDay}

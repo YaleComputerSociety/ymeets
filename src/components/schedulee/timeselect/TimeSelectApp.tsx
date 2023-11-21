@@ -37,13 +37,15 @@ function TimeSelectApp() {
 
                 });
     
-            } else { // url is malformed
+            } else { 
                 console.error("The event code in the URL doesn't exist");
             }
             setLoading(false);
         }
 
         fetchData();
+
+
     }, []);
 
     if (loading) {
