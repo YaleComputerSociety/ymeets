@@ -16,6 +16,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
+    const [isDottedBorder, setIsDottedBorder] = useState(false);
 
     // for group view calander.
     useEffect(() => {
@@ -54,7 +55,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         event.dataTransfer.setDragImage(crt, 0, 0);        
       };
       
-    const handleDragEnter = () => {
+    const handleBlockUpdate = () => {
         if (draggable === true) {
             if (isAdmin == true) {
 
@@ -111,22 +112,26 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                              available: availableUsers, 
                              unavailable: unavailableUsers})
         }
+
+        if (draggable === true) {
+            setIsDottedBorder((prevIsDottedBorder) => !prevIsDottedBorder);
+        }
     }
     
-    return (
+    const borderStyle = isDottedBorder ? '1px dotted #000' : 'none'; // Adjust the style as needed
 
-            <div
-                onClick={handleDragEnter}
-                onDragStart={handleDragStart}
-                onDragEnter={handleDragEnter}
-                onMouseOver={handleHover}
-                className={` \
-                bg-${bgColor} 
-                h-4
-                `
-                }
-                draggable="true"
-            >
-            </div>
-    );
+    return (
+        <div
+        onClick={handleBlockUpdate}
+        onDragStart={handleDragStart}
+        onDragEnter={handleBlockUpdate}
+        onMouseOver={handleHover}
+        onMouseLeave={() => {setIsDottedBorder(false)}}
+        className={`bg-${bgColor} h-4`}
+        style={{ border: borderStyle }}
+        draggable="true"
+        >
+        {/* Your component content goes here */}
+        </div>
+  );
 }
