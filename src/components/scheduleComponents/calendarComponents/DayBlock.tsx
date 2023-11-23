@@ -45,6 +45,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     }, [])
 
     const handleDragStart = (event: any) => {
+
         const crt = event.target.cloneNode(true);
         crt.style.position = "absolute";
         crt.style.left = "-9999px"; 
@@ -54,7 +55,6 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
       };
       
     const handleDragEnter = () => {
-        console.log(columnID)
         if (draggable === true) {
             if (isAdmin == true) {
 
@@ -71,6 +71,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 }
 
             } else {
+
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
@@ -92,7 +93,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     const handleHover = (event : any) => {
         var availableUsers : user[] = []
         var unavailableUsers : user[] = []
-        if(chartedUsers){
+
+        if( chartedUsers ){
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
@@ -119,9 +121,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 onDragEnter={handleDragEnter}
                 onMouseOver={handleHover}
                 className={` \
-                bg-${bgColor} \
-                m-1 mt-0 mb-0 ml-0 mr-0 min-h-[5px] h-5 \
-                col-span-2 border border-solid-1 border-ymeets-gray \
+                bg-${bgColor} 
+                h-4
                 `
                 }
                 draggable="true"
