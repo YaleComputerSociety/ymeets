@@ -121,17 +121,18 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     const borderStyle = isDottedBorder ? '1px dotted #000' : 'none'; // Adjust the style as needed
 
     return (
+
         <div
-        onClick={handleBlockUpdate}
-        onDragStart={handleDragStart}
-        onDragEnter={handleBlockUpdate}
-        onMouseOver={handleHover}
-        onMouseLeave={() => {setIsDottedBorder(false)}}
-        className={`bg-${bgColor} h-4`}
-        style={{ border: borderStyle }}
-        draggable="true"
+            onClick={handleBlockUpdate}
+            onDragStart={handleDragStart}
+            onDragEnter={handleBlockUpdate}
+            onMouseOver={handleHover}
+            onMouseLeave={() => {setIsDottedBorder(false)}}
+            className={`bg-${bgColor} h-4`}
+            style={{ border: borderStyle }}
+            draggable="true"
         >
-        {/* Your component content goes here */}
+            {/* Your component content goes here */}
         </div>
   );
 }
