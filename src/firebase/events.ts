@@ -75,7 +75,7 @@ async function getEventById(id: EventId): Promise<void> {
                 workingEvent.details.dates = dateToArray(workingEvent.details.dates);
 
                 // Retrieve all participants as sub-collection
-                getParticipants(collection(db, "events", id, "participants")).then((parts) => {
+                await getParticipants(collection(db, "events", id, "participants")).then((parts) => {
                     workingEvent.participants = parts;
                 }).catch((err) => {
                     console.log("Issue retrieving participants.");
@@ -128,15 +128,16 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
 
 
 // For internal use
-const getParticipantIndex = (name: string, accountId: string = ""): number => {
+// Returns undefined when participant has not been added yet
+const getParticipantIndex = (name: string, accountId: string = ""): number | undefined => {
     let index;
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].name == name || (accountId && workingEvent.participants[i].accountId == accountId)) {
             index = i;
         }
     }
-    if (!index) {
-        throw new Error('Cannot find participant');
+    if (!index) { // participant has not been added
+        return undefined
     }
     return index
 } 
@@ -146,8 +147,11 @@ const getParticipants = async (reference: CollectionReference<DocumentData>): Pr
     return new Promise((resolve, reject) => {getDocs(reference).then((docs) => {
             let parts: Participant[] = []
             docs.forEach((data) => {
-                // @ts-ignore
-                parts.push(data.data());
+                // unstringify availability
+                const participant = data.data();
+                participant.availability = JSON.parse(participant.availability);
+
+                parts.push(participant as Participant);
             });
 
             resolve(parts);
@@ -216,34 +220,73 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
             location: participant.location || "",
 
           }).then(() => {
+                console.log("Saved participant details")
                 resolve();
 
             }).catch((err) => {
-                console.log(err.msg);
+                console.error("Failed to save participant details. Error", err.msg);
                 reject(err);
 
         });
     });
 }
 
-// Sets the availability of a participant of the name parameter with their 
-// availability object; passing in their accountId is optional addition verification
-async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
-    let index = getParticipantIndex(name, accountId);
 
-    workingEvent.participants[index].availability = JSON.stringify(availability);
+// // TODO retire in favor of wrappedSaveParticipantDetails
+// // Sets the availability of a participant of the name parameter with their 
+// // availability object; passing in their accountId is optional addition verification
+// async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
+//     let index = getParticipantIndex(name, accountId);
 
-    return saveParticipantDetails(workingEvent.participants[index]);
-}
+//     // if (index !== undefined) {
+//     //     workingEvent.participants[index].availability = JSON.stringify(availability);
+//     // } else {
+//     //     workingEvent.participants.push({
+//     //         name: name,
+//     //         accountId: accountId,
+//     //         availability: JSON.stringify(availability),
+//     //         location: "",
+//     //     });
+//     // }
 
-// Sets the location preference of a participant of the name parameter with 
-// location parameter object; passing in their accountId is optional addition verification
-async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
-    let index = getParticipantIndex(name, accountId);
+//     return saveParticipantDetails({
+//         name: name,
+//         accountId: accountId,
+//         availability: JSON.stringify(availability),
+//         location: index ? workingEvent.participants[index].location : "",
+//     });
+// }
 
-    workingEvent.participants[index].location = location;
+// // TODO retire
+// // Sets the location preference of a participant of the name parameter with 
+// // location parameter object; passing in their accountId is optional addition verification
+// async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
+//     let index = getParticipantIndex(name, accountId);
+//     if (index === undefined) throw Error("Participant has not submitted availability yet!"); 
 
-    return saveParticipantDetails(workingEvent.participants[index]);
+//     workingEvent.participants[index].location = location;
+
+//     // return saveParticipantDetails({
+//     //     name: name,
+//     //     accountId: accountId,
+//     //     availability: index ? JSON.stringify(workingEvent.participants[index].availability) : undefined,
+//     //     location: location,
+//     // });
+// }
+
+async function wrappedSaveParticipantDetails(availability: Availability, locations: Location[]): Promise<void> {
+    let name = getAccountName();
+    if (!name) {
+        console.warn("User not signed in"); 
+        name = "John Doe"
+    }
+
+    return saveParticipantDetails({
+        name: name,
+        accountId: getAccountId(),
+        availability: JSON.stringify(availability),
+        location: locations,
+    });
 }
 
 // Sets the official date for the event; must be called by the admin 
@@ -278,11 +321,14 @@ function getEventDescription(): string {
 
 // To be called on render when a page loads with event id in url
 async function getEventOnPageload(id: string): Promise<void> {
+    return await getEventById(id.toUpperCase());
+
+    // To avoid caching (TODO?)
     if (workingEvent && workingEvent.publicId == id.toUpperCase()) {
         console.log("Already loaded event, skipping");
         return Promise.resolve();
     } else {
-        return getEventById(id.toUpperCase());
+        return await getEventById(id.toUpperCase());
     }
 }
 
@@ -393,8 +439,9 @@ export {
     getLocationsVotes,
 
     // All Participants (Async)
-    setAvailability,
-    setLocationPreference,
+    wrappedSaveParticipantDetails,
+    // setAvailability,
+    // setLocationPreference,
 
     // Admin Only (Async)
     setChosenLocation,

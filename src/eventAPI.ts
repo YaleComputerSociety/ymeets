@@ -1,7 +1,8 @@
 import { start } from "repl";
 import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
-import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
+import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
+import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";
 
 // TODO fetch event details -> calendarFramework
 
@@ -18,6 +19,17 @@ export default class FrontendEventAPI {
     
     constructor() {}
 
+    static getEmptyAvailability(dims: calendarDimensions): Availability {
+        let blocksLength = generateTimeBlocks(dims.startDate.getHours(), dims.endDate.getHours()).length;
+        let days: boolean[][] = [];
+        for (let i = 0; i < dims.dates.length; i++) {
+            for (let k = 0; k < dims.dates[i].length; k++) {
+                days.push(Array.from({ length: blocksLength }, () => false))
+            }
+        }
+        return days
+    }
+
     static async createNewEvent(
         title: string, description: string, adminName: string, adminAccountId: string, 
         dates: Date[], plausibleLocations: Location[], startDate: Date, endDate: Date
@@ -32,7 +44,7 @@ export default class FrontendEventAPI {
                 dates: dates,
                 startTime: startDate,
                 endTime: endDate,
-                plausibleLocations: plausibleLocations
+                plausibleLocations: plausibleLocations // TODO admin creator is not being added; maybe should be done on time select?
             });
 
             console.log(ev);
@@ -46,23 +58,18 @@ export default class FrontendEventAPI {
 
 static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
-        let convertedAvailabilites : boolean[][] = []
+        let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
         
-        Object.values(availMatrix).forEach((avail : any) => {
-            
-            let convertedRow : boolean[] = []
-        
-            if (avail === 1) {
-convertedRow.push(true);
-            } else {
-                convertedRow.push(false);
-            }
-
-            convertedAvailabilites.push([...convertedRow])
-
+        console.log("Avail matrix", availMatrix);
+        Object.values(availMatrix).forEach((row : number[], day_i) => {
+            Object.values(row).forEach((cell, time_j) => {
+                if (cell === 1) {
+                    emptyAvail[day_i][time_j] = true;
+                }
+            });
         }) 
 
-        return convertedAvailabilites
+        return emptyAvail
 
     }
 
@@ -80,19 +87,21 @@ convertedRow.push(true);
         return convertedAvailabilites
     }
 
-    static submitCalendar(cal : calendar) {
+    // We want to edit only one participant at a time to avoid concurrency issues
+    // (No one will be setting multiple availabilities at one time, even the admin)
+    // static submitCalendar(cal : calendar) {
         
-        let numOfPariticipants = cal.participants.users.length;
+    //     let numOfPariticipants = cal.participants.users.length;
 
-        for (let i = 0; i < numOfPariticipants; i++) {
-            setAvailability(
-                // @ts-ignore
-                cal.participants[i],
-                this.availabilityMatrixToAvailability(cal.availabilities[i]),
-            )
+    //     for (let i = 0; i < numOfPariticipants; i++) {
+    //         setAvailability(
+    //             // @ts-ignore
+    //             cal.participants[i],
+    //             this.availabilityMatrixToAvailability(cal.availabilities[i]),
+    //         )
 
-        }
-    }
+    //     }
+    // }
 
     static getCalendarDimensions() : calendarDimensions {
     
@@ -100,7 +109,7 @@ convertedRow.push(true);
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
 
-        console.log("pulled dates " + theDates);
+        // console.log("pulled dates " + theDates);
                 
         let getShortDay = {
             0 : "SUN",

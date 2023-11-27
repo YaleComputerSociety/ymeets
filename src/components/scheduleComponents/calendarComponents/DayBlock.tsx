@@ -76,6 +76,8 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
+                console.log(calendarState)
+                console.log(blockID);
                 if (calendarState[0][columnID][blockID] === 1) {
                     setBgColor("white");
                     let oldData = {...calendarState};

@@ -10,7 +10,7 @@ import { calandarDate, calanderState, userData } from '../../scheduleComponents/
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useParams } from 'react-router-dom';
-import { getEventOnPageload } from '../../../firebase/events';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -31,8 +31,16 @@ function TimeSelectApp() {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
 
+                    const accountName = getAccountName()
+                    if (accountName === null) {console.warn("User not logged in"); return}
+
+                    let avail = (getAccountId() == "") ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName)
+                    if (avail === undefined) { // participant doesn't exist
+                        avail = eventAPI.getEmptyAvailability(dim)
+                    }
+
                     setChartedUsers(participants);
-                    setCalendarState(availabilities);
+                    setCalendarState({...[eventAPI.availabilitytoAvailabilityMatrix(avail)]});
                     setCalendarFramework(dim);
 
                 });
@@ -52,8 +60,19 @@ function TimeSelectApp() {
         return <p>Loading...</p>
     }
 
+    const saveAvailAndLocationChanges = () => {
+        const avail = eventAPI.availabilityMatrixToAvailability(calendarState[0])
+        console.log("After conversion, ", avail);
+        wrappedSaveParticipantDetails(avail, selectedLocations);
+    }
+
     const handleUpdateSelectedLocations = (locations:any) => {
         updateSelectedLocations(locations);
+    }
+
+    const handleSubmitAvailability = () => {
+        saveAvailAndLocationChanges();
+        // TODO Route to next page
     }
 
     return (
@@ -70,6 +89,7 @@ function TimeSelectApp() {
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}
                     />
+                    <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
                 </div>
             </div>
         </div>
