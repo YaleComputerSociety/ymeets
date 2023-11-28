@@ -12,9 +12,11 @@ interface SelectCalanderProps {
   isAdmin?: boolean
   bucket : calandarDate[]
   columnIndexOffset : number
+  onDragOverBlock?: (blockID: number, columnID: number) => void;
+
 }
 
-function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersData, draggable, isAdmin, bucket, columnIndexOffset}: SelectCalanderProps) {
+function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersData, draggable, isAdmin, bucket, columnIndexOffset, onDragOverBlock}: SelectCalanderProps) {
 
   const [calendarState, setCalendarState] = theCalendarState;
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
@@ -36,6 +38,8 @@ function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersDa
                     chartedUsersData={chartedUsersData}
                     theCalendarState={[calendarState, setCalendarState]}
                     isAdmin={isAdmin}
+                    onDragOverBlock={onDragOverBlock}
+                    
                   />
               })
               }

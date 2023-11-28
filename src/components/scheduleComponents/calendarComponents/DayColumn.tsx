@@ -16,11 +16,15 @@ interface DayColumnProps {
   draggable : boolean
   month : string
   isAdmin? : boolean
+  onDragOverBlock?: (blockID: number, columnID: number) => void;
+
 }
 
-export default function DayColumn({startHour, draggable, endHour, weekDay, numberDay, columnID, theCalendarState, chartedUsersData, month, isAdmin}: DayColumnProps) {
+export default function DayColumn({startHour, draggable, endHour, weekDay, numberDay, columnID, theCalendarState, chartedUsersData, month, isAdmin, onDragOverBlock}: DayColumnProps) {
 
   const [calendarState, setCalendarState] = theCalendarState;
+  
+
 
   let blocks = generateTimeBlocks(startHour, endHour);
   
@@ -58,6 +62,7 @@ export default function DayColumn({startHour, draggable, endHour, weekDay, numbe
                             draggable={draggable}
                             theCalendarState={[calendarState, setCalendarState]}
                             chartedUsersData={chartedUsersData}
+                            onDragOverBlock={onDragOverBlock}
                             />
                     
                           </>
