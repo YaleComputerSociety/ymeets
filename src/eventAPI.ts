@@ -1,5 +1,5 @@
 import { start } from "repl";
-import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
+import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/scheduletypes";
 import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
 import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";
@@ -56,36 +56,36 @@ export default class FrontendEventAPI {
         }
     }
 
-static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
+// static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
-        let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
+//         let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
         
-        console.log("Avail matrix", availMatrix);
-        Object.values(availMatrix).forEach((row : number[], day_i) => {
-            Object.values(row).forEach((cell, time_j) => {
-                if (cell === 1) {
-                    emptyAvail[day_i][time_j] = true;
-                }
-            });
-        }) 
+//         console.log("Avail matrix", availMatrix);
+//         Object.values(availMatrix).forEach((row : number[], day_i) => {
+//             Object.values(row).forEach((cell, time_j) => {
+//                 if (cell === 1) {
+//                     emptyAvail[day_i][time_j] = true;
+//                 }
+//             });
+//         }) 
 
-        return emptyAvail
+//         return emptyAvail
 
-    }
+//     }
 
-    static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
+//     static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
 
-        let convertedAvailabilites = {}
+//         let convertedAvailabilites = {}
         
-        Object.values(avail).forEach((value : any, index : any) => {
+//         Object.values(avail).forEach((value : any, index : any) => {
             
-            // @ts-ignore
-            convertedAvailabilites[index] = value
+//             // @ts-ignore
+//             convertedAvailabilites[index] = value
 
-        }) 
+//         }) 
 
-        return convertedAvailabilites
-    }
+//         return convertedAvailabilites
+//     }
 
     // We want to edit only one participant at a time to avoid concurrency issues
     // (No one will be setting multiple availabilities at one time, even the admin)
@@ -172,8 +172,6 @@ static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Avail
                     )
                 } else {
 
-                    console.log("new bucket!");
-
                     theCalendarDates.push([...curCalendarBucket])
                     curCalendarBucket = []
                 }
@@ -196,6 +194,9 @@ static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Avail
         let avails = getAllAvailabilities()
         let names = getAllAvailabilitiesNames()
 
+        console.log("the availaibilites");
+        console.log(avails);
+
         let userData : userData = {
             users : [],
             available: [],
@@ -211,7 +212,8 @@ static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Avail
 
         const availMatrix: calanderState = [];
         for (let i = 0; i < avails.length; i++) {
-            availMatrix.push(this.availabilitytoAvailabilityMatrix(avails[i]));
+            // @ts-ignore
+            availMatrix.push(avails[i]);
         }
 
         return {
@@ -253,18 +255,18 @@ static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Avail
             
             // @ts-ignore
             scheduleDataEmpty : [                
-                    {
-                        0: [0, 0, 0, 0, 0, 0, 0, 0],
-                        1: [0, 0, 0, 0, 0, 0, 0, 0],
-                        2: [0, 0, 0, 0, 0, 0, 0, 0],
-                        3: [0, 0, 0, 0, 0, 0, 0, 0],
-                        4: [0, 0, 0, 0, 0, 0, 0, 0],
-                        5: [0, 0, 0, 0, 0, 0, 0, 0],
-                        6: [0, 0, 0, 0, 0, 0, 0, 0],
-                        7: [0, 0, 0, 0, 0, 0, 0, 0],
-                        8: [0, 0, 0, 0, 0, 0, 0, 0],
-                        9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                    }
+                    [
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                    ]
                 
             
             ],
@@ -272,42 +274,42 @@ static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Avail
             // calendarState
             scheduleDataFull :
                 [
-                    {
-                        0: [1, 0, 0, 0, 0, 0, 0, 0],
-                        1: [0, 0, 0, 0, 0, 0, 0, 0],
-                        2: [0, 0, 0, 0, 0, 0, 0, 0],
-                        3: [0, 1, 1, 1, 1, 1, 1, 0],
-                        4: [0, 1, 0, 0, 0, 0, 0, 0],
-                        5: [0, 0, 0, 0, 0, 0, 0, 0],
-                        6: [0, 0, 0, 0, 0, 0, 0, 0],
-                        7: [0, 0, 0, 0, 0, 0, 0, 0],
-                        8: [0, 0, 0, 0, 0, 0, 0, 0],
-                        9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                  },
-                  {
-                    0: [0, 0, 0, 0, 0, 0, 0, 0],
-                    1: [0, 0, 0, 0, 0, 0, 0, 0],
-                    2: [0, 0, 0, 0, 0, 0, 0, 0],
-                    3: [0, 1, 1, 1, 1, 1, 1, 0],
-                    4: [0, 0, 0, 0, 0, 0, 0, 0],
-                    5: [0, 0, 0, 0, 0, 0, 0, 0],
-                    6: [0, 0, 0, 0, 0, 0, 0, 0],
-                    7: [0, 0, 0, 0, 0, 0, 0, 0],
-                    8: [0, 0, 0, 0, 0, 0, 0, 0],
-                    9: [1, 1, 1, 1, 1, 1, 1, 1],                          
-                  },
-                  {
-                    0: [0, 0, 0, 0, 0, 0, 0, 0],
-                    1: [0, 0, 0, 0, 0, 0, 0, 0],
-                    2: [0, 0, 0, 0, 0, 0, 0, 0],
-                    3: [0, 0, 0, 0, 0, 0, 0, 0],
-                    4: [0, 0, 0, 0, 0, 0, 0, 0],
-                    5: [0, 0, 0, 0, 0, 0, 0, 0],
-                    6: [1, 1, 1, 1, 1, 1, 1, 1],
-                    7: [0, 0, 0, 0, 0, 0, 0, 0],
-                    8: [0, 0, 0, 0, 0, 0, 0, 0],
-                    9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                }
+                    [
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],                       
+                    ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ]
             ],
             
             // calendarFramework

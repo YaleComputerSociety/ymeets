@@ -366,7 +366,10 @@ function getAllAvailabilitiesNames(): string[] {
 // GUARANTEED to be the in the same order as getAllAvailabilitiesNames
 function getAllAvailabilities(): Availability[] {
     let avails: Availability[] = []
+    
     for (let i = 0; i < workingEvent.participants.length; i++) {
+
+        console.log("exeucted!");
         // @ts-ignore
         avails.push(JSON.parse(workingEvent.participants[i].availability))
     }

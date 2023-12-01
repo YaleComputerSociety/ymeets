@@ -11,14 +11,15 @@ import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
+import { Availability } from '../../../types';
 
 function TimeSelectApp() {
     const { code } = useParams();
 
     const testData = eventAPI.getTestData()
-    const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
-    const [calendarState, setCalendarState] = useState<calanderState>({...testData.scheduleDataEmpty});
-    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+    const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
+    const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
+    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
 
     const [selectedLocations, updateSelectedLocations] = useState([]);
 
@@ -34,13 +35,16 @@ function TimeSelectApp() {
                     const accountName = getAccountName()
                     if (accountName === null) {console.warn("User not logged in"); return}
 
-                    let avail = (getAccountId() == "") ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName)
+                    let avail : Availability | undefined = (getAccountId() == "") ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName)
+                    
                     if (avail === undefined) { // participant doesn't exist
                         avail = eventAPI.getEmptyAvailability(dim)
-                    }
+                    } 
 
                     setChartedUsers(participants);
-                    setCalendarState({...[eventAPI.availabilitytoAvailabilityMatrix(avail)]});
+
+                    // @ts-ignore
+                    setCalendarState([avail]);
                     setCalendarFramework(dim);
 
                 });
@@ -61,7 +65,9 @@ function TimeSelectApp() {
     }
 
     const saveAvailAndLocationChanges = () => {
-        const avail = eventAPI.availabilityMatrixToAvailability(calendarState[0])
+
+        // @ts-ignore
+        const avail = calendarState[0]
         console.log("After conversion, ", avail);
         wrappedSaveParticipantDetails(avail, selectedLocations);
     }
@@ -85,7 +91,11 @@ function TimeSelectApp() {
                 </div>
                 <div className="grid col-start-2 col-span-1"> 
                     <AvailCal 
+                            // @ts-ignore
+
                         theCalendarState={[calendarState, setCalendarState]}
+
+                        // @ts-ignore
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}
                     />

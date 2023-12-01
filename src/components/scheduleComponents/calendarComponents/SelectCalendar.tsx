@@ -18,9 +18,6 @@ function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersDa
 
   const [calendarState, setCalendarState] = theCalendarState;
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
-
-
-  console.log(calendarState);
   
   return (
     <div className="mr-4">
