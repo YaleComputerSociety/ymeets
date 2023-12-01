@@ -11,10 +11,12 @@ import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
+import { LoginPopup } from './login_guest_popup';
 import { Availability } from '../../../types';
 
 function TimeSelectApp() {
     const { code } = useParams();
+    const [showPopup, setShowPopup] = useState(false);
     const navigate = useNavigate();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
@@ -82,30 +84,38 @@ function TimeSelectApp() {
         saveAvailAndLocationChanges();
         // TODO Route to next page
     }
+    
+    const handleShowPopup = () => {
+        setShowPopup(true);
+    };
+
+    const handlePopupClose = () => {
+        setShowPopup(false);
+    };
 
     return (
         <div>
-            <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
-                <div className="grid col-start-1 col-span-1"> 
-                    <LocationSelectionComponent 
-                        update={handleUpdateSelectedLocations}
-                    />
-                </div>
-                <div className="grid col-start-2 col-span-1"> 
-                    <AvailCal 
-                            // @ts-ignore
-
-                        theCalendarState={[calendarState, setCalendarState]}
-                        user={0}
-                        // @ts-ignore
-                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                        draggable={true}
-                    />
-                    <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
-                </div>
+          {/* Popup */}
+          {showPopup && <LoginPopup onClose={handlePopupClose} />}
+    
+          <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
+            <div className="grid col-start-1 col-span-1">
+              <LocationSelectionComponent update={handleUpdateSelectedLocations} />
             </div>
+            <div className="grid col-start-2 col-span-1">
+              <AvailCal
+                // @ts-ignore
+                theCalendarState={[calendarState, setCalendarState]}
+                user={0}
+                // @ts-ignore
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                draggable={true}
+              />
+                    <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
+            </div>
+          </div>
         </div>
-    )
+    );
 }
 
 export default TimeSelectApp;
