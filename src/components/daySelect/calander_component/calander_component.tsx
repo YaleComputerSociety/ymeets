@@ -8,8 +8,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import frontendEventAPI from "../../../eventAPI";
 import { useState, useEffect } from "react";
-import { createEvent, getEventById } from "../../../firebase/events";
+import { createEvent, getEventById, checkIfLoggedIn } from "../../../firebase/events";
 import "../calander_component/calander_component.css"
+import LoginPopup from '../login_popup_component'
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
@@ -21,7 +22,16 @@ interface CalanderComponentProps {
 }
 
 export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, selectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
-  
+  const isLoggedIn = checkIfLoggedIn();
+  const [showLoginPopup, setShowLoginPopup] = useState<boolean>(!isLoggedIn);
+
+  useEffect(() => {
+    setShowLoginPopup(!isLoggedIn);
+  }, [isLoggedIn]);
+
+  const handleLoginPopupClose = () => {
+    setShowLoginPopup(false);
+  };
 
   const arr1: any[] = [];
   const [selectedDays, updateDays] = selectedDates
@@ -181,6 +191,8 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
           </div>
         </Popup>
       </div>
+      {/* Login popup */}
+      {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} />}
     </div>
   );
 };

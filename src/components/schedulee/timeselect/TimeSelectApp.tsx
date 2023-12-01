@@ -11,9 +11,11 @@ import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useParams } from 'react-router-dom';
 import { getEventOnPageload } from '../../../firebase/events';
+import { LoginPopup } from './login_guest_popup';
 
 function TimeSelectApp() {
     const { code } = useParams();
+    const [showPopup, setShowPopup] = useState(false);
 
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
@@ -52,24 +54,34 @@ function TimeSelectApp() {
         updateSelectedLocations(locations);
     }
 
+
+    const handleShowPopup = () => {
+        setShowPopup(true);
+    };
+
+    const handlePopupClose = () => {
+        setShowPopup(false);
+    };
+
     return (
         <div>
-            <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
-                <div className="grid col-start-1 col-span-1"> 
-                    <LocationSelectionComponent 
-                        update={handleUpdateSelectedLocations}
-                    />
-                </div>
-                <div className="grid col-start-2 col-span-1"> 
-                    <AvailCal 
-                        theCalendarState={[calendarState, setCalendarState]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                        draggable={true}
-                    />
-                </div>
+          {/* Popup */}
+          {showPopup && <LoginPopup onClose={handlePopupClose} />}
+    
+          <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
+            <div className="grid col-start-1 col-span-1">
+              <LocationSelectionComponent update={handleUpdateSelectedLocations} />
             </div>
+            <div className="grid col-start-2 col-span-1">
+              <AvailCal
+                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                draggable={true}
+              />
+            </div>
+          </div>
         </div>
-    )
+    );
 }
 
 export default TimeSelectApp;
