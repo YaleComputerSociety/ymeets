@@ -10,6 +10,7 @@ import EnterCodeComp from './components/entercodepage';
 import AdminGroupViewApp from './components/scheduler/admingroupviewpage/AdminGroupViewApp';
 import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
 import AdminCal from './components/schedulee/AdminCal';
+import NavBar from "./components/navbar/NavBar"
 
 // TODO require auth on some pages
 function Root() {
@@ -18,11 +19,7 @@ function Root() {
         <Router>
             
         <header>
-            <div className="header-logo">
-                <Link to="/">
-                    <img src={logo} alt="YMeets" />
-                </Link>
-            </div>
+            <NavBar></NavBar>
         </header>
 
             <Routes>
