@@ -9,13 +9,13 @@ import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 import { calandarDate, calanderState, userData } from '../../scheduleComponents/scheduletypes';
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
 import { Availability } from '../../../types';
 
 function TimeSelectApp() {
     const { code } = useParams();
-
+    const navigate = useNavigate();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
@@ -70,6 +70,7 @@ function TimeSelectApp() {
         const avail = calendarState[0]
         console.log("After conversion, ", avail);
         wrappedSaveParticipantDetails(avail, selectedLocations);
+        navigate(`/groupview/${code}`);
     }
 
     const handleUpdateSelectedLocations = (locations:any) => {
