@@ -9,16 +9,17 @@ import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 import { calandarDate, calanderState, userData } from '../../scheduleComponents/scheduletypes';
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
-import { useParams } from 'react-router-dom';
-import { getEventOnPageload } from '../../../firebase/events';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
+import { Availability } from '../../../types';
 
 function TimeSelectApp() {
     const { code } = useParams();
-
+    const navigate = useNavigate();
     const testData = eventAPI.getTestData()
-    const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
-    const [calendarState, setCalendarState] = useState<calanderState>({...testData.scheduleDataEmpty});
-    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+    const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
+    const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
+    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
 
     const [selectedLocations, updateSelectedLocations] = useState([]);
 
@@ -31,27 +32,54 @@ function TimeSelectApp() {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
 
+                    const accountName = getAccountName()
+                    if (accountName === null) {console.warn("User not logged in"); return}
+
+                    let avail : Availability | undefined = (getAccountId() == "") ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName)
+                    
+                    if (avail === undefined) { // participant doesn't exist
+                        avail = eventAPI.getEmptyAvailability(dim)
+                    } 
+
                     setChartedUsers(participants);
-                    setCalendarState(availabilities);
+
+                    // @ts-ignore
+                    setCalendarState([avail]);
                     setCalendarFramework(dim);
 
                 });
     
-            } else { // url is malformed
+            } else { 
                 console.error("The event code in the URL doesn't exist");
             }
             setLoading(false);
         }
 
         fetchData();
+
+
     }, []);
 
     if (loading) {
         return <p>Loading...</p>
     }
 
+    const saveAvailAndLocationChanges = () => {
+
+        // @ts-ignore
+        const avail = calendarState[0]
+        console.log("After conversion, ", avail);
+        wrappedSaveParticipantDetails(avail, selectedLocations);
+        navigate(`/groupview/${code}`);
+    }
+
     const handleUpdateSelectedLocations = (locations:any) => {
         updateSelectedLocations(locations);
+    }
+
+    const handleSubmitAvailability = () => {
+        saveAvailAndLocationChanges();
+        // TODO Route to next page
     }
 
     return (
@@ -64,10 +92,15 @@ function TimeSelectApp() {
                 </div>
                 <div className="grid col-start-2 col-span-1"> 
                     <AvailCal 
+                            // @ts-ignore
+
                         theCalendarState={[calendarState, setCalendarState]}
+
+                        // @ts-ignore
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}
                     />
+                    <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
                 </div>
             </div>
         </div>

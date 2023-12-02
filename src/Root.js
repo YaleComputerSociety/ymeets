@@ -28,7 +28,7 @@ function Root() {
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />
-                <Route path='/adminview' element={<AdminCal />} />
+                {/* <Route path='/adminview' element={<AdminGroupViewApp />} /> */}
                 <Route path='/groupview/:code' element={<GroupViewComp />} />
             </Routes>
         </Router>

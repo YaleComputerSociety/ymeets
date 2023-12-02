@@ -4,6 +4,8 @@ import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from "../../../eventAPI";
 import { getAccountId, getAccountName } from "../../../firebase/events";
+import { EventDetails } from "../../../types";
+import { useNavigate } from "react-router-dom";
 
 export const DaySelectComponent = () => {
     const [eventName, setEventName] = useState('');
@@ -18,6 +20,8 @@ export const DaySelectComponent = () => {
         setPopupMessage(message);
         setPopupIsOpen(true);
       };
+
+    const navigate = useNavigate();
 
     return (
         <div className="flex flex-col md:flex-row w-[93%] m-10 my-16 px-2 text-center">
@@ -70,34 +74,31 @@ export const DaySelectComponent = () => {
 
             
                     if (selectedDates.length == 0) {
-                        console.log("show dates!")
                         showAlert('Make sure to enter dates!');
                         return;
                     }
 
                     if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
                     endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-                        console.log("enter times!")
                         showAlert('Make sure to enter times!');
                         return;
                     }
 
                     if (startDate >= endDate) {
-                        console.log("choose date!")
                         showAlert('Make sure your end time is after your start time!');
                         return;
                     }
 
                     // Optional; backend supports an empty string for name
                     if (eventName.length == 0) {
-                        console.log("no event name!")
                         showAlert('Make sure to name your event!');
                         return;
                     }
 
-                    console.log("button pressed!")
-
-                               
+                    console.log("the dates1 " + selectedDates);
+                    console.log("start date1 " + startDate);
+                    console.log("end date1 " + endDate);
+                         
                     frontendEventAPI.createNewEvent(
                         eventName,
                         eventDescription,
@@ -108,25 +109,9 @@ export const DaySelectComponent = () => {
                         [], // plaus locs
                         startDate,
                         endDate
-                    )
-
-                    // createEvent({
-                    //   details: {
-                    //     name: eventName,
-                    //     dates: selectedDays,
-                    //     // @ts-ignore
-                    //     startTimes: new Array(selectedDays.length).fill(endTime),
-                    //     endTimes: new Array(selectedDays.length).fill(endTime),
-                    //     location: "",
-                    //   }
-                    // }).then((result) => {
-                    //   if (result && result.publicId) {
-                    //     navigate('/timeselect/' + result.publicId);
-                    //   } else {
-                    //     alert("Something went wrong!");
-                    //   }
-                    // })
-
+                    ).then((ev) => {
+                        navigate("/timeselect/" + ev?.publicId)
+                    })
                 }}>Next</button>
             </div>
         </div>

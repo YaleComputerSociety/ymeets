@@ -1,7 +1,8 @@
 import { start } from "repl";
-import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
-import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
+import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/scheduletypes";
+import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
+import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";
 
 // TODO fetch event details -> calendarFramework
 
@@ -14,84 +15,93 @@ interface testData {
  
 // frontendEventAPI().method()
 
-export default class frontendEventAPI{
-    constructor(){}
+export default class FrontendEventAPI {
+    
+    constructor() {}
 
-    static createNewEvent(
-        title : string, description : string, adminName : string, adminAccountId : string, 
-        dates : Date[], plausibleLocations : Location[], startDate : Date, endDate : Date
-    ) { 
-
-        createEvent(
-            {
-                name : title,
-                description : description,
-                adminName : adminName,
-                adminAccountId : adminAccountId,
-                dates : dates,
-                startTime : startDate, 
-                endTime : endDate,
-                plausibleLocations : plausibleLocations
-
+    static getEmptyAvailability(dims: calendarDimensions): Availability {
+        let blocksLength = generateTimeBlocks(dims.startDate.getHours(), dims.endDate.getHours()).length;
+        let days: boolean[][] = [];
+        for (let i = 0; i < dims.dates.length; i++) {
+            for (let k = 0; k < dims.dates[i].length; k++) {
+                days.push(Array.from({ length: blocksLength }, () => false))
             }
-        ).then((ev) => {
+        }
+        return days
+    }
+
+    static async createNewEvent(
+        title: string, description: string, adminName: string, adminAccountId: string, 
+        dates: Date[], plausibleLocations: Location[], startDate: Date, endDate: Date
+    ): Promise<Event | null> {
+        try {
+
+            const ev: Event | null = await createEvent({
+                name: title,
+                description: description,
+                adminName: adminName,
+                adminAccountId: adminAccountId,
+                dates: dates,
+                startTime: startDate,
+                endTime: endDate,
+                plausibleLocations: plausibleLocations // TODO admin creator is not being added; maybe should be done on time select?
+            });
 
             console.log(ev);
 
-        })
-
-        
-    }
-
-    static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
-        
-        let convertedAvailabilites : boolean[][] = []
-        
-        Object.values(availMatrix).forEach((avail : any) => {
-            
-            let convertedRow : boolean[] = []
-        
-            if (avail === 1) {
-convertedRow.push(true);
-            } else {
-                convertedRow.push(false);
-            }
-
-            convertedAvailabilites.push([...convertedRow])
-
-        }) 
-
-        return convertedAvailabilites
-
-    }
-
-    static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
-
-        let convertedAvailabilites = {}
-        
-        Object.values(avail).forEach((value : any, index : any) => {
-            
-            // @ts-ignore
-            convertedAvailabilites[index] = value
-
-        }) 
-
-        return convertedAvailabilites
-    }
-
-    static submitCalendar(cal : calendar) {
-        
-        let numOfPariticipants = cal.participants.users.length;
-
-        for (let i = 0; i < numOfPariticipants; i++) {
-            setAvailability(
-                // @ts-ignore
-                cal.participants[i],
-                this.availabilityMatrixToAvailability(cal.availabilities[i]),
-            )
-
+            return ev;
+        } catch (error) {
+            console.error("Error creating event:", error);
+            throw error;
         }
     }
+
+// static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
+        
+//         let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
+        
+//         console.log("Avail matrix", availMatrix);
+//         Object.values(availMatrix).forEach((row : number[], day_i) => {
+//             Object.values(row).forEach((cell, time_j) => {
+//                 if (cell === 1) {
+//                     emptyAvail[day_i][time_j] = true;
+//                 }
+//             });
+//         }) 
+
+//         return emptyAvail
+
+//     }
+
+//     static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
+
+//         let convertedAvailabilites = {}
+        
+//         Object.values(avail).forEach((value : any, index : any) => {
+            
+//             // @ts-ignore
+//             convertedAvailabilites[index] = value
+
+//         }) 
+
+//         return convertedAvailabilites
+//     }
+
+    // We want to edit only one participant at a time to avoid concurrency issues
+    // (No one will be setting multiple availabilities at one time, even the admin)
+    // static submitCalendar(cal : calendar) {
+        
+    //     let numOfPariticipants = cal.participants.users.length;
+
+    //     for (let i = 0; i < numOfPariticipants; i++) {
+    //         setAvailability(
+    //             // @ts-ignore
+    //             cal.participants[i],
+    //             this.availabilityMatrixToAvailability(cal.availabilities[i]),
+    //         )
+
+    //     }
+    // }
 
     static getCalendarDimensions() : calendarDimensions {
     
@@ -99,8 +109,8 @@ convertedRow.push(true);
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
 
-        console.log("the dates" + theDates);
-        
+        // console.log("pulled dates " + theDates);
+                
         let getShortDay = {
             0 : "SUN",
             1 : "MON",
@@ -112,59 +122,55 @@ convertedRow.push(true);
         }
 
         let getMonth = {
-            0 : "January",
-            1 : "February",
-            2 : "March",
-            3 : "April", 
-            4 : "May",
-            5 : "June",
-            6 : "July",
-            7 : "August",
-            8 : "September",
-            9 : "October",
-            10 : "November",
-            11 : "December"
+            0 : "JAN",
+            1 : "FEB",
+            2 : "MAR",
+            3 : "APR", 
+            4 : "MAY",
+            5 : "JUN",
+            6 : "JUL",
+            7 : "AUG",
+            8 : "SEP",
+            9 : "OCT",
+            10 : "NOV",
+            11 : "DEC"
         }
 
         for (let i = 0; i < theDates.length; i++) {
 
             if (i == 0) {
 
-                console.log("first push");
-
                 curCalendarBucket.push(
                     {   
                         "id" : i,
                         // @ts-ignore
                         "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                        "calanderDay" : theDates[i].getDay().toString(),
+                        "calanderDay" : theDates[i].getDate().toString(),
                         // @ts-ignore
                         "month" : getMonth[theDates[i].getMonth()],
                         "date" : theDates[i]
                     }
                 )
+
+        
             } else {
                 const isSameYear = theDates[i].getFullYear() === theDates[i - 1].getFullYear();
                 const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
 
                 if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
 
-                    console.log("got here ");
-
                     curCalendarBucket.push(
                         {   
                             "id" : i,
                             // @ts-ignore
                             "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                            "calanderDay" : theDates[i].getDay().toString(),
+                            "calanderDay" : theDates[i].getDate().toString(),
                             // @ts-ignore
                             "month" : getMonth[theDates[i].getMonth()],
                             "date" : theDates[i]
                         }
                     )
                 } else {
-
-                    console.log("new bucket!");
 
                     theCalendarDates.push([...curCalendarBucket])
                     curCalendarBucket = []
@@ -188,6 +194,9 @@ convertedRow.push(true);
         let avails = getAllAvailabilities()
         let names = getAllAvailabilitiesNames()
 
+        console.log("the availaibilites");
+        console.log(avails);
+
         let userData : userData = {
             users : [],
             available: [],
@@ -203,7 +212,8 @@ convertedRow.push(true);
 
         const availMatrix: calanderState = [];
         for (let i = 0; i < avails.length; i++) {
-            availMatrix.push(this.availabilitytoAvailabilityMatrix(avails[i]));
+            // @ts-ignore
+            availMatrix.push(avails[i]);
         }
 
         return {
@@ -245,18 +255,18 @@ convertedRow.push(true);
             
             // @ts-ignore
             scheduleDataEmpty : [                
-                    {
-                        0: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        4: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        5: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        6: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        7: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        8: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        9: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],                          
-                    }
+                    [
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                    ]
                 
             
             ],
@@ -264,33 +274,42 @@ convertedRow.push(true);
             // calendarState
             scheduleDataFull :
                 [
-                  {
-                    0: [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    1: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    2: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    3: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    4: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    5: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    6: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                  },
-                  {
-                    0: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    1: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    2: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    3: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    4: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    5: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    6: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                  },
-                  {
-                    0: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    1: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    2: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    3: [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    4: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    5: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    6: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                  }
+                    [
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],                       
+                    ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ]
             ],
             
             // calendarFramework

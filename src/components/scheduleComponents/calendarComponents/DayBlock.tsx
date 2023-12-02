@@ -16,6 +16,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
+    const [isDottedBorder, setIsDottedBorder] = useState(false);
 
     // for group view calander.
     useEffect(() => {
@@ -24,7 +25,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
 
         for (let i = 0; i < calendarState.length; i++) {
             let indexOfCol = columnID % 7
-            if (calendarState[i][indexOfCol][blockID] == 1) {
+            if (calendarState[i][indexOfCol][blockID] == true) {
                 count += 1
             }
         }
@@ -45,6 +46,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     }, [])
 
     const handleDragStart = (event: any) => {
+
         const crt = event.target.cloneNode(true);
         crt.style.position = "absolute";
         crt.style.left = "-9999px"; 
@@ -53,35 +55,37 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         event.dataTransfer.setDragImage(crt, 0, 0);        
       };
       
-    const handleDragEnter = () => {
-        console.log(columnID)
+    const handleBlockUpdate = () => {
         if (draggable === true) {
             if (isAdmin == true) {
 
-                if (calendarState[0][columnID][blockID] === 1) {
+                if (calendarState[0][columnID][blockID] === true) {
                     setBgColor("selection-made-red");
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = 0;
+                    oldData[0][columnID][blockID] = false;
                     setCalanderState(oldData);
                 } else {
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = 1;
+                    oldData[0][columnID][blockID] = true;
                     setCalanderState(oldData);
                     setBgColor("selection-made-red")
                 }
 
             } else {
+
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
-                if (calendarState[0][columnID][blockID] === 1) {
+                console.log(calendarState)
+                console.log(blockID);
+                if (calendarState[0][columnID][blockID] === true) {
                     setBgColor("white");
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = 0;
+                    oldData[0][columnID][blockID] = false;
                     setCalanderState(oldData);
                 } else {
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = 1;
+                    oldData[0][columnID][blockID] = true;
                     setCalanderState(oldData);
                     setBgColor("ymeets-light-blue")
                 }
@@ -92,13 +96,15 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
     const handleHover = (event : any) => {
         var availableUsers : user[] = []
         var unavailableUsers : user[] = []
-        if(chartedUsers){
+
+        if( chartedUsers ){
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
                 
                 let indexOfCol = columnID % 7 
-                if(oldData[user.id][indexOfCol][blockID] == 1){
+
+                if(oldData[user.id][indexOfCol][blockID] == true){
                     availableUsers.push(user)
                 }
                 else{
@@ -109,23 +115,27 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                              available: availableUsers, 
                              unavailable: unavailableUsers})
         }
+
+        if (draggable === true) {
+            setIsDottedBorder((prevIsDottedBorder) => !prevIsDottedBorder);
+        }
     }
+    
+    const borderStyle = isDottedBorder ? '1px dotted #000' : 'none'; // Adjust the style as needed
     
     return (
 
-            <div
-                onClick={handleDragEnter}
-                onDragStart={handleDragStart}
-                onDragEnter={handleDragEnter}
-                onMouseOver={handleHover}
-                className={` \
-                bg-${bgColor} \
-                m-1 mt-0 mb-0 ml-0 mr-0 min-h-[5px] h-5 \
-                col-span-2 border border-solid-1 border-ymeets-gray \
-                `
-                }
-                draggable="true"
-            >
-            </div>
-    );
+        <div
+            onClick={handleBlockUpdate}
+            onDragStart={handleDragStart}
+            onDragEnter={handleBlockUpdate}
+            onMouseOver={handleHover}
+            onMouseLeave={() => {setIsDottedBorder(false)}}
+            className={`bg-${bgColor} h-4`}
+            style={{ border: borderStyle }}
+            draggable="true"
+        >
+            {/* Your component content goes here */}
+        </div>
+  );
 }

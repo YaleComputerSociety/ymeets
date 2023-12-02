@@ -1,8 +1,7 @@
-export type availabilityMatrix = Record<number, number[]>
+export type Availability = boolean[][]
 
-export type calanderState = Array<availabilityMatrix>; // length = num of people
+export type calanderState = Availability[]; // length = num of people
 
-// TODO add associated date object?
 export interface calandarDate {
     id : number,
     shortenedWeekDay : string,
@@ -12,7 +11,6 @@ export interface calandarDate {
     date? : Date
 }
 
-// TODO : make the move over to date objects
 export interface calendarDimensions {
     dates: calandarDate[][];
     startDate: Date;

@@ -7,8 +7,10 @@ import eventAPI from "../../../eventAPI";
 
 export default function AdminGroupViewApp() {
     const testData = eventAPI.getTestData()
-    const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleDataFull);
+    const [calendarState, setCalendarState] = useState<calanderState>({...testData.scheduleDataFull});
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+  
+
 
     return (
       <>
