@@ -32,6 +32,25 @@
     color: #c3c3c3;
 }
 
+.react-calendar__navigation {
+    display: flex;
+    justify-content: space-between;
+    width: 20%;
+    min-width: 190px;
+  }
+  
+.react-calendar__navigation__label {
+    /* Adjust these styles as needed */
+    flex-grow: 1;
+}
+
+.react-calendar__navigation__arrow.react-calendar__navigation__next2-button {
+    /* Set a fixed width or any other desired styles */
+    width: 20px;
+    /* Ensure the arrow stays on the right */
+    margin-left: auto;
+}
+
 .react-calendar__navigation button:enabled:hover,
 .react-calendar__navigation button:enabled:focus {
     background-color: white !important;
@@ -49,6 +68,7 @@
     font-size: 2rem;
     font-weight: bold;
     color: black;
+    /* padding: 0px, 50px, 0px, 50px; */
 }
 
 abbr {
@@ -123,7 +143,7 @@ abbr {
 .calendar-wrapper {
     position: relative;
     width: 100%;
-    margin-top: 65px;
+    /* margin-top: 65px; */
 }
 
 .calendar-event-name-wrapper {
