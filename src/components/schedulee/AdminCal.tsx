@@ -21,31 +21,32 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
             <p className="text-4xl m-5 mb-1 font-bold">
                 Group Availibility - Admin
             </p>
-            <div className="border border-1 border-gray-600 m-5 w-fit">
+            <div className="border border-1 border-gray-600 m-5 h-fit w-fit">
                 <div className="flex">
                     <TimeColumn     
-                        startTime={calendarFramework.startDate}
-                        endTime={calendarFramework.endDate}
+                        startDate={calendarFramework.startDate}
+                        endDate={calendarFramework.endDate}
                     />
                     {
                     calendarFramework.dates.map((bucket, index) => {
-
                         if (index != 0) {
-                            columnIndexOffset += bucket.length
+                            let prev_bucket = calendarFramework.dates[index - 1]
+                            columnIndexOffset += prev_bucket.length
                         }
                         
                         return <SelectCalander 
                             theCalendarState={[calendarState, setCalendarState]}
                             bucket={bucket}
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                            draggable={false}
-                            isAdmin={false}
+                            draggable={true}
+                            isAdmin={isAdmin}
+                            key={index}
                             columnIndexOffset={columnIndexOffset}
                         />
 
                         
                     }) 
-                    }
+                    }    
                 </div>
             </div>
         </>

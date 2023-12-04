@@ -26,5 +26,5 @@ export interface Participant {
     name: string,
     accountId?: string,
     availability: Availability, // Availability || JSON string of Availability type
-    location: Location,
+    location: Location[],
 }

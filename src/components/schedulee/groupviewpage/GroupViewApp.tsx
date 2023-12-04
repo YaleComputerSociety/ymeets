@@ -10,7 +10,7 @@ import { getEventOnPageload } from '../../../firebase/events';
 import { useParams } from 'react-router-dom';
 
 export default function GroupViewApp() {
-  const { code } = useParams();
+    const { code } = useParams();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
     const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleDataFull);
@@ -23,6 +23,7 @@ export default function GroupViewApp() {
             if (code && code.length == 6) {
                 await getEventOnPageload(code).then(() => {
                     const { availabilities, participants } = eventAPI.getCalendar();
+                    // console.log("Avails: ", availabilities);
                     const dates = eventAPI.getCalendarDimensions();
 
                     setChartedUsers(participants);
@@ -43,23 +44,23 @@ export default function GroupViewApp() {
     }
 
     return (
-      <>
-         <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
+        <>
+            <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
                 <div className="grid col-start-1 col-span-1"> 
-                  <GroupAvailCal 
-                      theCalendarState={[calendarState, setCalendarState]}
-                      theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                      chartedUsersData={[chartedUsers, setChartedUsers]}
-                      draggable={false}
-                  />
+                    <GroupAvailCal 
+                        theCalendarState={[calendarState, setCalendarState]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                        chartedUsersData={[chartedUsers, setChartedUsers]}
+                        draggable={false}
+                    />
                 </div>
                 <div className="grid col-start-2 col-span-1">
                     <UserChart 
-                      chartedUsersData={[chartedUsers, setChartedUsers]}
+                        chartedUsersData={[chartedUsers, setChartedUsers]}
                     />
                 </div>
         </div>
-      </>
+        </>
     )
 
 }

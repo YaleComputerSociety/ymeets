@@ -1,7 +1,8 @@
 import { start } from "repl";
-import { calendarDimensions, calanderState, userData, calendar, user, availabilityMatrix, calandarDate } from "./components/scheduleComponents/scheduletypes";
-import { createEvent, setAvailability, getAccountId, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
+import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/scheduletypes";
+import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
+import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";
 
 // TODO fetch event details -> calendarFramework
 
@@ -18,6 +19,17 @@ export default class FrontendEventAPI {
     
     constructor() {}
 
+    static getEmptyAvailability(dims: calendarDimensions): Availability {
+        let blocksLength = generateTimeBlocks(dims.startDate.getHours(), dims.endDate.getHours()).length;
+        let days: boolean[][] = [];
+        for (let i = 0; i < dims.dates.length; i++) {
+            for (let k = 0; k < dims.dates[i].length; k++) {
+                days.push(Array.from({ length: blocksLength }, () => false))
+            }
+        }
+        return days
+    }
+
     static async createNewEvent(
         title: string, description: string, adminName: string, adminAccountId: string, 
         dates: Date[], plausibleLocations: Location[], startDate: Date, endDate: Date
@@ -32,7 +44,7 @@ export default class FrontendEventAPI {
                 dates: dates,
                 startTime: startDate,
                 endTime: endDate,
-                plausibleLocations: plausibleLocations
+                plausibleLocations: plausibleLocations // TODO admin creator is not being added; maybe should be done on time select?
             });
 
             console.log(ev);
@@ -44,55 +56,52 @@ export default class FrontendEventAPI {
         }
     }
 
-static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
+// static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
         
-        let convertedAvailabilites : boolean[][] = []
+//         let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
         
-        Object.values(availMatrix).forEach((avail : any) => {
+//         console.log("Avail matrix", availMatrix);
+//         Object.values(availMatrix).forEach((row : number[], day_i) => {
+//             Object.values(row).forEach((cell, time_j) => {
+//                 if (cell === 1) {
+//                     emptyAvail[day_i][time_j] = true;
+//                 }
+//             });
+//         }) 
+
+//         return emptyAvail
+
+//     }
+
+//     static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
+
+//         let convertedAvailabilites = {}
+        
+//         Object.values(avail).forEach((value : any, index : any) => {
             
-            let convertedRow : boolean[] = []
+//             // @ts-ignore
+//             convertedAvailabilites[index] = value
+
+//         }) 
+
+//         return convertedAvailabilites
+//     }
+
+    // We want to edit only one participant at a time to avoid concurrency issues
+    // (No one will be setting multiple availabilities at one time, even the admin)
+    // static submitCalendar(cal : calendar) {
         
-            if (avail === 1) {
-convertedRow.push(true);
-            } else {
-                convertedRow.push(false);
-            }
+    //     let numOfPariticipants = cal.participants.users.length;
 
-            convertedAvailabilites.push([...convertedRow])
+    //     for (let i = 0; i < numOfPariticipants; i++) {
+    //         setAvailability(
+    //             // @ts-ignore
+    //             cal.participants[i],
+    //             this.availabilityMatrixToAvailability(cal.availabilities[i]),
+    //         )
 
-        }) 
-
-        return convertedAvailabilites
-
-    }
-
-    static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
-
-        let convertedAvailabilites = {}
-        
-        Object.values(avail).forEach((value : any, index : any) => {
-            
-            // @ts-ignore
-            convertedAvailabilites[index] = value
-
-        }) 
-
-        return convertedAvailabilites
-    }
-
-    static submitCalendar(cal : calendar) {
-        
-        let numOfPariticipants = cal.participants.users.length;
-
-        for (let i = 0; i < numOfPariticipants; i++) {
-            setAvailability(
-                // @ts-ignore
-                cal.participants[i],
-                this.availabilityMatrixToAvailability(cal.availabilities[i]),
-            )
-
-        }
-    }
+    //     }
+    // }
 
     static getCalendarDimensions() : calendarDimensions {
     
@@ -100,7 +109,7 @@ convertedRow.push(true);
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
 
-        console.log("pulled dates " + theDates);
+        // console.log("pulled dates " + theDates);
                 
         let getShortDay = {
             0 : "SUN",
@@ -163,8 +172,6 @@ convertedRow.push(true);
                     )
                 } else {
 
-                    console.log("new bucket!");
-
                     theCalendarDates.push([...curCalendarBucket])
                     curCalendarBucket = []
                 }
@@ -187,6 +194,9 @@ convertedRow.push(true);
         let avails = getAllAvailabilities()
         let names = getAllAvailabilitiesNames()
 
+        console.log("the availaibilites");
+        console.log(avails);
+
         let userData : userData = {
             users : [],
             available: [],
@@ -202,7 +212,8 @@ convertedRow.push(true);
 
         const availMatrix: calanderState = [];
         for (let i = 0; i < avails.length; i++) {
-            availMatrix.push(this.availabilitytoAvailabilityMatrix(avails[i]));
+            // @ts-ignore
+            availMatrix.push(avails[i]);
         }
 
         return {
@@ -244,18 +255,18 @@ convertedRow.push(true);
             
             // @ts-ignore
             scheduleDataEmpty : [                
-                    {
-                        0: [0, 0, 0, 0, 0, 0, 0, 0],
-                        1: [0, 0, 0, 0, 0, 0, 0, 0],
-                        2: [0, 0, 0, 0, 0, 0, 0, 0],
-                        3: [0, 0, 0, 0, 0, 0, 0, 0],
-                        4: [0, 0, 0, 0, 0, 0, 0, 0],
-                        5: [0, 0, 0, 0, 0, 0, 0, 0],
-                        6: [0, 0, 0, 0, 0, 0, 0, 0],
-                        7: [0, 0, 0, 0, 0, 0, 0, 0],
-                        8: [0, 0, 0, 0, 0, 0, 0, 0],
-                        9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                    }
+                    [
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                        [false, false, false, false, false, false, false, false],
+                    ]
                 
             
             ],
@@ -263,42 +274,42 @@ convertedRow.push(true);
             // calendarState
             scheduleDataFull :
                 [
-                    {
-                        0: [1, 0, 0, 0, 0, 0, 0, 0],
-                        1: [0, 0, 0, 0, 0, 0, 0, 0],
-                        2: [0, 0, 0, 0, 0, 0, 0, 0],
-                        3: [0, 1, 1, 1, 1, 1, 1, 0],
-                        4: [0, 1, 0, 0, 0, 0, 0, 0],
-                        5: [0, 0, 0, 0, 0, 0, 0, 0],
-                        6: [0, 0, 0, 0, 0, 0, 0, 0],
-                        7: [0, 0, 0, 0, 0, 0, 0, 0],
-                        8: [0, 0, 0, 0, 0, 0, 0, 0],
-                        9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                  },
-                  {
-                    0: [0, 0, 0, 0, 0, 0, 0, 0],
-                    1: [0, 0, 0, 0, 0, 0, 0, 0],
-                    2: [0, 0, 0, 0, 0, 0, 0, 0],
-                    3: [0, 1, 1, 1, 1, 1, 1, 0],
-                    4: [0, 0, 0, 0, 0, 0, 0, 0],
-                    5: [0, 0, 0, 0, 0, 0, 0, 0],
-                    6: [0, 0, 0, 0, 0, 0, 0, 0],
-                    7: [0, 0, 0, 0, 0, 0, 0, 0],
-                    8: [0, 0, 0, 0, 0, 0, 0, 0],
-                    9: [1, 1, 1, 1, 1, 1, 1, 1],                          
-                  },
-                  {
-                    0: [0, 0, 0, 0, 0, 0, 0, 0],
-                    1: [0, 0, 0, 0, 0, 0, 0, 0],
-                    2: [0, 0, 0, 0, 0, 0, 0, 0],
-                    3: [0, 0, 0, 0, 0, 0, 0, 0],
-                    4: [0, 0, 0, 0, 0, 0, 0, 0],
-                    5: [0, 0, 0, 0, 0, 0, 0, 0],
-                    6: [1, 1, 1, 1, 1, 1, 1, 1],
-                    7: [0, 0, 0, 0, 0, 0, 0, 0],
-                    8: [0, 0, 0, 0, 0, 0, 0, 0],
-                    9: [0, 0, 0, 0, 0, 0, 0, 0],                          
-                }
+                    [
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],
+                        [true, false, true, false, true, false, true, false],                       
+                    ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ],
+                  [
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                    [true, false, true, false, true, false, true, false],
+                  ]
             ],
             
             // calendarFramework
