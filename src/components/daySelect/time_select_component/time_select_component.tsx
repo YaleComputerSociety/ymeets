@@ -39,7 +39,7 @@ export const TimeSelectComponent = (props: any) => {
   return (
     <div className='absolute top-[-35px] right-0 flex flex-row'>
       <div className='grid items-center px-1 sm:px-2'>
-        <p className='text-right font-bold m-0 text-sm sm:text-base'>FROM</p>
+        <p className='text-right font-bold m-0 text-sm sm:text-base'>from: </p>
       </div>
       <Select
         className=""
@@ -49,7 +49,7 @@ export const TimeSelectComponent = (props: any) => {
         onChange={handleStartChange}
       />
       <div className='grid items-center px-1 sm:px-2'>
-        <p className='text-right font-bold m-0 text-sm sm:text-base'>TO</p>
+        <p className='text-right font-bold m-0 text-sm sm:text-base'>to: </p>
       </div>
       <Select
         className=""

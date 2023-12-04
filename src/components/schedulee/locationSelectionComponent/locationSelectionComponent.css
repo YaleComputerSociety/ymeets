@@ -1,3 +1,23 @@
 .location-select-wrapper {
-    margin-top: 2rem;
+    width: 100%;
+}
+
+.location-select-wrapper .react-dropdown-select {
+    height: 50px !important;
+    background-color: white !important;
+    font-size: 1.2rem !important;
+    border: 1px solid lightgray;
+    border-radius: 10px;
+}
+
+.location-select-wrapper .react-dropdown-select .react-dropdown-select-dropdown {
+    display: none !important;
+}
+
+.location-select-wrapper .react-dropdown-select .react-dropdown-select-dropdown-handle {
+    display: none !important;
+}
+
+.location-select-wrapper .react-dropdown-select .react-dropdown-select-option {
+    display: none !important;
 }

@@ -9,3 +9,8 @@
   .react-calendar {
     width: 100% !important;
   }
+
+  .location-selection-option {
+    background-color: rgb(81, 148, 249);
+    color: white;
+  }
