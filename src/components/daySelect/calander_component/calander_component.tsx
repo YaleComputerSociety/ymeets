@@ -10,6 +10,8 @@ import frontendEventAPI from "../../../eventAPI";
 import { useState, useEffect } from "react";
 import { createEvent, getEventById } from "../../../firebase/events";
 import "../calander_component/calander_component.css"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
@@ -21,9 +23,7 @@ interface CalanderComponentProps {
 }
 
 export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, selectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
-  
 
-  const arr1: any[] = [];
   const [selectedDays, updateDays] = selectedDates
   const navigate = useNavigate();
 
@@ -31,29 +31,25 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
     console.log(selectedDays);
   }, [selectedDays]);
   
-
   const addDay = (date: Date) => {
     const arr = [
       ...selectedDays
     ]
     arr.push(date);
     updateDays(arr);
-
   }
 
   const removeDay = (date: Date) => {
     const arr = selectedDays.filter(
       (obj) =>
-        obj == date
+        obj !== date
     )
-    updateDays(arr)
+    updateDays(arr);
   }
 
   const [startDate, updateStartDate] = selectedStartDate;
-
   const [popupIsOpen, setPopupIsOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
-
 
   const handleUpdateStartTime = (time: Date) => {
     updateStartDate(time)
@@ -112,8 +108,10 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         calendarType="US"
         prev2Label={null}
         next2Label={null}
+        nextLabel={<FontAwesomeIcon icon={faArrowRight} />}
+        prevLabel={<FontAwesomeIcon icon={faArrowLeft} />}
         selectRange={false}
-        showNeighboringMonth={false}
+        showNeighboringMonth={true}
         minDetail="month"
         tileDisabled={({ activeStartDate, date, view }) => {
           if (holidays[0] <= date && date <= holidays[1]) {
@@ -132,13 +130,10 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
             return false;
           }
         }}
-
-        
-        tileContent={({ activeStartDate, date, view }) => {
-          const holidayName = getHolidayName(date); 
-        
+        tileContent={({ date, view }) => {      
+          const holidayName = getHolidayName(date);   
           return (
-            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>         
               {holidayName && (
                 <div 
                   className="tooltip-overlay has-tooltip" 
@@ -152,18 +147,22 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
                     zIndex: 3
                   }}
                 ></div>
-              )}
+              )}     
               <CircleComponent
                 date={date}
                 add={addDay}
                 remove={removeDay}
-                selectedDays={selectedDays}
+                isActive={selectedDays.filter(
+                  (obj: any) => {
+                    return obj.getFullYear() == date.getFullYear() &&
+                    obj.getMonth() == date.getMonth() &&
+                    obj.getDate() == date.getDate();
+                  }
+                ).length !== 0}
               />
             </div>
           );
         }}
-        
-
         navigationLabel={({ date, label, locale, view }) =>
           date.toLocaleString('default', { month: 'long' })
         }

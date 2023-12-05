@@ -44,8 +44,8 @@ export const DaySelectComponent = () => {
     }
 
     return (
-        <div className="flex flex-col md:flex-row w-[80%] mx-auto my-16 px-2 text-center">
-            <div className="flex flex-col justify-left items-center w-[100%] md:w-[80%] md:space-y-7 space-y-2">
+        <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto pt-32 px-2 text-center">
+            <div className="flex flex-col justify-left items-center w-[100%] md:w-[80%] md:space-y-7 space-y-2 mb-8">
                 <div className="w-[100%]">
                     <input
                         id="event-name"
@@ -97,7 +97,7 @@ export const DaySelectComponent = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-left items-center w-[100%] md:space-y-3">
+                <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
                 {locations.map((location, index) => (
                     <div className="flex justify-left w-[100%]">
                         <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
