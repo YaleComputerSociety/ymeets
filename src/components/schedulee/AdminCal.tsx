@@ -8,9 +8,10 @@ interface AdminCalProps {
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
     draggable : boolean
     isAdmin? : boolean
+    user : number
 }
 
-export default function AdminCal({theCalendarFramework, theCalendarState, draggable, isAdmin}: AdminCalProps) {
+export default function AdminCal({theCalendarFramework, theCalendarState, draggable, isAdmin, user}: AdminCalProps) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
@@ -41,6 +42,7 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
                             draggable={true}
                             isAdmin={isAdmin}
                             key={index}
+                            user={0}
                             columnIndexOffset={columnIndexOffset}
                         />
 

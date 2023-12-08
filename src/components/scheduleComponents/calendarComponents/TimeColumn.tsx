@@ -40,21 +40,18 @@ export default function TimeColumn(props: any) {
 
     return (
         <div className="mr-1 ml-1">
-            
-        {/* This is a one time height appied to align the top of the column to the select stuff */}
-        <div className="lg:h-28 md:h-24 xs:h-24 sm:h-20"></div>
-            {  
-                blocks
-                .map((block : any, index : number) => {
-                    
-                    return (
-                        <div key={index}>
-                            <p className="text-xs text-[#787878] font-roboto">{block[0] in military_to_normal ? military_to_normal[block[0]] : "-"}</p>
-                            <div className="h-14"></div>
-                        </div>
-                    )
-                })
-            }
+          {/* This is a one-time height applied to align the top of the column to the select stuff */}
+          <div className="lg:h-28 md:h-24 xs:h-24 sm:h-20"></div>
+            {blocks.map((block: any, index: number) => (
+              <div key={index}>
+                <p className="text-xs text-[#787878] font-roboto">
+                  {block[0] in military_to_normal
+                    ? military_to_normal[block[0]]
+                    : "-"}
+                </p>
+                <div className="h-17"></div>
+              </div>
+            ))}
         </div>
-    )
+      );
 }

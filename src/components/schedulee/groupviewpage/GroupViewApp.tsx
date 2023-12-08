@@ -52,6 +52,7 @@ export default function GroupViewApp() {
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         chartedUsersData={[chartedUsers, setChartedUsers]}
                         draggable={false}
+                        user={0}
                     />
                 </div>
                 <div className="grid col-start-2 col-span-1">

@@ -11,10 +11,11 @@ interface SelectCalanderProps {
   draggable: boolean
   isAdmin?: boolean
   bucket : calandarDate[]
-  columnIndexOffset : number
+  columnIndexOffset : number,
+  user : number
 }
 
-function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersData, draggable, isAdmin, bucket, columnIndexOffset}: SelectCalanderProps) {
+function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersData, draggable, isAdmin, bucket, columnIndexOffset, user}: SelectCalanderProps) {
 
   const [calendarState, setCalendarState] = theCalendarState;
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
@@ -36,6 +37,7 @@ function SelectCalander({ theCalendarFramework, theCalendarState, chartedUsersDa
                     chartedUsersData={chartedUsersData}
                     theCalendarState={[calendarState, setCalendarState]}
                     isAdmin={isAdmin}
+                    user={user}
                   />
               })
               }

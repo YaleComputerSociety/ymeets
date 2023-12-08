@@ -17,7 +17,11 @@ module.exports = {
         "ymeets-light-blue" : "#BEDEFF",
         "ymeets-dark-blue" : "#00356B",
         "selection-made-red" : "#D86969"
-
+      },
+      height : {
+        "nineteen" :  "70px",
+        "17" : "66px",
+        "29" : "120px"
       }
     },
   },

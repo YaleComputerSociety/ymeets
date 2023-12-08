@@ -24,6 +24,7 @@ function TimeSelectApp() {
     const [selectedLocations, updateSelectedLocations] = useState([]);
 
     const [ loading, setLoading ] = useState(true);
+
     useEffect(() => {
 
         const fetchData = async () => {
@@ -94,7 +95,7 @@ function TimeSelectApp() {
                             // @ts-ignore
 
                         theCalendarState={[calendarState, setCalendarState]}
-
+                        user={0}
                         // @ts-ignore
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}

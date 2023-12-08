@@ -21,6 +21,7 @@ export default function AdminGroupViewApp() {
                       theCalendarFramework={[calendarFramework, setCalendarFramework] }
                       draggable={true}
                       isAdmin={true}
+                      user={0}
                   />
                 </div>
         </div>

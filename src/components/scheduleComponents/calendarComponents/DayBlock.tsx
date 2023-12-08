@@ -9,15 +9,17 @@ interface DayBlockProps {
     chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
     draggable: boolean
     isAdmin? : boolean
+    user : number
+    theDragStartedOn : any
 }
 
 
-export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin}: DayBlockProps) {
+export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn}: DayBlockProps) {
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
-
+    const [dragStartedOn, setDragStartedOn] = theDragStartedOn
     // for group view calander.
     useEffect(() => {
 
@@ -52,40 +54,67 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         crt.style.left = "-9999px"; 
         crt.style.opacity = "0"
         document.body.appendChild(crt);
-        event.dataTransfer.setDragImage(crt, 0, 0);        
+        event.dataTransfer.setDragImage(crt, 0, 0);  
+
+        // this needs to be fixed, should not be using 0, should be using the person's ID.
+
+        console.log("drag started")
+
+        if (calendarState[user][columnID][blockID] == true) {
+            setDragStartedOn(true);
+            console.log("on");
+        } else {
+            setDragStartedOn(false);
+            console.log("off");
+        }
       };
       
     const handleBlockUpdate = () => {
+
+        console.log("cs " + calendarState[user][columnID][blockID])
+        console.log("do " + dragStartedOn);
+        console.log([columnID, blockID]);
+
         if (draggable === true) {
+
             if (isAdmin == true) {
 
-                if (calendarState[0][columnID][blockID] === true) {
+                if (calendarState[user][columnID][blockID] === true) {
                     setBgColor("selection-made-red");
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = false;
+                    oldData[user][columnID][blockID] = false;
                     setCalanderState(oldData);
                 } else {
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = true;
+                    oldData[user][columnID][blockID] = true;
                     setCalanderState(oldData);
                     setBgColor("selection-made-red")
                 }
 
             } else {
-
+                
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
-                console.log(calendarState)
-                console.log(blockID);
-                if (calendarState[0][columnID][blockID] === true) {
-                    setBgColor("white");
-                    let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = false;
-                    setCalanderState(oldData);
+                
+                if (calendarState[user][columnID][blockID] === true) {
+
+                    if (dragStartedOn === true) {
+
+                        setBgColor("white");
+                        let oldData = {...calendarState};
+                        oldData[user][columnID][blockID] = false;
+                        setCalanderState(oldData);
+                    }
+                    
                 } else {
+
+                    if (dragStartedOn === true) { 
+                        return
+                    }
+
                     let oldData = {...calendarState};
-                    oldData[0][columnID][blockID] = true;
+                    oldData[user][columnID][blockID] = true;
                     setCalanderState(oldData);
                     setBgColor("ymeets-light-blue")
                 }
@@ -121,21 +150,24 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         }
     }
     
-    const borderStyle = isDottedBorder ? '1px dotted #000' : 'none'; // Adjust the style as needed
+    const borderStyle = isDottedBorder ? '1px dotted #000' : 'none';
     
     return (
 
         <div
+            draggable="true"
             onClick={handleBlockUpdate}
             onDragStart={handleDragStart}
             onDragEnter={handleBlockUpdate}
+            onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
+            onDragEnd={(e) => {console.log("drag ended"); setDragStartedOn(false)}}
             onMouseLeave={() => {setIsDottedBorder(false)}}
             className={`bg-${bgColor} h-4`}
             style={{ border: borderStyle }}
-            draggable="true"
+
         >
-            {/* Your component content goes here */}
         </div>
+
   );
 }

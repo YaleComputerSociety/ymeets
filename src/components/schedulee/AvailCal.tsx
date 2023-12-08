@@ -7,9 +7,10 @@ interface AvailCalProps {
     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
     draggable : boolean
+    user : number
   }
 
-export default function AvailCal({theCalendarFramework, theCalendarState}: AvailCalProps) {
+export default function AvailCal({theCalendarFramework, theCalendarState, user}: AvailCalProps) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
@@ -41,6 +42,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState}: Avail
                             isAdmin={false}
                             key={index}
                             columnIndexOffset={columnIndexOffset}
+                            user={user}
                         />
 
                         
