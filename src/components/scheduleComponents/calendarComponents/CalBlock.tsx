@@ -14,7 +14,7 @@ interface DayBlockProps {
 }
 
 
-export default function DayBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn}: DayBlockProps) {
+export default function CalBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn}: DayBlockProps) {
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
@@ -26,8 +26,10 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
         let count = 0
 
         for (let i = 0; i < calendarState.length; i++) {
-            let indexOfCol = columnID % 7
-            if (calendarState[i][indexOfCol][blockID] == true) {
+            
+            // let indexOfCol = columnID % 7
+            
+            if (calendarState[i][columnID][blockID] == true) {
                 count += 1
             }
         }
@@ -58,22 +60,36 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
 
         // this needs to be fixed, should not be using 0, should be using the person's ID.
 
-        console.log("drag started")
-
         if (calendarState[user][columnID][blockID] == true) {
             setDragStartedOn(true);
-            console.log("on");
         } else {
             setDragStartedOn(false);
-            console.log("off");
         }
       };
+
+    const handleBlockClick = () => {
+        if (calendarState[user][columnID][blockID] === true) { 
+
+            setBgColor("white");
+            let oldData = {...calendarState};
+            oldData[user][columnID][blockID] = false;
+            setCalanderState(oldData);
+
+        } else {
+
+            let oldData = {...calendarState};
+            oldData[user][columnID][blockID] = true;
+            setCalanderState(oldData);
+            setBgColor("ymeets-light-blue")
+
+        }
+
+    }
       
     const handleBlockUpdate = () => {
 
-        console.log("cs " + calendarState[user][columnID][blockID])
-        console.log("do " + dragStartedOn);
-        console.log([columnID, blockID]);
+        console.log("bu")
+        console.log(dragStartedOn);
 
         if (draggable === true) {
 
@@ -92,7 +108,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
                 }
 
             } else {
-                
+
                 // if we're draggable
                 // then there must be only one calander in schedules, in which case we can just
                 // directly edit it to reflect the state.
@@ -156,7 +172,7 @@ export default function DayBlock({blockID, columnID, theCalendarState, chartedUs
 
         <div
             draggable="true"
-            onClick={handleBlockUpdate}
+            onClick={handleBlockClick}
             onDragStart={handleDragStart}
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}

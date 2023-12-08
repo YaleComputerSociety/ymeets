@@ -1,5 +1,5 @@
 import React from "react";
-import DayBlock from "./DayBlock";
+import CalBlock from "./CalBlock";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks.js";
 import "tailwindcss/tailwind.css";
 import { calanderState, userData } from "../scheduletypes";
@@ -70,7 +70,7 @@ export default function DayColumn({
                 {
                 block.map((b, i) => {
 
-                  return <DayBlock
+                  return <CalBlock
                     isAdmin={isAdmin}
                     columnID={columnID}
                     blockID={index * NUMBER_OF_TIME_INTERVALS + i}

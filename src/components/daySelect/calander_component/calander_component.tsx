@@ -15,38 +15,41 @@ interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
   selectedStartDate: [Date, React.Dispatch<React.SetStateAction<Date>>],
   selectedEndDate : [Date, React.Dispatch<React.SetStateAction<Date>>],
-  selectedDates : [Date[], React.Dispatch<React.SetStateAction<Date[]>>],
+  theSelectedDates : [Date[], React.Dispatch<React.SetStateAction<Date[]>>],
   popUpOpen : [boolean, React.Dispatch<React.SetStateAction<boolean>>],
   popUpMessage : [string, React.Dispatch<React.SetStateAction<string>>]
 }
 
-export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, selectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
+export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
   
 
   const arr1: any[] = [];
-  const [selectedDays, updateDays] = selectedDates
+  const [selectedDates, setSelectedDates] = theSelectedDates
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(selectedDays);
-  }, [selectedDays]);
+    console.log(selectedDates);
+  }, [selectedDates]);
   
 
   const addDay = (date: Date) => {
+
+    console.log("added date " + date)
+
     const arr = [
-      ...selectedDays
+      ...selectedDates
     ]
     arr.push(date);
-    updateDays(arr);
+    setSelectedDates(arr);
 
   }
 
   const removeDay = (date: Date) => {
-    const arr = selectedDays.filter(
+    const arr = selectedDates.filter(
       (obj) =>
         obj == date
     )
-    updateDays(arr)
+    setSelectedDates(arr)
   }
 
   const [startDate, updateStartDate] = selectedStartDate;
@@ -157,7 +160,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
                 date={date}
                 add={addDay}
                 remove={removeDay}
-                selectedDays={selectedDays}
+                selectedDays={selectedDates}
               />
             </div>
           );

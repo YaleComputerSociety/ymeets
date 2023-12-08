@@ -64,7 +64,7 @@ export const DaySelectComponent = () => {
                 selectedStartDate={[startDate, setStartDate]}
                 selectedEndDate={[endDate, setEndDate]}
                 // @ts-ignore
-                selectedDates={[selectedDates, setSelectedDates]}
+                theSelectedDates={[selectedDates, setSelectedDates]}
                 popUpOpen={[popUpIsOpen, setPopupIsOpen]}
                 popUpMessage={[popUpMessage, setPopupMessage]}
             />
