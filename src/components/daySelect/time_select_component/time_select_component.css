@@ -24,3 +24,9 @@
     align-items: center !important;
     margin-right: 0.8rem;
 }
+
+.time-select-container {
+    width: 100% !important;
+    position: absolute;
+    left: 0 !important;
+}
