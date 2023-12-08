@@ -26,6 +26,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   
 
   const arr1: any[] = [];
+  const [selectedDates, setSelectedDates] = theSelectedDates
 
   const navigate = useNavigate();
 
@@ -160,7 +161,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
                 date={date}
                 add={addDay}
                 remove={removeDay}
-                isActive={selectedDays.filter(
+                isActive={selectedDates.filter(
                   (obj: any) => {
                     return obj.getFullYear() == date.getFullYear() &&
                     obj.getMonth() == date.getMonth() &&

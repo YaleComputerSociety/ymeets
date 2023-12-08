@@ -87,10 +87,7 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
     }
       
     const handleBlockUpdate = () => {
-
-        console.log("bu")
-        console.log(dragStartedOn);
-
+        
         if (draggable === true) {
 
             if (isAdmin == true) {
@@ -177,7 +174,7 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
-            onDragEnd={(e) => {console.log("drag ended"); setDragStartedOn(false)}}
+            onDragEnd={(e) => {setDragStartedOn(false)}}
             onMouseLeave={() => {setIsDottedBorder(false)}}
             className={`bg-${bgColor} h-4`}
             style={{ border: borderStyle }}
