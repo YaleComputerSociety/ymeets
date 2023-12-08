@@ -10,13 +10,15 @@ interface GroupAvailCal {
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
     chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>]
     draggable : boolean
+    user : number
 }
 
-export default function GroupAvailCal({theCalendarFramework, theCalendarState, chartedUsersData, draggable}: GroupAvailCal) {
+export default function GroupAvailCal({theCalendarFramework, theCalendarState, chartedUsersData, draggable, user}: GroupAvailCal) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
     const [chartedUsers, setChartedUsers] = chartedUsersData;
+    
     let columnIndexOffset = 0
     
     return (
@@ -48,9 +50,10 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                             isAdmin={false}
                             chartedUsersData={[chartedUsers, setChartedUsers]}
                             columnIndexOffset={columnIndexOffset}
+                            user={user}
                         />
 
-                        
+                     
                     }) 
                     }
             </div>

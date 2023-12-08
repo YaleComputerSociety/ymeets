@@ -1,8 +1,9 @@
 import React from "react";
-import DayBlock from "./DayBlock";
+import CalBlock from "./CalBlock";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks.js";
 import "tailwindcss/tailwind.css";
 import { calanderState, userData } from "../scheduletypes";
+import { useState } from "react";
 
 const NUMBER_OF_TIME_INTERVALS = 4
 
@@ -17,6 +18,7 @@ interface DayColumnProps {
   draggable: boolean;
   month: string;
   isAdmin?: boolean;
+  user : number;
 }
 
 export default function DayColumn({
@@ -30,8 +32,11 @@ export default function DayColumn({
   chartedUsersData,
   month,
   isAdmin,
+  user
 }: DayColumnProps) {
+
   const [calendarState, setCalendarState] = theCalendarState;
+  const [dragStartedOn, setDragStartedOn] = useState(false);
 
   let blocks = generateTimeBlocks(startHour, endHour);
 
@@ -56,18 +61,16 @@ export default function DayColumn({
         </div>
         <div>
           {blocks.map((block, index) => {
-          
-
             return (
               <div key={index}
-                   className="h-16 \
+                   className="h-17 \
                    col-span-1 border border-solid-2 border-ymeets-gray \  
                    "  
               >
                 {
                 block.map((b, i) => {
 
-                  return <DayBlock
+                  return <CalBlock
                     isAdmin={isAdmin}
                     columnID={columnID}
                     blockID={index * NUMBER_OF_TIME_INTERVALS + i}
@@ -75,12 +78,13 @@ export default function DayColumn({
                     draggable={draggable}
                     theCalendarState={[calendarState, setCalendarState]}
                     chartedUsersData={chartedUsersData}
+                    user={user}
+                    theDragStartedOn={[dragStartedOn, setDragStartedOn]}
                   />
                 })}
               </div>
             );
           })}
-          <div className="h-2"></div>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ export default function NavBar() {
         <div className="flex w-full mt-9 fixed justify-center">
             <div className="flex bg-white rounded-full h-16 w-[90%] px-8 items-center justify-between">
                 <div className="inline-flex items-center space-x-4">
-                    <a href="/" className="text-gray-500 text-2xl font-bold hover:text-blue-700">y/meets</a> 
+                    <a href="/" className="text-gray-500 text-2xl font-bold hover:text-blue-700">ymeets</a> 
                 </div>
                 <div className="inline-flex justify-self-end items-end space-x-4">
                     <div className="inline-flex md:hidden flex-col space-y-1 h-6 w-6 justify-center">
