@@ -28,14 +28,11 @@ export const LocationSelectionComponent = (props:any) => {
     ]
 
     return (
-        <div className={`location-select-wrapper`}>
-            <Select multi create options={options} clearOnSelect={false} values={[]} onChange={(values:any) => {
-                const tmp_arr: any = [];
-                for (let i = 0; i < values.length; i++) {
-                    tmp_arr.push(values[i]['value']);
-                }
-                props.update(tmp_arr);
-            }} />
-        </div>
+        <Select multi 
+            create 
+            options={options} 
+            clearOnSelect={false}
+            placeholder="Select location preference(s)"
+            values={[]} onChange={(values:any) => {props.update(values)}}/>
     );
 }

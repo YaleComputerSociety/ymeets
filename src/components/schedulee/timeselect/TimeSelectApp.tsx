@@ -84,15 +84,25 @@ function TimeSelectApp() {
     }
 
     return (
-        <div>
-            <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
-                <div className="grid col-start-1 col-span-1"> 
-                    <LocationSelectionComponent 
-                        update={handleUpdateSelectedLocations}
-                    />
+        <div className="bg-sky-100 pt-32">
+            <div className={"flex flex-col-reverse justify-center content-center " +
+                            "md:flex-row"}>
+                <div className={"flex flex-col flex-wrap content-center space-y-8 " + 
+                                "md:w-1/2"}> 
+                    <div className="w-96 flex-col content-center">
+                        <LocationSelectionComponent 
+                            update={handleUpdateSelectedLocations}
+                        />
+                    </div>
+                    <button className={'font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center ' +
+                                            'transform transition-transform hover:scale-90 active:scale-100e'} 
+                                            onClick={handleSubmitAvailability}>
+                                            Submit
+                                            </button>
                 </div>
-                <div className="grid col-start-2 col-span-1"> 
-                    <AvailCal 
+                <div className={"flex flex-col justify-center content-center flex-wrap " +
+                                "md:w-1/2 md:content-start"}>
+                        <AvailCal 
                             // @ts-ignore
 
                         theCalendarState={[calendarState, setCalendarState]}

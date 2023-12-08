@@ -43,21 +43,21 @@ export default function DayColumn({
   return (
     <div className="">
       <div className="flex flex-col">
-        <div className="p-4 xs:p-2 sm:p-2 md:p-2 lg:p-4 \
+        {/* <div className="p-4 xs:p-2 sm:p-2 md:p-2 lg:p-4 \
                         m-1 ml-0 mr-0 border-solid border-D0CFCF border-b-4 border-r-2 \
-                      bg-white text-black flex place-content-center items-center
-        ">
-          <center>
+                      bg-white text-black flex place-content-center items-center"> */}
+        <div className={"flex flex-row justify-center items-center flex-wrap w-full"}>
+          <div className={"rounded-lg p-4 bg-white text-black text-center mx-1 mb-3"}>
             <p className="text-sm text-[#787878]">
               {month}
-              <br />
             </p>
-            <p className="text-lg p-1 text-[#787878]">
+            <p className="text-lg text-[#787878]">
               {weekDay}
-              <br />
+            </p>
+            <p className="text-lg text-[#787878]">
               {numberDay}
             </p>
-          </center>
+          </div>
         </div>
         <div>
           {blocks.map((block, index) => {

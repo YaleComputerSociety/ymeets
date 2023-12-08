@@ -19,7 +19,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState, user}:
     return (
         <>
             <p className="text-4xl m-5 mb-1 font-bold">
-                Your Availibility
+                Your Availability
             </p>
             <div className="border border-1 border-gray-600 m-5 h-fit w-fit">
                 <div className="flex">
