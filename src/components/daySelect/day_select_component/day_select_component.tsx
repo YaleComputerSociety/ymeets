@@ -86,13 +86,13 @@ export const DaySelectComponent = () => {
 
     return (
         <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto px-2 text-center">
-            <div className="flex flex-col justify-left items-center w-[100%] space-y-2 mb-8 \
-                            md:w-[80%] md:space-y-7 md:justify-center">
-                <div className="w-[100%]">
+            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] space-y-2 mb-8 \
+                            md:w-[80%] md:space-y-7 md:mt-12 md:content-start">
+                <div className="w-[100%] text-center">
                     <input
                         id="event-name"
                         type="text"
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
+                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Event Name"
                         value={eventName}
                         onChange={(e) => setEventName(e.target.value)}
@@ -102,7 +102,7 @@ export const DaySelectComponent = () => {
                     <input
                         id="event-description"
                         style={{resize: "none"}}
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
+                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Event Description (Optional)"
                         value={eventDescription}
                         onChange={(e) => setEventDescription(e.target.value)}
@@ -112,7 +112,7 @@ export const DaySelectComponent = () => {
                     <input
                         id="event-description"
                         style={{resize: "none"}}
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
+                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Add Location Options"
                         value={locationField}
                         onChange={(e) => setLocationField(e.target.value)}
@@ -133,8 +133,8 @@ export const DaySelectComponent = () => {
                     </select> */}
                 </div>
                 
-                <div className="w-[100%]">
-                    <div className="p-1 w-[80%] text-gray-500 text-left text-sm">
+                <div className="w-[100%] flex flex-row justify-center">
+                    <div className="p-1 w-[80%] text-gray-500 text-center text-sm md:text-left">
                         Click ENTER after typing a location to add an option for participants
                     </div>
                 </div>
