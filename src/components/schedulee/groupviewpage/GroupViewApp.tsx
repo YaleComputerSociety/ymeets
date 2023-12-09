@@ -3,10 +3,11 @@ import SelectCalander from "../../scheduleComponents/calendarComponents/SelectCa
 import GroupAvailCal from "../GroupAvailCal";
 import { useState } from "react";
 import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
+import LocationChart from "../../scheduleComponents/hoverViewComponents/LocationChart";
 import { calanderState, userData } from "../../scheduleComponents/scheduletypes";
 import { calendarDimensions } from "../../scheduleComponents/scheduletypes";
 import eventAPI from "../../../eventAPI";
-import { getEventOnPageload } from '../../../firebase/events';
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../../firebase/events';
 import { useParams } from 'react-router-dom';
 
 export default function GroupViewApp() {
@@ -15,6 +16,10 @@ export default function GroupViewApp() {
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
     const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleDataFull);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+    const [eventName, setEventName] = useState("")
+    const [eventDescription, setEventDescription] = useState("")
+    const [locationVotes, setLocationVotes] = useState(Object)
+    const [locationOptions, setLocationOptions] = useState(Array<String>)
 
     const [ loading, setLoading ] = useState(true);
     useEffect(() => {
@@ -29,7 +34,13 @@ export default function GroupViewApp() {
                     setChartedUsers(participants);
                     setCalendarState(availabilities);
                     setCalendarFramework(dates);
-                });
+
+                    setEventName(getEventName());
+                    setEventDescription(getEventDescription());
+                    setLocationVotes(getLocationsVotes())
+                    console.log(getLocationsVotes())
+                    setLocationOptions(getLocationOptions())
+                }); 
     
             } else { // url is malformed
                 console.error("The event code in the URL doesn't exist");
@@ -45,8 +56,10 @@ export default function GroupViewApp() {
 
     return (
         <>
-            <div className="grid grid-cols-2 grid-rows-1 font-roboto mx-8">
-                <div className="grid col-start-1 col-span-1"> 
+            <div className="flex flex-col justify-center \
+                            md:flex-row-reverse">
+                <div className="flex flex-col content-center flex-wrap w-full \ 
+                                md:w-1/2 md:content-start"> 
                     <GroupAvailCal 
                         theCalendarState={[calendarState, setCalendarState]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
@@ -55,10 +68,21 @@ export default function GroupViewApp() {
                         user={0}
                     />
                 </div>
-                <div className="grid col-start-2 col-span-1">
-                    <UserChart 
-                        chartedUsersData={[chartedUsers, setChartedUsers]}
-                    />
+                <div className="flex flex-col content-center flex-wrap w-full \ 
+                                md:w-1/2 md:content-end">
+                    <div className="flex flex-col space-y-7 max-w-sm mx-5 \
+                                    md:mt-12">
+                        <h1 className={"text-3xl font-bold text-center " + 
+                                    "md:text-left"}>Event: {eventName}</h1>
+                        <p className={"text-xl text-center " + 
+                                    "md:text-left"}>Desc: {eventDescription}</p>
+                        <LocationChart 
+                            locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
+                            locationVotes={Object.values(locationVotes)}/>
+                        <UserChart 
+                            chartedUsersData={[chartedUsers, setChartedUsers]}
+                        />
+                    </div>
                 </div>
         </div>
         </>

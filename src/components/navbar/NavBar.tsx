@@ -6,8 +6,9 @@ export default function NavBar() {
     let weekdays = ["Sunday", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     let weekday = weekdays[today.getDay()]
     return (
-        <div className="flex w-full mt-9 fixed justify-center">
-            <div className="flex bg-white rounded-full h-16 w-[90%] px-8 items-center justify-between">
+        <>
+        <div className="flex w-full mt-6 fixed justify-center z-50">
+            <div className="flex bg-white rounded-xl h-16 w-[90%] px-8 items-center justify-between shadow-lg">
                 <div className="inline-flex items-center space-x-4">
                     <a href="/" className="text-gray-500 text-2xl font-bold hover:text-blue-700">ymeets</a> 
                 </div>
@@ -22,5 +23,10 @@ export default function NavBar() {
                 </div>
             </div>
         </div>
+        {/* Acts as a buffer for floating nav */}
+        <div className="h-32">
+
+        </div>
+        </>
     )
 }

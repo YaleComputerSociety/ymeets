@@ -52,7 +52,9 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       ...selectedDates
     ]
     arr.push(date);
-
+    arr.sort((a: Date, b: Date) => {
+      return a.getTime() - b.getTime();
+    })
 
     setSelectedDates(arr);
 

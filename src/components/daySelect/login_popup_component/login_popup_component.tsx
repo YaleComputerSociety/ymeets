@@ -30,11 +30,12 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose }) => {
   
     return (
         <div className="popup-overlay active">
-          <div className="popup-content">
-            <p className="mb-4">Please log in to make an event. Since you would like to create an event, you must sign in with Google.</p>
+          <div className="popup-content p-10 mx-10">
+            <p className="mb-5 text-xl">Please sign in with google before creating an event.</p>
             <div className="flex justify-center mb-1">
               <button
-                className='flex shadow-custom bg-blue-900 text-white justify-center rounded-lg cursor-pointer min-w-[40%] text-lg p-2 md:p-3 md:w-11/12 lg:min-w-[0%] lg:w-[40%] transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none'
+                className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
+                            transform transition-transform hover:scale-90 active:scale-100e'
                 onClick={handleSignInWithGoogle}
               >
                 Sign In with Google

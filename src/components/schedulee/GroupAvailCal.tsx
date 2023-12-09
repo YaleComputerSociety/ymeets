@@ -26,9 +26,10 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
         <>
          <h1 className="text-4xl m-5 mb-0 font-bold">Group Availibility</h1>
         
-            <div className="border border-1 border-gray-600 m-5 w-fit">
+            <div className="m-5 w-fit">
             
-            <div className="flex">  
+            <div className="flex py-6 px-8 \
+                            md:bg-white md:rounded-lg">  
 
                 <TimeColumn 
                     startDate={calendarFramework.startDate}

@@ -389,13 +389,15 @@ function getChosenLocation(): Location | undefined {
 }
 
 // Retrieves the dict objects mapping locations (keys) to number of votes (items)
-function getLocationsVotes(): { [id: Location]: number; } {
+function getLocationsVotes(): { [id: Location]: number; } | any {
     const votes: { [id: Location]: number; } = {}
-    for (const location in workingEvent.details.plausibleLocations) {
+    for (let i = 0; i < workingEvent.details.plausibleLocations.length; i++) {
+        let location = workingEvent.details.plausibleLocations[i]
         votes[location] = 0
-        for (var participant in workingEvent.participants) {
+        for (let i = 0; i < workingEvent.participants.length; i++) {
             // @ts-ignore
-            if (participant.location == location) {
+            let participant = workingEvent.participants[i]
+            if (participant.location.includes(location)) {
                 votes[location] += 1
             }
         }
