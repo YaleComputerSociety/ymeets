@@ -68,26 +68,28 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
       };
 
     const handleBlockClick = () => {
-        if (calendarState[user][columnID][blockID] === true) { 
 
-            setBgColor("white");
-            let oldData = {...calendarState};
-            oldData[user][columnID][blockID] = false;
-            setCalanderState(oldData);
+        if (draggable === true) {
 
-        } else {
+            if (calendarState[user][columnID][blockID] === true) { 
 
-            let oldData = {...calendarState};
-            oldData[user][columnID][blockID] = true;
-            setCalanderState(oldData);
-            setBgColor("ymeets-light-blue")
+                setBgColor("white");
+                let oldData = {...calendarState};
+                oldData[user][columnID][blockID] = false;
+                setCalanderState(oldData);
 
-        }
+            } else {
 
+                let oldData = {...calendarState};
+                oldData[user][columnID][blockID] = true;
+                setCalanderState(oldData);
+                setBgColor("ymeets-light-blue")
+            }
+        }   
     }
       
     const handleBlockUpdate = () => {
-        
+
         if (draggable === true) {
 
             if (isAdmin == true) {
