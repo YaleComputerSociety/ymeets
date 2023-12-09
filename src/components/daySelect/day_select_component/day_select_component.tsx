@@ -43,8 +43,6 @@ export const DaySelectComponent = () => {
         }
     }
     const verifyNext = () => {
-
-            
         if (selectedDates.length == 0) {
             showAlert('Make sure to enter dates!');
             return;
