@@ -3,29 +3,13 @@ import './locationSelectionComponent.css';
 import Select from "react-dropdown-select";
 
 export const LocationSelectionComponent = (props:any) => {
-
-    let options = [
-        {
-            value: 'YSB MARSH',
-            label: 'YSB MARSH'
-        },
-        {
-            value: 'LOM 206',
-            label: 'LOM 206'
-        },
-        {
-            value: 'LC 213',
-            label: 'LC 213'
-        },
-        {
-            value: 'WTS A60',
-            label: 'WTS A60'
-        },
-        {
-            value: 'KT 101',
-            label: 'KT 101'
+    let locations : Array<String> = props.locations
+    let options = locations.map(loc => {
+        return {
+            value: loc,
+            label: loc
         }
-    ]
+    })
 
     return (
         <Select multi 

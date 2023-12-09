@@ -39,7 +39,7 @@ export const LoginPageButtons = () => {
         }
     } 
     return (
-        <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 pt-32 md:pt-48 md:px-16 lg:px-40 xl:px-60">
+        <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 md:px-16 lg:px-40 xl:px-60">
             <div className={'flex-col-reverse justify-center '  + 
                             'md:flex-row flex md:h-1/2'}>
                 <div className='justify-center self-center space-y-12 mt-3 max-w-full min-w-[70%] md:w-[90%]'>

@@ -10,8 +10,7 @@ import { calandarDate, calanderState, userData } from '../../scheduleComponents/
 import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
-import { LoginPopup } from './login_guest_popup';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../../firebase/events';
 import { Availability } from '../../../types';
 
 function TimeSelectApp() {
@@ -26,6 +25,10 @@ function TimeSelectApp() {
     const [selectedLocations, updateSelectedLocations] = useState([]);
 
     const [ loading, setLoading ] = useState(true);
+
+    const [eventName, setEventName] = useState("")
+    const [eventDescription, setEventDescription] = useState("")
+    const [locationOptions, setLocationOptions] = useState(Array<String>)
 
     useEffect(() => {
 
@@ -45,6 +48,10 @@ function TimeSelectApp() {
                     } 
 
                     setChartedUsers(participants);
+
+                    setEventName(getEventName());
+                    setEventDescription(getEventDescription());
+                    setLocationOptions(getLocationOptions())
 
                     // @ts-ignore
                     setCalendarState([avail]);
@@ -96,19 +103,24 @@ function TimeSelectApp() {
     return (
         <div className="bg-sky-100">
             <div className={"flex flex-col-reverse justify-center content-center " +
-                            "md:flex-row"}>
-                <div className={"flex flex-col flex-wrap content-center space-y-8 " + 
-                                "md:w-1/2"}> 
+                            "md:flex-row md:mx-12"}>
+                <div className={"flex flex-col flex-wrap content-center justify-center space-y-8 " + 
+                                "md:w-1/2 md:mx-7"}> 
+                    <h1 className={"text-3xl font-bold text-center " + 
+                                   "md:text-left"}>Event: {eventName}</h1>
+                    <p className={"text-xl text-center " + 
+                                  "md:text-left"}>Desc: {eventDescription}</p>
                     <div className="w-96 flex-col content-center">
                         <LocationSelectionComponent 
                             update={handleUpdateSelectedLocations}
+                            locations={locationOptions}
                         />
                     </div>
-                    <button className={'font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center ' +
-                                            'transform transition-transform hover:scale-90 active:scale-100e'} 
-                                            onClick={handleSubmitAvailability}>
-                                            Submit
-                                            </button>
+                    <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
+                                        transform transition-transform hover:scale-90 active:scale-100e' 
+                            onClick={handleSubmitAvailability}>
+                            Submit
+                    </button>
                 </div>
                 <div className={"flex flex-col justify-center content-center flex-wrap " +
                                 "md:w-1/2 md:content-start"}>
@@ -121,12 +133,7 @@ function TimeSelectApp() {
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         draggable={true}
                     />
-                    <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
                 </div>
-                </div>
-            <div>
-            {/* Popup */}
-            {showPopup && <LoginPopup onClose={handlePopupClose} />}
             </div>
         </div>
     );

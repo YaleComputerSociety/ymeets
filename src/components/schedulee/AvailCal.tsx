@@ -21,8 +21,9 @@ export default function AvailCal({theCalendarFramework, theCalendarState, user}:
             <p className="text-4xl m-5 mb-1 font-bold">
                 Your Availability
             </p>
-            <div className="border border-1 border-gray-600 m-5 h-fit w-fit">
-                <div className="flex">
+            <div className="m-5 h-fit w-fit">
+                <div className="flex py-6 px-8 \
+                                md:bg-white md:rounded-lg">
                     <TimeColumn     
                         startDate={calendarFramework.startDate}
                         endDate={calendarFramework.endDate}

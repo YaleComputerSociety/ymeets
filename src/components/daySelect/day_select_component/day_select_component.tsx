@@ -42,15 +42,59 @@ export const DaySelectComponent = () => {
             updateLocationsState(tmp_locations);
         }
     }
+    const verifyNext = () => {
+
+            
+        if (selectedDates.length == 0) {
+            showAlert('Make sure to enter dates!');
+            return;
+        }
+
+        if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
+        endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
+            showAlert('Make sure to enter times!');
+            return;
+        }
+
+        if (startDate >= endDate) {
+            showAlert('Make sure your end time is after your start time!');
+            return;
+        }
+
+        // Optional; backend supports an empty string for name
+        if (eventName.length == 0) {
+            showAlert('Make sure to name your event!');
+            return;
+        }
+
+        console.log("the dates1 " + selectedDates);
+        console.log("start date1 " + startDate);
+        console.log("end date1 " + endDate);
+             
+        frontendEventAPI.createNewEvent(
+            eventName,
+            eventDescription,
+            // @ts-ignore 
+            getAccountName(), // admin name
+            getAccountId(), // admin ID
+            selectedDates,
+            locations, // plaus locs
+            startDate,
+            endDate
+        ).then((ev) => {
+            navigate("/timeselect/" + ev?.publicId)
+        })
+    }
 
     return (
-        <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto pt-32 px-2 text-center">
-            <div className="flex flex-col justify-left items-center w-[100%] md:w-[80%] md:space-y-7 space-y-2 mb-8">
+        <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto px-2 text-center">
+            <div className="flex flex-col justify-left items-center w-[100%] space-y-2 mb-8 \
+                            md:w-[80%] md:space-y-7 md:justify-center">
                 <div className="w-[100%]">
                     <input
                         id="event-name"
                         type="text"
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border"
+                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Event Name"
                         value={eventName}
                         onChange={(e) => setEventName(e.target.value)}
@@ -60,7 +104,7 @@ export const DaySelectComponent = () => {
                     <input
                         id="event-description"
                         style={{resize: "none"}}
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border"
+                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Event Description (Optional)"
                         value={eventDescription}
                         onChange={(e) => setEventDescription(e.target.value)}
@@ -70,7 +114,7 @@ export const DaySelectComponent = () => {
                     <input
                         id="event-description"
                         style={{resize: "none"}}
-                        className="flex justify-left p-3 px-4 text-base w-[80%] border"
+                        className="flex justify-left p-3 px-4 text-base w-[80%] border rounded-lg"
                         placeholder="Add Location Options"
                         value={locationField}
                         onChange={(e) => setLocationField(e.target.value)}
@@ -110,62 +154,24 @@ export const DaySelectComponent = () => {
                 ))}
                 </div>
             </div>
-
-            <CalanderComponent 
-                theEventName={[eventName, setEventName]}
-                selectedStartDate={[startDate, setStartDate]}
-                selectedEndDate={[endDate, setEndDate]}
-                // @ts-ignore
-                theSelectedDates={[selectedDates, setSelectedDates]}
-                popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-                popUpMessage={[popUpMessage, setPopupMessage]}
-            />
             
-            <div className="next-button-wrapper">
-                <button className='nextbuttondaysel' onClick={() => {
-
-            
-                    if (selectedDates.length == 0) {
-                        alert('Make sure to enter dates!');
-                        return;
-                    }
-
-                    if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
-                    endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-                        alert('Make sure to enter times!');
-                        return;
-                    }
-
-                    if (startDate >= endDate) {
-                        alert('Make sure your end time is after your start time!');
-                        return;
-                    }
-
-                    // Optional; backend supports an empty string for name
-                    if (eventName.length == 0) {
-                        alert('Make sure to name your event!');
-                        return;
-                    }
-
-                    console.log("the dates1 " + selectedDates);
-                    console.log("start date1 " + startDate);
-                    console.log("end date1 " + endDate);
-                         
-                    frontendEventAPI.createNewEvent(
-                        eventName,
-                        eventDescription,
-                        // @ts-ignore
-                        getAccountName(), // admin name
-                        getAccountId(), // admin ID
-                        selectedDates,
-                        [], // plaus locs
-                        startDate,
-                        endDate
-                    ).then((ev) => {
-                        navigate("/timeselect/" + ev?.publicId)
-                    })
-                }}>Next</button>
+            <div className="flex flex-col space-y-7">
+                <CalanderComponent 
+                    theEventName={[eventName, setEventName]}
+                    selectedStartDate={[startDate, setStartDate]}
+                    selectedEndDate={[endDate, setEndDate]}
+                    // @ts-ignore
+                    theSelectedDates={[selectedDates, setSelectedDates]}
+                    popUpOpen={[popUpIsOpen, setPopupIsOpen]}
+                    popUpMessage={[popUpMessage, setPopupMessage]}
+                />
+                <button onClick={verifyNext}
+                    className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
+                                transform transition-transform hover:scale-90 active:scale-100e'>
+                                    Next
+                </button>
             </div>
+            
         </div>
 
     );

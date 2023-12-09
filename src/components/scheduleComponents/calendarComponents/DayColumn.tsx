@@ -46,8 +46,10 @@ export default function DayColumn({
         {/* <div className="p-4 xs:p-2 sm:p-2 md:p-2 lg:p-4 \
                         m-1 ml-0 mr-0 border-solid border-D0CFCF border-b-4 border-r-2 \
                       bg-white text-black flex place-content-center items-center"> */}
-        <div className={"flex flex-row justify-center items-center flex-wrap w-full"}>
-          <div className={"rounded-lg p-4 bg-white text-black text-center mx-1 mb-3"}>
+        <div className="flex flex-row justify-center items-center flex-wrap w-full \
+                        md:border-x-1 md:border-solid md:border-D0CFCF">
+          <div className="rounded-lg p-4 bg-white text-black text-center mx-1 mb-3 \
+                          md:rounded-none md:m-0 md:w-full">
             <p className="text-sm text-[#787878]">
               {month}
             </p>
