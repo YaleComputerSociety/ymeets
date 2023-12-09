@@ -88,7 +88,7 @@ export const DaySelectComponent = () => {
         <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto px-2 text-center">
             <div className="flex flex-col flex-wrap justify-start content-center w-[100%] space-y-2 mb-8 \
                             md:w-[80%] md:space-y-7 md:mt-12 md:content-start">
-                <div className="w-[100%] text-center">
+                <div className="w-[100%] flex flex-row justify-center md:justify-start">
                     <input
                         id="event-name"
                         type="text"
@@ -98,7 +98,7 @@ export const DaySelectComponent = () => {
                         onChange={(e) => setEventName(e.target.value)}
                     />
                 </div>
-                <div className="w-[100%]">
+                <div className="w-[100%] flex flex-row justify-center md:justify-start">
                     <input
                         id="event-description"
                         style={{resize: "none"}}
@@ -108,7 +108,7 @@ export const DaySelectComponent = () => {
                         onChange={(e) => setEventDescription(e.target.value)}
                     />
                 </div>
-                <div className="w-[100%]">
+                <div className="w-[100%] flex flex-row justify-center md:justify-start">
                     <input
                         id="event-description"
                         style={{resize: "none"}}
@@ -133,7 +133,7 @@ export const DaySelectComponent = () => {
                     </select> */}
                 </div>
                 
-                <div className="w-[100%] flex flex-row justify-center">
+                <div className="w-[100%] flex flex-row justify-center md:justify-start">
                     <div className="p-1 w-[80%] text-gray-500 text-center text-sm md:text-left">
                         Click ENTER after typing a location to add an option for participants
                     </div>
