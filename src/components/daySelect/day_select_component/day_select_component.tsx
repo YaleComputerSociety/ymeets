@@ -126,24 +126,24 @@ export const DaySelectComponent = () => {
 
             
                     if (selectedDates.length == 0) {
-                        showAlert('Make sure to enter dates!');
+                        alert('Make sure to enter dates!');
                         return;
                     }
 
                     if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
                     endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-                        showAlert('Make sure to enter times!');
+                        alert('Make sure to enter times!');
                         return;
                     }
 
                     if (startDate >= endDate) {
-                        showAlert('Make sure your end time is after your start time!');
+                        alert('Make sure your end time is after your start time!');
                         return;
                     }
 
                     // Optional; backend supports an empty string for name
                     if (eventName.length == 0) {
-                        showAlert('Make sure to name your event!');
+                        alert('Make sure to name your event!');
                         return;
                     }
 

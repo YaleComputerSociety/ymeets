@@ -15,8 +15,8 @@ export const EnterCodeComp = () => {
 
     const handleButtonClick = () => {
         console.log(input);
-        if (input.length !== 6) {
-            alert('Please enter a valid code.');
+        if (input.length !== 6) {alert
+            ('Please enter a valid code.');
         } else {
             setError('');
             getEventById(input).then(() => {

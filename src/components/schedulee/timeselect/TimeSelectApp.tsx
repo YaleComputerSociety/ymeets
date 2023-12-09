@@ -11,10 +11,12 @@ import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails } from '../../../firebase/events';
+import { LoginPopup } from './login_guest_popup';
 import { Availability } from '../../../types';
 
 function TimeSelectApp() {
     const { code } = useParams();
+    const [showPopup, setShowPopup] = useState(false);
     const navigate = useNavigate();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
@@ -82,9 +84,17 @@ function TimeSelectApp() {
         saveAvailAndLocationChanges();
         // TODO Route to next page
     }
+    
+    const handleShowPopup = () => {
+        setShowPopup(true);
+    };
+
+    const handlePopupClose = () => {
+        setShowPopup(false);
+    };
 
     return (
-        <div className="bg-sky-100 pt-32">
+        <div className="bg-sky-100">
             <div className={"flex flex-col-reverse justify-center content-center " +
                             "md:flex-row"}>
                 <div className={"flex flex-col flex-wrap content-center space-y-8 " + 
@@ -113,9 +123,13 @@ function TimeSelectApp() {
                     />
                     <button className="m-4 p-4" onClick={handleSubmitAvailability}>Submit</button>
                 </div>
+                </div>
+            <div>
+            {/* Popup */}
+            {showPopup && <LoginPopup onClose={handlePopupClose} />}
             </div>
         </div>
-    )
+    );
 }
 
 export default TimeSelectApp;
