@@ -83,10 +83,6 @@ function TimeSelectApp() {
         navigate(`/groupview/${code}`);
     }
 
-    const handleUpdateSelectedLocations = (locations:any) => {
-        updateSelectedLocations(locations);
-    }
-
     const handleSubmitAvailability = () => {
         saveAvailAndLocationChanges();
         // TODO Route to next page
@@ -104,7 +100,7 @@ function TimeSelectApp() {
         <div className="bg-sky-100">
             <div className={"flex flex-col-reverse justify-center content-center " +
                             "md:flex-row md:mx-12"}>
-                <div className={"flex flex-col flex-wrap content-center justify-center space-y-8 " + 
+                <div className={"flex flex-col flex-wrap content-center justify-start pt-12 space-y-8 " + 
                                 "md:w-1/2 md:mx-7"}> 
                     <h1 className={"text-3xl font-bold text-center " + 
                                    "md:text-left"}>Event: {eventName}</h1>
@@ -112,7 +108,7 @@ function TimeSelectApp() {
                                   "md:text-left"}>Desc: {eventDescription}</p>
                     <div className="w-96 flex-col content-center">
                         <LocationSelectionComponent 
-                            update={handleUpdateSelectedLocations}
+                            update={updateSelectedLocations}
                             locations={locationOptions}
                         />
                     </div>

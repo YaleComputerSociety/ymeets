@@ -17,6 +17,9 @@ export const LocationSelectionComponent = (props:any) => {
             options={options} 
             clearOnSelect={false}
             placeholder="Select location preference(s)"
-            values={[]} onChange={(values:any) => {props.update(values)}}/>
+            values={[]} 
+            onChange={(values:any) => {
+                props.update(values.map((val:any) => val.value))
+            }}/>
     );
 }

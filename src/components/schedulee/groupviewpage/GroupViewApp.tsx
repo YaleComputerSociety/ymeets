@@ -38,6 +38,7 @@ export default function GroupViewApp() {
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationVotes(getLocationsVotes())
+                    console.log(getLocationsVotes())
                     setLocationOptions(getLocationOptions())
                 }); 
     
