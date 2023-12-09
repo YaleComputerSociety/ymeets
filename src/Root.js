@@ -2,7 +2,6 @@
 import './Root.css';
 import logo from './static/ymeetslogo.png';
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
-import LandingPageButtons from './components/landingpage';
 import LoginPageButtons from './components/loginpage';
 import DaySelectComponent from './components/daySelect/day_select_component';
 import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.tsx';
@@ -24,7 +23,6 @@ function Root() {
 
             <Routes>
                 <Route path='/' element={<LoginPageButtons />} />
-                <Route path='/landingpage' element={<LandingPageButtons />} />
                 <Route path='/dayselect' element={<DaySelectComponent />} />
                 <Route path='/eventcode' element={<EnterCodeComp />} />
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />

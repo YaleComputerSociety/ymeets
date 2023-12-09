@@ -58,18 +58,8 @@ export default function GroupViewApp() {
         <>
             <div className="flex flex-col justify-center \
                             md:flex-row-reverse">
-                <div className="flex flex-col content-center flex-wrap w-full \ 
-                                md:w-1/2 md:content-start"> 
-                    <GroupAvailCal 
-                        theCalendarState={[calendarState, setCalendarState]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                        chartedUsersData={[chartedUsers, setChartedUsers]}
-                        draggable={false}
-                        user={0}
-                    />
-                </div>
-                <div className="flex flex-col content-center flex-wrap w-full \ 
-                                md:w-1/2 md:content-end">
+                <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
+                                md:w-1/2 md:content-start">
                     <div className="flex flex-col space-y-7 max-w-sm mx-5 \
                                     md:mt-12">
                         <h1 className={"text-3xl font-bold text-center " + 
@@ -83,6 +73,16 @@ export default function GroupViewApp() {
                             chartedUsersData={[chartedUsers, setChartedUsers]}
                         />
                     </div>
+                </div>
+                <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
+                                md:w-1/2 md:content-end"> 
+                    <GroupAvailCal 
+                        theCalendarState={[calendarState, setCalendarState]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                        chartedUsersData={[chartedUsers, setChartedUsers]}
+                        draggable={false}
+                        user={0}
+                    />
                 </div>
         </div>
         </>

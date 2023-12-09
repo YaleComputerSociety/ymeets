@@ -10,7 +10,7 @@ export default function NavBar() {
         <div className="flex w-full mt-6 fixed justify-center z-50">
             <div className="flex bg-white rounded-xl h-16 w-[90%] px-8 items-center justify-between shadow-lg">
                 <div className="inline-flex items-center space-x-4">
-                    <a href="/" className="text-gray-500 text-2xl font-bold hover:text-blue-700">ymeets</a> 
+                    <a href="/" className="text-gray-700 text-2xl font-bold hover:text-blue-700">ymeets</a> 
                 </div>
                 <div className="inline-flex justify-self-end items-end space-x-4">
                     <div className="inline-flex md:hidden flex-col space-y-1 h-6 w-6 justify-center">
@@ -18,8 +18,8 @@ export default function NavBar() {
                         <div className="border border-gray-500 w-full"></div>
                         <div className="border border-gray-500 w-full"></div>
                     </div>
-                    <a href="#" className="hidden hover:text-blue-700 md:inline-block">About Us</a>
-                    <a href="#" className="hidden hover:text-blue-700 md:inline-block">About YCS</a>
+                    {/* <a href="#" className="hidden hover:text-blue-700 md:inline-block">About Us</a> */}
+                    <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hidden hover:text-blue-700 md:inline-block">About YCS</a>
                 </div>
             </div>
         </div>
