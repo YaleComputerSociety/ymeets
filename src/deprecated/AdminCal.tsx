@@ -1,6 +1,6 @@
-import SelectCalander from "../scheduleComponents/calendarComponents/SelectCalendar";
-import TimeColumn from "../scheduleComponents/calendarComponents/TimeColumn"
-import { calendarDimensions, calanderState } from "../scheduleComponents/scheduletypes";
+import SelectCalander from "../components/scheduleComponents/calendarComponents/SelectCalendar";
+import TimeColumn from "../components/scheduleComponents/calendarComponents/TimeColumn"
+import { calendarDimensions, calanderState } from "../components/scheduleComponents/calendarComponents/scheduletypes";
 
 
 interface AdminCalProps {

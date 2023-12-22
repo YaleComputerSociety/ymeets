@@ -1,17 +1,15 @@
 import React from 'react';
-import AvailCal from '../AvailCal';
 import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
-import { getDatesFromRange } from '../../scheduleComponents/utils/getDatesFromRange';
-import { getDateWithDay } from '../../scheduleComponents/utils/getDateWithDay';
 
-import { calandarDate, calanderState, userData } from '../../scheduleComponents/scheduletypes';
-import { calendarDimensions } from '../../scheduleComponents/scheduletypes';
+import { calandarDate, calanderState, userData } from '../../scheduleComponents/calendarComponents/scheduletypes';
+import { calendarDimensions } from '../../scheduleComponents/calendarComponents/scheduletypes';
 import eventAPI from "../../../eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../../firebase/events';
 import { Availability } from '../../../types';
+import Calendar from "../../scheduleComponents/calendarComponents/CalendarApp";
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -132,15 +130,16 @@ function TimeSelectApp() {
                 </div>
                 <div className={"flex flex-col justify-center content-center flex-wrap " +
                                 "md:w-1/2 md:content-start"}>
-                        <AvailCal 
-                            // @ts-ignore
 
-                        theCalendarState={[calendarState, setCalendarState]}
-                        user={0}
-                        // @ts-ignore
-                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                        draggable={true}
-                    />
+                        <Calendar 
+                            title={"Your Availability"}
+                            // @ts-ignore
+                            theCalendarState={[calendarState, setCalendarState]}
+                            user={0}
+                            // @ts-ignore
+                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                            draggable={true}
+                        />
                 </div>
             </div>
         </div>

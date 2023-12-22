@@ -8,7 +8,7 @@ import TimeSelectApp from './components/schedulee/timeselect/TimeSelectApp.tsx';
 import EnterCodeComp from './components/entercodepage';
 import AdminGroupViewApp from './components/scheduler/admingroupviewpage/AdminGroupViewApp';
 import GroupViewComp from './components/schedulee/groupviewpage/GroupViewApp'
-import AdminCal from './components/schedulee/AdminCal';
+import AdminCal from './deprecated/AdminCal';
 import NavBar from "./components/navbar/NavBar"
 
 // TODO require auth on some pages

@@ -1,5 +1,5 @@
 import { start } from "repl";
-import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/scheduletypes";
+import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/calendarComponents/scheduletypes";
 import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
 import { Availability, Location, Event, EventDetails } from "./types";
 import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";

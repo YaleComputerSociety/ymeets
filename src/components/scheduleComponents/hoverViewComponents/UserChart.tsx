@@ -1,6 +1,6 @@
 import ChartRow from "./UserChartRow";
 import { useState } from "react";
-import {userData, user } from "../scheduletypes";
+import {userData, user } from "../calendarComponents/scheduletypes";
 
 interface UserChart {
     chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>]

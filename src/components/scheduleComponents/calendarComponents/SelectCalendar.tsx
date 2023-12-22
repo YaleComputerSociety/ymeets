@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import DayColumn from "./DayColumn";
 import { createContext } from "react";
 import "tailwindcss/tailwind.css";
-import { calandarDate, calendarDimensions, calanderState, userData } from "../scheduletypes";
+import { calandarDate, calendarDimensions, calanderState, userData } from "./scheduletypes";
 
 interface SelectCalanderProps {
   theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "tailwindcss/tailwind.css";
-import { calanderState, userData, user } from "../scheduletypes";
+import { calanderState, userData, user } from "./scheduletypes";
 
 interface DayBlockProps {
     blockID: number

@@ -2,7 +2,7 @@ import React from "react";
 import CalBlock from "./CalBlock";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks.js";
 import "tailwindcss/tailwind.css";
-import { calanderState, userData } from "../scheduletypes";
+import { calanderState, userData } from "./scheduletypes";
 import { useState } from "react";
 
 const NUMBER_OF_TIME_INTERVALS = 4

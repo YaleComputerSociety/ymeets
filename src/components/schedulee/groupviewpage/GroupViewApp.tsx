@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
-import SelectCalander from "../../scheduleComponents/calendarComponents/SelectCalendar";
-import GroupAvailCal from "../GroupAvailCal";
 import { useState } from "react";
 import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
 import LocationChart from "../../scheduleComponents/hoverViewComponents/LocationChart";
-import { calanderState, userData } from "../../scheduleComponents/scheduletypes";
-import { calendarDimensions } from "../../scheduleComponents/scheduletypes";
+import { calanderState, userData } from "../../scheduleComponents/calendarComponents/scheduletypes";
+import { calendarDimensions } from "../../scheduleComponents/calendarComponents/scheduletypes";
 import eventAPI from "../../../eventAPI";
 import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../../firebase/events';
 import { useParams } from 'react-router-dom';
+import Calender from '../../scheduleComponents/calendarComponents/CalendarApp';
 
 export default function GroupViewApp() {
     const { code } = useParams();
@@ -76,7 +75,9 @@ export default function GroupViewApp() {
                 </div>
                 <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-end"> 
-                    <GroupAvailCal 
+                    <Calender
+                        title={"Group Availability"}
+                        isAdmin={false} 
                         theCalendarState={[calendarState, setCalendarState]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         chartedUsersData={[chartedUsers, setChartedUsers]}
