@@ -35,17 +35,7 @@ export default function AvailCal({theCalendarFramework, theCalendarState, user}:
                             columnIndexOffset += prev_bucket.length
                         }
                         
-                        return <SelectCalander 
-                            theCalendarState={[calendarState, setCalendarState]}
-                            bucket={bucket}
-                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                            draggable={true}
-                            isAdmin={false}
-                            key={index}
-                            columnIndexOffset={columnIndexOffset}
-                            user={user}
-                        />
-
+                        return <></>
                         
                     }) 
                     }    

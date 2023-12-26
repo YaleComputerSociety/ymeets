@@ -35,17 +35,7 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
                             columnIndexOffset += prev_bucket.length
                         }
                         
-                        return <SelectCalander 
-                            theCalendarState={[calendarState, setCalendarState]}
-                            bucket={bucket}
-                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                            draggable={true}
-                            isAdmin={isAdmin}
-                            key={index}
-                            user={0}
-                            columnIndexOffset={columnIndexOffset}
-                        />
-
+                        return <></>
                         
                     }) 
                     }    

@@ -19,5 +19,3 @@ export function generateTimeBlocks(startHour, endHour) {
 
   return timeBlocks2D;
 }
-
-

@@ -10,16 +10,17 @@ interface DayBlockProps {
     draggable: boolean
     isAdmin? : boolean
     user : number
-    theDragStartedOn : any
+    theDragStartedOn? : any,
+    is30Minute : boolean
 }
 
 
-export default function CalBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn}: DayBlockProps) {
+export default function CalBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn, is30Minute}: DayBlockProps) {
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
-    const [dragStartedOn, setDragStartedOn] = theDragStartedOn
+    // const [dragStartedOn, setDragStartedOn] = theDragStartedOn
     // for group view calander.
     useEffect(() => {
 
@@ -60,11 +61,11 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
 
         // this needs to be fixed, should not be using 0, should be using the person's ID.
 
-        if (calendarState[user][columnID][blockID] == true) {
-            setDragStartedOn(true);
-        } else {
-            setDragStartedOn(false);
-        }
+        // if (calendarState[user][columnID][blockID] == true) {
+        //     setDragStartedOn(true);
+        // } else {
+        //     setDragStartedOn(false);
+        // }
       };
 
     const handleBlockClick = () => {
@@ -114,19 +115,19 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
                 
                 if (calendarState[user][columnID][blockID] === true) {
 
-                    if (dragStartedOn === true) {
+                    // if (dragStartedOn === true) {
 
-                        setBgColor("white");
-                        let oldData = {...calendarState};
-                        oldData[user][columnID][blockID] = false;
-                        setCalanderState(oldData);
-                    }
+                    //     setBgColor("white");
+                    //     let oldData = {...calendarState};
+                    //     oldData[user][columnID][blockID] = false;
+                    //     setCalanderState(oldData);
+                    // }
                     
                 } else {
 
-                    if (dragStartedOn === true) { 
-                        return
-                    }
+                    // if (dragStartedOn === true) { 
+                    //     return
+                    // }
 
                     let oldData = {...calendarState};
                     oldData[user][columnID][blockID] = true;
@@ -160,15 +161,11 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
                              unavailable: unavailableUsers})
         }
 
-        if (draggable === true) {
-            setIsDottedBorder((prevIsDottedBorder) => !prevIsDottedBorder);
-        }
     }
-    
-    const borderStyle = isDottedBorder ? '1px dotted #000' : 'none';
+
+    const borderTop = is30Minute ? '1px dotted #000' : 'none';
     
     return (
-
         <div
             draggable="true"
             onClick={handleBlockClick}
@@ -176,13 +173,11 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
-            onDragEnd={(e) => {setDragStartedOn(false)}}
-            onMouseLeave={() => {setIsDottedBorder(false)}}
-            className={`bg-${bgColor} h-4`}
-            style={{ border: borderStyle }}
-
+            onMouseLeave={() => setIsDottedBorder(false)}
+            className={`bg-${bgColor} w-16 h-4 border-black`}
+            style={{borderRight: "1px solid #000", borderTop: borderTop}}
         >
         </div>
+    );
 
-  );
 }

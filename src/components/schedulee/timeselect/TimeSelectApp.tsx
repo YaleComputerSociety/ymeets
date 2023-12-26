@@ -132,7 +132,7 @@ function TimeSelectApp() {
                                 "md:w-1/2 md:content-start"}>
 
                         <Calendar 
-                            title={"Your Availability"}
+                            title={"Enter Your Availability"}
                             // @ts-ignore
                             theCalendarState={[calendarState, setCalendarState]}
                             user={0}

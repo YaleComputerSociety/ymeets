@@ -69,7 +69,7 @@ export default function DayColumn({
                    col-span-1 border border-solid-2 border-ymeets-gray \  
                    "  
               >
-                {
+                {/* {
                 block.map((b, i) => {
 
                   return <CalBlock
@@ -83,7 +83,7 @@ export default function DayColumn({
                     user={user}
                     theDragStartedOn={[dragStartedOn, setDragStartedOn]}
                   />
-                })}
+                })} */}
               </div>
             );
           })}

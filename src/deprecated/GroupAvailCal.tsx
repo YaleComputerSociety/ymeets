@@ -43,18 +43,8 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                             columnIndexOffset += prev_bucket.length
                         }
                         
-                        return <SelectCalander 
-                            theCalendarState={[calendarState, setCalendarState]}
-                            bucket={bucket}
-                            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                            draggable={false}
-                            isAdmin={false}
-                            chartedUsersData={[chartedUsers, setChartedUsers]}
-                            columnIndexOffset={columnIndexOffset}
-                            user={user}
-                        />
+                        return <></>
 
-                     
                     }) 
                     }
             </div>
