@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "tailwindcss/tailwind.css";
 import { calanderState, userData, user } from "./scheduletypes";
+import { useRef } from "react";
 
 interface DayBlockProps {
     blockID: number
@@ -32,7 +33,9 @@ export default function CalBlock({
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
-    const [dragState, setDragState] = theDragState
+    const [dragState, setDragState] = theDragState;
+
+    const prevCalendarState = useRef();
 
     // for group view calander.
     useEffect(() => {
@@ -94,11 +97,6 @@ export default function CalBlock({
 
         // this needs to be fixed, should not be using 0, should be using the person's ID.
 
-        // if (calendarState[user][columnID][blockID] == true) {
-        //     setDragStartedOn(true);
-        // } else {
-        //     setDragStartedOn(false);
-        // }
       };
 
     const handleBlockClick = () => {
@@ -108,7 +106,7 @@ export default function CalBlock({
 
             if (calendarState[user][columnID][blockID] === true) { 
 
-                setBgColor("white");
+                // setBgColor("white");
                 let oldData = {...calendarState};
                 oldData[user][columnID][blockID] = false;
                 setCalanderState(oldData);
@@ -118,40 +116,41 @@ export default function CalBlock({
                 let oldData = {...calendarState};
                 oldData[user][columnID][blockID] = true;
                 setCalanderState(oldData);
-                setBgColor("ymeets-light-blue")
+                // setBgColor("ymeets-light-blue")
             }
         }   
     }
+
+    const updateBlockState = (newValue: boolean) => {
+        const oldData = { ...calendarState };
+        
+        //@ts-ignore
+        for (let c = Math.min(columnID, dragState["dragStartedOnID"][0]); c <= Math.max(columnID, dragState["dragStartedOnID"][0]); c++) {
+          //@ts-ignore
+            for (let b = Math.min(blockID, dragState["dragStartedOnID"][1]); b <= Math.max(blockID, dragState["dragStartedOnID"][1]); b++) {
+            oldData[user][c][b] = newValue;
+          }
+        }
+    
+        setCalanderState(oldData);
+      };
       
     const handleBlockUpdate = () => {
-
         if (draggable === true) {
+          
+        const newValue = !calendarState[user][columnID][blockID];
+    
+          if (newValue === true && dragState["dragStartedOn"] === false) {
             
-            if (calendarState[user][columnID][blockID] === true) {
+            updateBlockState(true);
 
-                if (dragState["dragStartedOn"] === true) {
+          } else if (newValue === false && dragState["dragStartedOn"] === true) {
 
-                    setBgColor("white");
-                    let oldData = {...calendarState};
-                    oldData[user][columnID][blockID] = false;
-                    setCalanderState(oldData);
-                }
-                
-            } else {
-
-                if (dragState["dragStartedOn"] === true) { 
-                    return;
-                }
-
-                let oldData = {...calendarState};
-                oldData[user][columnID][blockID] = true;
-                setCalanderState(oldData);
-                setBgColor("ymeets-light-blue")
-
-            }
+            updateBlockState(false);
             
+          }
         }
-    };
+      };
 
     const handleHover = (event : any) => {
         var availableUsers : user[] = []
@@ -189,7 +188,7 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={`bg-${bgColor} w-16 p-0 h-4`}
+            className={calendarState[user][columnID][blockID] == true ? `bg-ymeets-light-blue w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
             style={{borderRight: "1px solid #000", borderTop: borderTop}}
         >
         </div>
