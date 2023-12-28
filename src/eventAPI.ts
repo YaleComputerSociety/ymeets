@@ -50,58 +50,14 @@ export default class FrontendEventAPI {
             console.log(ev);
 
             return ev;
+
         } catch (error) {
+
             console.error("Error creating event:", error);
             throw error;
+
         }
     }
-
-// static availabilityMatrixToAvailability(availMatrix: availabilityMatrix) : Availability {
-        
-//         let emptyAvail = this.getEmptyAvailability(this.getCalendarDimensions()) as boolean[][];
-        
-//         console.log("Avail matrix", availMatrix);
-//         Object.values(availMatrix).forEach((row : number[], day_i) => {
-//             Object.values(row).forEach((cell, time_j) => {
-//                 if (cell === 1) {
-//                     emptyAvail[day_i][time_j] = true;
-//                 }
-//             });
-//         }) 
-
-//         return emptyAvail
-
-//     }
-
-//     static availabilitytoAvailabilityMatrix(avail: Availability) : availabilityMatrix {
-
-//         let convertedAvailabilites = {}
-        
-//         Object.values(avail).forEach((value : any, index : any) => {
-            
-//             // @ts-ignore
-//             convertedAvailabilites[index] = value
-
-//         }) 
-
-//         return convertedAvailabilites
-//     }
-
-    // We want to edit only one participant at a time to avoid concurrency issues
-    // (No one will be setting multiple availabilities at one time, even the admin)
-    // static submitCalendar(cal : calendar) {
-        
-    //     let numOfPariticipants = cal.participants.users.length;
-
-    //     for (let i = 0; i < numOfPariticipants; i++) {
-    //         setAvailability(
-    //             // @ts-ignore
-    //             cal.participants[i],
-    //             this.availabilityMatrixToAvailability(cal.availabilities[i]),
-    //         )
-
-    //     }
-    // }
 
     static getCalendarDimensions() : calendarDimensions {
     
@@ -109,7 +65,7 @@ export default class FrontendEventAPI {
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
 
-        // console.log("pulled dates " + theDates);
+        console.log("pulled dates " + theDates);
                 
         let getShortDay = {
             0 : "SUN",
@@ -173,14 +129,26 @@ export default class FrontendEventAPI {
                 } else {
 
                     theCalendarDates.push([...curCalendarBucket])
-                    curCalendarBucket = []
+                    curCalendarBucket = [
+                        {   
+                            "id" : i,
+                            // @ts-ignore
+                            "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                            "calanderDay" : theDates[i].getDate().toString(),
+                            // @ts-ignore
+                            "month" : getMonth[theDates[i].getMonth()],
+                            "date" : theDates[i]
+                        }   
+                    ]
                 }
             }
         }
-
+        
         if (curCalendarBucket.length > 0) {
             theCalendarDates.push(curCalendarBucket);
         }
+
+        console.log("bucketed dates " + theCalendarDates);
 
         return {
                 dates : theCalendarDates,
