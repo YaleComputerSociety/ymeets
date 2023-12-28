@@ -12,6 +12,7 @@ interface DayBlockProps {
     user : number
     theDragStartedOn? : any,
     is30Minute : boolean
+    theDragState : [Record<string, Array<any> | boolean>, React.Dispatch<React.SetStateAction<Record<string, Array<any> | boolean>>>]
 }
 
 
@@ -23,15 +24,16 @@ export default function CalBlock({
     draggable, 
     isAdmin, 
     user, 
-    theDragStartedOn, 
-    is30Minute
+    is30Minute,
+    theDragState
 }: DayBlockProps) {
         
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
-    // const [dragStartedOn, setDragStartedOn] = theDragStartedOn
+    const [dragState, setDragState] = theDragState
+
     // for group view calander.
     useEffect(() => {
 
@@ -70,6 +72,26 @@ export default function CalBlock({
         document.body.appendChild(crt);
         event.dataTransfer.setDragImage(crt, 0, 0);  
 
+        if (calendarState[user][columnID][blockID] === true) {
+
+            let oldState = dragState;
+
+            oldState["dragStartedOnID"] = [columnID, blockID];
+            oldState["dragStartedOn"] = true
+
+            setDragState(oldState);
+
+        } else {
+
+            let oldState = dragState;
+
+            oldState["dragStartedOnID"] = [columnID, blockID];
+            oldState["dragStartedOn"] = false
+
+            setDragState(oldState);
+            
+        }
+
         // this needs to be fixed, should not be using 0, should be using the person's ID.
 
         // if (calendarState[user][columnID][blockID] == true) {
@@ -80,6 +102,7 @@ export default function CalBlock({
       };
 
     const handleBlockClick = () => {
+    
 
         if (draggable === true) {
 
@@ -103,49 +126,30 @@ export default function CalBlock({
     const handleBlockUpdate = () => {
 
         if (draggable === true) {
+            
+            if (calendarState[user][columnID][blockID] === true) {
 
-            if (isAdmin == true) {
+                if (dragState["dragStartedOn"] === true) {
 
-                if (calendarState[user][columnID][blockID] === true) {
-                    setBgColor("selection-made-red");
+                    setBgColor("white");
                     let oldData = {...calendarState};
                     oldData[user][columnID][blockID] = false;
                     setCalanderState(oldData);
-                } else {
-                    let oldData = {...calendarState};
-                    oldData[user][columnID][blockID] = true;
-                    setCalanderState(oldData);
-                    setBgColor("selection-made-red")
                 }
-
+                
             } else {
 
-                // if we're draggable
-                // then there must be only one calander in schedules, in which case we can just
-                // directly edit it to reflect the state.
-                
-                if (calendarState[user][columnID][blockID] === true) {
-
-                    // if (dragStartedOn === true) {
-
-                    //     setBgColor("white");
-                    //     let oldData = {...calendarState};
-                    //     oldData[user][columnID][blockID] = false;
-                    //     setCalanderState(oldData);
-                    // }
-                    
-                } else {
-
-                    // if (dragStartedOn === true) { 
-                    //     return
-                    // }
-
-                    let oldData = {...calendarState};
-                    oldData[user][columnID][blockID] = true;
-                    setCalanderState(oldData);
-                    setBgColor("ymeets-light-blue")
+                if (dragState["dragStartedOn"] === true) { 
+                    return;
                 }
+
+                let oldData = {...calendarState};
+                oldData[user][columnID][blockID] = true;
+                setCalanderState(oldData);
+                setBgColor("ymeets-light-blue")
+
             }
+            
         }
     };
 

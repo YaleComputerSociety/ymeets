@@ -10,6 +10,7 @@ interface CalRowProps {
     columnIndexOffSet : number
     blockID : number,
     is30Minute : boolean
+    theDragState : [Record<string, Array<any> | boolean>, React.Dispatch<React.SetStateAction<Record<string, Array<any> | boolean>>>]
 }
 
 
@@ -22,7 +23,8 @@ export default function CalRow({
     user, 
     columnIndexOffSet,
     blockID,
-    is30Minute
+    is30Minute,
+    theDragState
 } : CalRowProps) {
 
     return (
@@ -30,9 +32,6 @@ export default function CalRow({
         {
             bucket.map((d: calandarDate, columnIndex) => {                  
                 return (
-
-                    <>
-
                     <CalBlock 
                         is30Minute={is30Minute}
                         theCalendarState={theCalendarState}
@@ -41,10 +40,8 @@ export default function CalRow({
                         isAdmin={isAdmin}
                         draggable={draggable}
                         user={user}
+                        theDragState={theDragState}
                     />   
-
-                    </>
-
                 )
 
             })
