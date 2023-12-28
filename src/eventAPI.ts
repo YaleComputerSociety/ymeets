@@ -64,8 +64,6 @@ export default class FrontendEventAPI {
         let theDates : Date[] = getDates();
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
-
-        console.log("pulled dates " + theDates);
                 
         let getShortDay = {
             0 : "SUN",
@@ -147,8 +145,6 @@ export default class FrontendEventAPI {
         if (curCalendarBucket.length > 0) {
             theCalendarDates.push(curCalendarBucket);
         }
-
-        console.log("bucketed dates " + theCalendarDates);
 
         return {
                 dates : theCalendarDates,

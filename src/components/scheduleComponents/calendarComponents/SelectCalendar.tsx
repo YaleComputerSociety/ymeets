@@ -16,6 +16,7 @@ interface SelectCalanderProps {
   startDate: Date
   endDate: Date
   renderTime : boolean
+  theDragState : [Record<string, Array<any> | boolean>, React.Dispatch<React.SetStateAction<Record<string, Array<any> | boolean>>>]
 }
 
 function SelectCalander({
@@ -28,16 +29,13 @@ function SelectCalander({
   user,
   startDate,
   endDate,
-  renderTime
+  renderTime,
+  theDragState
 }: SelectCalanderProps) {
 
   let timeBlocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
   
-  const [dragState, setDragState] = useState({
-      dragStartedOnID : [], // [columnID, blockID]
-      dragEndedOnID : [],
-      dragStartedOn : false,
-  })
+
 
   return (
       <div>
@@ -82,7 +80,7 @@ function SelectCalander({
                                 user={user}
                                 isAdmin={isAdmin}
                                 // @ts-ignore
-                                theDragState={[dragState, setDragState]}
+                                theDragState={theDragState}
                             />
 
                           </>

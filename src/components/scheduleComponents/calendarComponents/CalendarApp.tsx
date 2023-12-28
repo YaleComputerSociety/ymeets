@@ -2,6 +2,7 @@ import TimeColumn from "../../../deprecated/TimeColumn"
 import SelectCalander from "./SelectCalendar"
 import { calendarDimensions, calanderState, userData } from "./scheduletypes";
 import DateBar from "./DateBar";
+import { useState } from "react";
 
 interface CalendarProps {
     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
@@ -26,6 +27,12 @@ export default function Calender({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
     let columnIndexOffset = 0
+
+    const [dragState, setDragState] = useState({
+        dragStartedOnID : [], // [columnID, blockID]
+        dragEndedOnID : [],
+        dragStartedOn : false,
+    })
 
     return (
         <>
@@ -57,6 +64,8 @@ export default function Calender({
                                     columnIndexOffset={columnIndexOffset}
                                     startDate={calendarFramework.startDate}
                                     endDate={calendarFramework.endDate}
+                                    // @ts-ignore
+                                    theDragState={[dragState, setDragState]}
                                 />
                             </div>
                         );

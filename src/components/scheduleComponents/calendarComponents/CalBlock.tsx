@@ -35,8 +35,6 @@ export default function CalBlock({
     const [isDottedBorder, setIsDottedBorder] = useState(false);
     const [dragState, setDragState] = theDragState;
 
-    const prevCalendarState = useRef();
-
     // for group view calander.
     useEffect(() => {
 
@@ -67,6 +65,8 @@ export default function CalBlock({
     }, [])
 
     const handleDragStart = (event: any) => {
+
+        console.log("drag started!");
 
         const crt = event.target.cloneNode(true);
         crt.style.position = "absolute";
@@ -122,6 +122,7 @@ export default function CalBlock({
     }
 
     const updateBlockState = (newValue: boolean) => {
+
         const oldData = { ...calendarState };
         
         //@ts-ignore
@@ -136,19 +137,24 @@ export default function CalBlock({
       };
       
     const handleBlockUpdate = () => {
+
+        console.log("c id " + columnID);
+        console.log("b id " + blockID);
+
+
         if (draggable === true) {
           
-        const newValue = !calendarState[user][columnID][blockID];
-    
-          if (newValue === true && dragState["dragStartedOn"] === false) {
-            
-            updateBlockState(true);
+            const newValue = !calendarState[user][columnID][blockID];
+        
+            if (newValue === true && dragState["dragStartedOn"] === false) {
+                
+                updateBlockState(true);
 
-          } else if (newValue === false && dragState["dragStartedOn"] === true) {
+            } else if (newValue === false && dragState["dragStartedOn"] === true) {
 
-            updateBlockState(false);
-            
-          }
+                updateBlockState(false);
+
+            }
         }
       };
 
@@ -186,6 +192,7 @@ export default function CalBlock({
             onDragStart={handleDragStart}
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}
+            onDragEnd={() => {console.log("drag is over!")}}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
             className={calendarState[user][columnID][blockID] == true ? `bg-ymeets-light-blue w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
