@@ -15,7 +15,18 @@ interface DayBlockProps {
 }
 
 
-export default function CalBlock({blockID, columnID, theCalendarState, chartedUsersData, draggable, isAdmin, user, theDragStartedOn, is30Minute}: DayBlockProps) {
+export default function CalBlock({
+    blockID, 
+    columnID, 
+    theCalendarState, 
+    chartedUsersData, 
+    draggable, 
+    isAdmin, 
+    user, 
+    theDragStartedOn, 
+    is30Minute
+}: DayBlockProps) {
+        
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
@@ -174,7 +185,7 @@ export default function CalBlock({blockID, columnID, theCalendarState, chartedUs
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={`bg-${bgColor} w-16 h-4 border-black`}
+            className={`bg-${bgColor} w-16 p-0 h-4`}
             style={{borderRight: "1px solid #000", borderTop: borderTop}}
         >
         </div>

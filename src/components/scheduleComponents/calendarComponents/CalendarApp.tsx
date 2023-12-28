@@ -1,4 +1,4 @@
-import TimeColumn from "./TimeColumn"
+import TimeColumn from "../../../deprecated/TimeColumn"
 import SelectCalander from "./SelectCalendar"
 import { calendarDimensions, calanderState, userData } from "./scheduletypes";
 import DateBar from "./DateBar";
@@ -46,22 +46,18 @@ export default function Calender({
 
                         return (
                             <div className="ml-2 mr-2" key={index}>
-
-                                <div className="">
-                                    <SelectCalander 
-                                        renderTime={index == 0 ? true : false}
-                                        theCalendarState={[calendarState, setCalendarState]}
-                                        bucket={bucket}
-                                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                                        draggable={true}
-                                        isAdmin={isAdmin}
-                                        key={index}
-                                        user={user}
-                                        columnIndexOffset={columnIndexOffset}
-                                        startDate={calendarFramework.startDate}
-                                        endDate={calendarFramework.endDate}
-                                    />
-                                </div>
+                                <SelectCalander 
+                                    renderTime={index == 0 ? true : false}
+                                    theCalendarState={[calendarState, setCalendarState]}
+                                    bucket={bucket}
+                                    draggable={true}
+                                    isAdmin={isAdmin}
+                                    key={index}
+                                    user={user}
+                                    columnIndexOffset={columnIndexOffset}
+                                    startDate={calendarFramework.startDate}
+                                    endDate={calendarFramework.endDate}
+                                />
                             </div>
                         );
                     })

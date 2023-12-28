@@ -1,5 +1,5 @@
 import SelectCalander from "../components/scheduleComponents/calendarComponents/SelectCalendar";
-import TimeColumn from "../components/scheduleComponents/calendarComponents/TimeColumn"
+import TimeColumn from "./TimeColumn"
 import { calendarDimensions, calanderState } from "../components/scheduleComponents/calendarComponents/scheduletypes";
 
 

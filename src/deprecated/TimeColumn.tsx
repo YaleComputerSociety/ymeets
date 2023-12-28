@@ -1,4 +1,4 @@
-import { generateTimeBlocks } from "../utils/generateTimeBlocks";
+import { generateTimeBlocks } from "../components/scheduleComponents/utils/generateTimeBlocks";
 
 export default function TimeColumn(props: any) {
 

@@ -1,4 +1,4 @@
-import TimeColumn from "../components/scheduleComponents/calendarComponents/TimeColumn"
+import TimeColumn from "./TimeColumn"
 import SelectCalander from "../components/scheduleComponents/calendarComponents/SelectCalendar";
 import { generateTimeBlocks } from "../components/scheduleComponents/utils/generateTimeBlocks";
 import { useEffect } from "react";
