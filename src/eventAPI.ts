@@ -20,7 +20,7 @@ export default class FrontendEventAPI {
     constructor() {}
 
     static getEmptyAvailability(dims: calendarDimensions): Availability {
-        let blocksLength = generateTimeBlocks(dims.startDate.getHours(), dims.endDate.getHours()).length;
+        let blocksLength = generateTimeBlocks(dims.startTime.getHours(), dims.endTime.getHours()).length;
         let days: boolean[][] = [];
         for (let i = 0; i < dims.dates.length; i++) {
             for (let k = 0; k < dims.dates[i].length; k++) {
@@ -148,8 +148,8 @@ export default class FrontendEventAPI {
 
         return {
                 dates : theCalendarDates,
-                startDate : getStartAndEndTimes()[0],
-                endDate : getStartAndEndTimes()[1],
+                startTime : getStartAndEndTimes()[0],
+                endTime : getStartAndEndTimes()[1],
             }
     }
 
@@ -359,8 +359,8 @@ export default class FrontendEventAPI {
                     },
                 ]
             ],
-                startDate : new Date('2023-08-20T10:00:00'),
-                endDate : new Date('2023-09-04T12:00:00'),
+                startTime : new Date('2023-08-20T10:00:00'),
+                endTime : new Date('2023-09-04T12:00:00'),
             }
         }
     

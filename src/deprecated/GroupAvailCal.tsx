@@ -32,8 +32,8 @@ export default function GroupAvailCal({theCalendarFramework, theCalendarState, c
                             md:bg-white md:rounded-lg">  
 
                 <TimeColumn 
-                    startDate={calendarFramework.startDate}
-                    endDate={calendarFramework.endDate}
+                    startDate={calendarFramework.startTime}
+                    endDate={calendarFramework.endTime}
                 />
                 {
                     calendarFramework.dates.map((bucket, index) => {

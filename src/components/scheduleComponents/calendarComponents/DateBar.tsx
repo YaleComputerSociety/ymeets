@@ -10,7 +10,7 @@ export default function DateBar({dates} : DateBarProps) {
         <div className={`flex flex-row`}>
             {
                 dates.map((d, index) => {
-                    return <> 
+                    return <div key={index}> 
                     { index == 0 ?
                         <div className="w-16 p-2 border-black border-l border-r border-t border-b">
                             <center>
@@ -28,7 +28,7 @@ export default function DateBar({dates} : DateBarProps) {
                             </center>
                         </div>
                     }
-                    </>
+                    </div>
                 })
             }
 

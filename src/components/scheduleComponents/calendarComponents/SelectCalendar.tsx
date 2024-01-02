@@ -4,6 +4,8 @@ import { calandarDate, calendarDimensions, calanderState, userData } from "./sch
 import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 import CalRow from "./CalRow";
 import DateBar from "./DateBar";
+import { DragSelectBox } from "./DragSelectBox";
+import { dragProperties } from "./CalendarApp";
 
 interface SelectCalanderProps {
   theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
@@ -16,12 +18,15 @@ interface SelectCalanderProps {
   startDate: Date
   endDate: Date
   renderTime : boolean
-  theDragState : [Record<string, Array<any> | boolean>, React.Dispatch<React.SetStateAction<Record<string, Array<any> | boolean>>>]
+  theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
+  theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+
 }
 
 function SelectCalander({
   theCalendarState,
   chartedUsersData,
+  theCalendarFramework,
   draggable,
   isAdmin,
   bucket,
@@ -64,6 +69,8 @@ function SelectCalander({
                       />
                   }  
 
+    
+
                   <div className="flex flex-col border-black border-t border-l border-b">
                       {hour.map((time: string, blockID) => (
                         
@@ -81,6 +88,7 @@ function SelectCalander({
                                 isAdmin={isAdmin}
                                 // @ts-ignore
                                 theDragState={theDragState}
+                                theCalendarFramework={theCalendarFramework}
                             />
 
                           </>

@@ -13,8 +13,8 @@ export interface calandarDate {
 
 export interface calendarDimensions {
     dates: calandarDate[][];
-    startDate: Date;
-    endDate: Date ;
+    startTime: Date;
+    endTime: Date ;
 }
 
 export interface calendar {

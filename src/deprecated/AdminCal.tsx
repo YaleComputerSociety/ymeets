@@ -25,8 +25,8 @@ export default function AdminCal({theCalendarFramework, theCalendarState, dragga
             <div className="border border-1 border-gray-600 m-5 h-fit w-fit">
                 <div className="flex">
                     <TimeColumn     
-                        startDate={calendarFramework.startDate}
-                        endDate={calendarFramework.endDate}
+                        startDate={calendarFramework.startTime}
+                        endDate={calendarFramework.endTime}
                     />
                     {
                     calendarFramework.dates.map((bucket, index) => {

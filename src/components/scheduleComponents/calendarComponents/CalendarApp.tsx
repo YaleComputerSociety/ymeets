@@ -14,6 +14,13 @@ interface CalendarProps {
     title : string
 }
 
+export interface dragProperties { 
+    dragStartedOnID : number[];
+    dragEndedOnID : number[];
+    dragStartedOn : boolean;
+    affectedBlocks : any[];
+}
+
 export default function Calender({
     theCalendarFramework, 
     theCalendarState, 
@@ -32,6 +39,7 @@ export default function Calender({
         dragStartedOnID : [], // [columnID, blockID]
         dragEndedOnID : [],
         dragStartedOn : false,
+        affectedBlocks : []
     })
 
     return (
@@ -62,10 +70,11 @@ export default function Calender({
                                     key={index}
                                     user={user}
                                     columnIndexOffset={columnIndexOffset}
-                                    startDate={calendarFramework.startDate}
-                                    endDate={calendarFramework.endDate}
+                                    startDate={calendarFramework.startTime}
+                                    endDate={calendarFramework.endTime}
                                     // @ts-ignore
                                     theDragState={[dragState, setDragState]}
+                                    theCalendarFramework={theCalendarFramework}
                                 />
                             </div>
                         );

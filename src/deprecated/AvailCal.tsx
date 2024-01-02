@@ -25,8 +25,8 @@ export default function AvailCal({theCalendarFramework, theCalendarState, user}:
                 <div className="flex py-6 px-8 \
                                 md:bg-white md:rounded-lg">
                     <TimeColumn     
-                        startDate={calendarFramework.startDate}
-                        endDate={calendarFramework.endDate}
+                        startDate={calendarFramework.startTime}
+                        endDate={calendarFramework.endTime}
                     />
                     {
                     calendarFramework.dates.map((bucket, index) => {
