@@ -18,7 +18,7 @@ export interface dragProperties {
     dragStartedOnID : number[];
     dragEndedOnID : number[];
     dragStartedOn : boolean;
-    affectedBlocks : any[];
+    affectedBlocks : Set<any>;
 }
 
 export default function Calender({
@@ -39,7 +39,7 @@ export default function Calender({
         dragStartedOnID : [], // [columnID, blockID]
         dragEndedOnID : [],
         dragStartedOn : false,
-        affectedBlocks : []
+        affectedBlocks : new Set()
     })
 
     return (

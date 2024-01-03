@@ -64,6 +64,10 @@ export default class FrontendEventAPI {
         let theDates : Date[] = getDates();
         let theCalendarDates : calandarDate[][] = []
         let curCalendarBucket : calandarDate[] = []
+        let numOfCols = theDates.length;
+        
+        //@ts-ignore
+        let numOfBlocks = generateTimeBlocks(getStartAndEndTimes[0]?.getHours(), getStartAndEndTimes[1]?.getHours()).length * 4;
                 
         let getShortDay = {
             0 : "SUN",
@@ -150,6 +154,8 @@ export default class FrontendEventAPI {
                 dates : theCalendarDates,
                 startTime : getStartAndEndTimes()[0],
                 endTime : getStartAndEndTimes()[1],
+                numOfBlocks : numOfBlocks,
+                numOfCols : numOfCols
             }
     }
 
@@ -361,6 +367,8 @@ export default class FrontendEventAPI {
             ],
                 startTime : new Date('2023-08-20T10:00:00'),
                 endTime : new Date('2023-09-04T12:00:00'),
+                numOfBlocks : 8,
+                numOfCols : 11
             }
         }
     

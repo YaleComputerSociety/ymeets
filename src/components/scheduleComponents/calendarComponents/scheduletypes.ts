@@ -15,6 +15,8 @@ export interface calendarDimensions {
     dates: calandarDate[][];
     startTime: Date;
     endTime: Date ;
+    numOfBlocks : number
+    numOfCols : number
 }
 
 export interface calendar {
