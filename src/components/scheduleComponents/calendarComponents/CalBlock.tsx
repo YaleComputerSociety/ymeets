@@ -75,63 +75,49 @@ export default function CalBlock({
     }, [])
 
     useEffect(() => {
-
-        if (dragState === prevDragState.current) {
-            return;
-        }
-
+        // ... (previous code)
+    
         console.log("drag state updated!");
-
+    
         const [startCol, startBlock] = dragState.dragStartedOnID;
         const [endCol, endBlock] = dragState.dragEndedOnID;
     
-        let affectedBlocks : any[] = [];
-
-        let oldDragState = {...dragState};
-       
+        let affectedBlocks: any[] = [];
+    
+        let oldDragState = { ...dragState };
+    
         prevDragState.current = dragState;
-     
+    
         for (let col = Math.min(startCol, endCol); col <= Math.max(startCol, endCol); col++) {
-            // Iterate over blocks within each column
             for (let block = Math.min(startBlock, endBlock); block <= Math.max(startBlock, endBlock); block++) {
-                // Access the current block using 'col' and 'block'
-                // affectedBlocks.push([col, block]);
-                affectedBlocks.push([col, block])
+                affectedBlocks.push([col, block]);
                 oldDragState.affectedBlocks.add(`${col}-${block}`);
             }
         }
-
+    
         setDragState(oldDragState);
-
-        let oldCalState = {...calendarState}
-
-        //@ts-ignore
+    
+        let oldCalState = { ...calendarState };
+    
         for (let col = 0; col < calendarFramework.numOfCols; col++) {
-            //@ts-ignore
             for (let block = 0; block < NUM_OF_TIME_BLOCKS; block++) {
-
                 if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
-
                     if (dragState.dragStartedOn == true) {
                         oldCalState[user][col][block] = false;
                     } else {
                         oldCalState[user][col][block] = true;
                     }
-
                 } else {
-                    
                     if (dragState.affectedBlocks.has(`${col}-${block}`)) {
                         oldCalState[user][col][block] = false;
                     }
-                    
                 }
-
             }
         }
-
+    
         setCalanderState(oldCalState);
-
-    }, [dragState]);
+    
+    }, [dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);
     
 
     const createNewDrag = () => {
@@ -180,7 +166,6 @@ export default function CalBlock({
 
     const handleBlockClick = () => {
 
-        console.log("block clicked!")
 
         if (draggable === true) {
             
