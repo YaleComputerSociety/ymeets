@@ -75,7 +75,6 @@ export default function CalBlock({
     }, [])
 
     useEffect(() => {
-        // ... (previous code)
     
         console.log("drag state updated!");
     
@@ -183,24 +182,6 @@ export default function CalBlock({
             }
         }   
     }
-
-    // const updateBlockState = (newValue: boolean) => {
-        
-    //     // const oldData = { ...calendarState };
-        
-    //     // //@ts-ignore
-    //     // for (let c = Math.min(columnID, dragState["dragStartedOnID"][0]); c <= Math.max(columnID, dragState["dragStartedOnID"][0]); c++) {
-            
-    //     //     //@ts-ignore
-    //     //     for (let b = Math.min(blockID, dragState["dragStartedOnID"][1]); b <= Math.max(blockID, dragState["dragStartedOnID"][1]); b++) {
-                
-    //     //         oldData[user][c][b] = newValue;
-    //     //     }
-    //     // }
-    
-    //     // setCalanderState(oldData);
-
-    //   };
       
     const handleBlockUpdate = () => {
 
