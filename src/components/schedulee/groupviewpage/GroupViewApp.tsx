@@ -76,7 +76,7 @@ export default function GroupViewApp() {
                 <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-end"> 
                     <Calender
-                        title={"Group Availability"}
+                        title={"Grouped Availability"}
                         isAdmin={false} 
                         theCalendarState={[calendarState, setCalendarState]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }

@@ -75,6 +75,10 @@ export default function CalBlock({
     }, [])
 
     useEffect(() => {
+
+        if (draggable === false) {
+            return;
+        }
     
         console.log("drag state updated!");
     
@@ -116,7 +120,7 @@ export default function CalBlock({
     
         setCalanderState(oldCalState);
     
-    }, [dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);
+    }, [draggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);
     
 
     const createNewDrag = () => {
@@ -144,8 +148,6 @@ export default function CalBlock({
             
         }
         
-        //@ts-ignore
-
     }
 
     const handleDragStart = (event: any) => {
@@ -158,6 +160,10 @@ export default function CalBlock({
         event.dataTransfer.setDragImage(crt, 0, 0);  
 
         // this needs to be fixed, should not be using 0, should be using the person's ID.
+
+        if (draggable == false) {
+            return;
+        }
 
         createNewDrag();
 
@@ -185,6 +191,10 @@ export default function CalBlock({
       
     const handleBlockUpdate = () => {
 
+        if (draggable == false) {
+            return;
+        }
+        
         setDragState((oldState) => ({
             ...oldState,
             dragEndedOnID : [columnID, blockID]

@@ -65,7 +65,7 @@ export default function Calender({
                                     renderTime={index == 0 ? true : false}
                                     theCalendarState={[calendarState, setCalendarState]}
                                     bucket={bucket}
-                                    draggable={true}
+                                    draggable={draggable}
                                     isAdmin={isAdmin}
                                     key={index}
                                     user={user}
