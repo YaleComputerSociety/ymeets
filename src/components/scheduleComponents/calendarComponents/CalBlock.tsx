@@ -19,8 +19,6 @@ interface DayBlockProps {
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
 }
 
-
-
 export default function CalBlock({
     blockID, 
     columnID, 
@@ -79,12 +77,12 @@ export default function CalBlock({
         if (draggable === false) {
             return;
         }
-    
-        console.log("drag state updated!");
-    
+
+        console.log(dragState.affectedBlocks);
+        
         const [startCol, startBlock] = dragState.dragStartedOnID;
         const [endCol, endBlock] = dragState.dragEndedOnID;
-    
+               
         let affectedBlocks: any[] = [];
     
         let oldDragState = { ...dragState };
@@ -97,6 +95,7 @@ export default function CalBlock({
                 oldDragState.affectedBlocks.add(`${col}-${block}`);
             }
         }
+        
     
         setDragState(oldDragState);
     
@@ -104,15 +103,22 @@ export default function CalBlock({
     
         for (let col = 0; col < calendarFramework.numOfCols; col++) {
             for (let block = 0; block < NUM_OF_TIME_BLOCKS; block++) {
-                if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
-                    if (dragState.dragStartedOn == true) {
-                        oldCalState[user][col][block] = false;
+
+                if (dragState.dragStartedOn == true) {
+                    if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
+                        oldCalState[user][col][block] = false;                       
                     } else {
-                        oldCalState[user][col][block] = true;
+                        if (dragState.affectedBlocks.has(`${col}-${block}`)) {
+                            oldCalState[user][col][block] = true;
+                        }
                     }
                 } else {
-                    if (dragState.affectedBlocks.has(`${col}-${block}`)) {
-                        oldCalState[user][col][block] = false;
+                    if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
+                        oldCalState[user][col][block] = true;                       
+                    } else {
+                        if (dragState.affectedBlocks.has(`${col}-${block}`)) {
+                            oldCalState[user][col][block] = false;
+                        }
                     }
                 }
             }
@@ -125,29 +131,25 @@ export default function CalBlock({
 
     const createNewDrag = () => {
 
+        let oldState = dragState;
 
         if (calendarState[user][columnID][blockID] === true) {
 
-            let oldState = dragState;
-
-            oldState["dragStartedOnID"] = [columnID, blockID];
-            oldState["dragStartedOn"] = true
+            oldState.dragStartedOnID = [columnID, blockID];
+            oldState.dragStartedOn = true
             oldState.affectedBlocks = new Set()
-
-            setDragState(oldState);
 
         } else {
 
             let oldState = dragState;
 
-            oldState["dragStartedOnID"] = [columnID, blockID];
-            oldState["dragStartedOn"] = false
-            oldState.affectedBlocks = new Set()
-
-            setDragState(oldState);
-            
+            oldState.dragStartedOnID = [columnID, blockID];
+            oldState.dragStartedOn = false
+            oldState.affectedBlocks = new Set()            
         }
-        
+
+        setDragState(oldState);
+
     }
 
     const handleDragStart = (event: any) => {
@@ -158,8 +160,6 @@ export default function CalBlock({
         crt.style.opacity = "0"
         document.body.appendChild(crt);
         event.dataTransfer.setDragImage(crt, 0, 0);  
-
-        // this needs to be fixed, should not be using 0, should be using the person's ID.
 
         if (draggable == false) {
             return;
