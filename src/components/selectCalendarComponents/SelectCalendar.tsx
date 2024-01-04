@@ -40,6 +40,13 @@ function SelectCalander({
 
   let timeBlocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
   
+  let militaryConvert = (time : string) => { // expects hh:mm 
+    var hours = Number.parseInt(time.slice(0, 2)) ; // gives the value in 24 hours format
+    var AmOrPm = hours >= 12 ? 'PM' : 'AM';
+    hours = (hours % 12) || 12;
+    var minutes = Number.parseInt(time.slice(-2)) ;
+    return hours + (minutes == 0 ? "" : ":" + minutes.toString().padStart(2, "0")) + " " + AmOrPm;
+  }
 
 
   return (
@@ -82,7 +89,7 @@ function SelectCalander({
                         <div className="flex flex-row justify-end">
                             { renderTime && time.slice(-2) == "00" &&
                               <div className="w-12 text-xs relative">
-                                <p className="absolute" style={{top : "-0.5rem"}}>{time}</p>
+                                <p className="absolute" style={{top : "-0.5rem"}}>{militaryConvert(time)}</p>
                                 </div>
                             }
                             { renderTime && time.slice(-2) != "00" &&
