@@ -40,7 +40,7 @@ const getAccountId = (): string => {
     }
 }
 
-const getAccountName = (): string | null => {
+const getAccountName = (): string => {
     return auth.currentUser?.displayName ? auth.currentUser.displayName : "";
 }
 

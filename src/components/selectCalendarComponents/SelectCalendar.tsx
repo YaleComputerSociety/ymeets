@@ -50,48 +50,63 @@ function SelectCalander({
 
             return <div className="flex flex-row">
 
-
-              { renderTime && blockIDOffset != 0 &&
+              {/* ROW TIMES */}
+              {/* { renderTime && blockIDOffset != 0 &&
                     <p className="mr-1 w-12" style={{fontSize : "12px"}}>{hour[0]}</p>
               }
               {
                   renderTime && blockIDOffset == 0 && <div className="mr-1 w-12 flex items-center">
                   <p className="" style={{fontSize : "12px"}}>{hour[0]}</p>
                   </div>
-              }
+              } */}
 
               <div key={blockIDOffset}>
                                   
                                           
                   { blockIDOffset == 0 &&
-                      <DateBar 
+                      <div className="flex flex-row justify-end">
+                        <DateBar 
                           dates={bucket}       
-                      />
+                        />
+                      </div>
                   }  
 
     
 
-                  <div className="flex flex-col border-black border-t border-l border-b">
+    
+
+                  <div className="flex flex-col">
                       {hour.map((time: string, blockID) => (
                         
                         <>
-
-                            <CalRow
-                                is30Minute={time.slice(3) === "30" ? true : false}
-                                key={time}
-                                bucket={bucket}
-                                theCalendarState={theCalendarState}
-                                draggable={draggable}
-                                columnIndexOffSet={columnIndexOffset}
-                                blockID={(blockIDOffset * 4) + blockID}
-                                user={user}
-                                isAdmin={isAdmin}
-                                // @ts-ignore
-                                theDragState={theDragState}
+                        <div className="flex flex-row justify-end">
+                            { renderTime && time.slice(-2) == "00" &&
+                              <div className="w-12 text-xs relative">
+                                <p className="absolute" style={{top : "-0.5rem"}}>{time}</p>
+                                </div>
+                            }
+                            { renderTime && time.slice(-2) != "00" &&
+                              <div className="w-12"></div>
+                            }
+                            <div className={`border-black border-l ${hour.length - 1 == blockID ? "border-b" : ""}`}>
+                              <CalRow
+                                  is30Minute={time.slice(3) === "30" ? true : false}
+                                  key={time}
+                                  bucket={bucket}
+                                  theCalendarState={theCalendarState}
+                                  draggable={draggable}
+                                  columnIndexOffSet={columnIndexOffset}
+                                  blockID={(blockIDOffset * 4) + blockID}
+                                  user={user}
+                                  isAdmin={isAdmin}
+                                  // @ts-ignore
+                                  theDragState={theDragState}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
-                            />
-
+                                  borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
+                              />
+                            </div>
+                          </div>
                           </>
 
                       ))}

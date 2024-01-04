@@ -55,8 +55,8 @@ export default function GroupViewApp() {
 
     return (
         <>
-            <div className="flex flex-col justify-center \
-                            md:flex-row-reverse">
+            <div className="flex flex-col-reverse justify-center \
+                            md:flex-row">
                 <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-start">
                     <div className="flex flex-col space-y-7 max-w-sm mx-5 \

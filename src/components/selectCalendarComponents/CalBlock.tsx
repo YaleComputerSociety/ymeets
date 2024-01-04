@@ -210,6 +210,7 @@ export default function CalBlock({
         var availableUsers : user[] = []
         var unavailableUsers : user[] = []
 
+        
         if( chartedUsers != undefined ){
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]

@@ -33,6 +33,9 @@ module.exports = {
   fontFamily: {
     roboto: ['Roboto', 'sans-serif'],
   },
+  variants: {
+    fill: ['hover', 'focus']
+  },
   plugins: [],
 }
 
