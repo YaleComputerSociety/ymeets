@@ -79,10 +79,7 @@ export default function CalBlock({
         }
         
         const [startCol, startBlock] = dragState.dragStartedOnID;
-        const [endCol, endBlock] = dragState.dragEndedOnID;
-        
-        console.log("so " + dragState.dragStartedOnID);
-        console.log("eo " + dragState.dragEndedOnID);
+        const [endCol, endBlock] = dragState.dragEndedOnID; 
                
         let curAffectedBlocks: any[] = [];
     
@@ -100,7 +97,6 @@ export default function CalBlock({
         //@ts-ignore
         if (startCol === endCol && startBlock === endBlock) {
             curAffectedBlocks = []
-            console.log("true!");
         }
 
         console.log(curAffectedBlocks);
