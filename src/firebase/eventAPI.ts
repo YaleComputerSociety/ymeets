@@ -1,8 +1,8 @@
 import { start } from "repl";
-import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "./components/scheduleComponents/calendarComponents/scheduletypes";
-import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./firebase/events";
-import { Availability, Location, Event, EventDetails } from "./types";
-import { generateTimeBlocks } from "./components/scheduleComponents/utils/generateTimeBlocks";
+import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "../types";
+import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./events";
+import { Availability, Location, Event, EventDetails } from "../types";
+import { generateTimeBlocks } from "../components/utils/generateTimeBlocks";
 
 // TODO fetch event details -> calendarFramework
 
@@ -18,7 +18,15 @@ interface testData {
 export default class FrontendEventAPI {
     
     constructor() {}
-
+    
+    /**
+     * 
+     * Returns an empty avaliability for a single user that conforms
+     * to a specific calander dimension.
+     * 
+     * @param dims 
+     * @returns Availability type
+     */
     static getEmptyAvailability(dims: calendarDimensions): Availability {
         let blocksLength = generateTimeBlocks(dims.startTime.getHours(), dims.endTime.getHours()).length;
         let days: boolean[][] = [];
@@ -30,9 +38,24 @@ export default class FrontendEventAPI {
         return days
     }
 
+    /**
+     * 
+     * Creates a new event in the backend. Events are objects that contain information that can form
+     * a calanderFramework.  
+     * 
+     * @param title 
+     * @param description 
+     * @param adminName 
+     * @param adminAccountId 
+     * @param dates 
+     * @param plausibleLocations 
+     * @param startTime 
+     * @param endTime 
+     * @returns Promise object that expands to a Event object. 
+     */
     static async createNewEvent(
         title: string, description: string, adminName: string, adminAccountId: string, 
-        dates: Date[], plausibleLocations: Location[], startDate: Date, endDate: Date
+        dates: Date[], plausibleLocations: Location[], startTime: Date, endTime: Date
     ): Promise<Event | null> {
         try {
 
@@ -42,12 +65,10 @@ export default class FrontendEventAPI {
                 adminName: adminName,
                 adminAccountId: adminAccountId,
                 dates: dates,
-                startTime: startDate,
-                endTime: endDate,
+                startTime: startTime,
+                endTime: endTime,
                 plausibleLocations: plausibleLocations // TODO admin creator is not being added; maybe should be done on time select?
             });
-
-            console.log(ev);
 
             return ev;
 
@@ -59,6 +80,12 @@ export default class FrontendEventAPI {
         }
     }
 
+    /**
+     * 
+     * Obtain the calander dimension from the working event. 
+     * 
+     * @returns 
+     */
     static getCalendarDimensions() : calendarDimensions {
     
         let theDates : Date[] = getDates();
@@ -159,13 +186,16 @@ export default class FrontendEventAPI {
             }
     }
 
+    /**
+     * 
+     * Obtain a calander object from the working event, and contains the calanderState and the chartedUsers. 
+     * 
+     * @returns 
+     */
     static getCalendar() : calendar {
 
         let avails = getAllAvailabilities()
         let names = getAllAvailabilitiesNames()
-
-        console.log("the availaibilites");
-        console.log(avails);
 
         let userData : userData = {
             users : [],
@@ -191,26 +221,6 @@ export default class FrontendEventAPI {
             availabilities : availMatrix,
             participants : userData
             }
-    }
-
-    static setAdminDecision(startDate : Date, endDate : Date, location : string) {
-        
-        setChosenDate(startDate, endDate)
-
-        setChosenLocation(location)
-    }
-
-    static getAdminDecision() {
-
-        // @ts-ignore
-        let [startDate, endDate] : [Date, Date] | undefined = getChosenDayAndTime()
-        let chosenLocation = getChosenLocation()
-        
-        return {
-            startTime : startDate,
-            endTime : endDate,
-            chosenLocation : chosenLocation
-        }
     }
 
     static getTestData() : testData{

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "tailwindcss/tailwind.css";
-import { calandarDate, calendarDimensions, calanderState, userData } from "./scheduletypes";
+import { calandarDate, calendarDimensions, calanderState, userData } from  "../../types"
 import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 import CalRow from "./CalRow";
 import DateBar from "./DateBar";
-import { DragSelectBox } from "./DragSelectBox";
 import { dragProperties } from "./CalendarApp";
 
 interface SelectCalanderProps {
   theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-  chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
+  chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
   draggable: boolean
   isAdmin?: boolean
   bucket: calandarDate[]
@@ -20,6 +19,7 @@ interface SelectCalanderProps {
   renderTime : boolean
   theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
   theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+  
 
 }
 
@@ -89,6 +89,7 @@ function SelectCalander({
                                 // @ts-ignore
                                 theDragState={theDragState}
                                 theCalendarFramework={theCalendarFramework}
+                                chartedUsersData={chartedUsersData}
                             />
 
                           </>

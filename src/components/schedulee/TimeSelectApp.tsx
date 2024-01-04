@@ -3,13 +3,13 @@ import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
 
-import { calandarDate, calanderState, userData } from '../../scheduleComponents/calendarComponents/scheduletypes';
-import { calendarDimensions } from '../../scheduleComponents/calendarComponents/scheduletypes';
-import eventAPI from "../../../eventAPI"
+import { calandarDate, calanderState, userData } from '../../types'
+import { calendarDimensions } from '../../types'
+import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../../firebase/events';
-import { Availability } from '../../../types';
-import Calendar from "../../scheduleComponents/calendarComponents/CalendarApp";
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../firebase/events';
+import { Availability } from '../../types';
+import Calendar from "../selectCalendarComponents/CalendarApp";
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -139,6 +139,7 @@ function TimeSelectApp() {
                             // @ts-ignore
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
                             draggable={true}
+                            chartedUsersData={undefined}
                         />
                 </div>
             </div>
