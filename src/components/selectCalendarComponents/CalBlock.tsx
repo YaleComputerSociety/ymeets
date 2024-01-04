@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "tailwindcss/tailwind.css";
-import { calanderState, userData, user, calendarDimensions } from "./scheduletypes";
+import { calanderState, userData, user, calendarDimensions } from "../../types"
 import { useRef } from "react";
 import { dragProperties } from "./CalendarApp";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks";
@@ -10,7 +10,7 @@ interface DayBlockProps {
     columnID: number
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
     theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
-    chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
+    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
     draggable: boolean
     isAdmin? : boolean
     user : number
@@ -77,13 +77,11 @@ export default function CalBlock({
         if (draggable === false) {
             return;
         }
-
-        console.log(dragState.affectedBlocks);
         
         const [startCol, startBlock] = dragState.dragStartedOnID;
-        const [endCol, endBlock] = dragState.dragEndedOnID;
+        const [endCol, endBlock] = dragState.dragEndedOnID; 
                
-        let affectedBlocks: any[] = [];
+        let curAffectedBlocks: any[] = [];
     
         let oldDragState = { ...dragState };
     
@@ -91,12 +89,18 @@ export default function CalBlock({
     
         for (let col = Math.min(startCol, endCol); col <= Math.max(startCol, endCol); col++) {
             for (let block = Math.min(startBlock, endBlock); block <= Math.max(startBlock, endBlock); block++) {
-                affectedBlocks.push([col, block]);
-                oldDragState.affectedBlocks.add(`${col}-${block}`);
+                curAffectedBlocks.push([col, block]);
+                oldDragState.blocksAffectedDuringDrag.add(`${col}-${block}`);
             }
         }
+
+        //@ts-ignore
+        if (startCol === endCol && startBlock === endBlock) {
+            curAffectedBlocks = []
+        }
+
+        console.log(curAffectedBlocks);
         
-    
         setDragState(oldDragState);
     
         let oldCalState = { ...calendarState };
@@ -105,18 +109,18 @@ export default function CalBlock({
             for (let block = 0; block < NUM_OF_TIME_BLOCKS; block++) {
 
                 if (dragState.dragStartedOn == true) {
-                    if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
+                    if (curAffectedBlocks.some(([c, b]) => c === col && b === block)) {
                         oldCalState[user][col][block] = false;                       
                     } else {
-                        if (dragState.affectedBlocks.has(`${col}-${block}`)) {
+                        if (dragState.blocksAffectedDuringDrag?.has(`${col}-${block}`)) {
                             oldCalState[user][col][block] = true;
                         }
                     }
                 } else {
-                    if (affectedBlocks.some(([c, b]) => c === col && b === block)) {
+                    if (curAffectedBlocks.some(([c, b]) => c === col && b === block)) {
                         oldCalState[user][col][block] = true;                       
                     } else {
-                        if (dragState.affectedBlocks.has(`${col}-${block}`)) {
+                        if (dragState.blocksAffectedDuringDrag?.has(`${col}-${block}`)) {
                             oldCalState[user][col][block] = false;
                         }
                     }
@@ -137,7 +141,7 @@ export default function CalBlock({
 
             oldState.dragStartedOnID = [columnID, blockID];
             oldState.dragStartedOn = true
-            oldState.affectedBlocks = new Set()
+            oldState.blocksAffectedDuringDrag = new Set()
 
         } else {
 
@@ -145,7 +149,7 @@ export default function CalBlock({
 
             oldState.dragStartedOnID = [columnID, blockID];
             oldState.dragStartedOn = false
-            oldState.affectedBlocks = new Set()            
+            oldState.blocksAffectedDuringDrag = new Set()            
         }
 
         setDragState(oldState);
@@ -206,7 +210,7 @@ export default function CalBlock({
         var availableUsers : user[] = []
         var unavailableUsers : user[] = []
 
-        if( chartedUsers ){
+        if( chartedUsers != undefined ){
             for(let i = 0; i < chartedUsers.users.length; i++){
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
@@ -240,7 +244,13 @@ export default function CalBlock({
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
             className={calendarState[user][columnID][blockID] == true ? `bg-ymeets-light-blue w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
-            style={{borderRight: "1px solid #000", borderTop: borderTop}}
+            style={
+                {
+                    borderRight: "1px solid #000", 
+                    borderTop: borderTop,
+                    transition: "background-color 0.2s ease",
+                }
+            }
         >
         </div>
     );

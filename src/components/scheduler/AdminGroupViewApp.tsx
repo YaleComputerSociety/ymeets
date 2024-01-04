@@ -1,9 +1,9 @@
-import SelectCalander from "../../scheduleComponents/calendarComponents/SelectCalendar";
+import SelectCalander from "../selectCalendarComponents/SelectCalendar";
 import { useState } from "react";
-import { calanderState, userData } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import { calendarDimensions } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import eventAPI from "../../../eventAPI";
-import Calendar from "../../scheduleComponents/calendarComponents/CalendarApp"
+import { calanderState, userData } from "../../types"
+import { calendarDimensions } from  "../../types"
+import eventAPI from "../../firebase/eventAPI";
+import Calendar from "../selectCalendarComponents/CalendarApp"
 
 export default function AdminGroupViewApp() {
     const testData = eventAPI.getTestData()
@@ -21,6 +21,7 @@ export default function AdminGroupViewApp() {
                   draggable={true}
                   isAdmin={true}
                   user={0}
+                  chartedUsersData={undefined}
                 />
                 </div>
         </div>

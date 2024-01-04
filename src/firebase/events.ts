@@ -284,6 +284,7 @@ async function wrappedSaveParticipantDetails(availability: Availability, locatio
     return saveParticipantDetails({
         name: name,
         accountId: getAccountId(),
+        //@ts-ignore
         availability: JSON.stringify(availability),
         location: locations,
     });

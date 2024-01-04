@@ -1,4 +1,4 @@
-import { calandarDate } from "./scheduletypes"
+import { calandarDate } from  "../../types"
 
 interface DateBarProps {
     dates : calandarDate[]

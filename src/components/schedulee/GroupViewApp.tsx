@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { useState } from "react";
-import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
-import LocationChart from "../../scheduleComponents/hoverViewComponents/LocationChart";
-import { calanderState, userData } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import { calendarDimensions } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import eventAPI from "../../../eventAPI";
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../../firebase/events';
+import UserChart from "../hoverViewComponents/UserChart";
+import LocationChart from "../hoverViewComponents/LocationChart";
+import { calanderState, userData } from "../../types"
+import { calendarDimensions } from "../../types"
+import eventAPI from "../../firebase/eventAPI";
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../firebase/events';
 import { useParams } from 'react-router-dom';
-import Calender from '../../scheduleComponents/calendarComponents/CalendarApp';
+import Calender from '../selectCalendarComponents/CalendarApp';
 
 export default function GroupViewApp() {
     const { code } = useParams();

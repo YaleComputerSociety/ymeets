@@ -1,4 +1,4 @@
-import { calandarDate, calendarDimensions, calanderState, userData } from "./scheduletypes";
+import { calandarDate, calendarDimensions, calanderState, userData } from  "../../types"
 import CalBlock from "./CalBlock";
 import { dragProperties } from "./CalendarApp";
 
@@ -7,7 +7,7 @@ interface CalRowProps {
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>],
     draggable: boolean,
     isAdmin?: boolean,
-    // dragProperties
+    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
     user : number
     columnIndexOffSet : number
     blockID : number,
@@ -28,7 +28,8 @@ export default function CalRow({
     theCalendarFramework,
     blockID,
     is30Minute,
-    theDragState
+    theDragState,
+    chartedUsersData
 } : CalRowProps) {
 
     return (
@@ -47,6 +48,7 @@ export default function CalRow({
                         user={user}
                         theDragState={theDragState}
                         key={columnIndex}
+                        chartedUsersData={chartedUsersData}
                     />   
                 )
 
