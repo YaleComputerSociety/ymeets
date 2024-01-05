@@ -13,7 +13,8 @@ interface CalRowProps {
     blockID : number,
     is30Minute : boolean
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
-    theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+    theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>],
+    borderStyle? : string // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
 }
 
 
@@ -29,11 +30,16 @@ export default function CalRow({
     blockID,
     is30Minute,
     theDragState,
-    chartedUsersData
+    chartedUsersData,
+    borderStyle
 } : CalRowProps) {
 
+    const border = borderStyle ?? "solid"
+
     return (
-        <div className={`flex flex-row`}>
+        
+        <div className={`flex flex-row border-t border-black
+                         border-${border}`}>
         {
             bucket.map((d: calandarDate, columnIndex) => {                  
                 return (

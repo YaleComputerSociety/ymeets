@@ -9,6 +9,7 @@ import GroupViewComp from './components/schedulee/GroupViewApp'
 import NavBar from "./components/navbar/NavBar"
 
 function Root() {
+
     return (
         <>
         <Router>
