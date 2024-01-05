@@ -33,44 +33,45 @@ export default function CalBlock({
 }: DayBlockProps) {
         
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
-    const [bgColor, setBgColor] = useState("white");
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
     const [dragState, setDragState] = theDragState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
+    const [shadeColor, setShadeColor] = useState("bg-ymeets-light-blue");
 
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours()).length * 4;
 
-    // for group view calander.
-
     useEffect(() => {
 
-        let count = 0
-
-        for (let i = 0; i < calendarState.length; i++) {
-            
-            // let indexOfCol = columnID % 7
-            
-            if (calendarState[i][columnID][blockID] == true) {
-                count += 1
+        if (!draggable) {
+            let selectedCount = 0;
+    
+            for (let i = 0; i < calendarState.length; i++) {
+                if (calendarState[i][columnID][blockID]) {
+                    selectedCount += 1;
+                }
+            }
+    
+            if (selectedCount === 0) {
+                setShadeColor("white");
+            } else {
+                const percentageSelected = selectedCount / (calendarState.length * NUM_OF_TIME_BLOCKS);
+    
+                if (percentageSelected <= 0.25) {
+                    setShadeColor("ymeets-light-blue");
+                } else if (percentageSelected <= 0.50) {
+                    setShadeColor("ymeets-light-blue");
+                } else if (percentageSelected <= 0.75) {
+                    setShadeColor("ymeets-med-blue");
+                } else {
+                    setShadeColor("ymeets-dark-blue");
+                }
             }
         }
-        
-        // TODO - refine this algorithm
-        if (count == 0) {
-            setBgColor("white");
-        } else if (count <= Math.ceil(calendarState.length * .25)) {
-            setBgColor("ymeets-light-blue");
-        } else if (count <= Math.ceil(calendarState.length * .50)) {
-            setBgColor("ymeets-light-blue");
-        } else if (count <=Math.ceil(calendarState.length * .75)) {
-            setBgColor("ymeets-med-blue");
-        } else {
-            setBgColor("ymeets-dark-blue")
-        }
 
-    }, [])
+    }, []);
+
 
     useEffect(() => {
 
@@ -98,8 +99,6 @@ export default function CalBlock({
         if (startCol === endCol && startBlock === endBlock) {
             curAffectedBlocks = []
         }
-
-        console.log(curAffectedBlocks);
         
         setDragState(oldDragState);
     
@@ -240,10 +239,9 @@ export default function CalBlock({
             onDragStart={handleDragStart}
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}
-            onDragEnd={() => {console.log("drag is over!")}}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={calendarState[user][columnID][blockID] == true ? `bg-ymeets-light-blue w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
+            className={calendarState[user][columnID][blockID] == true ? `${shadeColor} w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
             style={
                 {
                     borderRight: "1px solid #000", 
