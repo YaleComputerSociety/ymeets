@@ -95,37 +95,31 @@ export default function CalBlock({
             }
         }
 
-        //@ts-ignore
         if (startCol === endCol && startBlock === endBlock) {
             curAffectedBlocks = []
         }
-        
-        setDragState(oldDragState);
-    
-        let oldCalState = { ...calendarState };
-    
-        for (let col = 0; col < calendarFramework.numOfCols; col++) {
-            for (let block = 0; block < NUM_OF_TIME_BLOCKS; block++) {
 
-                if (dragState.dragStartedOn == true) {
-                    if (curAffectedBlocks.some(([c, b]) => c === col && b === block)) {
-                        oldCalState[user][col][block] = false;                       
-                    } else {
-                        if (dragState.blocksAffectedDuringDrag?.has(`${col}-${block}`)) {
-                            oldCalState[user][col][block] = true;
-                        }
-                    }
-                } else {
-                    if (curAffectedBlocks.some(([c, b]) => c === col && b === block)) {
-                        oldCalState[user][col][block] = true;                       
-                    } else {
-                        if (dragState.blocksAffectedDuringDrag?.has(`${col}-${block}`)) {
-                            oldCalState[user][col][block] = false;
-                        }
-                    }
+        let oldCalState = {...calendarState};
+
+        if (dragState.dragStartedOn == true) {
+            if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
+                oldCalState[user][columnID][blockID] = false;                       
+            } else {
+                if (dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)) {
+                    oldCalState[user][columnID][blockID] = true;
+                }
+            }
+        } else {
+            if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
+                oldCalState[user][columnID][blockID] = true;                       
+            } else {
+                if (dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)) {
+                    oldCalState[user][columnID][blockID] = false;
                 }
             }
         }
+        
+        setDragState(oldDragState);
     
         setCalanderState(oldCalState);
     
