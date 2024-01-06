@@ -1,17 +1,22 @@
-import TimeColumn from "../../../deprecated/TimeColumn"
 import SelectCalander from "./SelectCalendar"
-import { calendarDimensions, calanderState, userData } from "./scheduletypes";
-import DateBar from "./DateBar";
+import { calendarDimensions, calanderState, userData } from  "../../types"
 import { useState } from "react";
 
 interface CalendarProps {
     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
+    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
     draggable : boolean
     user : number
     isAdmin : boolean
     title : string
+}
+
+export interface dragProperties { 
+    dragStartedOnID : number[];
+    dragEndedOnID : number[];
+    dragStartedOn : boolean;
+    blocksAffectedDuringDrag : Set<any>;
 }
 
 export default function Calender({
@@ -32,6 +37,7 @@ export default function Calender({
         dragStartedOnID : [], // [columnID, blockID]
         dragEndedOnID : [],
         dragStartedOn : false,
+        affectedBlocks : new Set()
     })
 
     return (
@@ -57,15 +63,17 @@ export default function Calender({
                                     renderTime={index == 0 ? true : false}
                                     theCalendarState={[calendarState, setCalendarState]}
                                     bucket={bucket}
-                                    draggable={true}
+                                    draggable={draggable}
                                     isAdmin={isAdmin}
                                     key={index}
                                     user={user}
                                     columnIndexOffset={columnIndexOffset}
-                                    startDate={calendarFramework.startDate}
-                                    endDate={calendarFramework.endDate}
+                                    startDate={calendarFramework.startTime}
+                                    endDate={calendarFramework.endTime}
                                     // @ts-ignore
                                     theDragState={[dragState, setDragState]}
+                                    theCalendarFramework={theCalendarFramework}
+                                    chartedUsersData={chartedUsersData}
                                 />
                             </div>
                         );

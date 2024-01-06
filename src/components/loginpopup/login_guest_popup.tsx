@@ -1,5 +1,5 @@
 import React from 'react';
-import { signInWithGoogle } from "../../../firebase/auth";
+import { signInWithGoogle } from "../../firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import './login_guest_popup.css';
 

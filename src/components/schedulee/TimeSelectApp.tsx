@@ -3,13 +3,13 @@ import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
 
-import { calandarDate, calanderState, userData } from '../../scheduleComponents/calendarComponents/scheduletypes';
-import { calendarDimensions } from '../../scheduleComponents/calendarComponents/scheduletypes';
-import eventAPI from "../../../eventAPI"
+import { calandarDate, calanderState, userData } from '../../types'
+import { calendarDimensions } from '../../types'
+import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../../firebase/events';
-import { Availability } from '../../../types';
-import Calendar from "../../scheduleComponents/calendarComponents/CalendarApp";
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../firebase/events';
+import { Availability } from '../../types';
+import Calendar from "../selectCalendarComponents/CalendarApp";
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -96,21 +96,21 @@ function TimeSelectApp() {
 
     return (
         <div className="bg-sky-100">
-            <div className={"flex flex-col-reverse justify-center content-center " +
-                            "md:flex-row md:mx-12"}>
-                <div className={"flex flex-col flex-wrap content-center justify-start mt-8 pt-12" + 
-                                "md:w-1/2 md:mx-20"}> 
-                    <div className = {"mb-8"}>
-                        <h3 className={"text-m text-center " + 
-                                    "md:text-left text-gray-400"}>Event Name</h3>
-                        <h3 className={"text-3xl font-bold text-center " + 
-                                    "md:text-left"}>{eventName}</h3>
+            <div className="flex flex-col justify-center content-center /
+                            md:flex-row md:mx-12">
+                <div className="flex flex-col flex-wrap content-center justify-start pt-12 / 
+                                md:w-1/2 md:mx-20"> 
+                    <div className = "mb-8">
+                        <h3 className="text-m text-center / 
+                                    md:text-left text-gray-400">Event Name</h3>
+                        <h3 className="text-3xl font-bold text-center / 
+                                    md:text-left">{eventName}</h3>
                     </div>
-                    <div className = {"mb-8"}>
-                        <h3 className={"text-m text-center " + 
-                                    "md:text-left text-gray-400"}>Description</h3>
-                        <h3 className={"text-2xl font-bold text-center " + 
-                                    "md:text-left"}>{eventDescription}</h3>
+                    <div className = "mb-8">
+                        <h3 className="text-m text-center /
+                                    md:text-left text-gray-400">Description</h3>
+                        <h3 className="text-2xl font-bold text-center / 
+                                    md:text-left">{eventDescription}</h3>
                     </div>
                     <div>
                         <div className="w-96 flex-col content-center mt-5 mb-8">
@@ -128,7 +128,7 @@ function TimeSelectApp() {
                         </button>
                     </div>
                 </div>
-                <div className={"flex flex-col justify-center content-center flex-wrap " +
+                <div className={"flex flex-col justify-center content-center flex-wrap mt-8" +
                                 "md:w-1/2 md:content-start"}>
 
                         <Calendar 
@@ -139,6 +139,7 @@ function TimeSelectApp() {
                             // @ts-ignore
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
                             draggable={true}
+                            chartedUsersData={undefined}
                         />
                 </div>
             </div>

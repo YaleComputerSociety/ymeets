@@ -40,7 +40,7 @@ const getAccountId = (): string => {
     }
 }
 
-const getAccountName = (): string | null => {
+const getAccountName = (): string => {
     return auth.currentUser?.displayName ? auth.currentUser.displayName : "";
 }
 
@@ -284,6 +284,7 @@ async function wrappedSaveParticipantDetails(availability: Availability, locatio
     return saveParticipantDetails({
         name: name,
         accountId: getAccountId(),
+        //@ts-ignore
         availability: JSON.stringify(availability),
         location: locations,
     });

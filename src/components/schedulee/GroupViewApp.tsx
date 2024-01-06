@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { useState } from "react";
-import UserChart from "../../scheduleComponents/hoverViewComponents/UserChart";
-import LocationChart from "../../scheduleComponents/hoverViewComponents/LocationChart";
-import { calanderState, userData } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import { calendarDimensions } from "../../scheduleComponents/calendarComponents/scheduletypes";
-import eventAPI from "../../../eventAPI";
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../../firebase/events';
+import UserChart from "../hoverViewComponents/UserChart";
+import LocationChart from "../hoverViewComponents/LocationChart";
+import { calanderState, userData } from "../../types"
+import { calendarDimensions } from "../../types"
+import eventAPI from "../../firebase/eventAPI";
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../firebase/events';
 import { useParams } from 'react-router-dom';
-import Calender from '../../scheduleComponents/calendarComponents/CalendarApp';
+import Calender from '../selectCalendarComponents/CalendarApp';
 
 export default function GroupViewApp() {
     const { code } = useParams();
@@ -55,8 +55,8 @@ export default function GroupViewApp() {
 
     return (
         <>
-            <div className="flex flex-col justify-center \
-                            md:flex-row-reverse">
+            <div className="flex flex-col-reverse justify-center \
+                            md:flex-row">
                 <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-start">
                     <div className="flex flex-col space-y-7 max-w-sm mx-5 \
@@ -76,7 +76,7 @@ export default function GroupViewApp() {
                 <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-end"> 
                     <Calender
-                        title={"Group Availability"}
+                        title={"Grouped Availability"}
                         isAdmin={false} 
                         theCalendarState={[calendarState, setCalendarState]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }

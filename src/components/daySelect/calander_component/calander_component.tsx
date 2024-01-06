@@ -6,7 +6,7 @@ import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
-import frontendEventAPI from "../../../eventAPI";
+import frontendEventAPI from "../../../firebase/eventAPI";
 import { useState, useEffect } from "react";
 import { createEvent, getEventById, checkIfLoggedIn } from "../../../firebase/events";
 import "../calander_component/calander_component.css"
