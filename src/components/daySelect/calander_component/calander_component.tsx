@@ -10,7 +10,7 @@ import frontendEventAPI from "../../../firebase/eventAPI";
 import { useState, useEffect } from "react";
 import { createEvent, getEventById, checkIfLoggedIn } from "../../../firebase/events";
 import "../calander_component/calander_component.css"
-import LoginPopup from '../login_popup_component'
+import GeneralPopup from '../general_popup_component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
@@ -34,6 +34,14 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   const handleLoginPopupClose = () => {
     setShowLoginPopup(false);
   };
+
+  const [showGeneralPopup, setGeneralPopup] = popUpOpen;
+
+  const handleGeneralPopupClose = () => {
+    setGeneralPopup(false);
+  }
+
+  const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
   const arr1: any[] = [];
   const [selectedDates, setSelectedDates] = theSelectedDates
@@ -63,8 +71,10 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   const removeDay = (date: Date) => {
     const arr = selectedDates.filter(
       (obj) =>
-        obj !== date
+        obj.getTime() != date.getTime()
     )
+    console.log('The filtered arr');
+    console.log(arr);
     setSelectedDates(arr)
   }
 
@@ -202,7 +212,17 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         </Popup>
       </div>
       {/* Login popup */}
-      {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} />}
+      {showLoginPopup && <GeneralPopup 
+        onClose={handleLoginPopupClose} 
+        message={"Please sign in before creating an event."} 
+        isLogin={true} />
+      }
+      {/* General popup */}
+      {!showLoginPopup && showGeneralPopup && <GeneralPopup 
+        onClose={handleGeneralPopupClose} 
+        message={generalPopupMessage} 
+        isLogin={false} />
+      }
     </div>
   );
 };

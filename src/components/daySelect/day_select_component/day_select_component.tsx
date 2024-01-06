@@ -22,7 +22,7 @@ export const DaySelectComponent = () => {
     const showAlert = (message: string) => {
         setPopupMessage(message);
         setPopupIsOpen(true);
-      };
+    };
 
     const navigate = useNavigate();
 
@@ -44,28 +44,28 @@ export const DaySelectComponent = () => {
     }
     const verifyNext = () => {
         if (selectedDates.length == 0) {
-            alert('Make sure to enter dates!');
-            // showAlert('Make sure to enter dates!');
+            // alert('Make sure to enter dates!');
+            showAlert('Make sure to enter dates!');
             return;
         }
 
         if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
         endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-            alert('Make sure to enter times!');
-            // showAlert('Make sure to enter times!');
+            // alert('Make sure to enter times!');
+            showAlert('Make sure to enter times!');
             return;
         }
 
         if (startDate >= endDate) {
-            alert('Make sure your end time is after your start time!');
-            // showAlert('Make sure your end time is after your start time!');
+            // alert('Make sure your end time is after your start time!');
+            showAlert('Make sure your end time is after your start time!');
             return;
         }
 
         // Optional; backend supports an empty string for name
         if (eventName.length == 0) {
-            alert('Make sure to name your event!');
-            // showAlert('Make sure to name your event!');
+            // alert('Make sure to name your event!');
+            showAlert('Make sure to name your event!');
             return;
         }
 
@@ -145,7 +145,7 @@ export const DaySelectComponent = () => {
 
                 <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
                 {locations.map((location, index) => (
-                    <div className="flex justify-left w-[100%]">
+                    <div className="flex w-[100%] justify-center md:justify-start">
                         <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
                             <div>{location}</div>
                             <div>

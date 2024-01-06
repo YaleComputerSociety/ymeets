@@ -30,3 +30,8 @@
     position: absolute;
     left: 0 !important;
 }
+
+.time-select-container div div .react-dropdown-select-content span {
+    display: inline-flex !important;
+    align-items: center !important;
+}
