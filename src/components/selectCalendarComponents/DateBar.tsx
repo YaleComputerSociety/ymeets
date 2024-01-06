@@ -12,19 +12,17 @@ export default function DateBar({dates} : DateBarProps) {
                 dates.map((d, index) => {
                     return <div key={index}> 
                     { index == 0 ?
-                        <div className="w-16 p-2 border-black border-l border-r border-t">
+                        <div className="border-black border-b w-16 ">
                             <center>
-                                <p style={{fontSize : "10px"}} className="mb-2 mt-2">{d.month}</p>                   
-                                <p>{d.shortenedWeekDay}</p>
-                                <p className="mb-2">{d.calanderDay}</p>
+                                <p className="text-sm">{d.month}</p>                   
+                                <p className="text-xs">{d.shortenedWeekDay} {d.calanderDay}</p>
                             </center>
                         </div>
                         : 
-                        <div className="w-16 p-2 border-black border-r border-t">
+                        <div className="border-black border-b w-16 ">
                             <center>
-                                <p style={{fontSize : "10px"}} className="mb-2 mt-2">{d.month}</p>                   
-                                <p>{d.shortenedWeekDay}</p>
-                                <p className="mb-2">{d.calanderDay}</p>
+                                <p className="text-sm">{d.month}</p>                   
+                                <p className="text-xs">{d.shortenedWeekDay} {d.calanderDay}</p>
                             </center>
                         </div>
                     }

@@ -38,25 +38,30 @@ export default function CalBlock({
     const [dragState, setDragState] = theDragState;
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
-    const [shadeColor, setShadeColor] = useState("bg-ymeets-light-blue");
+    const [shadeColor, setShadeColor] = useState("ymeets-light-blue");
 
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours()).length * 4;
 
     useEffect(() => {
 
-        if (!draggable) {
+        if (draggable === false) {
+
+            console.log([columnID, blockID]);
+
             let selectedCount = 0;
     
             for (let i = 0; i < calendarState.length; i++) {
-                if (calendarState[i][columnID][blockID]) {
+                if (calendarState[i][columnID][blockID] === true) {
                     selectedCount += 1;
                 }
-            }
+            }   
+            
+            console.log("the selected count" + selectedCount);
     
             if (selectedCount === 0) {
                 setShadeColor("white");
             } else {
-                const percentageSelected = selectedCount / (calendarState.length * NUM_OF_TIME_BLOCKS);
+                const percentageSelected = selectedCount / (calendarState.length);
     
                 if (percentageSelected <= 0.25) {
                     setShadeColor("ymeets-light-blue");
@@ -65,10 +70,12 @@ export default function CalBlock({
                 } else if (percentageSelected <= 0.75) {
                     setShadeColor("ymeets-med-blue");
                 } else {
-                    setShadeColor("ymeets-dark-blue");
+                    setShadeColor("sky-500");
                 }
             }
         }
+
+        console.log(shadeColor);
 
     }, []);
 
@@ -236,7 +243,7 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={calendarState[user][columnID][blockID] == true ? `${shadeColor} w-16 p-0 h-4` : `bg-white w-16 p-0 h-4`}
+            className={calendarState?.[user]?.[columnID]?.[blockID] == true ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-white w-16 p-0 h-3`}
             style={
                 {
                     borderRight: "1px solid #000", 

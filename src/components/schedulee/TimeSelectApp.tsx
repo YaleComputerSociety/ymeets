@@ -2,7 +2,7 @@ import React from 'react';
 import LocationSelectionComponent from '../locationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect } from "react"
-
+import Footer from '../footer/Footer';
 import { calandarDate, calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
@@ -128,8 +128,7 @@ function TimeSelectApp() {
                         </button>
                     </div>
                 </div>
-                <div className={"flex flex-col justify-center content-center flex-wrap mt-8" +
-                                "md:w-1/2 md:content-start"}>
+                <div className={"flex flex-col justify-center content-center h-1/4 mt-8 w-1/2 md:content-start"}>
 
                         <Calendar 
                             title={"Enter Your Availability"}
@@ -143,6 +142,7 @@ function TimeSelectApp() {
                         />
                 </div>
             </div>
+           
         </div>
     );
 }

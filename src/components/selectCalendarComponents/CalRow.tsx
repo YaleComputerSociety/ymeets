@@ -38,8 +38,8 @@ export default function CalRow({
 
     return (
         
-        <div className={`flex flex-row border-t border-black
-                         border-${border}`}>
+        <div className={`flex flex-row
+                       `}>
         {
             bucket.map((d: calandarDate, columnIndex) => {                  
                 return (

@@ -13,7 +13,7 @@ export default function GroupViewApp() {
     const { code } = useParams();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
-    const [calendarState, setCalendarState] = useState<calanderState>(testData.scheduleDataFull);
+    const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
@@ -21,6 +21,7 @@ export default function GroupViewApp() {
     const [locationOptions, setLocationOptions] = useState(Array<String>)
 
     const [ loading, setLoading ] = useState(true);
+    
     useEffect(() => {
 
         const fetchData = async () => {
@@ -37,10 +38,10 @@ export default function GroupViewApp() {
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationVotes(getLocationsVotes())
-                    console.log(getLocationsVotes())
                     setLocationOptions(getLocationOptions())
+
                 }); 
-    
+
             } else { // url is malformed
                 console.error("The event code in the URL doesn't exist");
             }
@@ -49,6 +50,9 @@ export default function GroupViewApp() {
 
         fetchData();
     }, []);
+    
+
+
     if (loading) {
         return <p>Loading...</p>
     }
@@ -56,7 +60,7 @@ export default function GroupViewApp() {
     return (
         <>
             <div className="flex flex-col-reverse justify-center \
-                            md:flex-row">
+                            md:flex-row mx-12">
                 <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-start">
                     <div className="flex flex-col space-y-7 max-w-sm mx-5 \
@@ -76,8 +80,9 @@ export default function GroupViewApp() {
                 <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
                                 md:w-1/2 md:content-end"> 
                     <Calender
-                        title={"Grouped Availability"}
+                        title={"Group Availability"}
                         isAdmin={false} 
+                        //@ts-ignore
                         theCalendarState={[calendarState, setCalendarState]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework] }
                         chartedUsersData={[chartedUsers, setChartedUsers]}

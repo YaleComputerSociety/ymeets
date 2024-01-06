@@ -45,7 +45,7 @@ export const TimeSelectComponent = (props: any) => {
         className=""
         searchable={false}
         options={options}
-        values={[]}
+        values={[options[9]]}
         onChange={handleStartChange}
       />
       <div className='grid items-center px-1 sm:px-2'>
@@ -55,7 +55,7 @@ export const TimeSelectComponent = (props: any) => {
         className=""
         searchable={false}
         options={options}
-        values={[]}
+        values={[options[17]]}
         onChange={handleEndChange}
       />
     </div>

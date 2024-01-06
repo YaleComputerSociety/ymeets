@@ -50,12 +50,12 @@ function SelectCalander({
 
 
   return (
-      <div>
+      <div className="max-h-120 m-2">
         {
           timeBlocks.map((hour: string[], blockIDOffset: number) => {
 
 
-            return <div className="flex flex-row">
+            return <div className="flex flex-row ">
 
               {/* ROW TIMES */}
               {/* { renderTime && blockIDOffset != 0 &&
@@ -110,7 +110,7 @@ function SelectCalander({
                                   theDragState={theDragState}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
-                                  borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
+                                  // borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
                               />
                             </div>
                           </div>

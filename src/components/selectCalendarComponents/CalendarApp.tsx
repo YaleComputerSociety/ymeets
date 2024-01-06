@@ -46,8 +46,8 @@ export default function Calender({
                 {title}
             </p>
 
-            <div className="m-5 h-fit w-fit">
-                <div className="flex py-6 px-8 \
+            <div className="m-5">
+                <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-6 px-8 \
                                 md:bg-white md:rounded-lg"
                 >
                  {

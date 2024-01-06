@@ -1,3 +1,5 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -7,6 +9,8 @@ module.exports = {
     extend: {
       fontFamily: {
         roboto: ['Roboto', 'sans'],
+        serif: ["Noto Serif", ...defaultTheme.fontFamily.serif],
+        sans: ["Inter", ...defaultTheme.fontFamily.sans],
       },
       boxShadow: {
         custom: '2px 4px 3px 0px rgba(0, 0, 0, 0.4)',
@@ -22,6 +26,9 @@ module.exports = {
         "nineteen" :  "70px",
         "17" : "66px",
         "29" : "120px"
+      },
+      maxHeight : {
+        "120" : "28rem"
       }
     },
   },
