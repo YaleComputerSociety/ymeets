@@ -9,7 +9,7 @@ import { getEventOnPageload, getEventName, getEventDescription, getLocationsVote
 import { useParams } from 'react-router-dom';
 import Calender from '../selectCalendarComponents/CalendarApp';
 
-export default function GroupViewApp() {
+export default function ParticipantGroupViewApp() {
     const { code } = useParams();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
@@ -22,6 +22,13 @@ export default function GroupViewApp() {
 
     const [ loading, setLoading ] = useState(true);
     
+    const [dragState, setDragState] = useState({
+        dragStartedOnID : [], // [columnID, blockID]
+        dragEndedOnID : [],
+        dragStartedOn : false,
+        affectedBlocks : new Set()
+    })
+
     useEffect(() => {
 
         const fetchData = async () => {
@@ -88,6 +95,10 @@ export default function GroupViewApp() {
                         chartedUsersData={[chartedUsers, setChartedUsers]}
                         draggable={false}
                         user={0}
+                        //@ts-ignore
+                        theSelectedDate={[undefined, undefined]}
+                        //@ts-ignore
+                        theDragState={[dragState, setDragState]}
                     />
                 </div>
         </div>

@@ -18,8 +18,8 @@ export default function CalendarIcon() {
                 <text x="40" y="150" fill="currentColor" fontSize="60" className="font-sans font-bold">{currMonthDay}</text>
                 <rect x="11" y="36" width="134" height="29" rx="5" fill="currentColor"/>
                 <rect x="6" y="30" width="144" height="141" rx="14" stroke="currentColor" strokeWidth="12"/>
-                <rect x="30.5" y="2.5" width="24" height="36" rx="7.5" fill="currentColor" stroke="white" stroke-width="5"/>
-                <rect x="99.5" y="2.5" width="24" height="36" rx="7.5" fill="currentColor" stroke="white" stroke-width="5"/>
+                <rect x="30.5" y="2.5" width="24" height="36" rx="7.5" fill="currentColor" stroke="white" strokeWidth="5"/>
+                <rect x="99.5" y="2.5" width="24" height="36" rx="7.5" fill="currentColor" stroke="white" strokeWidth="5"/>
             </svg>
         </div>
     )

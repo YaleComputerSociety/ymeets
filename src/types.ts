@@ -48,6 +48,13 @@ export interface calendarDimensions {
     numOfCols : number
 }
 
+export interface dragProperties { 
+    dragStartedOnID : number[];
+    dragEndedOnID : number[];
+    dragStartedOn : boolean;
+    blocksAffectedDuringDrag : Set<any>;
+}
+
 export interface calendar {
     availabilities : calanderState 
     participants : userData 

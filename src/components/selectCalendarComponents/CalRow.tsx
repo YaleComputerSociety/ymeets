@@ -2,6 +2,7 @@ import { calandarDate, calendarDimensions, calanderState, userData } from  "../.
 import CalBlock from "./CalBlock";
 import { dragProperties } from "./CalendarApp";
 
+
 interface CalRowProps {
     bucket : calandarDate[],
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>],
@@ -15,6 +16,7 @@ interface CalRowProps {
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
     theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>],
     borderStyle? : string // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
+    theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
 }
 
 
@@ -31,7 +33,8 @@ export default function CalRow({
     is30Minute,
     theDragState,
     chartedUsersData,
-    borderStyle
+    borderStyle,
+    theSelectedDate
 } : CalRowProps) {
 
     const border = borderStyle ?? "solid"
@@ -55,6 +58,8 @@ export default function CalRow({
                         theDragState={theDragState}
                         key={columnIndex}
                         chartedUsersData={chartedUsersData}
+                        theSelectedDate={theSelectedDate}
+
                     />   
                 )
 

@@ -1,4 +1,28 @@
-export default function LocationChart(props: any) {
+import React, { useState } from "react"
+
+interface LocationChartProps {
+    theSelectedLocation?: [string, React.Dispatch<React.SetStateAction<string>>] | undefined;
+    locationOptions : any
+    locationVotes : any
+}
+
+
+export default function LocationChart({theSelectedLocation, locationOptions, locationVotes} : LocationChartProps) {
+
+    //@ts-ignore
+    const [selectedLocation, setSelectedLocation] = theSelectedLocation;
+    
+    const [isClicked, setIsClicked] = useState(selectedLocation !== "");
+
+    function handleRowClick(loc: string) {
+
+        if (loc == selectedLocation || loc == "") {
+            setIsClicked(!isClicked);
+        } 
+
+        setSelectedLocation(loc);
+    }
+    
     return (
         <div className="flex justify-center items-center text-center bg-white rounded-lg">
             <table className="table-fixed border-collapse w-full">
@@ -8,10 +32,12 @@ export default function LocationChart(props: any) {
                         <th className="border-b p-3 text-black">Votes</th>
                     </tr>
                     {/* @ts-ignore */}
-                    {props.locationOptions.map((loc, idx) => {
-                        return <tr>
+                    {locationOptions.map((loc, idx) => {
+                        return <tr key={idx} onClick={() => {handleRowClick(loc)}} className={`group p-4 cursor-pointer ${
+                            isClicked && selectedLocation == loc ? 'bg-ymeets-light-blue' : 'bg-white'
+                          } transition-colors duration-300`}>
                                 <td className="p-3">{loc}</td>
-                                <td className="p-3">{props.locationVotes[idx]}</td>
+                                <td className="p-3">{locationVotes[idx]}</td>
                             </tr>
                     })}
                 </tbody>

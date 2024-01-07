@@ -380,7 +380,8 @@ function getAllAvailabilities(): Availability[] {
 // Retrieves the official datetime (start and end) of the event as chosen by the admin
 function getChosenDayAndTime(): [Date, Date] | undefined  {
     if (workingEvent.details.chosenStartDate && workingEvent.details.chosenEndDate) {
-        return [workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate]
+        //@ts-ignore
+        return [workingEvent.details.chosenStartDate.toDate(), workingEvent.details.chosenEndDate.toDate()]
     }
 }
 
@@ -452,6 +453,8 @@ export {
     // Admin Only (Async)
     setChosenLocation,
     setChosenDate,
+
+    
 }
 
 function dateToObject(dateArray: number[][]): {[key: number]: number[]} {

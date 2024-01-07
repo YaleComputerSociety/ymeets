@@ -19,7 +19,8 @@ interface SelectCalanderProps {
   renderTime : boolean
   theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
   theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
-  
+  theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
+
 
 }
 
@@ -35,7 +36,8 @@ function SelectCalander({
   startDate,
   endDate,
   renderTime,
-  theDragState
+  theDragState,
+  theSelectedDate
 }: SelectCalanderProps) {
 
   let timeBlocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
@@ -55,19 +57,9 @@ function SelectCalander({
           timeBlocks.map((hour: string[], blockIDOffset: number) => {
 
 
-            return <div className="flex flex-row ">
+            return <div key={blockIDOffset} className="flex flex-row ">
 
-              {/* ROW TIMES */}
-              {/* { renderTime && blockIDOffset != 0 &&
-                    <p className="mr-1 w-12" style={{fontSize : "12px"}}>{hour[0]}</p>
-              }
-              {
-                  renderTime && blockIDOffset == 0 && <div className="mr-1 w-12 flex items-center">
-                  <p className="" style={{fontSize : "12px"}}>{hour[0]}</p>
-                  </div>
-              } */}
-
-              <div key={blockIDOffset}>
+              <div>
                                   
                                           
                   { blockIDOffset == 0 &&
@@ -110,6 +102,7 @@ function SelectCalander({
                                   theDragState={theDragState}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
+                                  theSelectedDate={theSelectedDate}
                                   // borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
                               />
                             </div>

@@ -28,6 +28,13 @@ function TimeSelectApp() {
     const [eventDescription, setEventDescription] = useState("")
     const [locationOptions, setLocationOptions] = useState(Array<String>)
 
+    const [dragState, setDragState] = useState({
+        dragStartedOnID : [], // [columnID, blockID]
+        dragEndedOnID : [],
+        dragStartedOn : false,
+        affectedBlocks : new Set()
+    })
+
     useEffect(() => {
 
         const fetchData = async () => {
@@ -52,7 +59,9 @@ function TimeSelectApp() {
                     setLocationOptions(getLocationOptions())
 
                     // @ts-ignore
-                    setCalendarState([avail]);
+
+                    console.log(availabilities);
+                    setCalendarState([...availabilities, avail]);
                     setCalendarFramework(dim);
 
                 });
@@ -74,8 +83,9 @@ function TimeSelectApp() {
 
     const saveAvailAndLocationChanges = () => {
 
-        // @ts-ignore
-        const avail = calendarState[0]
+        let user = 0; // TODO
+        //@ts-ignore
+        const avail = calendarState[user]
         console.log("After conversion, ", avail);
         wrappedSaveParticipantDetails(avail, selectedLocations);
         navigate(`/groupview/${code}`);
@@ -139,7 +149,12 @@ function TimeSelectApp() {
                             theCalendarFramework={[calendarFramework, setCalendarFramework]}
                             draggable={true}
                             chartedUsersData={undefined}
-                        />
+                            //@ts-ignore
+                            theSelectedDate={[undefined, undefined]}
+                            //@ts-ignore
+                            theDragState={[dragState, setDragState]}
+                            isAdmin={false}
+                            />
                 </div>
             </div>
            

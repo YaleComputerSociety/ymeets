@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
-import { getEventById } from '../../firebase/events';
+import { getEventById, checkIfLoggedIn } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 
 export const LoginPageButtons = () => {
@@ -13,9 +13,13 @@ export const LoginPageButtons = () => {
     const [eventCode, setEventCode] = React.useState("")
 
     const handleSignInWithGoogle = () => {
-        signInWithGoogle().then(() => {
-            navigate('./dayselect');
-        });
+        if (!checkIfLoggedIn()) {
+            signInWithGoogle().then(() => {
+                navigate('./dayselect');
+                return;
+            });
+        }
+        navigate('./dayselect');      
     }
 
     const showEventInput = () => {

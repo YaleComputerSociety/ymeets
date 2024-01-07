@@ -1,5 +1,5 @@
 import SelectCalander from "./SelectCalendar"
-import { calendarDimensions, calanderState, userData } from  "../../types"
+import { calendarDimensions, calanderState, userData, calandarDate } from  "../../types"
 import { useState } from "react";
 
 interface CalendarProps {
@@ -10,6 +10,9 @@ interface CalendarProps {
     user : number
     isAdmin : boolean
     title : string
+    theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
+    theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
+
 }
 
 export interface dragProperties { 
@@ -26,22 +29,19 @@ export default function Calender({
     draggable, 
     user, 
     isAdmin,
-    title 
+    title,
+    theSelectedDate,
+    theDragState
 }: CalendarProps) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
     let columnIndexOffset = 0
 
-    const [dragState, setDragState] = useState({
-        dragStartedOnID : [], // [columnID, blockID]
-        dragEndedOnID : [],
-        dragStartedOn : false,
-        affectedBlocks : new Set()
-    })
+    const [dragState, setDragState] = theDragState
 
     return (
-        <>
+        <div className="flex flex-col w-full">
             <p className="text-4xl m-5 mb-1 font-bold">
                 {title}
             </p>
@@ -74,6 +74,7 @@ export default function Calender({
                                     theDragState={[dragState, setDragState]}
                                     theCalendarFramework={theCalendarFramework}
                                     chartedUsersData={chartedUsersData}
+                                    theSelectedDate={theSelectedDate}
                                 />
                             </div>
                         );
@@ -81,6 +82,6 @@ export default function Calender({
                     }
                 </div>
             </div>
-        </>
+        </div>
     )
 }

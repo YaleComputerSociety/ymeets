@@ -28,13 +28,14 @@ export default class FrontendEventAPI {
      * @returns Availability type
      */
     static getEmptyAvailability(dims: calendarDimensions): Availability {
-        let blocksLength = generateTimeBlocks(dims.startTime.getHours(), dims.endTime.getHours()).length;
+        let blocksLength = generateTimeBlocks(dims.startTime.getHours(), dims.endTime.getHours()).length * 4;
         let days: boolean[][] = [];
         for (let i = 0; i < dims.dates.length; i++) {
             for (let k = 0; k < dims.dates[i].length; k++) {
                 days.push(Array.from({ length: blocksLength }, () => false))
             }
         }
+
         return days
     }
 
