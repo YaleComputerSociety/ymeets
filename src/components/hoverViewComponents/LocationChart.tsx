@@ -1,11 +1,11 @@
 import React, { useState } from "react"
+import { checkIfAdmin } from "../../firebase/events";
 
 interface LocationChartProps {
     theSelectedLocation?: [string, React.Dispatch<React.SetStateAction<string>>] | undefined;
     locationOptions : any
     locationVotes : any
 }
-
 
 export default function LocationChart({theSelectedLocation, locationOptions, locationVotes} : LocationChartProps) {
 
@@ -14,7 +14,13 @@ export default function LocationChart({theSelectedLocation, locationOptions, loc
     
     const [isClicked, setIsClicked] = useState(selectedLocation !== "");
 
+    console.log(selectedLocation);
+
     function handleRowClick(loc: string) {
+
+        if (!checkIfAdmin()) {
+            return;
+        }
 
         if (loc == selectedLocation || loc == "") {
             setIsClicked(!isClicked);

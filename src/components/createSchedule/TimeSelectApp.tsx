@@ -10,6 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
+import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -27,6 +28,10 @@ function TimeSelectApp() {
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
     const [locationOptions, setLocationOptions] = useState(Array<String>)
+    
+    const [chosenLocation, setChosenLocation] = useState("")
+    const [chosenTimeRange, setChosenTimeRange] = useState([])
+    const [chosenDateRange, setChosenDateRange] = useState([])
 
     const [dragState, setDragState] = useState({
         dragStartedOnID : [], // [columnID, blockID]
@@ -34,6 +39,34 @@ function TimeSelectApp() {
         dragStartedOn : false,
         affectedBlocks : new Set()
     })
+
+    const monthDictionary = {
+        0: 'January',
+        1: 'February',
+        2: 'March',
+        3: 'April',
+        4: 'May',
+        5: 'June',
+        6: 'July',
+        7: 'August',
+        8: 'September',
+        9: 'October',
+        10: 'November',
+        11: 'December',
+    };
+
+    const numberEnding = {
+        1: "st",
+        2: "nd",
+        3: "rd",
+        4: "th",
+        5: "th",
+        6: "th",
+        7: "th",
+        8: "th",
+        9: "th",
+        10: "th",
+    }
 
     useEffect(() => {
 
@@ -57,10 +90,44 @@ function TimeSelectApp() {
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationOptions(getLocationOptions())
+                    
+                    //@ts-ignore
+                    let getChosenDayAndTimeVar = getChosenDayAndTime()
 
+                    if (getChosenDayAndTimeVar !== undefined) {
+
+                        //@ts-ignore
+                        setChosenTimeRange([getChosenDayAndTimeVar[0].toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                        }), 
+                        
+                        //@ts-ignore
+                        getChosenDayAndTimeVar[1].toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                        })
+                        ])
+
+                        setChosenDateRange(
+                            {
+                                //@ts-ignore
+                                "day" : getChosenDayAndTimeVar[0].getDay(),
+                                //@ts-ignore
+                                "month" : monthDictionary[getChosenDayAndTimeVar[0].getMonth()],
+                                //@ts-ignore
+                                "year" : getChosenDayAndTimeVar[0].getYear()
+                            }
+                        )
+
+                        //@ts-ignore
+                        setChosenLocation(getChosenLocation())
+                       
+                    }
+                    
                     // @ts-ignore
-
-                    console.log(availabilities);
                     setCalendarState([...availabilities, avail]);
                     setCalendarFramework(dim);
 
@@ -122,6 +189,7 @@ function TimeSelectApp() {
                         <h3 className="text-2xl font-bold text-center / 
                                     md:text-left">{eventDescription}</h3>
                     </div>
+                    
                     <div>
                         <div className="w-96 flex-col content-center mt-5 mb-8">
                             <LocationSelectionComponent 
@@ -155,6 +223,7 @@ function TimeSelectApp() {
                             theDragState={[dragState, setDragState]}
                             isAdmin={false}
                             />
+
                 </div>
             </div>
            

@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { dragProperties } from "./CalendarApp";
 import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 import { calandarDate } from "../../types";
-import { getChosenDayAndTime } from "../../firebase/events";
+import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from "../../firebase/events";
 import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
 
 interface DayBlockProps {
@@ -51,9 +51,7 @@ export default function CalBlock({
                 }   
     
                 const percentageSelected = selectedCount / (calendarState.length);
-    
-                console.log(percentageSelected);
-    
+        
                 if (percentageSelected <= 0.25) {
                     return "ymeets-light-blue"
                 } else if (percentageSelected <= 0.50) {
@@ -94,7 +92,7 @@ export default function CalBlock({
 
         //@ts-ignore
         let chosenDates = getChosenDayAndTime()
-
+        
         // check if a selection has been made by the admin, locking the users from editing their
         // availability
         if (chosenDates !== undefined && chosenDates[0] instanceof Date) {

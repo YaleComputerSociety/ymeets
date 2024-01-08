@@ -42,18 +42,23 @@ export default function AdminGroupViewApp() {
       const fetchData = async () => {
           if (code && code.length == 6) {
               await getEventOnPageload(code).then(() => {
-                  const { availabilities, participants } = eventAPI.getCalendar();
-                  // console.log("Avails: ", availabilities);
-                  const dates = eventAPI.getCalendarDimensions();
+                const { availabilities, participants } = eventAPI.getCalendar();
+                // console.log("Avails: ", availabilities);
+                const dates = eventAPI.getCalendarDimensions();
 
-                  setChartedUsers(participants);
-                  setCalendarState(availabilities);
-                  setCalendarFramework(dates);
+                setChartedUsers(participants);
+                setCalendarState(availabilities);
+                setCalendarFramework(dates);
 
-                  setEventName(getEventName());
-                  setEventDescription(getEventDescription());
-                  setLocationVotes(getLocationsVotes())
-                  setLocationOptions(getLocationOptions())
+                setEventName(getEventName());
+                setEventDescription(getEventDescription());
+                setLocationVotes(getLocationsVotes())
+                setLocationOptions(getLocationOptions())
+
+                let selectedLocation = getChosenLocation();
+                
+                //@ts-ignore
+                setSelectedLocation(selectedLocation);
 
               }); 
 
@@ -67,9 +72,7 @@ export default function AdminGroupViewApp() {
 
       fetchData();
 
-      let selectedLocation = getChosenLocation();
-      //@ts-ignore
-      setSelectedLocation(selectedLocation);
+      
   }, []);
 
   function handleSelectionSubmission() {
@@ -87,32 +90,39 @@ export default function AdminGroupViewApp() {
       let timeBlocks = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours())
       //@ts-ignore
       let times = [].concat(...timeBlocks);
-      
-      let selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
-      let selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
-    
-      //@ts-ignore
-      let [startHour, startMinute] = selectedStartTimeHHMM.split(":").map(Number);
-      //@ts-ignore
-      let [endHour, endMinute] = selectedEndTimeHHMM.split(":").map(Number);
 
-      //@ts-ignore
-      let selectedStartTimeDateObject = new Date(calDate.date);
-      selectedStartTimeDateObject.setHours(startHour);
-      selectedStartTimeDateObject.setMinutes(startMinute);
+      if (dragState.dragStartedOnID.length > 0 && dragState.dragEndedOnID.length > 0) {
 
-      //@ts-ignore
-      let selectedEndTimeDateObject = new Date(calDate.date);
-      selectedEndTimeDateObject.setHours(endHour);
-      selectedEndTimeDateObject.setMinutes(endMinute);
-      
-      if (selectedLocation != "" || selectedLocation != undefined) {
+        let selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
+        let selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
+        
         //@ts-ignore
-        setChosenLocation(selectedLocation);
+        let [startHour, startMinute] = selectedStartTimeHHMM.split(":").map(Number);
+        //@ts-ignore
+        let [endHour, endMinute] = selectedEndTimeHHMM.split(":").map(Number);
+
+        //@ts-ignore
+        let selectedStartTimeDateObject = new Date(calDate.date);
+        selectedStartTimeDateObject.setHours(startHour);
+        selectedStartTimeDateObject.setMinutes(startMinute);
+
+        //@ts-ignore
+        let selectedEndTimeDateObject = new Date(calDate.date);
+        selectedEndTimeDateObject.setHours(endHour);
+        selectedEndTimeDateObject.setMinutes(endMinute);
+
+        setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject)
 
       }
 
-      setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject)
+      
+      if (selectedLocation != "" && selectedLocation != undefined) {
+        //@ts-ignore
+        setChosenLocation(selectedLocation).then(() => {
+            console.log("location set!")
+        });
+
+      }
 
       setTimeout(() => {
         setSelectionButtonClicked(false);

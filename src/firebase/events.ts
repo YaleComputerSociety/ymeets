@@ -454,6 +454,8 @@ export {
     setChosenLocation,
     setChosenDate,
 
+    getParticipantIndex
+
     
 }
 
