@@ -9,6 +9,7 @@ import { getEventOnPageload, getEventName, getEventDescription, getLocationsVote
 import { useParams } from 'react-router-dom';
 import Calender from '../selectCalendarComponents/CalendarApp';
 import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function ParticipantGroupViewApp() {
@@ -23,8 +24,8 @@ export default function ParticipantGroupViewApp() {
     const [locationOptions, setLocationOptions] = useState(Array<String>)
     const [selectedLocation, setSelectedLocation] = useState("");
     const [chosenLocation, setChosenLocation] = useState("")
-    const [chosenTimeRange, setChosenTimeRange] = useState([])
-    const [chosenDateRange, setChosenDateRange] = useState([])
+    const [chosenTimeRange, setChosenTimeRange] = useState(undefined);
+    const [chosenDateRange, setChosenDateRange] = useState(undefined);
 
 
     const [ loading, setLoading ] = useState(true);
@@ -35,6 +36,8 @@ export default function ParticipantGroupViewApp() {
         dragStartedOn : false,
         affectedBlocks : new Set()
     })
+
+    const nav = useNavigate();
 
     const monthDictionary = {
         0: 'January',
@@ -84,35 +87,37 @@ export default function ParticipantGroupViewApp() {
 
                     let getChosenDayAndTimeVar = getChosenDayAndTime()
                     
+                    if (getChosenDayAndTimeVar != undefined) {
+                        //@ts-ignore
+                        setChosenTimeRange([getChosenDayAndTimeVar[0].toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                        }), 
+                        
+                        //@ts-ignore
+                        getChosenDayAndTimeVar[1].toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                        })
+                        ])
+
+                        setChosenDateRange(
+                            {
+                                //@ts-ignore
+                                "day" : getChosenDayAndTimeVar[0].getDay(),
+                                //@ts-ignore
+                                "month" : monthDictionary[getChosenDayAndTimeVar[0].getMonth()],
+                                //@ts-ignore
+                                "year" : getChosenDayAndTimeVar[0].getYear()
+                            }
+                        )
+                    }
+
                     //@ts-ignore
-                    setChosenTimeRange([getChosenDayAndTimeVar[0].toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      }), 
                     
-                      //@ts-ignore
-                      getChosenDayAndTimeVar[1].toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })
-                    ])
-
-                    setChosenDateRange(
-                        {
-                            //@ts-ignore
-                            "day" : getChosenDayAndTimeVar[0].getDay(),
-                            //@ts-ignore
-                            "month" : monthDictionary[getChosenDayAndTimeVar[0].getMonth()],
-                            //@ts-ignore
-                            "year" : getChosenDayAndTimeVar[0].getYear()
-                        }
-                    )
-
-                    //@ts-ignore
                     setChosenLocation(getChosenLocation())
-
 
                 }); 
 
@@ -177,6 +182,15 @@ export default function ParticipantGroupViewApp() {
                         locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
                         locationVotes={Object.values(locationVotes)}
                         />
+                        <button 
+                              onClick={() => {nav("/timeselect/" + code)}}
+                              className='mb-1 font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
+                                          transform transition-transform hover:scale-90 active:scale-100e'>
+                              Edit Your Availiability
+                        </button>
+                
+
+                        
                     </div>
                 </div>
                 <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 

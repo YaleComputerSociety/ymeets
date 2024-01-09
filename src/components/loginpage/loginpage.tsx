@@ -50,7 +50,7 @@ export const LoginPageButtons = () => {
                 <div className='justify-center self-center space-y-12 mt-3 max-w-full min-w-[70%] md:w-[90%]'>
                     <div className='flex flex-col space-y-10 w-full md:justify-end'>
                         <h1 className='font-bold text-center text-5xl md:text-left xl:text-5xl'>A cleaner, faster way to schedule meetings.</h1>
-                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl'>ymeets is a platform to plan gatherings in an efficent and Yale-specific manner. </h3>
+                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
                     </div>
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>

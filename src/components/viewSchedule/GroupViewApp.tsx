@@ -14,7 +14,7 @@ export default function GroupViewApp() {
                 setTimeout(() => {
                     return checkIfAdmin()
                 }, 5000) ? <div>
-                    <ParticipantGroupViewApp />
+                    <AdminGroupViewApp />
                 </div> : <div>
                     <ParticipantGroupViewApp />
                 </div>
