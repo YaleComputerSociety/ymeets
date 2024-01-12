@@ -4,6 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
+import GoogleCalendarButton from "./GoogleCalendarButton";
 import { getEventById, checkIfLoggedIn } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 
@@ -58,6 +59,7 @@ export const LoginPageButtons = () => {
                                            transform transition-transform hover:scale-90 active:scale-100e' 
                                            onClick={() => {handleSignInWithGoogle()}}>I'm a Host</button>
                         <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100'} onClick={() => {showEventInput()}}>I'm a Participant</button>
+                        <GoogleCalendarButton />
                         <div className={showInput ? "hidden" : "flex flex-nowrap"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>
                             <input className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"
