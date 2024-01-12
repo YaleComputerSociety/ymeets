@@ -1,28 +1,46 @@
-// import SelectCalander from "./SelectCalendar";
+// import SelectCalander from "../components/scheduleComponents/calendarComponents/SelectCalendar";
 // import TimeColumn from "./TimeColumn"
+// import { calendarDimensions, calanderState } from "../components/scheduleComponents/calendarComponents/scheduletypes";
 
-// export default function AvailCal(props: any) {
 
-//     const [calendarFramework, setCalendarFramework] = props.calendarFramework;
-//     const [calendarState, setCalendarState] = props.calendarState;
+// interface AvailCalProps {
+//     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+//     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+//     draggable : boolean
+//     user : number
+//   }
+
+// export default function AvailCal({theCalendarFramework, theCalendarState, user}: AvailCalProps) {
+
+//     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+//     const [calendarState, setCalendarState] = theCalendarState;
+//     let columnIndexOffset = 0
 
 //     return (
 //         <>
-//         <h1 className="text-4xl m-5 mb-0 font-bold">Your Availibility</h1>
-//         <div className="border border-1 border-gray-600 m-5 w-fit">
-//             <div className="flex">
-//                 <TimeColumn 
-//                     startTime={calendarFramework.startTime}
-//                     endTime={calendarFramework.endTime}
-//                 />
-//                 <SelectCalander 
-//                     calendarState={[calendarState, setCalendarState]}
-//                     calendarFramework={[calendarFramework, setCalendarFramework]}
-//                     startTime={calendarFramework.startTime}
-//                     endTime={calendarFramework.endTime}
-//                 />
+//             <p className="text-4xl m-5 mb-1 font-bold">
+//                 Your Availability
+//             </p>
+//             <div className="m-5 h-fit w-fit">
+//                 <div className="flex py-6 px-8 \
+//                                 md:bg-white md:rounded-lg">
+//                     <TimeColumn     
+//                         startDate={calendarFramework.startTime}
+//                         endDate={calendarFramework.endTime}
+//                     />
+//                     {
+//                     calendarFramework.dates.map((bucket, index) => {
+//                         if (index != 0) {
+//                             let prev_bucket = calendarFramework.dates[index - 1]
+//                             columnIndexOffset += prev_bucket.length
+//                         }
+                        
+//                         return <></>
+                        
+//                     }) 
+//                     }    
+//                 </div>
 //             </div>
-//         </div>
 //         </>
 //     )
 // }

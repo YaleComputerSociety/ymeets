@@ -8,6 +8,7 @@ import "tippy.js/themes/material.css";
 import { useState, useEffect } from "react";
 
 export const CircleComponent = (props: any) => {
+
   const dates = [
     "September 5, 2022 00:00:00",
     "September 5, 2022 23:59:59",
@@ -25,19 +26,7 @@ export const CircleComponent = (props: any) => {
 
   const holidays = dates.map((item) => new Date(item));
 
-  var initialActive = "not-active-circle";
-  if (
-    props.selectedDays.filter(
-      (obj: any) =>
-        obj[0] === props.date.getFullYear() &&
-        obj[1] === props.date.getMonth() &&
-        obj[2] === props.date.getDate()
-    ).length === 1
-  ) {
-    initialActive = "active-circle";
-  }
-
-  const [active, toggleActive] = useState(initialActive);
+  const [active, toggleActive] = useState((props.isActive ? "active-circle" : "not-active-circle"));
 
   const handleToggleActive = () => {
     if (active.localeCompare("not-active-circle") === 0) {
@@ -49,47 +38,47 @@ export const CircleComponent = (props: any) => {
     }
   };
 
-  useEffect(() => {
-    tippy("#laborDay", {
-      content: "Labor Day",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+    // useEffect(() => {
+  //   tippy("#laborDay", {
+  //     content: "Labor Day",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#octoberRecess", {
-      content: "October Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#octoberRecess", {
+  //     content: "October Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#novemberRecess", {
-      content: "November Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#novemberRecess", {
+  //     content: "November Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#winterRecess", {
-      content: "Winter Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#winterRecess", {
+  //     content: "Winter Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#mlkDay", {
-      content: "MLK Day",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
+  //   tippy("#mlkDay", {
+  //     content: "MLK Day",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
 
-    tippy("#springRecess", {
-      content: "Spring Recess",
-      trigger: "mouseenter focus",
-      theme: "material",
-    });
-  }, [props.date, props.selectedDays]);
+  //   tippy("#springRecess", {
+  //     content: "Spring Recess",
+  //     trigger: "mouseenter focus",
+  //     theme: "material",
+  //   });
+  // }, [props.date, props.selectedDays]);
 
   return (
     <div className={`circle ${active}`}>
-      {(() => {
+           {(() => {
         if (holidays[0] <= props.date && props.date <= holidays[1]) {
           return (
             <button

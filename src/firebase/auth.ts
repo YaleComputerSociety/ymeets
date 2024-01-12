@@ -18,7 +18,7 @@ const signInWithGoogle = async () => {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("Logged in ", user)
+        console.log("Logged in ", user  )
     }else{
         console.log("Logged out");
     }
