@@ -89,9 +89,8 @@ export const DaySelectComponent = () => {
     }
 
     return (
-        <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto px-2 text-center">
-            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] space-y-2 mb-8 \
-                            md:w-[80%] md:space-y-7 md:mt-12 md:content-start">
+        <div className="flex flex-col md:flex-row w-[80%] xl:w-[65%] mx-auto px-2 text-center">
+            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] space-y-2 mb-8 md:w-[80%] md:space-y-7 md:mt-12 md:content-start">
                 <div className="w-[100%] flex flex-row justify-center md:justify-start">
                     <input
                         id="event-name"
@@ -138,26 +137,25 @@ export const DaySelectComponent = () => {
                 </div>
                 
                 <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                    <div className="p-1 w-[80%] text-gray-500 text-center text-sm md:text-left">
+                    <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
                         Click ENTER after typing a location to add an option for participants
                     </div>
                 </div>
-
                 <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
-                {locations.map((location, index) => (
-                    <div className="flex w-[100%] justify-center md:justify-start">
-                        <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
-                            <div>{location}</div>
-                            <div>
-                                <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
+                    {locations.map((location, index) => (
+                        <div className="flex w-[100%] justify-center md:justify-start">
+                            <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
+                                <div>{location}</div>
+                                <div>
+                                    <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
                 </div>
             </div>
             
-            <div className="flex flex-col space-y-7">
+            <div className="flex flex-col space-y-7 mb-6">
                 <CalanderComponent 
                     theEventName={[eventName, setEventName]}
                     selectedStartDate={[startDate, setStartDate]}

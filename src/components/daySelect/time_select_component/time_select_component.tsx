@@ -49,7 +49,7 @@ export const TimeSelectComponent = (props: any) => {
         onChange={handleStartChange}
       />
       <div className='grid items-center px-1 sm:px-2'>
-        <p className='text-right font-normal m-0 text-xs sm:text-base'>to: </p>
+        <p className='text-right font-normal m-0 text-xs sm:text-base pl-1'>to: </p>
       </div>
       <Select
         className=""
