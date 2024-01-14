@@ -111,7 +111,7 @@ function TimeSelectApp() {
     return (
         <div className="bg-sky-100">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
-                <div className="flex flex-col flex-wrap justify-start pt-12 mx-10 md:w-1/2 sm:w-[90%] md:content-center">
+                <div className="flex flex-col flex-wrap justify-start pt-12 mx-10 w-[40%] md:content-center">
                     <div className="mb-8">
                         <h3 className="text-m text-left text-gray-400">Event Name</h3>
                         <h3 className="text-3xl font-bold text-left">{eventName}</h3>
@@ -125,7 +125,7 @@ function TimeSelectApp() {
             
                     <div>
                         {locationOptions.length > 0 && (
-                        <div className="md:w-96 flex-col content-center mt-5 mb-8 w-[100%]">
+                        <div className="w-96 flex-col content-center mt-5 mb-8">
                             <LocationSelectionComponent
                             update={updateSelectedLocations}
                             locations={locationOptions}
@@ -133,7 +133,7 @@ function TimeSelectApp() {
                         </div>
                         )}
                     </div>
-                    <div className="flex items-center justify-center mt-4">
+                    <div className="flex items-center justify-center">
                         <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
                                             transform transition-transform hover:scale-90 active:scale-100e'
                         onClick={handleSubmitAvailability}>
@@ -141,7 +141,7 @@ function TimeSelectApp() {
                         </button>
                     </div>
                 </div>
-                <div className="flex flex-col justify-center content-center h-1/4 mt-0 w-[90%] md:content-start">
+                <div className="flex flex-col justify-center content-center h-1/4 mt-8 w-[60%] md:content-start">
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
