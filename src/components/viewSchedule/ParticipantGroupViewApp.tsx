@@ -138,79 +138,81 @@ export default function ParticipantGroupViewApp() {
 
     return (
         <>
-            <div className="flex flex-col-reverse justify-center \
-                            md:flex-row mx-12">
-                <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
-                                md:w-1/2 md:content-start">
-                    <div className="flex flex-col space-y-7 max-w-sm mx-5 \
-                                    md:mt-12">
-                        <h1 className={"text-3xl font-bold text-center " + 
-                                    "md:text-left"}>Event: {eventName}</h1>
-                        <p className={"text-xl text-center " + 
-                                    "md:text-left"}>Desc: {eventDescription}</p>
+            <div>
+                <button 
+                  onClick={() => {nav("/timeselect/" + code)}}
+                  className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-8 w-fit \
+                              transform transition-transform hover:scale-90 active:scale-100e'>
+                  <span className="mr-1">&#8592;</span> Edit Availiability
+                </button>
+                <div className="flex flex-col-reverse justify-center \
+                                md:flex-row mx-12">
+                    <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
+                                    md:w-[40%] md:content-start">
+                        <div className="flex flex-col space-y-7 max-w-sm mx-5 \
+                                        md:mt-12">
+                            <h1 className={"text-3xl font-bold text-center " + 
+                                        "md:text-left"}>Event: {eventName}</h1>
+                            <p className={"text-xl text-center " + 
+                                        "md:text-left"}>Desc: {eventDescription}</p>
 
-{chosenLocation && <div className='mb-8'>
-                        <h3 className="text-m text-center /
-                                    md:text-left text-gray-400">
-                            Selected Location
-                        </h3>
-                        <h3 className="text-3xl font-bold text-center / 
-                                    md:text-left">{chosenLocation}
-                        </h3>
-                    </div>}
-                    {chosenTimeRange && <div className='mb-8'>
-                        <h3 className="text-m text-center /
-                                    md:text-left text-gray-400">
-                            Selected Time 
-                        </h3>
-                        <h3 className="text-3xl font-bold text-center / 
-                                    md:text-left">
-{                                        //@ts-ignore
-}                                       {chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} <br></br> 
-                                        {chosenTimeRange[0]}-{chosenTimeRange[1]}
-                        </h3>
-                    </div>}
+    {chosenLocation && <div className='mb-8'>
+                            <h3 className="text-m text-center /
+                                        md:text-left text-gray-400">
+                                Selected Location
+                            </h3>
+                            <h3 className="text-3xl font-bold text-center / 
+                                        md:text-left">{chosenLocation}
+                            </h3>
+                        </div>}
+                        {chosenTimeRange && <div className='mb-8'>
+                            <h3 className="text-m text-center /
+                                        md:text-left text-gray-400">
+                                Selected Time 
+                            </h3>
+                            <h3 className="text-3xl font-bold text-center / 
+                                        md:text-left">
+    {                                        //@ts-ignore
+    }                                       {chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} <br></br> 
+                                            {chosenTimeRange[0]}-{chosenTimeRange[1]}
+                            </h3>
+                        </div>}
 
-                                    
-                        
-                        <UserChart 
+                                        
+                            
+                            <UserChart 
+                                chartedUsersData={[chartedUsers, setChartedUsers]}
+                            />
+                            <LocationChart 
+                            
+                            theSelectedLocation={[selectedLocation, setSelectedLocation]}
+                            locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
+                            locationVotes={Object.values(locationVotes)}
+                            />
+                    
+
+                            
+                        </div>
+                    </div>
+                    <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
+                                    md:w-1/2 md:content-end"> 
+                        <Calender
+                            title={"Group Availability"}
+                            isAdmin={false} 
+                            //@ts-ignore
+                            theCalendarState={[calendarState, setCalendarState]}
+                            theCalendarFramework={[calendarFramework, setCalendarFramework] }
                             chartedUsersData={[chartedUsers, setChartedUsers]}
+                            draggable={false}
+                            user={0}
+                            //@ts-ignore
+                            theSelectedDate={[undefined, undefined]}
+                            //@ts-ignore
+                            theDragState={[dragState, setDragState]}
                         />
-                        <LocationChart 
-                        
-                        theSelectedLocation={[selectedLocation, setSelectedLocation]}
-                        locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
-                        locationVotes={Object.values(locationVotes)}
-                        />
-                        <button 
-                              onClick={() => {nav("/timeselect/" + code)}}
-                              className='mb-1 font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
-                                          transform transition-transform hover:scale-90 active:scale-100e'>
-                              Edit Your Availiability
-                        </button>
-                
-
-                        
                     </div>
                 </div>
-                <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
-                                md:w-1/2 md:content-end"> 
-                    <Calender
-                        title={"Group Availability"}
-                        isAdmin={false} 
-                        //@ts-ignore
-                        theCalendarState={[calendarState, setCalendarState]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                        chartedUsersData={[chartedUsers, setChartedUsers]}
-                        draggable={false}
-                        user={0}
-                        //@ts-ignore
-                        theSelectedDate={[undefined, undefined]}
-                        //@ts-ignore
-                        theDragState={[dragState, setDragState]}
-                    />
-                </div>
-        </div>
+            </div>
         </>
     )
 
