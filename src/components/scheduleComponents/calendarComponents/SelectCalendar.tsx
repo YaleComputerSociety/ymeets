@@ -33,7 +33,9 @@ function SelectCalander({
   theDragState
 }: SelectCalanderProps) {
 
-  let timeBlocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
+  // necessary to role 11:59 PM into 12:00AM
+  const endHour = endDate.getMinutes() == 59 ? endDate.getHours() + 1 : endDate.getHours();
+  let timeBlocks = generateTimeBlocks(startDate.getHours(), endHour);
   
 
 

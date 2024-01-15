@@ -19,6 +19,7 @@ export const TimeSelectComponent = (props: any) => {
     value: i + 1,
     label: turnToTimeString(i)
   }));
+  options.push({value: 25, label: "11:59 PM"});
 
   const handleStartChange = (values: any) => {
     if (values.length > 0) {

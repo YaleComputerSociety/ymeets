@@ -4,13 +4,15 @@ import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
-import { getEventById } from '../../firebase/events';
+import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
+import LoginPopup from "../daySelect/login_popup_component";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
     const [showInput, setShowInput] = React.useState(true)
-    const [eventCode, setEventCode] = React.useState("")
+    const [eventCode, setEventCode] = React.useState("");
+    const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
 
     const handleSignInWithGoogle = () => {
         signInWithGoogle().then(() => {
@@ -25,19 +27,31 @@ export const LoginPageButtons = () => {
         setEventCode(event.target.value)
     }
     const goToEvent = () => {
-        if(eventCode.length != 6){
+        getEventById(eventCode).then((result) => {
+            navigate('/timeselect/' + eventCode);
+
+        }).catch((err) => {
+            console.log(err);
+            alert('Code is invalid.');
+        });
+    }
+    const signInAndGoToEvent = () => {
+        if (eventCode.length != 6){
             alert("Codes are 6 characters long.")
         }
-        else{
-            getEventById(eventCode).then((result) => {
-                navigate('/timeselect/' + eventCode);
-    
-            }).catch((err) => {
-                console.log(err);
-                alert('Code is invalid.');
-            });
+        else if (checkIfLoggedIn()) {
+            goToEvent();
+        } else {
+            setShowLoginPopup(true);
         }
-    } 
+    }
+    const handleLoginPopupClose = (successFlag?: boolean) => {
+        setShowLoginPopup(false);
+        if (successFlag) { // instead of checkIfLoggedIn because login is async
+            goToEvent();
+        }
+    };
+
     return (
         <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60">
@@ -62,7 +76,7 @@ export const LoginPageButtons = () => {
                                     onInput={updateEventCode}
                                     autoComplete="off"/>
                             <button className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
-                                    onClick={goToEvent}> 
+                                    onClick={signInAndGoToEvent}> 
                                 Join 
                             </button>
                         </div>
@@ -72,6 +86,7 @@ export const LoginPageButtons = () => {
                     <img src={graphic} alt="graphic" className='w-1/2 max-w-xs md:h-auto md:w-full self-center'/>
                 </div>
             </div>
+            {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
         </div>
     );
 }

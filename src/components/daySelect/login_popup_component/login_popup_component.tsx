@@ -1,20 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { signInWithGoogle } from "../../../firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import './login_popup_component.css';
+import { User, UserCredential, signInAnonymously, updateProfile } from 'firebase/auth';
+import { auth } from '../../../firebase/firebase';
 
 interface LoginPopupProps {
-    onClose: () => void;
+    onClose: (successFlag?: boolean) => void;
+    enableAnonymousSignIn?: boolean;
    }   
 
-export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose }) => {
+export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymousSignIn = false }) => {
     const navigate = useNavigate();
+    const [ inputName, setInputName ] = useState("");
   
     const handleSignInWithGoogle = () => {
       signInWithGoogle().then(() => {
         navigate('/dayselect');
         onClose(); 
         document.body.classList.remove('popup-open'); 
+      });
+    };
+
+    const handleSignInWithoutGoogle = () => {
+      signInAnonymously(auth).then((userCred: UserCredential) => {
+        updateProfile(userCred.user, {
+          displayName: inputName
+        }).then(() => {
+          onClose(true); 
+          document.body.classList.remove('popup-open'); 
+        }).catch(() => {
+          alert("Error setting name");
+          onClose(false); 
+        });
       });
     };
   
@@ -40,6 +58,24 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose }) => {
               >
                 Continue with Google
               </button>
+              { enableAnonymousSignIn &&
+              <>
+                <input className="rounded-l-full text-center ml-4 py-4 px-4 text-lg bg-ymeets-light-blue"
+                  placeholder="Name"
+                  name="name"
+                  type="text"
+                  onChange={(event) => setInputName(event.target.value)}
+                  value={inputName}
+                  autoComplete="off"
+                  />
+                <button className="rounded-r-full font-bold bg-ymeets-light-blue text-black disabled:text-opacity-60 py-4 px-4 text-lg hover:outline-blue-500 hover:outline-3"
+                  onClick={handleSignInWithoutGoogle}
+                  disabled={inputName === ""}
+                  >
+                    Continue without Google
+                </button>
+              </>
+              }
             </div>
           </div>
         </div>

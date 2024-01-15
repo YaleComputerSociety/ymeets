@@ -33,7 +33,7 @@ const checkIfAdmin = (): boolean => {
 }
 
 const getAccountId = (): string => {
-    if (auth.currentUser !== null) {
+    if (auth.currentUser !== null && !auth.currentUser.isAnonymous) {
         return auth.currentUser.uid;
     } else {
         return "";
