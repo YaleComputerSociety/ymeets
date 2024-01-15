@@ -20,6 +20,10 @@ export const LocationSelectionComponent = (props:any) => {
             values={[]} 
             onChange={(values:any) => {
                 props.update(values.map((val:any) => val.value))
-            }}/>
+            }}
+            noDataRenderer={() => (
+                <div className="p-2 text-center">No location options set :(</div>
+            )}     
+        />
     );
 }

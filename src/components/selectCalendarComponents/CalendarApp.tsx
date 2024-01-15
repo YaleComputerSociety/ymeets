@@ -1,17 +1,25 @@
-import TimeColumn from "../../../deprecated/TimeColumn"
 import SelectCalander from "./SelectCalendar"
-import { calendarDimensions, calanderState, userData } from "./scheduletypes";
-import DateBar from "./DateBar";
+import { calendarDimensions, calanderState, userData, calandarDate } from  "../../types"
 import { useState } from "react";
 
 interface CalendarProps {
     theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>]
+    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
     draggable : boolean
     user : number
     isAdmin : boolean
     title : string
+    theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
+    theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
+
+}
+
+export interface dragProperties { 
+    dragStartedOnID : number[];
+    dragEndedOnID : number[];
+    dragStartedOn : boolean;
+    blocksAffectedDuringDrag : Set<any>;
 }
 
 export default function Calender({
@@ -21,27 +29,25 @@ export default function Calender({
     draggable, 
     user, 
     isAdmin,
-    title 
+    title,
+    theSelectedDate,
+    theDragState
 }: CalendarProps) {
 
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
     const [calendarState, setCalendarState] = theCalendarState;
     let columnIndexOffset = 0
 
-    const [dragState, setDragState] = useState({
-        dragStartedOnID : [], // [columnID, blockID]
-        dragEndedOnID : [],
-        dragStartedOn : false,
-    })
+    const [dragState, setDragState] = theDragState
 
     return (
-        <>
+        <div className="flex flex-col w-full">
             <p className="text-4xl m-5 mb-1 font-bold">
                 {title}
             </p>
 
-            <div className="m-5 h-fit w-fit">
-                <div className="flex py-6 px-8 \
+            <div className="m-5">
+                <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-6 px-8 \
                                 md:bg-white md:rounded-lg"
                 >
                  {
@@ -57,15 +63,18 @@ export default function Calender({
                                     renderTime={index == 0 ? true : false}
                                     theCalendarState={[calendarState, setCalendarState]}
                                     bucket={bucket}
-                                    draggable={true}
+                                    draggable={draggable}
                                     isAdmin={isAdmin}
                                     key={index}
                                     user={user}
                                     columnIndexOffset={columnIndexOffset}
-                                    startDate={calendarFramework.startDate}
-                                    endDate={calendarFramework.endDate}
+                                    startDate={calendarFramework.startTime}
+                                    endDate={calendarFramework.endTime}
                                     // @ts-ignore
                                     theDragState={[dragState, setDragState]}
+                                    theCalendarFramework={theCalendarFramework}
+                                    chartedUsersData={chartedUsersData}
+                                    theSelectedDate={theSelectedDate}
                                 />
                             </div>
                         );
@@ -73,6 +82,6 @@ export default function Calender({
                     }
                 </div>
             </div>
-        </>
+        </div>
     )
 }

@@ -46,17 +46,17 @@ export const TimeSelectComponent = (props: any) => {
         className=""
         searchable={false}
         options={options}
-        values={[]}
+        values={[options[9]]}
         onChange={handleStartChange}
       />
       <div className='grid items-center px-1 sm:px-2'>
-        <p className='text-right font-normal m-0 text-xs sm:text-base'>to: </p>
+        <p className='text-right font-normal m-0 text-xs sm:text-base pl-1'>to: </p>
       </div>
       <Select
         className=""
         searchable={false}
         options={options}
-        values={[]}
+        values={[options[17]]}
         onChange={handleEndChange}
       />
     </div>
