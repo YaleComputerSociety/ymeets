@@ -99,7 +99,7 @@ export default function AdminGroupViewApp() {
 
       //@ts-ignore
       let calDate = [].concat(...calendarFramework.dates)[dragState.dragStartedOnID[0]]
-      let timeBlocks = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours())
+      let timeBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
       //@ts-ignore
       let times = [].concat(...timeBlocks);
 

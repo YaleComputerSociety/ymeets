@@ -85,7 +85,7 @@ export default function CalBlock({
     //@ts-ignore
     const [selectedDate, setSelectedDate] = theSelectedDate;
     
-    const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours()).length * 4;
+    const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4;
 
     // handles the initial coloring of the block.
     useEffect(() => {
@@ -102,7 +102,7 @@ export default function CalBlock({
             let endTimeHHMM = dateObjectToHHMM(chosenDates[1])
 
             //@ts-ignore
-            let times = [].concat(...generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours()))
+            let times = [].concat(...generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime))
             //@ts-ignore
             let dates = [].concat(...calendarFramework.dates)
 

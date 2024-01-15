@@ -7,7 +7,7 @@ import { auth } from "../../firebase/firebase";
 import GoogleCalendarButton from "./GoogleCalendarButton";
 import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
-import LoginPopup from "../daySelect/login_popup_component";
+import LoginPopup from "../loginpopup";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
@@ -89,7 +89,7 @@ export const LoginPageButtons = () => {
                     </div>
                 </div>
                 <div className='flex md:w-[40%] justify-center pb-7 md:pb-0 md:pl-0'>
-                    <img src={graphic} alt="graphic" className='w-2/3 max-w-xs sm:h-auto sm:w-full self-center sm:w-[100%] lg:w-[100%]'/>
+                    <img src={graphic} alt="graphic" className='w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
                 </div>
             </div>
             {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}

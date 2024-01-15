@@ -28,7 +28,7 @@ export default class FrontendEventAPI {
      * @returns Availability type
      */
     static getEmptyAvailability(dims: calendarDimensions): Availability {
-        let blocksLength = generateTimeBlocks(dims.startTime.getHours(), dims.endTime.getHours()).length * 4;
+        let blocksLength = generateTimeBlocks(dims.startTime, dims.endTime).length * 4;
         let days: boolean[][] = [];
         for (let i = 0; i < dims.dates.length; i++) {
             for (let k = 0; k < dims.dates[i].length; k++) {
@@ -95,7 +95,7 @@ export default class FrontendEventAPI {
         let numOfCols = theDates.length;
         
         //@ts-ignore
-        let numOfBlocks = generateTimeBlocks(getStartAndEndTimes[0]?.getHours(), getStartAndEndTimes[1]?.getHours()).length * 4;
+        let numOfBlocks = getStartAndEndTimes.length > 0 ? generateTimeBlocks(getStartAndEndTimes[0], getStartAndEndTimes[1]).length * 4 : 0;
                 
         let getShortDay = {
             0 : "SUN",
