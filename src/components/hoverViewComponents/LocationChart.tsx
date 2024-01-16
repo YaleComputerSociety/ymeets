@@ -14,7 +14,7 @@ export default function LocationChart({theSelectedLocation, locationOptions, loc
     
     const [isClicked, setIsClicked] = useState(selectedLocation !== "");
 
-    console.log(selectedLocation);
+    // console.log(selectedLocation);
 
     function handleRowClick(loc: string) {
 
