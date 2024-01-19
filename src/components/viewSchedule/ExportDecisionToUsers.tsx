@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
 import { SCOPES } from '../../firebase/firebase';
+import { getChosenDayAndTime } from '../../firebase/events';
 
 // Credit to CourseTable team https://coursetable.com/about
-
 const GAPI_CLIENT_NAME = 'client:auth2';
 
-function GoogleCalendarButton(): JSX.Element {
+function ExportDecisionsToUser(props : any): JSX.Element {
     const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
     const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
     const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = props.theSelectedDateTimeObjects
 
     // Load gapi client after gapi script loaded
     const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
@@ -32,6 +34,9 @@ function GoogleCalendarButton(): JSX.Element {
 
     // Load gapi script and client
     useEffect(() => {
+
+
+
         console.log(process.env.REACT_APP_CLIENT_ID_GAPI); // TODO
         async function loadGapi() {
             const newGapi = await loadGapiInsideDOM();
@@ -97,14 +102,27 @@ function GoogleCalendarButton(): JSX.Element {
             // AS DEMONSTRATION, THIS WORKS
             // get all events in the last few days
             // @ts-ignore
-            const event_list = await gapi.client.calendar.events.list({
-                calendarId: 'primary',
-                timeMin: new Date('2023-08-30').toISOString(),
-                timeMax: new Date('2023-09-06').toISOString(),
-                singleEvents: true,
-                orderBy: 'startTime',
+
+            getChosenDayAndTime().then(async (chosenDates) => {
+                console.log(chosenDates);
+            
+                try {
+                    //@ts-ignore
+                    const event_list = await gapi.client.calendar.events.list({
+                        calendarId: 'primary',
+                        timeMin: chosenDates[0],
+                        timeMax: chosenDates[1],
+                        singleEvents: true,
+                        orderBy: 'startTime',
+                    });
+                    console.log(event_list);
+                } catch (error) {
+                    console.error('Error fetching events:', error);
+                }
             });
-            console.log(event_list);
+            
+
+        
 
         } catch (e) {
             alert('[GCAL]: Error creating user event: ' + e );
@@ -155,9 +173,9 @@ function GoogleCalendarButton(): JSX.Element {
         <button className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
             id={user ? 'sync' : 'auth'}
             onClick={user ? createCalendarEvent : undefined}>
-                Test Calendar API 
+                Export Decision to User
         </button>
     );
 }
 
-export default GoogleCalendarButton;
+export default ExportDecisionsToUser;

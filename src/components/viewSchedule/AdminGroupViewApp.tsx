@@ -14,6 +14,7 @@ import { start } from "repl";
 import { getChosenLocation } from "../../firebase/events";
 import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
+import ExportDecisionsToUser from "./ExportDecisionToUsers";
 
 export default function AdminGroupViewApp() {
 
@@ -26,8 +27,13 @@ export default function AdminGroupViewApp() {
     const [eventDescription, setEventDescription] = useState("")
     const [locationVotes, setLocationVotes] = useState(Object)
     const [locationOptions, setLocationOptions] = useState(Array<String>)
+
     const [selectedLocation, setSelectedLocation] = useState("");
+    
+    // probably deprecated
     const [selectedDate, setSelectedDate] = useState();
+
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState();
 
     const [loading, setLoading] = useState(true);
     const [selectionButtonClicked, setSelectionButtonClicked] = useState(false);
@@ -123,6 +129,9 @@ export default function AdminGroupViewApp() {
         selectedEndTimeDateObject.setHours(endHour);
         selectedEndTimeDateObject.setMinutes(endMinute);
 
+        //@ts-ignore
+        setSelectedDateTimeObjects([selectedStartTimeDateObject, selectedEndTimeDateObject])
+        console.log("date time object set" + selectedDateTimeObjects)
         setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject).then(() => {
             setSelectionButtonClicked(true);
         })
@@ -206,10 +215,9 @@ export default function AdminGroupViewApp() {
                       />
 
                       <div className="flex flex-col m-2">
-                        <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
-                                          transform transition-transform hover:scale-90 active:scale-100e'>
-                          Export Decision to Participant Calendars
-                        </button>
+                            <ExportDecisionsToUser 
+                                theSelectedDateTimeObjects={[selectedDateTimeObjects, setSelectedDateTimeObjects]}                              
+                            />
                       </div>
                   </div>
             </div>
