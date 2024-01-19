@@ -3,7 +3,7 @@ import { calanderState, userData } from "../../types"
 import { calendarDimensions } from  "../../types"
 import eventAPI from "../../firebase/eventAPI";
 import Calendar from "../selectCalendarComponents/CalendarApp"
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation } from '../../firebase/events';
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime } from '../../firebase/events';
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import LocationChart from "../hoverViewComponents/LocationChart";
@@ -105,7 +105,7 @@ export default function AdminGroupViewApp() {
 
       //@ts-ignore
       let calDate = [].concat(...calendarFramework.dates)[dragState.dragStartedOnID[0]]
-      let timeBlocks = generateTimeBlocks(calendarFramework.startTime.getHours(), calendarFramework.endTime.getHours())
+      let timeBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
       //@ts-ignore
       let times = [].concat(...timeBlocks);
 
@@ -146,21 +146,33 @@ export default function AdminGroupViewApp() {
       setTimeout(() => {
         setSelectionButtonClicked(false);
       }, 3000)
-      
   }
+
+  const chosenLocation = getChosenLocation();
+  const chosenDayAndTime = getChosenDayAndTime();
+  console.log("Chosen day ", chosenDayAndTime);
   
   return ( <>
+            <div>
+              <button 
+                  onClick={() => {nav("/timeselect/" + code)}}
+                  className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-8 w-fit \
+                              transform transition-transform hover:scale-90 active:scale-100e'>
+                  <span className="mr-1">&#8592;</span> Edit Availiability
+                </button>
               <div className="flex flex-col-reverse justify-center \
                               md:flex-row mx-12">
-                 {showGeneralPopup && <GeneralPopup 
+                {showGeneralPopup && <GeneralPopup 
                     onClose={() => {setShowGeneralPopup(false)}}
                     message={generalPopupMessage}
                     isLogin={false}
-                 />}
+                />}
                   <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
-                                  md:w-1/2 md:content-start">
+                                  md:w-[40%] md:content-start">
                       <div className="flex flex-col space-y-7 max-w-sm mx-5 \
-                                      md:mt-12">
+                                      md:mt-0">
+                        
+                        {/* Event name and description */}
                         <div className = "mb-4">
                             <h3 className="text-m text-center / 
                                         md:text-left text-gray-400">Event Name</h3>
@@ -173,7 +185,24 @@ export default function AdminGroupViewApp() {
                             <h3 className="text-3xl font-bold text-center / 
                                         md:text-left">{eventDescription}</h3>
                         </div>
-                                           
+
+                        {/* Admin-Selected Location and Time */}
+                        <div className = "mb-4">
+                            <h3 className="text-m text-center / 
+                                        md:text-left text-gray-400">Location</h3>
+                            <h3 className="text-xl font-bold text-center / 
+                                        md:text-left">{chosenLocation !== undefined ? getChosenLocation() : "not selected"}</h3>
+                        </div>
+                        <div className = "mb-4">
+                            <h3 className="text-m text-center / 
+                                        md:text-left text-gray-400">Time</h3>
+                            <h3 className="text-xl font-bold text-center / 
+                                        md:text-left">{chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                                          weekday: "long", year: "numeric", month: "short",  
+                                          day: "numeric", hour: "2-digit", minute: "2-digit"  
+                                      }) : "not selected"}</h3>
+                        </div>
+                                          
                           {locationOptions.length > 0 && <LocationChart 
                               //@ts-ignore
                               theSelectedLocation={[selectedLocation, setSelectedLocation]}
@@ -183,14 +212,8 @@ export default function AdminGroupViewApp() {
                               chartedUsersData={[chartedUsers, setChartedUsers]}
                           />
                           <button 
-                              onClick={() => {nav("/timeselect/" + code)}}
-                              className='mb-1 font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
-                                          transform transition-transform hover:scale-90 active:scale-100e'>
-                              Edit Your Availiability
-                            </button>
-                          <button 
                               onClick={handleSelectionSubmission}
-                              className='mb-1 font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
+                              className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
                                           transform transition-transform hover:scale-90 active:scale-100e'>
                               Submit Selection
                             </button>
@@ -220,6 +243,7 @@ export default function AdminGroupViewApp() {
                             />
                       </div>
                   </div>
+              </div>
             </div>
     </>
     )

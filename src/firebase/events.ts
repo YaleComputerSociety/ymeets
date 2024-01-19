@@ -33,7 +33,7 @@ const checkIfAdmin = (): boolean => {
 }
 
 const getAccountId = (): string => {
-    if (auth.currentUser !== null) {
+    if (auth.currentUser !== null && !auth.currentUser.isAnonymous) {
         return auth.currentUser.uid;
     } else {
         return "";
@@ -72,6 +72,8 @@ async function getEventById(id: EventId): Promise<void> {
                 workingEvent = result.data();
                 workingEvent.details.startTime = (workingEvent.details.startTime as unknown as Timestamp).toDate()
                 workingEvent.details.endTime = (workingEvent.details.endTime as unknown as Timestamp).toDate()
+                workingEvent.details.chosenStartDate = (workingEvent.details.chosenStartDate as unknown as Timestamp).toDate()
+                workingEvent.details.chosenEndDate = (workingEvent.details.chosenEndDate as unknown as Timestamp).toDate()
                 workingEvent.details.dates = dateToArray(workingEvent.details.dates);
 
                 // Retrieve all participants as sub-collection
@@ -380,8 +382,7 @@ function getAllAvailabilities(): Availability[] {
 // Retrieves the official datetime (start and end) of the event as chosen by the admin
 function getChosenDayAndTime(): [Date, Date] | undefined  {
     if (workingEvent.details.chosenStartDate && workingEvent.details.chosenEndDate) {
-        //@ts-ignore
-        return [workingEvent.details.chosenStartDate.toDate(), workingEvent.details.chosenEndDate.toDate()]
+        return [workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate]
     }
 }
 

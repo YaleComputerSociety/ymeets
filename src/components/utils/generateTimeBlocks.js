@@ -1,4 +1,8 @@
-export function generateTimeBlocks(startHour, endHour) {
+export function generateTimeBlocks(startDate, endDate) {
+  const startHour = startDate.getHours()
+  // necessary to role 11:59 PM into 12:00AM
+  const endHour = endDate.getMinutes() == 59 ? endDate.getHours() + 1 : endDate.getHours();
+
   const timeBlocks2D = [];
 
   for (let hour = startHour; hour < endHour; hour++) {

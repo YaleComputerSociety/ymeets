@@ -16,7 +16,7 @@ export const DaySelectComponent = () => {
     const [selectedDates, setSelectedDates] = useState([]);
     const [popUpMessage, setPopupMessage] = useState("");
     const [popUpIsOpen, setPopupIsOpen] = useState(false);
-    const [locations, updateLocationsState] = useState([]);
+    const [locations, updateLocationsState] = useState<string[]>([]);
     const [locationField, setLocationField] = useState("");
 
     const showAlert = (message: string) => {
@@ -89,75 +89,87 @@ export const DaySelectComponent = () => {
     }
 
     return (
-        <div className="flex flex-col md:flex-row w-[80%] xl:w-[56%] mx-auto px-2 text-center">
-            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] space-y-2 mb-8 \
-                            md:w-[80%] md:space-y-7 md:mt-12 md:content-start">
-                <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                    <input
-                        id="event-name"
-                        type="text"
-                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                        placeholder="Event Name"
-                        value={eventName}
-                        onChange={(e) => setEventName(e.target.value)}
-                    />
-                </div>
-                <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                    <input
-                        id="event-description"
-                        style={{resize: "none"}}
-                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                        placeholder="Event Description (Optional)"
-                        value={eventDescription}
-                        onChange={(e) => setEventDescription(e.target.value)}
-                    />
-                </div>
-                <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                    <input
-                        id="event-description"
-                        style={{resize: "none"}}
-                        className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                        placeholder="Add Location Options"
-                        value={locationField}
-                        onChange={(e) => setLocationField(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key == 'Enter') {
-                                const tmp_locations: any = locations;
-                                tmp_locations.push(locationField);
-                                setLocationField("");
-                                updateLocationsState(tmp_locations);
-                            }
-                        }}
-                    />
-                    {/* <select id="event-location" className="flex justify-left border p-3 px-4 text-base w-[80%]">
-                        <option value="bass">No Location</option>
-                        <option value="sterling">Sterling Library</option>
-                        <option value="tsai">Tsai City</option>
-                        <option value="CEID">Bass Library</option>
-                    </select> */}
-                </div>
-                
-                <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                    <div className="p-1 w-[80%] text-gray-500 text-center text-sm md:text-left">
-                        Click ENTER after typing a location to add an option for participants
+        <div className="flex flex-col justify-center items-center md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
+            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] md:content-start">
+                <div className="space-y-3 mb-8 md:w-[90%] md:space-y-7 md:mt-12 ">
+                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
+                        <input
+                            id="event-name"
+                            type="text"
+                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
+                            placeholder="Event Name"
+                            value={eventName}
+                            onChange={(e) => setEventName(e.target.value)}
+                        />
                     </div>
-                </div>
+                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
+                        <textarea
+                            id="event-description"
+                            style={{ resize: "none" }}
+                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
+                            placeholder="Event Description (Optional)"
+                            value={eventDescription}
+                            onChange={(e) => setEventDescription(e.target.value)}
+                            rows={1}
+                        />
+                    </div>
 
-                <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
-                {locations.map((location, index) => (
-                    <div className="flex w-[100%] justify-center md:justify-start">
-                        <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
-                            <div>{location}</div>
-                            <div>
-                                <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
+                    <div className="mt-0">
+                        <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
+                            <input
+                                id="event-description"
+                                style={{resize: "none"}}
+                                className="p-3 px-4 text-base w-[80%] border rounded-lg"
+                                placeholder="Add Location Options"
+                                value={locationField}
+                                onChange={(e) => setLocationField(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        // Check if the location already exists
+                                        if (!locations.includes(locationField)) {
+                                            const tmp_locations: any = [...locations, locationField];
+                                            setLocationField("");
+                                            updateLocationsState(tmp_locations);
+
+                                        } else {
+                                            // Clear the text field without adding a new location
+                                            setLocationField("");
+                                        }
+                                    }
+                                }}
+                            />
+                            {/* <select id="event-location" className="flex justify-left border p-3 px-4 text-base w-[80%]">
+                                <option value="bass">No Location</option>
+                                <option value="sterling">Sterling Library</option>
+                                <option value="tsai">Tsai City</option>
+                                <option value="CEID">Bass Library</option>
+                            </select> */}
+                        </div>
+                        <div className="mb-6">
+                            <div className="w-[100%] flex flex-row justify-center md:justify-start mb-6">
+                                <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                                    Click ENTER after typing a location to add an option for participants
+                                </div>
+                            </div>
+                            <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
+                                {locations.map((location, index) => (
+                                    <div className="flex w-[100%] justify-center md:justify-start">
+                                        <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
+                                            <div>{location}</div>
+                                            <div>
+                                                <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                ))}
                 </div>
+                
             </div>
             
-            <div className="flex flex-col space-y-7">
+            <div className="flex flex-col space-y-7 mb-6 w-[85%]">
                 <CalanderComponent 
                     theEventName={[eventName, setEventName]}
                     selectedStartDate={[startDate, setStartDate]}

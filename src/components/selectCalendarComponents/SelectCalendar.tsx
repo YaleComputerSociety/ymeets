@@ -40,7 +40,7 @@ function SelectCalander({
   theSelectedDate
 }: SelectCalanderProps) {
 
-  let timeBlocks = generateTimeBlocks(startDate.getHours(), endDate.getHours());
+  let timeBlocks = generateTimeBlocks(startDate, endDate);
   
   let militaryConvert = (time : string) => { // expects hh:mm 
     var hours = Number.parseInt(time.slice(0, 2)) ; // gives the value in 24 hours format

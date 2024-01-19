@@ -2,13 +2,15 @@ import * as React from "react";
 // import background from '../landingpage/landingbackground.jpg'
 import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
-import { getEventById, checkIfLoggedIn } from '../../firebase/events';
+import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
+import LoginPopup from "../loginpopup";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
     const [showInput, setShowInput] = React.useState(true)
-    const [eventCode, setEventCode] = React.useState("")
+    const [eventCode, setEventCode] = React.useState("");
+    const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
 
     const handleSignInWithGoogle = () => {
         if (!checkIfLoggedIn()) {
@@ -27,19 +29,31 @@ export const LoginPageButtons = () => {
         setEventCode(event.target.value)
     }
     const goToEvent = () => {
-        if(eventCode.length != 6){
+        getEventById(eventCode).then((result) => {
+            navigate('/timeselect/' + eventCode);
+
+        }).catch((err) => {
+            console.log(err);
+            alert('Code is invalid.');
+        });
+    }
+    const signInAndGoToEvent = () => {
+        if (eventCode.length != 6){
             alert("Codes are 6 characters long.")
         }
-        else{
-            getEventById(eventCode).then((result) => {
-                navigate('/timeselect/' + eventCode);
-    
-            }).catch((err) => {
-                console.log(err);
-                alert('Code is invalid.');
-            });
+        else if (checkIfLoggedIn()) {
+            goToEvent();
+        } else {
+            setShowLoginPopup(true);
         }
-    } 
+    }
+    const handleLoginPopupClose = (successFlag?: boolean) => {
+        setShowLoginPopup(false);
+        if (successFlag) { // instead of checkIfLoggedIn because login is async
+            goToEvent();
+        }
+    };
+
     return (
         <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60">
@@ -47,8 +61,8 @@ export const LoginPageButtons = () => {
                             md:flex-row flex md:h-1/2'>
                 <div className='justify-center self-center space-y-12 mt-3 max-w-full min-w-[70%] md:w-[90%]'>
                     <div className='flex flex-col space-y-10 w-full md:justify-end'>
-                        <h1 className='font-bold text-center text-5xl md:text-left xl:text-5xl'>A cleaner, faster way to schedule meetings.</h1>
-                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
+                        <h1 className='font-bold text-center text-5xl md:text-left xl:text-5xl md:pr-8'>A cleaner, faster way to schedule meetings.</h1>
+                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl md:pr-8'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
                     </div>
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
@@ -64,16 +78,17 @@ export const LoginPageButtons = () => {
                                     onInput={updateEventCode}
                                     autoComplete="off"/>
                             <button className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
-                                    onClick={goToEvent}> 
+                                    onClick={signInAndGoToEvent}> 
                                 Join 
                             </button>
                         </div>
                     </div>
                 </div>
                 <div className='flex md:w-[40%] justify-center pb-7 md:pb-0 md:pl-0'>
-                    <img src={graphic} alt="graphic" className='w-1/2 max-w-xs md:h-auto md:w-full self-center'/>
+                    <img src={graphic} alt="graphic" className='w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
                 </div>
             </div>
+            {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
         </div>
     );
 }
