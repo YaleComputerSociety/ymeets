@@ -19,20 +19,33 @@ export const TimeSelectComponent = (props: any) => {
     value: i + 1,
     label: turnToTimeString(i)
   }));
-  options.push({value: 25, label: "11:59 PM"});
+  options.push({value: 25, label: "12:00 AM"});
 
   const handleStartChange = (values: any) => {
     if (values.length > 0) {
-      const selectedTime = values[0].label;
-      const date = new Date(`January 1, 2023 ${selectedTime}`);
+      let date;
+      if (values[0].value != 25) {
+        const selectedTime = values[0].label;
+        date = new Date(`January 1, 2023 ${selectedTime}`);
+      } else {
+        const selectedTime = values[0].label;
+        date = new Date(`January 1, 2023 11:59 PM`);
+      }
       props.updateStart(date); // Update the date component with the Date object
     }
   };
 
   const handleEndChange = (values: any) => {
     if (values.length > 0) {
-      const selectedTime = values[0].label;
-      const date = new Date(`January 1, 2023 ${selectedTime}`);
+      let date;
+      let selectedTime;
+      if (values[0].value != 25) {
+        selectedTime = values[0].label;
+        date = new Date(`January 1, 2023 ${selectedTime}`);
+      } else {
+        selectedTime = values[0].label;
+        date = new Date(`January 1, 2023 11:59 PM`);
+      }
       props.updateEnd(date); // Update the date component with the Date object
     }
   };

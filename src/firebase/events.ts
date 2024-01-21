@@ -70,10 +70,10 @@ async function getEventById(id: EventId): Promise<void> {
             if (result.exists()) {
                 // @ts-ignore
                 workingEvent = result.data();
-                workingEvent.details.startTime = (workingEvent.details.startTime as unknown as Timestamp).toDate()
-                workingEvent.details.endTime = (workingEvent.details.endTime as unknown as Timestamp).toDate()
-                workingEvent.details.chosenStartDate = (workingEvent.details.chosenStartDate as unknown as Timestamp).toDate()
-                workingEvent.details.chosenEndDate = (workingEvent.details.chosenEndDate as unknown as Timestamp).toDate()
+                workingEvent.details.startTime = workingEvent.details.startTime ? (workingEvent.details.startTime as unknown as Timestamp).toDate() : workingEvent.details.startTime;
+                workingEvent.details.endTime = workingEvent.details.endTime ?(workingEvent.details.endTime as unknown as Timestamp).toDate() : workingEvent.details.endTime;
+                workingEvent.details.chosenStartDate = workingEvent.details.chosenStartDate ? (workingEvent.details.chosenStartDate as unknown as Timestamp).toDate() : workingEvent.details.chosenStartDate;
+                workingEvent.details.chosenEndDate = workingEvent.details.chosenEndDate ? (workingEvent.details.chosenEndDate as unknown as Timestamp).toDate() : workingEvent.details.chosenEndDate;
                 workingEvent.details.dates = dateToArray(workingEvent.details.dates);
 
                 // Retrieve all participants as sub-collection
@@ -132,16 +132,15 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
 // For internal use
 // Returns undefined when participant has not been added yet
 const getParticipantIndex = (name: string, accountId: string = ""): number | undefined => {
-    let index;
+    let index = undefined;
     for (let i = 0; i < workingEvent.participants.length; i++) {
-        if (workingEvent.participants[i].name == name || (accountId && workingEvent.participants[i].accountId == accountId)) {
-            index = i;
+        if ((accountId === "" && workingEvent.participants[i].name == name) || 
+            (accountId !== "" && workingEvent.participants[i].accountId == accountId)) {
+                index = i;
         }
     }
-    if (!index) { // participant has not been added
-        return undefined
-    }
-    return index
+    console.log("Found index: ", index);
+    return index;
 } 
 
 // For internal use
@@ -194,7 +193,8 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     // Update local copy
     let flag = false
     workingEvent.participants.forEach((part, index) => {
-        if ((participant.accountId && part.accountId == participant.accountId) || (participant.name == part.name)) {
+        if ((participant.accountId !== "" && part.accountId == participant.accountId) || 
+            ((participant.accountId == "") && (participant.name == part.name))) {
             workingEvent.participants[index] = participant;
             flag = true;
         }
@@ -214,6 +214,14 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
         } else {
             partRef = doc(participantsRef, participant.name);
         }
+
+        console.log("This is at issue: ", {
+            name: participant.name,
+            accountId: participant.accountId || "",
+            availability: JSON.stringify(participant.availability),
+            location: participant.location || "",
+
+          });
 
         setDoc(partRef, {
             name: participant.name,
@@ -472,7 +480,7 @@ function dateToArray(obj: { [key: number]: Date }): Array<Date> {
     const result: Array<Date> = [];  
     for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-        result.push((obj[key] as unknown as Timestamp).toDate());
+            result.push((obj[key] as unknown as Timestamp).toDate());
         }
     }
     return result;

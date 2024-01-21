@@ -7,7 +7,7 @@ import { calandarDate, calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions } from '../../firebase/events';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
 import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
@@ -210,9 +210,17 @@ function TimeSelectApp() {
         return <p>Loading...</p>
     }
 
-    const saveAvailAndLocationChanges = () => {
+    const getCurrentUserIndex = () => {
+        let user = getParticipantIndex(getAccountName(), getAccountId());
+        if (user === undefined) { // new user => last availability
+            user = (calendarState !== undefined) ? Object.keys(calendarState).length - 1 : 0;
 
-        let user = 0; // TODO
+        }
+        return user;
+    }
+
+    const saveAvailAndLocationChanges = () => {
+        const user = getCurrentUserIndex();
         //@ts-ignore
         const avail = calendarState[user]
         console.log("After conversion, ", avail);
@@ -271,7 +279,7 @@ function TimeSelectApp() {
                     title={"Enter Your Availability"}
                     // @ts-ignore
                     theCalendarState={[calendarState, setCalendarState]}
-                    user={0}
+                    user={getCurrentUserIndex()}
                     // @ts-ignore
                     theCalendarFramework={[calendarFramework, setCalendarFramework]}
                     draggable={true}

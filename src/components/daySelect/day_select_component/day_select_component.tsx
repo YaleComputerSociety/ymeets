@@ -9,10 +9,17 @@ import { useNavigate } from "react-router-dom";
 import LocationSelectionComponent from "../../locationSelectionComponent"
 
 export const DaySelectComponent = () => {
+
+    // Default event start/end time values
+    const nineAMToday = new Date(new Date().toDateString());
+    nineAMToday.setHours(9);
+    const fivePMToday = new Date(new Date().toDateString());
+    fivePMToday.setHours(17);
+    
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(nineAMToday);
+    const [endDate, setEndDate] = useState(fivePMToday);
     const [selectedDates, setSelectedDates] = useState([]);
     const [popUpMessage, setPopupMessage] = useState("");
     const [popUpIsOpen, setPopupIsOpen] = useState(false);

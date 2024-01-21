@@ -24,12 +24,14 @@ interface CalanderComponentProps {
 }
 
 export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
-  const isLoggedIn = checkIfLoggedIn();
-  const [showLoginPopup, setShowLoginPopup] = useState<boolean>(!isLoggedIn);
+  const [showLoginPopup, setShowLoginPopup] = useState<boolean>(false);
 
   useEffect(() => {
-    setShowLoginPopup(!isLoggedIn);
-  }, [isLoggedIn]);
+    // TODO better practice is to use onAuthStateChange
+    setTimeout(() => {
+      setShowLoginPopup(!checkIfLoggedIn());
+    }, 500);
+  }, []);
 
   const handleLoginPopupClose = () => {
     setShowLoginPopup(false);

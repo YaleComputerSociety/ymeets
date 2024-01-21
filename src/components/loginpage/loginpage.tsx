@@ -13,12 +13,12 @@ export const LoginPageButtons = () => {
     const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
 
     const handleSignInWithGoogle = () => {
-        if (!checkIfLoggedIn()) {
-            signInWithGoogle().then(() => {
-                navigate('./dayselect');
-                return;
-            });
-        }
+        // if (!checkIfLoggedIn()) {
+        //     signInWithGoogle().then(() => {
+        //         navigate('./dayselect');
+        //         return;
+        //     });
+        // }
         navigate('./dayselect');      
     }
 

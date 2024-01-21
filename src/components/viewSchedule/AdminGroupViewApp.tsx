@@ -150,7 +150,7 @@ export default function AdminGroupViewApp() {
 
   const chosenLocation = getChosenLocation();
   const chosenDayAndTime = getChosenDayAndTime();
-  console.log("Chosen day ", chosenDayAndTime);
+  // console.log("Chosen day ", chosenDayAndTime);
   
   return ( <>
             <div>
