@@ -122,29 +122,67 @@ export default class FrontendEventAPI {
             11 : "DEC"
         }
 
-        for (let i = 0; i < theDates.length; i++) {
+        if (theDates[0].getFullYear() === 2000) {
 
-            if (i == 0) {
+            for (let i = 0; i < theDates.length; i++) {
 
-                curCalendarBucket.push(
-                    {   
-                        "id" : i,
-                        // @ts-ignore
-                        "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                        "calanderDay" : theDates[i].getDate().toString(),
-                        // @ts-ignore
-                        "month" : getMonth[theDates[i].getMonth()],
-                        "date" : theDates[i]
+                if (i == 0) {
+
+                    curCalendarBucket.push(
+                        {
+                            "id" : i,
+                            //@ts-ignore
+                            "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                            //@ts-ignore
+                            "calanderDay" : undefined,
+                            //@ts-ignore
+                            "month" : undefined,
+                            "date" : theDates[i]
+                        }
+                    )  
+
+                } else {
+                    if (theDates[i].getDay() - theDates[i - 1].getDay() > 1) {
+                        theCalendarDates.push([...curCalendarBucket]);
+                        curCalendarBucket = [
+                            {
+                                "id" : i,
+                                //@ts-ignore
+                                "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                                //@ts-ignore
+                                "calanderDay" : undefined,
+                                //@ts-ignore
+                                "month" : undefined,
+                                "date" : theDates[i]
+                            }
+                        ]
+                    } else {
+                        curCalendarBucket.push(
+                            {
+                                "id" : i,
+                                //@ts-ignore
+                                "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                                //@ts-ignore
+                                "calanderDay" : undefined,
+                                //@ts-ignore
+                                "month" : undefined,
+                                "date" : theDates[i]
+                            }
+                        )
                     }
-                )
+                }
+            }
 
-        
-            } else {
-                const isSameYear = theDates[i].getFullYear() === theDates[i - 1].getFullYear();
-                const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
+            if (curCalendarBucket.length > 0) {
+                theCalendarDates.push(curCalendarBucket);
+            }
+            
+        } else {
 
-                if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
+            for (let i = 0; i < theDates.length; i++) {
 
+                if (i == 0) {
+    
                     curCalendarBucket.push(
                         {   
                             "id" : i,
@@ -156,26 +194,46 @@ export default class FrontendEventAPI {
                             "date" : theDates[i]
                         }
                     )
+    
+            
                 } else {
-
-                    theCalendarDates.push([...curCalendarBucket])
-                    curCalendarBucket = [
-                        {   
-                            "id" : i,
-                            // @ts-ignore
-                            "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
-                            "calanderDay" : theDates[i].getDate().toString(),
-                            // @ts-ignore
-                            "month" : getMonth[theDates[i].getMonth()],
-                            "date" : theDates[i]
-                        }   
-                    ]
+                    const isSameYear = theDates[i].getFullYear() === theDates[i - 1].getFullYear();
+                    const isSameMonth = theDates[i].getMonth() === theDates[i - 1].getMonth();
+    
+                    if (isSameYear && isSameMonth && Math.abs(theDates[i].getDate() - theDates[i - 1].getDate()) <= 1) {
+    
+                        curCalendarBucket.push(
+                            {   
+                                "id" : i,
+                                // @ts-ignore
+                                "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                                "calanderDay" : theDates[i].getDate().toString(),
+                                // @ts-ignore
+                                "month" : getMonth[theDates[i].getMonth()],
+                                "date" : theDates[i]
+                            }
+                        )
+                    } else {
+    
+                        theCalendarDates.push([...curCalendarBucket])
+                        curCalendarBucket = [
+                            {   
+                                "id" : i,
+                                // @ts-ignore
+                                "shortenedWeekDay" : getShortDay[theDates[i].getDay()],
+                                "calanderDay" : theDates[i].getDate().toString(),
+                                // @ts-ignore
+                                "month" : getMonth[theDates[i].getMonth()],
+                                "date" : theDates[i]
+                            }   
+                        ]
+                    }
                 }
             }
-        }
-        
-        if (curCalendarBucket.length > 0) {
-            theCalendarDates.push(curCalendarBucket);
+            
+            if (curCalendarBucket.length > 0) {
+                theCalendarDates.push(curCalendarBucket);
+            }
         }
 
         return {
@@ -184,7 +242,7 @@ export default class FrontendEventAPI {
                 endTime : getStartAndEndTimes()[1],
                 numOfBlocks : numOfBlocks,
                 numOfCols : numOfCols
-            }
+        }
     }
 
     /**

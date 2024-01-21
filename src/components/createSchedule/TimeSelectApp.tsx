@@ -149,6 +149,8 @@ function TimeSelectApp() {
                 await getEventOnPageload(code).then(() => {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
+
+                    console.log(dim);
     
                     const accountName = getAccountName();
                     if (accountName === null) {   
@@ -198,10 +200,7 @@ function TimeSelectApp() {
         };
         
         fetchData().then(() => {
-            loadGapi().then(() => {
-                console.log(gapi)
-                createCalendarEvent();
-            })
+            setLoading(false);
         })
 
     }, []);
