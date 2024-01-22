@@ -48,54 +48,23 @@ function GoogleCalendarButton(): JSX.Element {
         loadGapi();
     }, []);
 
-    const createCalendarEvent = useCallback(async () => {
-        if (!gapi) {
-            alert('gapi not loaded');
-            return;
-        }
-        setLoading(true);
+    const createCalendarEvent =  useCallback(
+        async (event: any) => { 
+            if (!gapi) {
+                alert('gapi not loaded');
+                return;
+            }
+            setLoading(true);
 
         try {
+            // @ts-ignore
+              const request = await gapi.client.calendar.events.insert({
+                'calendarId': 'primary',
+                'resource': event
+              });
 
-            // const event = {
-            //     'summary': 'Google I/O 2015',
-            //     'location': '800 Howard St., San Francisco, CA 94103',
-            //     'description': 'A chance to hear more about Google\'s developer products.',
-            //     'start': {
-            //       'dateTime': '2023-12-13T09:00:00-07:00',
-            //       'timeZone': 'America/Los_Angeles'
-            //     },
-            //     'end': {
-            //       'dateTime': '2015-05-28T17:00:00-07:00',
-            //       'timeZone': 'America/Los_Angeles'
-            //     },
-            //     'recurrence': [
-            //       'RRULE:FREQ=DAILY;COUNT=2'
-            //     ],
-            //     'attendees': [
-            //       {'email': 'lpage@example.com'},
-            //       {'email': 'sbrin@example.com'}
-            //     ],
-            //     'reminders': {
-            //       'useDefault': false,
-            //       'overrides': [
-            //         {'method': 'email', 'minutes': 24 * 60},
-            //         {'method': 'popup', 'minutes': 10}
-            //       ]
-            //     }
-            //   };
-              
-            //     // @ts-ignore
-            //   const request = await gapi.client.calendar.events.insert({
-            //     'calendarId': 'primary',
-            //     'resource': event
-            //   });
+              console.log(request);
 
-            //   console.log(request);
-
-
-            // AS DEMONSTRATION, THIS WORKS
-            // get all events in the last few days
             // @ts-ignore
             const event_list = await gapi.client.calendar.events.list({
                 calendarId: 'primary',
@@ -105,17 +74,30 @@ function GoogleCalendarButton(): JSX.Element {
                 orderBy: 'startTime',
             });
             console.log(event_list);
-
         } catch (e) {
-            alert('[GCAL]: Error creating user event: ' + e );
-            console.log("Error creating user event: ", e);
+            alert('[GCAL]: Error creating user event: ' + JSON.stringify(e));
+            console.error("Error creating user event: ", e);
             setLoading(false);
             return;
         }
-
+           
         setLoading(false);
         alert('Exporting to Google Calendar!');
     }, [gapi]);
+
+    const sampleEventObject = {
+        'summary': 'Sample Event',
+        'location': 'Sample Location',
+        'description': 'This is a sample event.',
+        'start': {
+            'dateTime': '2024-01-15T09:00:00-07:00',
+            'timeZone': 'America/New_York'
+        },
+        'end': {
+            'dateTime': '2024-01-15T17:00:00-07:00',
+            'timeZone': 'America/New_York'
+        },
+    };
 
     useEffect(() => {
         if (!authInstance) {
@@ -131,7 +113,7 @@ function GoogleCalendarButton(): JSX.Element {
                 (googleUser) => {
                 if (signInButton && signInButton.id == 'auth') {
                     setUser(googleUser);
-                    createCalendarEvent();
+                    createCalendarEvent(sampleEventObject);
                     signInButton.id = 'sync';
                 }
                 },
@@ -151,10 +133,11 @@ function GoogleCalendarButton(): JSX.Element {
         );
     }
 
-    return (
+    return (  
+
         <button className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
             id={user ? 'sync' : 'auth'}
-            onClick={user ? createCalendarEvent : undefined}>
+            onClick={user ?() => createCalendarEvent(sampleEventObject) : undefined}>
                 Test Calendar API 
         </button>
     );
