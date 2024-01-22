@@ -1,13 +1,12 @@
 import * as React from "react";
-import graphic from './calendargraphic.png';
-import './loginpage.css';
-
+// import background from '../landingpage/landingbackground.jpg'
 import {useNavigate} from 'react-router-dom';
 import { signInWithGoogle } from "../../firebase/auth";
 import { signInAnonymously } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import GoogleCalendarButton from "./GoogleCalendarButton";
-import { getEventById } from "../../firebase/events";
+import { getEventById, checkIfLoggedIn } from '../../firebase/events';
+import graphic from './calendargraphic.png';
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
@@ -15,9 +14,13 @@ export const LoginPageButtons = () => {
     const [eventCode, setEventCode] = React.useState("")
 
     const handleSignInWithGoogle = () => {
-        signInWithGoogle().then(() => {
-            navigate('./dayselect');
-        });
+        if (!checkIfLoggedIn()) {
+            signInWithGoogle().then(() => {
+                navigate('./dayselect');
+                return;
+            });
+        }
+        navigate('./dayselect');      
     }
 
     const showEventInput = () => {
@@ -40,20 +43,16 @@ export const LoginPageButtons = () => {
             });
         }
     } 
-
     return (
-        <div className='homepage'>
-            {/* <h1 className='appName'>StudyBuddy</h1> */}
-            <div className='aboutinfo'>
-                <div className='slogan'>
-                    <h1 className='slogantext'><b>Group meetings made easy.</b></h1>
-                    <h3 className='moreinfo'>Find the optimal meeting time and location with ease with ymeets!</h3>
-                    <h3 className='moreinfolistintro'>Now featuring:</h3>
-                    <li className='moreinfolist'>Aggregated availabilities and location preferences for your group</li>
-                    <li className='moreinfolist'>Yale-specific location preference options</li>
-                    <li className='moreinfolist'>Integrated key academic dates and holidays on the calendar</li>
-                </div>
-                <div className='buttonslog'>
+        <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 pt-0 \
+                        md:px-16 md:pt-14 lg:px-40 xl:px-60">
+            <div className='flex-col-reverse justify-center \ 
+                            md:flex-row flex md:h-1/2'>
+                <div className='justify-center self-center space-y-12 mt-3 max-w-full min-w-[70%] md:w-[90%]'>
+                    <div className='flex flex-col space-y-10 w-full md:justify-end'>
+                        <h1 className='font-bold text-center text-5xl md:text-left xl:text-5xl'>A cleaner, faster way to schedule meetings.</h1>
+                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
+                    </div>
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
                         <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg \
@@ -75,9 +74,9 @@ export const LoginPageButtons = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className='graphic'>
-                <img src={graphic} className='graphicpic'></img>
+                <div className='flex md:w-[40%] justify-center pb-7 md:pb-0 md:pl-0'>
+                    <img src={graphic} alt="graphic" className='w-1/2 max-w-xs md:h-auto md:w-full self-center'/>
+                </div>
             </div>
         </div>
     );

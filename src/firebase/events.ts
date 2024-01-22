@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { auth, db } from './firebase';
 
@@ -12,8 +12,8 @@ var workingEvent: Event = {
         description: "description",
         adminAccountId: "WJCCE0YA2fY5gpPxG58l8Ax3T9m2",
         dates: [],
-        startTime: 100, // minutes; min: 0, max 24*60 = 1440
-        endTime: 200, // minutes; min: 0, max 24*60 = 1440
+        startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
+        endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
     }, 
     participants: []
@@ -40,7 +40,7 @@ const getAccountId = (): string => {
     }
 }
 
-const getAccountName = (): string | null => {
+const getAccountName = (): string => {
     return auth.currentUser?.displayName ? auth.currentUser.displayName : "";
 }
 
@@ -69,11 +69,14 @@ async function getEventById(id: EventId): Promise<void> {
         getDoc(doc(eventsRef, id)).then(async (result) => {  
             if (result.exists()) {
                 // @ts-ignore
-                workingEvent = result.data()
+                workingEvent = result.data();
+                workingEvent.details.startTime = (workingEvent.details.startTime as unknown as Timestamp).toDate()
+                workingEvent.details.endTime = (workingEvent.details.endTime as unknown as Timestamp).toDate()
+                workingEvent.details.dates = dateToArray(workingEvent.details.dates);
 
                 // Retrieve all participants as sub-collection
-                getParticipants(collection(db, "events", id, "participants")).then((parts) => {
-                    workingEvent.participants = parts
+                await getParticipants(collection(db, "events", id, "participants")).then((parts) => {
+                    workingEvent.participants = parts;
                 }).catch((err) => {
                     console.log("Issue retrieving participants.");
                     reject(err);
@@ -111,15 +114,7 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     // Update backend
     return new Promise((resolve, reject) => {
         const eventsRef = collection(db, "events")
-        setDoc(doc(eventsRef, id), {
-            details: {
-                ...eventDetails,
-                // TODO map dates to JSON
-                // @ts-ignore
-                dates: dateToObject(eventDetails.dates)
-            },
-            publicId: id,
-        }) // addDoc as overwrite-safe alt
+        setDoc(doc(eventsRef, id), newEvent) // addDoc as overwrite-safe alt
             .then((result: void) => {
                 resolve(newEvent);
 
@@ -133,26 +128,30 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
 
 
 // For internal use
-const getParticipantIndex = (name: string, accountId: string = ""): number => {
+// Returns undefined when participant has not been added yet
+const getParticipantIndex = (name: string, accountId: string = ""): number | undefined => {
     let index;
     for (let i = 0; i < workingEvent.participants.length; i++) {
         if (workingEvent.participants[i].name == name || (accountId && workingEvent.participants[i].accountId == accountId)) {
             index = i;
         }
     }
-    if (!index) {
-        throw new Error('Cannot find participant');
+    if (!index) { // participant has not been added
+        return undefined
     }
     return index
 } 
 
-// for internal use
+// For internal use
 const getParticipants = async (reference: CollectionReference<DocumentData>): Promise<Participant[]> => {
     return new Promise((resolve, reject) => {getDocs(reference).then((docs) => {
             let parts: Participant[] = []
             docs.forEach((data) => {
-                // @ts-ignore
-                parts.push(data.data());
+                // unstringify availability
+                const participant = data.data();
+                participant.availability = JSON.parse(participant.availability);
+
+                parts.push(participant as Participant);
             });
 
             resolve(parts);
@@ -221,34 +220,74 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
             location: participant.location || "",
 
           }).then(() => {
+                console.log("Saved participant details")
                 resolve();
 
             }).catch((err) => {
-                console.log(err.msg);
+                console.error("Failed to save participant details. Error", err.msg);
                 reject(err);
 
         });
     });
 }
 
-// Sets the availability of a participant of the name parameter with their 
-// availability object; passing in their accountId is optional addition verification
-async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
-    let index = getParticipantIndex(name, accountId);
 
-    workingEvent.participants[index].availability = JSON.stringify(availability);
+// // TODO retire in favor of wrappedSaveParticipantDetails
+// // Sets the availability of a participant of the name parameter with their 
+// // availability object; passing in their accountId is optional addition verification
+// async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
+//     let index = getParticipantIndex(name, accountId);
 
-    return saveParticipantDetails(workingEvent.participants[index]);
-}
+//     // if (index !== undefined) {
+//     //     workingEvent.participants[index].availability = JSON.stringify(availability);
+//     // } else {
+//     //     workingEvent.participants.push({
+//     //         name: name,
+//     //         accountId: accountId,
+//     //         availability: JSON.stringify(availability),
+//     //         location: "",
+//     //     });
+//     // }
 
-// Sets the location preference of a participant of the name parameter with 
-// location parameter object; passing in their accountId is optional addition verification
-async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
-    let index = getParticipantIndex(name, accountId);
+//     return saveParticipantDetails({
+//         name: name,
+//         accountId: accountId,
+//         availability: JSON.stringify(availability),
+//         location: index ? workingEvent.participants[index].location : "",
+//     });
+// }
 
-    workingEvent.participants[index].location = location;
+// // TODO retire
+// // Sets the location preference of a participant of the name parameter with 
+// // location parameter object; passing in their accountId is optional addition verification
+// async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
+//     let index = getParticipantIndex(name, accountId);
+//     if (index === undefined) throw Error("Participant has not submitted availability yet!"); 
 
-    return saveParticipantDetails(workingEvent.participants[index]);
+//     workingEvent.participants[index].location = location;
+
+//     // return saveParticipantDetails({
+//     //     name: name,
+//     //     accountId: accountId,
+//     //     availability: index ? JSON.stringify(workingEvent.participants[index].availability) : undefined,
+//     //     location: location,
+//     // });
+// }
+
+async function wrappedSaveParticipantDetails(availability: Availability, locations: Location[]): Promise<void> {
+    let name = getAccountName();
+    if (!name) {
+        console.warn("User not signed in"); 
+        name = "John Doe"
+    }
+
+    return saveParticipantDetails({
+        name: name,
+        accountId: getAccountId(),
+        //@ts-ignore
+        availability: JSON.stringify(availability),
+        location: locations,
+    });
 }
 
 // Sets the official date for the event; must be called by the admin 
@@ -283,11 +322,14 @@ function getEventDescription(): string {
 
 // To be called on render when a page loads with event id in url
 async function getEventOnPageload(id: string): Promise<void> {
-    if (workingEvent && workingEvent.publicId == id) {
+    return await getEventById(id.toUpperCase());
+
+    // To avoid caching (TODO?)
+    if (workingEvent && workingEvent.publicId == id.toUpperCase()) {
         console.log("Already loaded event, skipping");
         return Promise.resolve();
     } else {
-        return getEventById(id);
+        return await getEventById(id.toUpperCase());
     }
 }
 
@@ -325,7 +367,10 @@ function getAllAvailabilitiesNames(): string[] {
 // GUARANTEED to be the in the same order as getAllAvailabilitiesNames
 function getAllAvailabilities(): Availability[] {
     let avails: Availability[] = []
+    
     for (let i = 0; i < workingEvent.participants.length; i++) {
+
+        console.log("exeucted!");
         // @ts-ignore
         avails.push(JSON.parse(workingEvent.participants[i].availability))
     }
@@ -335,7 +380,8 @@ function getAllAvailabilities(): Availability[] {
 // Retrieves the official datetime (start and end) of the event as chosen by the admin
 function getChosenDayAndTime(): [Date, Date] | undefined  {
     if (workingEvent.details.chosenStartDate && workingEvent.details.chosenEndDate) {
-        return [workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate]
+        //@ts-ignore
+        return [workingEvent.details.chosenStartDate.toDate(), workingEvent.details.chosenEndDate.toDate()]
     }
 }
 
@@ -345,18 +391,28 @@ function getChosenLocation(): Location | undefined {
 }
 
 // Retrieves the dict objects mapping locations (keys) to number of votes (items)
-function getLocationsVotes(): { [id: Location]: number; } {
+function getLocationsVotes(): { [id: Location]: number; } | any {
     const votes: { [id: Location]: number; } = {}
-    for (const location in workingEvent.details.plausibleLocations) {
+    for (let i = 0; i < workingEvent.details.plausibleLocations.length; i++) {
+        let location = workingEvent.details.plausibleLocations[i]
         votes[location] = 0
-        for (var participant in workingEvent.participants) {
+        for (let i = 0; i < workingEvent.participants.length; i++) {
             // @ts-ignore
-            if (participant.location == location) {
+            let participant = workingEvent.participants[i]
+            if (participant.location.includes(location)) {
                 votes[location] += 1
             }
         }
     }
     return votes
+}
+
+function getDates(): Date[] {
+    return workingEvent.details.dates;
+}
+
+function getStartAndEndTimes(): Date[] {
+    return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
 export { workingEvent } // For interal use; use getters and setters below
@@ -376,6 +432,8 @@ export {
     createEvent,
     
     // Getters (Sync)
+    getDates,
+    getStartAndEndTimes,
     getChosenLocation,
     getChosenDayAndTime,
     getAllAvailabilities,
@@ -388,12 +446,17 @@ export {
     getLocationsVotes,
 
     // All Participants (Async)
-    setAvailability,
-    setLocationPreference,
+    wrappedSaveParticipantDetails,
+    // setAvailability,
+    // setLocationPreference,
 
     // Admin Only (Async)
     setChosenLocation,
     setChosenDate,
+
+    getParticipantIndex
+
+    
 }
 
 function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
@@ -404,11 +467,11 @@ function dateToObject(dateArray: number[][]): {[key: number]: number[]} {
     return dateObject;
 }
 
-function dateToArray(obj: { [key: number]: [number, number, number] }): Array<[number, number, number]> {
-    const result: Array<[number, number, number]> = [];  
+function dateToArray(obj: { [key: number]: Date }): Array<Date> {
+    const result: Array<Date> = [];  
     for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-        result.push(obj[key]);
+        result.push((obj[key] as unknown as Timestamp).toDate());
         }
     }
     return result;

@@ -1,6 +1,6 @@
 export type EventId = string;
 export type Location = string;
-export type Availability = string | boolean[][];
+export type Availability = boolean[][];
 
 export interface Event { // Firebase ID is EventID
     publicId: EventId, // field
@@ -14,8 +14,8 @@ export interface EventDetails {
     adminName: string,
     adminAccountId: string, // firebase uid
     dates: Date[],
-    startTime: number, // minutes; min: 0, max 24*60 = 1440
-    endTime: number, // minutes; min: 0, max 24*60 = 1440
+    startTime: Date, 
+    endTime: Date, 
     plausibleLocations: Location[],
     chosenLocation?: Location,
     chosenStartDate?: Date,
@@ -26,5 +26,52 @@ export interface Participant {
     name: string,
     accountId?: string,
     availability: Availability, // Availability || JSON string of Availability type
-    location: Location,
+    location: Location[],
 }
+
+export type calanderState = Availability[]; // length = num of people
+
+export interface calandarDate {
+    id : number,
+    shortenedWeekDay : string,
+    calanderDay : string
+    month : string
+    year? : string
+    date? : Date
+}
+
+export interface calendarDimensions {
+    dates: calandarDate[][];
+    startTime: Date;
+    endTime: Date ;
+    numOfBlocks : number
+    numOfCols : number
+}
+
+export interface dragProperties { 
+    dragStartedOnID : number[];
+    dragEndedOnID : number[];
+    dragStartedOn : boolean;
+    blocksAffectedDuringDrag : Set<any>;
+}
+
+export interface calendar {
+    availabilities : calanderState 
+    participants : userData 
+}
+
+// The User ID MUST match the schedule in the position calandarState
+
+// TODO : potential code smell -- just have array of users with attributes available / unavailable
+
+export interface user {
+    name: string,
+    id: number
+}
+
+export interface userData {
+    users: Array<user>,
+    available: Array<user>,
+    unavailable: Array<user>
+}
+

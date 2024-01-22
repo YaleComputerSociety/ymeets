@@ -1,0 +1,33 @@
+.react-dropdown-select{
+    border-radius: 0.5rem !important;
+    border-width: 0 !important;
+    background-color: white;
+    padding: 0.5rem 0.25rem !important;
+    color: #3b82f6;
+    width: 100%;
+    height: fit-content !important;
+}
+.react-dropdown-select input{
+    color: #3b82f6;
+    font-size: 1rem;
+    line-height: 1.75rem;
+}
+.react-dropdown-select input::placeholder{
+    color: #3b82f6;
+    font-size: 1rem;
+    line-height: 1.75rem;
+}
+.react-dropdown-select-option{
+    color: #3b82f6 !important;
+    background-color: transparent !important;
+    border-radius: 0.5rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border: 1px solid #3b82f6;
+}
+.react-dropdown-select-dropdown{
+    background-color: white !important;
+    color: #3b82f6;
+}
+.react-dropdown-select-item-selected{
+    background-color:#3b82f6 !important;
+}
