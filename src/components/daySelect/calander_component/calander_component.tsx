@@ -13,6 +13,7 @@ import "../calander_component/calander_component.css"
 import GeneralPopup from '../general_popup_component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import DaysNotDates from "../select_days_not_dates/DaysNotDates";
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
@@ -21,10 +22,13 @@ interface CalanderComponentProps {
   theSelectedDates : [Date[], React.Dispatch<React.SetStateAction<Date[]>>],
   popUpOpen : [boolean, React.Dispatch<React.SetStateAction<boolean>>],
   popUpMessage : [string, React.Dispatch<React.SetStateAction<string>>]
+  theSelectGeneralDays : [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
 
-export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage}: CalanderComponentProps) => {
+export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage, theSelectGeneralDays}: CalanderComponentProps) => {
   const [showLoginPopup, setShowLoginPopup] = useState<boolean>(false);
+
+  const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays
 
   useEffect(() => {
     // TODO better practice is to use onAuthStateChange
@@ -80,18 +84,18 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
     setSelectedDates(arr)
   }
 
-  const [startDate, updateStartDate] = selectedStartDate;
+  const [startDate, setStartDate] = selectedStartDate;
   const [popupIsOpen, setPopupIsOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
 
   const handleUpdateStartTime = (time: Date) => {
-    updateStartDate(time)
+    setStartDate(time)
   }
 
-  const [endDate, updateEndDate] = selectedEndDate;
+  const [endDate, setEndDate] = selectedEndDate;
 
   const handleUpdateEndTime = (time: Date) => {
-    updateEndDate(time)
+    setEndDate(time)
   }
 
   const [eventName, updateEventName] = theEventName
@@ -134,8 +138,41 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
     }
   };
 
+  const [selectedDays, setSelectedDays] = useState({
+    "SUN" : {
+        dateObj : new Date(2000, 0, 2),
+        selected : false
+    },
+    "MON" : {
+        dateObj : new Date(2000, 0, 3),
+        selected : false
+    },
+    "TUE" : {
+        dateObj : new Date(2000, 0, 4),
+        selected : false
+    },
+    "WED" : {
+        dateObj : new Date(2000, 0, 5),
+        selected : false
+    },
+    "THU" : {
+        dateObj : new Date(2000, 0, 6),
+        selected : false
+    },
+    "FRI" : {
+        dateObj : new Date(2000, 0, 7),
+        selected : false
+    },
+    "SAT" : {
+        dateObj : new Date(2000, 0, 8),
+        selected : false
+    },
+})
+
   return (
     <div className="calendar-wrapper">
+      {
+        selectGeneralDays ? 
       <Calendar
         locale="en-US"
         calendarType="US"
@@ -199,10 +236,17 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         navigationLabel={({ date, label, locale, view }) =>
           date.toLocaleString('default', { month: 'long' })
         }
+      /> :
+      <DaysNotDates 
+             theSelectedDays={[selectedDays, setSelectedDays]}
+             selectedStartDate={[startDate, setStartDate]}
+             selectedEndDate={[endDate, setEndDate]}
       />
+      }
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
+        px={selectGeneralDays === true ? 92 : 0}
       />
       <div className="next-button-wrapper">
         <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>

@@ -8,6 +8,7 @@ import { EventDetails } from "../../../types";
 import { useNavigate } from "react-router-dom";
 import LocationSelectionComponent from "../../locationSelectionComponent"
 import DaysNotDates from "../select_days_not_dates/DaysNotDates";
+import TimeSelectComponent from "../time_select_component";
 
 export const DaySelectComponent = () => {
 
@@ -26,6 +27,14 @@ export const DaySelectComponent = () => {
     const [popUpIsOpen, setPopupIsOpen] = useState(false);
     const [locations, updateLocationsState] = useState<string[]>([]);
     const [locationField, setLocationField] = useState("");
+
+    const handleUpdateStartTime = (time: Date) => {
+        setStartDate(time)
+    }
+
+    const handleUpdateEndTime = (time: Date) => {
+        setEndDate(time)
+    }
 
     const [selectedDays, setSelectedDays] = useState({
         "SUN" : {
@@ -248,31 +257,27 @@ export const DaySelectComponent = () => {
                     className="text-sm hover:scale-90 w-fit lg:text-base flex items-center gap-2 bg-blue-500 text-white font-medium py-1 sm:py-1.5 md:py-2 px-4 md:px-6 rounded-l active:bg-ymeets-light-blue transition-colors"
                     onClick={() => {setSelectGeneralDays((oldState) => {
                         return !oldState
-
                     })}}
                 >   
                     {
                         selectGeneralDays ? "Select Specfic Dates" : "Select General Days"
                     }
                 </button>
+            
                 <div className="w-full h-2/4">
-                {
-                    selectGeneralDays ?                
-                        
-                        <DaysNotDates 
-                            theSelectedDays={[selectedDays, setSelectedDays]}
-                        
-                        /> : 
-                        <CalanderComponent 
-                            theEventName={[eventName, setEventName]}
-                            selectedStartDate={[startDate, setStartDate]}
-                            selectedEndDate={[endDate, setEndDate]}
-                            // @ts-ignore
-                            theSelectedDates={[selectedDates, setSelectedDates]}
-                            popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-                            popUpMessage={[popUpMessage, setPopupMessage]}
-                        />  
-                }
+            
+                    <CalanderComponent 
+                        theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
+                        theEventName={[eventName, setEventName]}
+                        selectedStartDate={[startDate, setStartDate]}
+                        selectedEndDate={[endDate, setEndDate]}
+                        // @ts-ignore
+                        theSelectedDates={[selectedDates, setSelectedDates]}
+                        popUpOpen={[popUpIsOpen, setPopupIsOpen]}
+                        popUpMessage={[popUpMessage, setPopupMessage]}
+    
+                    />  
+                
                 </div>
                 <button onClick={verifyNextAndSubmitEvent}
                     className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \

@@ -197,7 +197,9 @@ button.react-calendar__tile div {
     width: 100%;
     padding: 2rem !important;
     background-color: white;
-    max-height: 650px !important;
+    /* min-height: fit-content; */
+    padding : "10px";
+    min-height: 350px !important;
     border-radius: 10px !important;
     /* margin-top: 65px; */
 }

@@ -51,7 +51,7 @@ export const TimeSelectComponent = (props: any) => {
   };
 
   return (
-    <div className='time-select-container absolute top-[92px] flex flex-row justify-center'>
+  <div className={`time-select-container top-[${props.px}px] flex flex-row items-center justify-center`}>
       <div className='grid items-center px-1 sm:px-2'>
         <p className='text-right font-normal m-0 text-xs sm:text-base'>from: </p>
       </div>
