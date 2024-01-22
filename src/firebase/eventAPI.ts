@@ -122,6 +122,8 @@ export default class FrontendEventAPI {
             11 : "DEC"
         }
 
+        console.log(theDates);
+
         if (theDates[0].getFullYear() === 2000) {
 
             for (let i = 0; i < theDates.length; i++) {
@@ -176,7 +178,7 @@ export default class FrontendEventAPI {
             if (curCalendarBucket.length > 0) {
                 theCalendarDates.push(curCalendarBucket);
             }
-            
+
         } else {
 
             for (let i = 0; i < theDates.length; i++) {

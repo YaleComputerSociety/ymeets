@@ -94,17 +94,45 @@ export const DaySelectComponent = () => {
     }
     const verifyNextAndSubmitEvent = () => {
 
+        
+        if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
+        endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
+            // alert('Make sure to enter times!');
+            showAlert('Make sure to enter times!');
+            return;
+        }
+
+        if (startDate >= endDate) {
+            // alert('Make sure your end time is after your start time!');
+            showAlert('Make sure your end time is after your start time!');
+            return;
+        }
+
+        // Optional; backend supports an empty string for name
+        if (eventName.length == 0) {
+            // alert('Make sure to name your event!');
+            showAlert('Make sure to name your event!');
+            return;
+        }
+
         if (selectGeneralDays) {
 
             let generallySelectedDates : Date[] = []
 
-            Object.keys(selectedDays).forEach((key) => {
+            console.log(selectedDays);
+
+            Object.keys(selectedDays).forEach((day) => {
                 //@ts-ignore
-                if (selectedDays[key].selected == true) {
+                if (selectedDays[day].selected === true) {
                     //@ts-ignore
-                    generallySelectedDates.push(selectedDays[key].dateObj)
+                    generallySelectedDates.push(selectedDays[day].dateObj)
                 }
             });
+
+            if (generallySelectedDates.length == 0) { 
+                showAlert('You need to pick some days!');
+                return;
+            }
 
             console.log(generallySelectedDates);
 
@@ -133,26 +161,6 @@ export const DaySelectComponent = () => {
                 return;
             }
     
-            if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
-            endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-                // alert('Make sure to enter times!');
-                showAlert('Make sure to enter times!');
-                return;
-            }
-    
-            if (startDate >= endDate) {
-                // alert('Make sure your end time is after your start time!');
-                showAlert('Make sure your end time is after your start time!');
-                return;
-            }
-    
-            // Optional; backend supports an empty string for name
-            if (eventName.length == 0) {
-                // alert('Make sure to name your event!');
-                showAlert('Make sure to name your event!');
-                return;
-            }
-        
             frontendEventAPI.createNewEvent(
                 eventName,
                 eventDescription,
@@ -260,7 +268,7 @@ export const DaySelectComponent = () => {
                     })}}
                 >   
                     {
-                        selectGeneralDays ? "Select Specfic Dates" : "Select General Days"
+                        selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
                     }
                 </button>
             
@@ -268,6 +276,7 @@ export const DaySelectComponent = () => {
             
                     <CalanderComponent 
                         theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
+                        theGeneralDays={[selectedDays, setSelectedDays]}
                         theEventName={[eventName, setEventName]}
                         selectedStartDate={[startDate, setStartDate]}
                         selectedEndDate={[endDate, setEndDate]}

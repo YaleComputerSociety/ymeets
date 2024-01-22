@@ -23,12 +23,14 @@ interface CalanderComponentProps {
   popUpOpen : [boolean, React.Dispatch<React.SetStateAction<boolean>>],
   popUpMessage : [string, React.Dispatch<React.SetStateAction<string>>]
   theSelectGeneralDays : [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+  theGeneralDays : [any, React.Dispatch<React.SetStateAction<any>>]
 }
 
-export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage, theSelectGeneralDays}: CalanderComponentProps) => {
+export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndDate, theSelectedDates, popUpOpen, popUpMessage, theSelectGeneralDays, theGeneralDays}: CalanderComponentProps) => {
   const [showLoginPopup, setShowLoginPopup] = useState<boolean>(false);
 
-  const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays
+  const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays;
+  const [selectedDays, setSelectedDays] = theGeneralDays;
 
   useEffect(() => {
     // TODO better practice is to use onAuthStateChange
@@ -137,42 +139,11 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       return "";
     }
   };
-
-  const [selectedDays, setSelectedDays] = useState({
-    "SUN" : {
-        dateObj : new Date(2000, 0, 2),
-        selected : false
-    },
-    "MON" : {
-        dateObj : new Date(2000, 0, 3),
-        selected : false
-    },
-    "TUE" : {
-        dateObj : new Date(2000, 0, 4),
-        selected : false
-    },
-    "WED" : {
-        dateObj : new Date(2000, 0, 5),
-        selected : false
-    },
-    "THU" : {
-        dateObj : new Date(2000, 0, 6),
-        selected : false
-    },
-    "FRI" : {
-        dateObj : new Date(2000, 0, 7),
-        selected : false
-    },
-    "SAT" : {
-        dateObj : new Date(2000, 0, 8),
-        selected : false
-    },
-})
-
+  
   return (
     <div className="calendar-wrapper">
       {
-        selectGeneralDays ? 
+        selectGeneralDays === false ? 
       <Calendar
         locale="en-US"
         calendarType="US"
@@ -246,7 +217,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
-        px={selectGeneralDays === true ? 92 : 0}
+        px={selectGeneralDays === false ? 92 : 0}
       />
       <div className="next-button-wrapper">
         <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>

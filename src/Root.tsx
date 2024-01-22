@@ -9,6 +9,7 @@ import NavBar from "./components/navbar/NavBar"
 import Footer from "./components/footer/Footer"
 import Accounts from './components/accounts/Accounts';
 import GroupViewApp from './components/viewSchedule/GroupViewApp';
+import AboutUs from './components/AboutUs/AboutUs';
 
 function Root() {
 
@@ -27,6 +28,7 @@ function Root() {
                 <Route path='/timeselect/:code' element={<TimeSelectApp />} />
                 <Route path='/groupview/:code' element={<GroupViewApp />} />
                 <Route path="/useraccount" element={<Accounts />} />
+                <Route path="/about-us" element={<AboutUs />} />
             </Routes>
         </Router>
         {/* <Footer/> */}

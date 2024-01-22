@@ -59,7 +59,7 @@ export default function NavBar() {
                              bg-white shadow-lg mt-2
                             ${menuOpen ? "inline-block" : "hidden"}
                             md:hidden`}>
-                <a href="#" className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</a>
+                <button onClick={() => {nav("/about-us")}} className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</button>
                 <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 py-4 w-full">About y/cs</a>
             </div>
         </div>
