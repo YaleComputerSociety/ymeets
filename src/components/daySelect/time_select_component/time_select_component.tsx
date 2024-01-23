@@ -3,6 +3,8 @@ import './time_select_component.css';
 import Select from "react-dropdown-select";
 
 export const TimeSelectComponent = (props: any) => {
+
+  console.log(props.px)
   const turnToTimeString = (i: any) => {
     if (i === 0) {
       return "12:00 AM";

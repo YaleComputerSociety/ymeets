@@ -5,6 +5,7 @@ import { signInWithGoogle } from "../../firebase/auth";
 import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 import LoginPopup from "../loginpopup";
+import Footer from "../footer/Footer";
 
 export const LoginPageButtons = () => {
     const navigate = useNavigate();
@@ -89,6 +90,7 @@ export const LoginPageButtons = () => {
                 </div>
             </div>
             {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
+            <Footer />
         </div>
     );
 }

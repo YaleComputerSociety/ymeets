@@ -11,8 +11,8 @@ import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
 interface DayBlockProps {
     blockID: number
     columnID: number
-    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>] | undefined
+    theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined
     chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
     draggable: boolean
     isAdmin? : boolean
@@ -68,9 +68,12 @@ export default function CalBlock({
     }
         
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
+    
+    //@ts-ignore
     const [calendarState, setCalanderState] = theCalendarState;
     const [isDottedBorder, setIsDottedBorder] = useState(false);
     const [dragState, setDragState] = theDragState;
+    //@ts-ignore
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {

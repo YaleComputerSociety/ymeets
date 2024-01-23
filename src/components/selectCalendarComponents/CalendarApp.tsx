@@ -3,9 +3,9 @@ import { calendarDimensions, calanderState, userData, calandarDate } from  "../.
 import { useState } from "react";
 
 interface CalendarProps {
-    theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
-    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
+    theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined
+    theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>] | undefined
+    chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined 
     draggable : boolean
     user : number
     isAdmin : boolean
@@ -34,7 +34,10 @@ export default function Calender({
     theDragState
 }: CalendarProps) {
 
+    //@ts-ignore
     const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+    
+    //@ts-ignore
     const [calendarState, setCalendarState] = theCalendarState;
     let columnIndexOffset = 0
 
@@ -51,7 +54,7 @@ export default function Calender({
                                 md:bg-white md:rounded-lg"
                 >
                  {
-                calendarFramework.dates.map((bucket, index) => {
+                calendarFramework?.dates.map((bucket : calandarDate[], index: number) => {
                         if (index !== 0) {
                             let prev_bucket = calendarFramework.dates[index - 1];
                             columnIndexOffset += prev_bucket.length;

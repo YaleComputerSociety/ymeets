@@ -7,7 +7,7 @@ import DateBar from "./DateBar";
 import { dragProperties } from "./CalendarApp";
 
 interface SelectCalanderProps {
-  theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+  theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>] | undefined
   chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
   draggable: boolean
   isAdmin?: boolean
@@ -18,7 +18,7 @@ interface SelectCalanderProps {
   endDate: Date
   renderTime : boolean
   theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
-  theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>]
+  theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined
   theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
 
 

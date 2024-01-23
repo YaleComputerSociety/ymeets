@@ -19,10 +19,10 @@ import ExportDecisionsToUser from "./ExportDecisionToUsers";
 export default function AdminGroupViewApp() {
 
     const testData = eventAPI.getTestData()
-    const [calendarState, setCalendarState] = useState<calanderState>({...testData.scheduleDataFull});
-    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+    const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
+    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
     const { code } = useParams();
-    const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
+    const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
     const [locationVotes, setLocationVotes] = useState(Object)
@@ -72,13 +72,12 @@ export default function AdminGroupViewApp() {
                 
                 //@ts-ignore
                 setSelectedLocation(selectedLocation);
-
+                setLoading(false);
               }); 
-
+              
           } else { // url is malformed
               setShowGeneralPopup(true);
           }
-          setLoading(false);
       }
 
       
@@ -105,7 +104,7 @@ export default function AdminGroupViewApp() {
 
       //@ts-ignore
       let calDate = [].concat(...calendarFramework.dates)[dragState.dragStartedOnID[0]]
-      let timeBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
+      let timeBlocks = generateTimeBlocks(calendarFramework?.startTime, calendarFramework?.endTime)
       //@ts-ignore
       let times = [].concat(...timeBlocks);
 
@@ -156,9 +155,9 @@ export default function AdminGroupViewApp() {
             <div>
               <button 
                   onClick={() => {nav("/timeselect/" + code)}}
-                  className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-8 w-fit \
+                  className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-24 w-fit \
                               transform transition-transform hover:scale-90 active:scale-100e'>
-                  <span className="mr-1">&#8592;</span> Edit Availiability
+                  <span className="mr-1">&#8592;</span> Edit Your Availiability
                 </button>
               <div className="flex flex-col-reverse justify-center \
                               md:flex-row mx-12">
@@ -208,9 +207,9 @@ export default function AdminGroupViewApp() {
                               theSelectedLocation={[selectedLocation, setSelectedLocation]}
                               locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
                               locationVotes={Object.values(locationVotes)}/>}
-                          <UserChart 
+                          {chartedUsers !== undefined && <UserChart 
                               chartedUsersData={[chartedUsers, setChartedUsers]}
-                          />
+                          />}
                           <button 
                               onClick={handleSelectionSubmission}
                               className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit place-self-center \
@@ -223,10 +222,12 @@ export default function AdminGroupViewApp() {
                   <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
                                   md:w-1/2 md:content-end"> 
                       <Calendar
-                          title={"Group Availability | Admin"}
+                          title={"Group Availability"}
                           //@ts-ignore
                           theCalendarState={[calendarState, setCalendarState]}
+                          //@ts-ignore
                           theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                          //@ts-ignore
                           chartedUsersData={[chartedUsers, setChartedUsers]}
                           draggable={true}
                           user={0}

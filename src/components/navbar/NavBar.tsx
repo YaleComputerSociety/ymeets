@@ -37,7 +37,7 @@ export default function NavBar() {
                             <rect y="50" width="85" height="10" rx="10"></rect>
                         </svg>
                     </div>
-                    <a href="#" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>
+                    <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>
                     <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hidden hover:text-blue-700 md:inline-block flex items-center">About y/cs</a>
                     
                     {name != "" ? <button onClick={() => nav("/useraccount")} className={`text-gray-500 border border-gray-500 rounded-full \
@@ -59,7 +59,7 @@ export default function NavBar() {
                              bg-white shadow-lg mt-2
                             ${menuOpen ? "inline-block" : "hidden"}
                             md:hidden`}>
-                <button onClick={() => {nav("/about-us")}} className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</button>
+                <button onClick={() => {nav("/about-us"); console.log()}} className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</button>
                 <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 py-4 w-full">About y/cs</a>
             </div>
         </div>

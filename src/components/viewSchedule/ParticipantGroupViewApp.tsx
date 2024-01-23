@@ -15,9 +15,9 @@ import { useNavigate } from 'react-router-dom';
 export default function ParticipantGroupViewApp() {
     const { code } = useParams();
     const testData = eventAPI.getTestData()
-    const [chartedUsers, setChartedUsers] = useState<userData>(testData.userData)
+    const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
-    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions>(testData.dateData)
+    const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
     const [locationVotes, setLocationVotes] = useState(Object)
@@ -118,13 +118,12 @@ export default function ParticipantGroupViewApp() {
                     //@ts-ignore
                     
                     setChosenLocation(getChosenLocation())
-
+                    setLoading(false);
                 }); 
 
             } else { // url is malformed
                 console.error("The event code in the URL doesn't exist");
             }
-            setLoading(false);
         }
 
         fetchData();
@@ -143,7 +142,7 @@ export default function ParticipantGroupViewApp() {
                   onClick={() => {nav("/timeselect/" + code)}}
                   className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-8 w-fit \
                               transform transition-transform hover:scale-90 active:scale-100e'>
-                  <span className="mr-1">&#8592;</span> Edit Availiability
+                  <span className="mr-1">&#8592;</span> Edit Your Availiability
                 </button>
                 <div className="flex flex-col-reverse justify-center \
                                 md:flex-row mx-12">
@@ -201,7 +200,9 @@ export default function ParticipantGroupViewApp() {
                             isAdmin={false} 
                             //@ts-ignore
                             theCalendarState={[calendarState, setCalendarState]}
+                            //@ts-ignore
                             theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                            //@ts-ignore
                             chartedUsersData={[chartedUsers, setChartedUsers]}
                             draggable={false}
                             user={0}
