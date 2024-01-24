@@ -6,6 +6,7 @@ import group from "./ymeetsgroupimage.png"
 import ETHAN from "./EthanMathieu.jpeg"
 import NICK from "./NicholasRibeiero.jpg"
 import RON from "./RonCheng.png"
+import ROME from "./Rome Thorstenson.jpeg"
 
 const CONTRIBUTORS = [
     {
@@ -23,10 +24,10 @@ const CONTRIBUTORS = [
         name : "Rome Thortensen",
         title : ["Software Engineer"],
         founding : true,
-        linkedin : undefined,
+        linkedin : "https://www.linkedin.com/in/romethorstenson/",
         portfolio : undefined,
         github : "https://github.com/Rome-1",
-        image : undefined
+        image : ROME
 
     },
     

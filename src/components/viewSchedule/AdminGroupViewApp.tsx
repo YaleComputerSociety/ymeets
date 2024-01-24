@@ -15,7 +15,7 @@ import { getChosenLocation } from "../../firebase/events";
 import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
 import ExportDecisionsToUser from "./ExportDecisionToUsers";
-import AddToGoogleCalendarButton from "../GAPIComponents/AddToCalendarButton";
+import AddToGoogleCalendarButton from "../GAPIComponents/addToCalendarButton";
 
 export default function AdminGroupViewApp() {
 
@@ -245,8 +245,7 @@ export default function AdminGroupViewApp() {
                       />
 
                       <div className="flex flex-col m-2">
-                            <ExportDecisionsToUser 
-                                theSelectedDateTimeObjects={[selectedDateTimeObjects, setSelectedDateTimeObjects]}                              
+                            <AddToGoogleCalendarButton 
                             />
                       </div>
                   </div>

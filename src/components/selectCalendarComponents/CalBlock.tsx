@@ -52,8 +52,9 @@ export default function CalBlock({
     
                 const percentageSelected = selectedCount / (calendarState.length);
                 
-
-                if (percentageSelected <= 0.25) {
+                if (percentageSelected === 0) {
+                    return "white"
+                } else if (percentageSelected <= 0.25) {
                     return "sky-300"
                 } else if (percentageSelected <= 0.50) {
                     return "sky-600"
