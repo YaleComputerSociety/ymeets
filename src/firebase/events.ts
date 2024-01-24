@@ -302,8 +302,13 @@ async function wrappedSaveParticipantDetails(availability: Availability, locatio
 
 // Sets the official date for the event; must be called by the admin 
 async function setChosenDate(chosenStartDate: Date, chosenEndDate: Date): Promise<void> {
-    workingEvent.details.chosenStartDate = chosenStartDate;
-    workingEvent.details.chosenEndDate = chosenEndDate;
+    if (chosenEndDate > chosenStartDate) {
+        workingEvent.details.chosenStartDate = chosenStartDate;
+        workingEvent.details.chosenEndDate = chosenEndDate;
+    } else {
+        workingEvent.details.chosenStartDate = chosenEndDate;
+        workingEvent.details.chosenEndDate = chosenStartDate;
+    }
 
     return saveEventDetails(workingEvent.details);
 }
