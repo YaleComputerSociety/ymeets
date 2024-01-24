@@ -424,6 +424,35 @@ function getStartAndEndTimes(): Date[] {
     return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
+function getEventObjectForGCal() {
+    console.log({
+        'summary': workingEvent.details.name,
+        'location': workingEvent.details.chosenLocation,
+        'description': workingEvent.details.description,
+        'start': {
+            'dateTime': workingEvent.details.chosenStartDate,
+            'timeZone': 'America/New_York'
+        },
+        'end': {
+            'dateTime': workingEvent.details.chosenEndDate,
+            'timeZone': 'America/New_York'
+        },
+    });
+    return {
+        'summary': workingEvent.details.name,
+        'location': workingEvent.details.chosenLocation,
+        'description': workingEvent.details.description,
+        'start': {
+            'dateTime': workingEvent.details.chosenStartDate,
+            'timeZone': 'America/New_York'
+        },
+        'end': {
+            'dateTime': workingEvent.details.chosenEndDate,
+            'timeZone': 'America/New_York'
+        },
+    };
+}
+
 export { workingEvent } // For interal use; use getters and setters below
 
 export {
@@ -453,6 +482,7 @@ export {
     getEventName,
     getLocationOptions,
     getLocationsVotes,
+    getEventObjectForGCal,
 
     // All Participants (Async)
     wrappedSaveParticipantDetails,

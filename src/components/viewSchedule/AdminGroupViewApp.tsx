@@ -15,6 +15,7 @@ import { getChosenLocation } from "../../firebase/events";
 import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
 import ExportDecisionsToUser from "./ExportDecisionToUsers";
+import AddToGoogleCalendarButton from "../GAPIComponents/AddToCalendarButton";
 
 export default function AdminGroupViewApp() {
 
@@ -200,6 +201,9 @@ export default function AdminGroupViewApp() {
                                           weekday: "long", year: "numeric", month: "short",  
                                           day: "numeric", hour: "2-digit", minute: "2-digit"  
                                       }) : "not selected"}</h3>
+                        </div>
+                        <div className="mb-4">
+                          <AddToGoogleCalendarButton />
                         </div>
                                           
                           {locationOptions.length > 0 && <LocationChart 
