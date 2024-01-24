@@ -51,22 +51,23 @@ export default function CalBlock({
                 }   
     
                 const percentageSelected = selectedCount / (calendarState.length);
-        
+                
+
                 if (percentageSelected <= 0.25) {
-                    return "ymeets-light-blue"
+                    return "sky-300"
                 } else if (percentageSelected <= 0.50) {
-                    return "ymeets-med-blue"
+                    return "sky-600"
                 } else if (percentageSelected <= 0.75) {
-                    return "ymeets-dark-blue"
+                    return "sky-800"
                 } else {
-                    return "sky-500"
+                    return "sky-950"
                 }
             } else {
-                return "ymeets-light-blue"
+                return "sky-300"
             }
 
     }
-        
+
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     
     //@ts-ignore
@@ -77,11 +78,11 @@ export default function CalBlock({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {
-        return getDefaultBlockColor()
+        return getDefaultBlockColor();
     });
 
     const [selectionColor, setSelectionColor] = useState(() => {
-        return getDefaultBlockColor()
+        return getDefaultBlockColor();
     });
 
     const [unShadeColor, setUnshadeColor] = useState("white");
@@ -322,7 +323,11 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={calendarState?.[user]?.[columnID]?.[blockID] == true ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-${unShadeColor} w-16 p-0 h-3`}
+            className={(!draggable || (draggable && isAdmin)) === false
+                ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-${unShadeColor} w-16 p-0 h-3`)
+                : `bg-${shadeColor} w-16 p-0 h-3`
+            }
+            
             style={
                 {
                     borderRight: "1px solid #000", 

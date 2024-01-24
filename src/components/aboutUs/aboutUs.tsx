@@ -5,6 +5,7 @@ import { FaLink } from "react-icons/fa";
 import group from "./ymeetsgroupimage.png"
 import ETHAN from "./EthanMathieu.jpeg"
 import NICK from "./NicholasRibeiero.jpg"
+import RON from "./RonCheng.png"
 
 const CONTRIBUTORS = [
     {
@@ -44,10 +45,10 @@ const CONTRIBUTORS = [
         name : "Ron Cheng",
         title : ["Software Engineer", "UI/UX Designer"],
         founding : true,
-        linkedin : undefined,
+        linkedin : "https://www.linkedin.com/in/ron-cheng-360b791a7/",
         portfolio : undefined,
         github : "https://github.com/rcheng11",
-        image : undefined
+        image : RON
 
     },
 
@@ -147,7 +148,7 @@ function ContributorCard({name, title, founding, linkedin, portfolio, github, im
             </p>
 
             <div className="flex bottom-0 flex-row px-3 py-2">
-                <div className="px-1">
+                <div className="pr-1">
                     {github && <a href={github}>
                         <FaGithubSquare 
                             size={30}
@@ -155,7 +156,7 @@ function ContributorCard({name, title, founding, linkedin, portfolio, github, im
                     </a>
                 }   
                 </div>
-                <div className="px-1">
+                <div className="pr-1">
                     { linkedin &&
                     <a href={linkedin}>
                         <FaLinkedin 
@@ -164,7 +165,7 @@ function ContributorCard({name, title, founding, linkedin, portfolio, github, im
                     </a>
                     }
                 </div>
-                <div className="px-1">
+                <div className="pr-1">
                     
                     {
                         portfolio && 
@@ -192,7 +193,7 @@ export default function AboutUs() {
             Lorem ipsum dolor sit amet, 
             consectetur adipiscing elit, 
             sed do eiusmod tempor incididunt ut 
-            labore et dolore magna aliqua. Ut enim ad minim veniam,
+            labore et dolore magna aliqua. Ut enim ad minim veniam, <br/>
             quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </p>
             <img   

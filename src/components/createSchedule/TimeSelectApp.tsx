@@ -178,7 +178,6 @@ function TimeSelectApp() {
             } else {
                 console.error("The event code in the URL doesn't exist");
             }
-            setLoading(false);
         };
     
         const loadGapi = async () => {
@@ -228,8 +227,9 @@ function TimeSelectApp() {
     }
 
     const handleSubmitAvailability = () => {
+
+
         saveAvailAndLocationChanges();
-        // TODO Route to next page
     }
     
     const handleShowPopup = () => {
