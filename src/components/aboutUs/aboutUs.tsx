@@ -7,6 +7,10 @@ import ETHAN from "./EthanMathieu.jpeg"
 import NICK from "./NicholasRibeiero.jpg"
 import RON from "./RonCheng.png"
 import ROME from "./Rome Thorstenson.jpeg"
+import LILY from "./LilyLin.jpeg"
+import LAILAH from "./lailah.jpeg"
+import JIAKANG from "./Jiakang.png"
+import ALAN from "./AlanXie.jpg"
 
 const CONTRIBUTORS = [
     {
@@ -57,10 +61,10 @@ const CONTRIBUTORS = [
         name : "Jiakang Chen",
         title : ["Software Engineer"],
         founding : true,
-        linkedin : undefined,
+        linkedin : "https://www.linkedin.com/in/jiakang-chen/",
         portfolio :undefined,
-        github : "https://github.com/JiakangChenBuff",
-        image: undefined
+        github : "https://github.com/jkc33",
+        image: JIAKANG
 
     },
 
@@ -68,31 +72,32 @@ const CONTRIBUTORS = [
         name : "Alan Xie",
         title : ["Software Engineer"],
         founding : true,
-        linkedin : undefined,
-        github :undefined,
-        image : undefined
+        linkedin : "https://www.linkedin.com/in/alanxie2026",
+        github : "https://github.com/gr4d13nt",
+        image : ALAN,
+        portfolio: undefined
     },
 
     {
         name : "Lily Lin",
         title : ["UI/UX Designer"],
         founding : true,
-        linkedin : undefined,
+        linkedin : "https://www.linkedin.com/in/lily-lin-a0565b214/",
         portfolio : undefined,
         github : undefined,
-        image : undefined
+        image : LILY
 
 
     },
 
     {
-        name : "Laliah Nabegu",
+        name : "Lailah Nabegu",
         title : ["Software Engineer"],
         founding : true,
-        linkedin :undefined,
+        linkedin : "https://www.linkedin.com/in/lailah-nabegu/",
         portfolio : undefined,
         github : undefined ,   
-        image : undefined
+        image : LAILAH
     },
 
     {
