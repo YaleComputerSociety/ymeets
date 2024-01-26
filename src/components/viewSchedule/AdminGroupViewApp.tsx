@@ -74,6 +74,8 @@ export default function AdminGroupViewApp() {
                 //@ts-ignore
                 setSelectedLocation(selectedLocation);
                 setLoading(false);
+                //@ts-ignore
+                setSelectedDateTimeObjects(getChosenDayAndTime());
               }); 
               
           } else { // url is malformed
@@ -239,7 +241,7 @@ export default function AdminGroupViewApp() {
                           user={0}
                           isAdmin={true}
                           //@ts-ignore
-                          theSelectedDate={[selectedDate, setSelectedDate]}
+                          theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
                           //@ts-ignore
                           theDragState={[dragState, setDragState]}
                       />

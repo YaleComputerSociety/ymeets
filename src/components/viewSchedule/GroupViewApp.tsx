@@ -15,11 +15,10 @@ export default function GroupViewApp() {
             console.log(isAdminResult);
             //@ts-ignore
             setIsAdmin(isAdminResult);
-        }, 5000);
+        }, 1000);
 
-        // Clear the timer to avoid memory leaks
         return () => clearTimeout(timerId);
-    }, []); // The empty dependency array ensures that the effect runs only once
+    }, []); 
 
     return (
         <>

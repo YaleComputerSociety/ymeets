@@ -39,22 +39,28 @@ export default function CalBlock({
 }: DayBlockProps) {
 
     const [isDraggable, setIsDraggable] = useState(draggable)
+    //@ts-ignore
+    const [chosenDate, setChosenDate] = theSelectedDate
+
+    console.log(theSelectedDate);
 
     function getDefaultBlockColor() {
 
+            let selectedCount = 0;
+
+            for (let i = 0; i < calendarState.length; i++) {
+                if (calendarState[i][columnID][blockID] === true) {
+                    selectedCount += 1;
+                }
+            }   
+
             if (!isDraggable || (isDraggable && isAdmin)) {
     
-                let selectedCount = 0;
-    
-                for (let i = 0; i < calendarState.length; i++) {
-                    if (calendarState[i][columnID][blockID] === true) {
-                        selectedCount += 1;
-                    }
-                }   
-    
                 const percentageSelected = selectedCount / (calendarState.length);
+
+                console.log("percentage selected " + percentageSelected);
                 
-                if (percentageSelected === 0) {
+                if (selectedCount === 0) {
                     return "white"
                 } else if (percentageSelected <= 0.25) {
                     return "sky-300"
@@ -66,7 +72,16 @@ export default function CalBlock({
                     return "sky-950"
                 }
             } else {
-                return "sky-300"
+                
+                if (!chosenDate) {
+                    return "sky-300";
+                } else {
+                    if (calendarState[user][columnID][blockID] === true) {
+                        return "sky-300"
+                    } else  {
+                        return "white"
+                    }
+                }
             }
 
     }
@@ -81,6 +96,7 @@ export default function CalBlock({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {
+        console.log("shade color");
         return getDefaultBlockColor();
     });
 
