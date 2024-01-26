@@ -1,3 +1,4 @@
+import React from "react";
 import no_person from "./anon.jpeg"
 import { FaGithubSquare } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
@@ -6,7 +7,7 @@ import group from "./ymeetsgroupimage.png"
 import ETHAN from "./EthanMathieu.jpeg"
 import NICK from "./NicholasRibeiero.jpg"
 import RON from "./RonCheng.png"
-import ROME from "./Rome Thorstenson.jpeg"
+import ROME from "./Rome Thorstenson.png"
 import LILY from "./LilyLin.jpeg"
 import LAILAH from "./lailah.jpeg"
 import JIAKANG from "./Jiakang.png"
@@ -15,7 +16,7 @@ import ALAN from "./AlanXie.jpg"
 const CONTRIBUTORS = [
     {
         name : "Ethan Mathieu",
-        title : ["Software Engineer", "Product Lead"],
+        title : ["Product Lead", "Software Engineer"],
         founding : true,
         linkedin : "https://www.linkedin.com/in/ethan-mathieu/",
         portfolio : "https://ethanmathieu.com/",
@@ -36,7 +37,7 @@ const CONTRIBUTORS = [
     },
     
     {
-        name : "Nicholas Riberio",
+        name : "Nicholas Ribeiro",
         title : ["Product Lead", "Software Engineer"],
         founding : true,
         linkedin : "https://www.linkedin.com/in/nicholas-ribeiro1/",
@@ -125,112 +126,119 @@ interface ContributorCardProps {
 }
 
 function ContributorCard({name, title, founding, linkedin, portfolio, github, image} : ContributorCardProps) {
-
     console.log(name, image);
-
     return (
-        <div className="rounded-b-lg border min-w-fit border-black bg-white mr-4 mb-4">
-
+        <div className="rounded-lg border min-w-fit bg-white mr-6 mb-6 shadow-lg \
+        transform transition-transform hover:scale-105 active:scale-100e">
             <img 
-                className="mb-2 min-w-full h-80"
+                className="mb-2 min-w-full h-80 object-cover object-center rounded-t-lg"
                 src={image !== undefined ? image : no_person}
                 height={400}
                 />
-
-            <h1 className="text-lg px-4 py-1 font-semibold">{name}</h1>
-
-            { 
-                title?.map((subtitle) => { 
-                    return <h3 className="text-md px-4 py-1">{subtitle}</h3>
-                })
-            }
-
-            <p className="text-amber-500 px-4 py-1 ">
-
-            {
-                founding === true ? "Founding Memeber" : ""
-            }
-
-            </p>
-
-            <div className="flex bottom-0 flex-row px-3 py-2">
-                <div className="pr-1">
-                    {github && <a href={github}>
-                        <FaGithubSquare 
-                            size={30}
-                        />
-                    </a>
-                }   
-                </div>
-                <div className="pr-1">
-                    { linkedin &&
-                    <a href={linkedin}>
-                        <FaLinkedin 
-                            size={30}
-                        />
-                    </a>
+            <div className="px-5 pb-5 pt-2">
+                <div>
+                    <h1 className="text-xl mb-3 font-bold font-mono">{name}</h1>
+                    { 
+                        title?.map((subtitle) => { 
+                            let style : Record<string, string> = {
+                                "Software Engineer": "text-blue-500 border-blue-500",
+                                "UI/UX Designer": "text-pink-500 border-pink-500",
+                                "Product Lead": "text-amber-500 border-amber-500"
+                                
+                            }
+                            return <h3 className={"text-md rounded-full border px-4 py-1 mb-2 w-fit " + style[subtitle]}>{subtitle}</h3>
+                        })
                     }
-                </div>
-                <div className="pr-1">
-                    
+                    <p className="text-gray-500 border-gray-500 text-md rounded-full border px-4 py-1 w-fit">
                     {
-                        portfolio && 
-                        <a href={portfolio}>
-                        <FaLink
-                            size={30}
-                        />
-                    </a>
+                        founding === true ? "Founding Member" : ""
                     }
+                    </p>
                 </div>
-
-        
+                <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500">
+                    <div className="pr-1 hover:text-blue-500">
+                        {github && <a href={github}>
+                            <FaGithubSquare 
+                                size={30}
+                            />
+                        </a>
+                    }   
+                    </div>
+                    <div className="pr-1 hover:text-blue-500">
+                        { linkedin &&
+                        <a href={linkedin}>
+                            <FaLinkedin 
+                                size={30}
+                            />
+                        </a>
+                        }
+                    </div>
+                    <div className="pr-1 hover:text-blue-500">
+                        
+                        {
+                            portfolio && 
+                            <a href={portfolio}>
+                            <FaLink
+                                size={30}
+                            />
+                        </a>
+                        }
+                    </div>
+                </div>
             </div>
-
         </div>
     )
 
 }
 
 export default function AboutUs() {
-    return <div className="ml-20 mr-20">
-        <h1 className="text-3xl font-bold">Our Story</h1>
-        <div className="flex lg:flex-row md:flex-col sm:flex-col xs:flex-col justify-between">
-            <p className="text-2xl">
-            Lorem ipsum dolor sit amet, 
-            consectetur adipiscing elit, 
-            sed do eiusmod tempor incididunt ut 
-            labore et dolore magna aliqua. Ut enim ad minim veniam, <br/>
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
-            <img   
-                className="hidden md:hidden sm:hidden lg:visible lg:flex"
-                src={group}
-                height={350}
-                width={350}
-            >
-            </img>
-        </div>
-        <br/>
-        <h1 className="text-3xl font-bold">Our Team</h1>
-        <br/>
-        <div className="grid lg:grid-cols-4 md:grid-cols-2">
-        {
-            CONTRIBUTORS.map((c) => {
+    return <div className="flex flex-row justify-center items-center w-screen">
+        <div className="w-[80%] md:w-[70%]">
+            <h1 className="text-5xl font-bold mb-7">Our Story</h1>
+            <div className="flex flex-col-reverse justify-between \
+                            lg:flex-row">
+                <p className="text-xl text-gray-700">
+                Our app ymeets has been in development since late 2022, starting intially
+                as the app "Study Buddy" by Rome Thortensen (Yale '25) and Ethan Mathieu (Yale '25).
+                Since then, this project has undergone several transformations as 
+                we hopped from different codebases and different ideas (we almost named it Beluga!).
+                <br/><br/>
+                By 2024, our goal is to create a platform for making the scheduling of group events easier.
+                We took inspiration from sites like when2meet, reverse engineering the features we liked, 
+                and integrated our own ideas, features, and designs. As of right now, 
+                this app is built and maintained by a small team of passionate <a className="text-blue-500 " href="https://yalecomputersociety.org/">YCS (Yale Computer Society) </a>
+                 developers hoping to make scheduling more user friendly and convenient. 
+                </p>
+                <img   
+                    className="inline-block mb-6 md:ml-6"
+                    src={group}
+                    height={350}
+                    width={350}
+                >
+                </img>
+            </div>
+            <br/>
+            <h1 className="text-5xl font-bold">Our Team</h1>
+            <br/>
+            <div className="grid lg:grid-cols-4 md:grid-cols-2">
+            {
+                CONTRIBUTORS.map((c) => {
 
-                console.log(c);
-                return <ContributorCard 
-                            name={c.name}
-                            title={c.title}
-                            founding={c.founding}
-                            linkedin={c.linkedin}
-                            //@ts-ignore
-                            portfolio={c.portfolio}
-                            //@ts-ignore
-                            github={c.github}
-                            image={c.image}
-                        />   
-            })
-        }
+                    console.log(c);
+                    return <ContributorCard 
+                                name={c.name}
+                                title={c.title}
+                                founding={c.founding}
+                                linkedin={c.linkedin}
+                                //@ts-ignore
+                                portfolio={c.portfolio}
+                                //@ts-ignore
+                                github={c.github}
+                                image={c.image}
+                            />   
+                })
+            }
+            </div>
         </div>
     </div>
 
