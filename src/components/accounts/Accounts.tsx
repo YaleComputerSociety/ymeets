@@ -11,52 +11,72 @@ import {
     IconInfoCircle,
   } from "@tabler/icons-react";
 
-  import { getEventById } from "../../firebase/events";
-  import { useNavigate } from "react-router-dom";
-  import { useState, useEffect } from "react";
-  import copy from "clipboard-copy"
-  import { logout } from "../../firebase/auth";
+import { getAccountId, getAllEventsForUser } from "../../firebase/events";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import copy from "clipboard-copy"
+import { logout } from "../../firebase/auth";
+import { Event, EventDetails } from "../../types";
+import { auth } from "../../firebase/firebase";
   
-  export default function Accounts() {
+interface AccountsPageEvent {
+  name: string; 
+  id: string;
+  dates: string; 
+  startTime: string;
+  endTime: string; 
+  location: string;
+}
+
+const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] => {
+  const accountPageEvents: AccountsPageEvent[] = [];
+  events.forEach((event) => {
+    accountPageEvents.push({
+      name: event.details.name, 
+      id: event.publicId,
+      dates: event.details.chosenStartDate ? event.details.chosenStartDate?.toLocaleDateString() : "TBD", 
+      startTime: event.details.chosenStartDate ? event.details.chosenStartDate?.toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+    }) : "TBD",
+      endTime: event.details.chosenEndDate ? event.details.chosenEndDate?.toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', hour12: true
+    }) : "TBD",
+      location: event.details.chosenLocation || "TBD",
+    });
+  });
+
+  return accountPageEvents;
+}
+
+
+export default function Accounts() {
     
-    // useEffect(() => {
-    //     setEvents(getAllEventsForParticipant(user.uid));
-    // }, [])
+    useEffect(() => {
+
+      const retrieveAndSetEvents = async () => {
+        const accountID = getAccountId();
+
+        if (accountID && accountID !== "") {
+          await getAllEventsForUser(getAccountId()).then((eventsUnparsed) => {
+            setEvents(parseEventObjectForAccountsPage(eventsUnparsed) || []);
+          });
+        }
+      }
+      
+      // setTimeout(() => {
+      //   retrieveAndSetEvents();
+      // }, 2000);
+
+      return auth.onAuthStateChanged(() => {
+        retrieveAndSetEvents();
+      });
+
+    }, []);
 
     const nav = useNavigate();
-
     const [filter, setFilter] = useState("");
 
-  
-    const [events, setEvents] = useState([
-      {
-        name: "CS 323 Midterm group",
-        id: "123456",
-        dates: "Mon, Oct 18",
-        startTime: "7:00 PM",
-        endTime: "8:00 PM",
-        location: "Sterling Memorial Library",
-        // participants: ["me", "Phil"],
-      },
-      {
-        name: "Quizbowl nats practice",
-        id: "694200",
-        dates: "TBD",
-        startTime: "TBD",
-        endTime: "TBD",
-        location: "Linsly-Chittenden Hall",
-        // participants: [],
-      },
-      {
-        name: "Meeting for trolling",
-        id: "314159",
-        dates: "Mon, Oct 21",
-        startTime: "4:00 PM",
-        endTime: "9:00 PM",
-        location: "TBD",
-        // participants: ["trollface", "LeBron James", "Phil"],
-      },
-    ]);
+    const [events, setEvents] = useState<AccountsPageEvent[]>([]);
 
     const handleInputChange = (e: any) => {
         setFilter(e.target.value);
@@ -153,4 +173,3 @@ import {
       </div>
     );
   }
-  

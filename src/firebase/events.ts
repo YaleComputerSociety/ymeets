@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { auth, db } from './firebase';
 
@@ -93,6 +93,29 @@ async function getEventById(id: EventId): Promise<void> {
             console.log("Caught " + err + " with message " + err.msg);
             reject(err);
         });
+    });
+}
+
+// Retrieves all events that this user has submitted availability for
+async function getAllEventsForUser(accountID: string): Promise<Event[]> {
+    const eventsRef = collection(db, "events");
+    return new Promise(async (resolve, reject) => {
+        const q = query(eventsRef, where("participants", "array-contains", accountID));
+        const querySnapshot = await getDocs(q);
+
+        const eventsList: Event[] = []
+        querySnapshot.forEach((doc) => {
+            const result = doc.data();
+            result.details.startTime = result.details.startTime ? (result.details.startTime as unknown as Timestamp).toDate() : result.details.startTime;
+            result.details.endTime = result.details.endTime ?(result.details.endTime as unknown as Timestamp).toDate() : result.details.endTime;
+            result.details.chosenStartDate = result.details.chosenStartDate ? (result.details.chosenStartDate as unknown as Timestamp).toDate() : result.details.chosenStartDate;
+            result.details.chosenEndDate = result.details.chosenEndDate ? (result.details.chosenEndDate as unknown as Timestamp).toDate() : result.details.chosenEndDate;
+            result.details.dates = dateToArray(result.details.dates);
+
+            eventsList.push(result as unknown as Event);
+        });
+
+        resolve(eventsList);
     });
 }
 
@@ -201,7 +224,20 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     });
     if (!flag) {
         console.log("Adding new participant")
-        workingEvent.participants.push(participant)
+        workingEvent.participants.push(participant);
+        
+        // Update Backend: add user uid to particpants list of event object
+        const accountId = getAccountId()
+        if (accountId && accountId !== "") {
+            const eventsRef = collection(db, "events")
+            updateDoc(doc(eventsRef, workingEvent.publicId), {
+                participants: arrayUnion(accountId)
+    
+            }).catch((err) => {
+                console.log(err.msg);
+    
+            });
+        }
     }
 
     // Update backend
@@ -468,6 +504,7 @@ export {
 
     // Misc
     checkIfAdmin,
+    getAllEventsForUser,
     
     // High Level (Async)
     getEventOnPageload,
@@ -498,8 +535,7 @@ export {
     setChosenLocation,
     setChosenDate,
 
-    getParticipantIndex
-
+    getParticipantIndex,
     
 }
 
