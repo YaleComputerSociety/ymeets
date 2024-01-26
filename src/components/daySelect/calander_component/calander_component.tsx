@@ -214,11 +214,13 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
              selectedEndDate={[endDate, setEndDate]}
       />
       }
+      
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
         px={selectGeneralDays === false ? 92 : 0}
       />
+
       <div className="next-button-wrapper">
         <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>
           <div className="custom-popup">
