@@ -38,9 +38,11 @@ export default function CalBlock({
     theSelectedDate
 }: DayBlockProps) {
 
+    const [isDraggable, setIsDraggable] = useState(draggable)
+
     function getDefaultBlockColor() {
 
-            if (!draggable || (draggable && isAdmin)) {
+            if (!isDraggable || (isDraggable && isAdmin)) {
     
                 let selectedCount = 0;
     
@@ -89,7 +91,7 @@ export default function CalBlock({
     const [unShadeColor, setUnshadeColor] = useState("white");
     //@ts-ignore
     const [selectedDate, setSelectedDate] = theSelectedDate;
-    
+
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4;
 
     // handles the initial coloring of the block.
@@ -101,7 +103,7 @@ export default function CalBlock({
         // check if a selection has been made by the admin, locking the users from editing their
         // availability
         if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
-            draggable = false
+            setIsDraggable(false);
             
             let startTimeHHMM = dateObjectToHHMM(chosenDates[0])
             let endTimeHHMM = dateObjectToHHMM(chosenDates[1])
@@ -143,10 +145,9 @@ export default function CalBlock({
 
     }, []);
 
-
     useEffect(() => {
 
-        if (draggable === false) {
+        if (isDraggable === false) {
             return;
         }
         
@@ -208,7 +209,7 @@ export default function CalBlock({
     
         setCalanderState(oldCalState);
     
-    }, [draggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);   
+    }, [isDraggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);   
 
     const createNewDrag = () => {
 
@@ -242,7 +243,7 @@ export default function CalBlock({
         document.body.appendChild(crt);
         event.dataTransfer.setDragImage(crt, 0, 0);  
 
-        if (draggable == false) {
+        if (isDraggable == false) {
             return;
         }
 
@@ -252,7 +253,7 @@ export default function CalBlock({
 
     const handleBlockClick = () => {
         
-        if (draggable === true) {
+        if (isDraggable === true) {
 
             if (isAdmin === true) {
                 return;
@@ -275,7 +276,7 @@ export default function CalBlock({
       
     const handleBlockUpdate = () => {
 
-        if (draggable == false) {
+        if (isDraggable == false) {
             return;
         }
         
@@ -324,7 +325,7 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={(!draggable || (draggable && isAdmin)) === false
+            className={(!isDraggable || (isDraggable && isAdmin)) === false
                 ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-${unShadeColor} w-16 p-0 h-3`)
                 : `bg-${shadeColor} w-16 p-0 h-3`
             }
