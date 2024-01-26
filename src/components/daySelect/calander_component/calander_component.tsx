@@ -218,7 +218,6 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
-        px={selectGeneralDays === false ? 92 : 0}
       />
 
       <div className="next-button-wrapper">

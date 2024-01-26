@@ -4,8 +4,6 @@ import Select from "react-dropdown-select";
 
 export const TimeSelectComponent = (props: any) => {
 
-  const passed_px = props.px
-
   const turnToTimeString = (i: any) => {
     if (i === 0) {
       return "12:00 AM";
@@ -54,7 +52,7 @@ export const TimeSelectComponent = (props: any) => {
   };
 
   return (
-  <div className={`time-select-container top-[${passed_px}px] flex flex-row items-center justify-center`}>
+  <div className={`time-select-container top-[92px] flex flex-row items-center justify-center`}>
       <div className='grid items-center px-1 sm:px-2'>
         <p className='text-right font-normal m-0 text-xs sm:text-base'>from: </p>
       </div>
