@@ -1,4 +1,5 @@
 // where the Routing thing goes.
+import React from "react";
 import './Root.css';
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import LoginPageButtons from './components/loginpage';
@@ -9,7 +10,7 @@ import NavBar from "./components/navbar/NavBar"
 import Footer from "./components/footer/Footer"
 import Accounts from './components/accounts/Accounts';
 import GroupViewApp from './components/viewSchedule/GroupViewApp';
-import AboutUs from './components/AboutUs/AboutUs';
+import AboutUs from './components/aboutUs/aboutUs';
 
 function Root() {
 
