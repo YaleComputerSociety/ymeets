@@ -56,7 +56,7 @@ export const LoginPageButtons = () => {
     };
 
     return (
-        <div className="min-h-screen h-fit w-screen bg-sky-100 p-14 pt-0 \
+        <div className="min-h-screen h-fit w-screen overflow-auto bg-sky-100 p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60">
             <div className='flex-col-reverse justify-center \ 
                             md:flex-row flex md:h-1/2'>
@@ -70,7 +70,7 @@ export const LoginPageButtons = () => {
                         <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg \
                                            transform transition-transform hover:scale-90 active:scale-100e' 
                                            onClick={() => {handleSignInWithGoogle()}}>I'm a Host</button>
-                        <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100'} onClick={() => {showEventInput()}}>I'm a Participant</button>
+                        <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
                         <div className={showInput ? "hidden" : "flex flex-nowrap"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>
                             <input className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"
