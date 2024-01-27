@@ -173,7 +173,7 @@ export default function ParticipantGroupViewApp() {
                                         md:text-left">
     {                                        //@ts-ignore
     }                                       {chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} <br></br> 
-                                            {chosenTimeRange[0]}-{chosenTimeRange[1]}
+                                            {chosenTimeRange[0]}
                             </h3>
                         </div>}
 

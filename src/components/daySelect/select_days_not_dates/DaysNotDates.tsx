@@ -34,7 +34,7 @@ export default function DaysNotDates({ theSelectedDays, selectedStartDate, selec
             <div className="flex flex-row ">
                 {
                     DAYS.map((day) => (
-                        <div key={day} className="m-2 w-14">
+                        <div key={day} className="mt-32 m-2 w-14">
                             <p className="text-grey mb-2">{day}</p>
                             <div
                                 onClick={() => {

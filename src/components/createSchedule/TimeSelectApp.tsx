@@ -114,35 +114,7 @@ function TimeSelectApp() {
 
     };
 
-    // useEffect(() => {
-    //     if (!authInstance) {
-    //         return;
-    //     }
-    //     if (authInstance.isSignedIn.get()) {
-    //         setUser(authInstance.currentUser.get());
-    //     } else {
-    //         const signInButton = document.getElementById('auth');
-    //         authInstance.attachClickHandler(
-    //             signInButton,
-    //             {},
-    //             (googleUser) => {
-    //             if (signInButton && signInButton.id == 'auth') {
-    //                 setUser(googleUser);
-    //                 createCalendarEvent();
-    //                 signInButton.id = 'sync';
-    //             }
-    //             },
-    //             (error) => {
-    //             console.log("ERRoR is", error);
-    //             alert(
-    //                 ('[GCAL]: Error signing in to Google Calendar: ' + error),
-    //             );
-    //             },
-    //         );
-    //     }
-    // }, [authInstance, user, createCalendarEvent]);
-
-    useEffect(() => {
+        useEffect(() => {
         console.log("data fetched");
         const fetchData = async () => {
             if (code && code.length === 6) {
@@ -157,6 +129,9 @@ function TimeSelectApp() {
                         console.warn("User not logged in");
                         return;
                     }
+                    
+                    //@ts-ignore
+                    setChosenDateRange(getChosenDayAndTime());
     
                     let avail: Availability | undefined =
                         getAccountId() === "" ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName);
@@ -170,6 +145,9 @@ function TimeSelectApp() {
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationOptions(getLocationOptions());
+
+                    //@ts-ignore
+                    setChosenDateRange(getChosenDayAndTime);
     
                     // @ts-ignore
                     setCalendarState([...availabilities, avail]);
@@ -265,12 +243,18 @@ function TimeSelectApp() {
                         </div>
                         )}
                     </div>
-                    <div className="flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center">
                         <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
                                             transform transition-transform hover:scale-90 active:scale-100e'
                         onClick={handleSubmitAvailability}>
                         Submit Availability
                         </button>
+                        <br/>
+                        { chosenDateRange !== undefined &&
+                            <div className='text-gray'>
+                                Note : You can't edit your availability because the admin has already selected a time and/or location!
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className="flex flex-col justify-center content-center h-1/4 mt-0 md:w-[55%] sm:w-[100%] md:content-start">
@@ -284,7 +268,7 @@ function TimeSelectApp() {
                     draggable={true}
                     chartedUsersData={undefined}
                     //@ts-ignore
-                    theSelectedDate={[undefined, undefined]}
+                    theSelectedDate={[chosenDateRange, setChosenDateRange]}
                     //@ts-ignore
                     theDragState={[dragState, setDragState]}
                     isAdmin={false}
