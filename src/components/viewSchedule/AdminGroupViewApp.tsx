@@ -202,11 +202,11 @@ export default function AdminGroupViewApp() {
                                           day: "numeric", hour: "2-digit", minute: "2-digit"  
                                       }) : "not selected"}</h3>
                         </div>
-                        {chosenDayAndTime 
+                        {/* {chosenDayAndTime 
                           ? <div className="mb-4">
                             <AddToGoogleCalendarButton />
                           </div>
-                          : undefined}
+                          : undefined} */}
                                           
                           {locationOptions.length > 0 && <LocationChart 
                               //@ts-ignore

@@ -2,6 +2,7 @@ import React from 'react';
 import { signInWithGoogle } from "../../../firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import './general_popup_component.css';
+import LOGO from "./googlelogo.png";
 
 interface GeneralPopupProps {
     onClose: () => void;
@@ -31,23 +32,23 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({ onClose, message, is
     }, []);
   
     return (
-        <div className="popup-overlay active">
-          <div className="popup-content p-10 mx-10 relative">
-            {!isLogin && (<button onClick={onClose} className="absolute top-1 right-3 h-fit">&times;</button>)}
-            <p className="text-xl">{message}</p>
-            {isLogin && (
-              <div className="flex justify-center mb-1 mt-5">
-                <button
-                  className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
-                              transform transition-transform hover:scale-90 active:scale-100e'
-                  onClick={handleSignInWithGoogle}
-                >
-                  Continue with Google
-                </button>
-              </div>
-            )}
+      <div className="popup-overlay active">
+      <div className="popup-content p-10 mx-10 relative">
+        {!isLogin && (<button onClick={onClose} className="absolute top-1 right-3 h-fit">&times;</button>)}
+        <p className="text-xl">{message}</p>
+        {isLogin && (
+          <div className="mb-1 mt-5 text-center">
+            <button
+              className='font-bold rounded bg-gray-200 text-gray-600 py-4 px-12 text-lg w-fit \
+                          transform transition-transform hover:scale-90 active:scale-100e flex items-center'
+              onClick={handleSignInWithGoogle}
+            >
+              <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
+            </button>
           </div>
-        </div>
+        )}
+      </div>
+    </div>
     );
 };
   

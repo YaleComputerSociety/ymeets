@@ -110,7 +110,7 @@ function TimeSelectApp() {
         }
 
         setLoading(false);
-        alert('Exporting to Google Calendar!');
+        alert('Exported to Google Calendar!');
 
     };
 
@@ -182,7 +182,7 @@ function TimeSelectApp() {
     
         const loadGapi = async () => {
             try {
-                console.log('Start loading Gapi and creating event');
+                console.log('Start loading  and creating event');
                 const newGapi = await loadGapiInsideDOM();
                 console.log('Gapi loaded inside DOM');
                 setGapi(newGapi);
