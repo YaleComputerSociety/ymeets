@@ -5,7 +5,6 @@ import { User, UserCredential, signInAnonymously, updateProfile } from 'firebase
 import { signInWithGoogle } from '../../firebase/auth';
 import { auth } from '../../firebase/firebase';
 import LOGO from "./googlelogo.png";
-import ARROW from "./arrow-icon.webp";
 
 interface LoginPopupProps {
     onClose: (successFlag?: boolean) => void;
@@ -55,7 +54,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
           <div className="flex flex-col items-center mb-1">
     
             <button
-              className='font-bold rounded bg-gray-200 text-gray-600 py-4 px-12 text-lg w-fit \
+              className='font-bold rounded bg-gray-200 text-gray-600 py-4 px-8 text-lg w-fit \
                           transform transition-transform hover:scale-90 active:scale-100e flex items-center'
               onClick={handleSignInWithGoogle}
             >
