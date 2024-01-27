@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot, deleteDoc, writeBatch } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { auth, db } from './firebase';
 
@@ -93,6 +93,32 @@ async function getEventById(id: EventId): Promise<void> {
             console.log("Caught " + err + " with message " + err.msg);
             reject(err);
         });
+    });
+}
+
+async function deleteEvent(id: EventId): Promise<void> {
+
+    // Prevent any user other than the admin to delete event
+    if (getAccountId() !== ((await getDoc(doc(db, "events", id))).data() as unknown as Event).details.adminAccountId) {
+        throw Error("Only creator can delete event");
+    }
+
+    // Get a new write batch
+    const batch = writeBatch(db);
+
+    // Add each participant doc in the subcollection
+    const participants = await getDocs(collection(db, "events", id, "participants"))
+
+    participants.forEach((data) => {
+        batch.delete(doc(db, "events", id, "participants", data.id));
+    });
+
+    // delete the event itself
+    batch.delete(doc(db, "events", id));
+
+    // Commit the batch
+    await batch.commit().catch((err) => {
+        console.log("Error: ", err);
     });
 }
 
@@ -534,6 +560,7 @@ export {
     // Admin Only (Async)
     setChosenLocation,
     setChosenDate,
+    deleteEvent,
 
     getParticipantIndex,
     
