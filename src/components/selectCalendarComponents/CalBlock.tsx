@@ -42,8 +42,6 @@ export default function CalBlock({
     //@ts-ignore
     const [chosenDate, setChosenDate] = theSelectedDate
 
-    console.log(theSelectedDate);
-
     function getDefaultBlockColor() {
 
             let selectedCount = 0;
@@ -57,8 +55,6 @@ export default function CalBlock({
             if (!isDraggable || (isDraggable && isAdmin)) {
     
                 const percentageSelected = selectedCount / (calendarState.length);
-
-                console.log("percentage selected " + percentageSelected);
                 
                 if (selectedCount === 0) {
                     return "white"
@@ -96,7 +92,6 @@ export default function CalBlock({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {
-        console.log("shade color");
         return getDefaultBlockColor();
     });
 

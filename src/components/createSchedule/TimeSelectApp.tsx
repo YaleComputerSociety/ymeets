@@ -49,81 +49,82 @@ function TimeSelectApp() {
 
     // Load gapi client after gapi script loaded
     //@ts-ignore
-    const loadGapiClient = (gapiInstance: typeof globalThis.gapi): Promise<void> => {
-        return new Promise((resolve, reject) => {
-          gapiInstance.load(GAPI_CLIENT_NAME, () => {
-            try {
-              gapiInstance.client.load('calendar', 'v3')
-                .then(() => {
-                  resolve();
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            } catch {
-              gapiInstance.client.init({
-                apiKey: process.env.REACT_APP_API_KEY_GAPI,
-                clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
-                scope: SCOPES,
-              });
-      
-              gapiInstance.client.load('calendar', 'v3')
-                .then(() => {
-                  resolve();
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            }
-          });
-        });
-      };
-    
-    async function createCalendarEvent() {
-        
-        if (!gapi) {
-            alert('gapi not loaded');
-            return;
-        }
-
-        //@ts-ignore
-        console.log(calendarFramework.dates); 
-
+    const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
+        gapiInstance.load(GAPI_CLIENT_NAME, () => {
         try {
-            //@ts-ignore
-            const event_list = await gapi.client.calendar.events.list({
-                calendarId: 'primary',
-                //@ts-ignore
-                timeMin: new Date('2023-08-30').toISOString(),
-                timeMax: new Date('2023-09-06').toISOString(),
-                singleEvents: true,
-                orderBy: 'startTime',
-            });
+            gapiInstance.client.load('calendar', 'v3');
 
-            console.log(event_list);
+        } catch {
+        gapiInstance.client.init({
+            apiKey: process.env.REACT_APP_API_KEY_GAPI,
+            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            scope: SCOPES,
+        });
+        gapiInstance.client.load('calendar', 'v3');
 
-        } catch (e) {
-            alert('[GCAL]: Error creating user event: ' + e );
-            console.log("Error creating user event: ", e);
-            setLoading(false);
-            return;
         }
-
-        setLoading(false);
-        alert('Exporting to Google Calendar!');
-
+        });
     };
 
-        useEffect(() => {
-        console.log("data fetched");
+    // Load gapi script and client
+    // useEffect(() => {
+    //     async function loadGapi() {
+    //         const newGapi = await loadGapiInsideDOM();
+    //         loadGapiClient(newGapi);
+    //         const newAuth2 = await loadAuth2(
+    //             newGapi,
+    //             process.env.REACT_APP_CLIENT_ID_GAPI || "",
+    //             SCOPES,
+    //         );
+    //         setGapi(newGapi);
+    //         setAuthInstance(newAuth2);
+    //         setLoading(false);
+    //     }
+
+    //     loadGapi()
+        
+    // }, []);
+
+    useEffect(() => {
+        const getGoogleCalData = async () => {
+            try {
+                //@ts-ignore
+
+                console.log(calendarFramework?.dates);
+
+                //@ts-ignore
+                let theDates = [].concat(...(calendarFramework?.dates || []));                
+
+                //@ts-ignore
+                const eventList = await gapi.client.calendar.events.list({
+                    calendarId: 'primary',
+                    //@ts-ignore
+                    timeMin: theDates[0].date.toISOString(),
+                    //@ts-ignore
+                    timeMax: theDates[theDates.length - 1].date.toISOString(),
+                    singleEvents: true,
+                    orderBy: 'startTime',
+                });
+    
+                console.log(eventList.result.items);
+            } catch (error) {
+                console.error('Error fetching calendar events:', error);
+            }
+        };
+    
+        if (gapi) {
+            getGoogleCalData();
+        }
+    }, [gapi]);
+    
+    
+    useEffect(() => {
         const fetchData = async () => {
             if (code && code.length === 6) {
                 await getEventOnPageload(code).then(() => {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
 
-                    console.log(dim);
-    
                     const accountName = getAccountName();
                     if (accountName === null) {   
                         console.warn("User not logged in");
@@ -132,23 +133,23 @@ function TimeSelectApp() {
                     
                     //@ts-ignore
                     setChosenDateRange(getChosenDayAndTime());
-    
+
                     let avail: Availability | undefined =
                         getAccountId() === "" ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName);
-    
+
                     if (avail === undefined) {
                         avail = eventAPI.getEmptyAvailability(dim);
                     }
-    
+
                     setChartedUsers(participants);
-    
+
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationOptions(getLocationOptions());
 
                     //@ts-ignore
                     setChosenDateRange(getChosenDayAndTime);
-    
+
                     // @ts-ignore
                     setCalendarState([...availabilities, avail]);
                     setCalendarFramework(dim);
@@ -157,27 +158,22 @@ function TimeSelectApp() {
                 console.error("The event code in the URL doesn't exist");
             }
         };
-    
-        const loadGapi = async () => {
-            try {
-                console.log('Start loading Gapi and creating event');
-                const newGapi = await loadGapiInsideDOM();
-                console.log('Gapi loaded inside DOM');
-                setGapi(newGapi);
-                await loadGapiClient(newGapi);
-                console.log('Gapi client loaded');        
-                const newAuth = await loadAuth2(newGapi, process.env.REACT_APP_CLIENT_ID_GAPI || "", SCOPES);
-                console.log('Auth2 loaded');
-                setAuthInstance(newAuth);
-                setLoading(false);
-                console.log('Done loading Gapi and creating event');
-            } catch (error) {
-                console.error('Error loading Gapi and creating event:', error);
-            }
-        };
+
+        async function loadGapi() {
+            const newGapi = await loadGapiInsideDOM();
+            loadGapiClient(newGapi);
+            const newAuth2 = await loadAuth2(
+                newGapi,
+                process.env.REACT_APP_CLIENT_ID_GAPI || "",
+                SCOPES,
+            );
+            setGapi(newGapi);
+            setAuthInstance(newAuth2);
+            setLoading(false);
+        }
         
         fetchData().then(() => {
-            setLoading(false);
+            loadGapi()
         })
 
     }, []);
