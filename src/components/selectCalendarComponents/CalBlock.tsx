@@ -21,7 +21,7 @@ interface DayBlockProps {
     is30Minute : boolean
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
     theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
-
+    isOnGcal : boolean
 }
 
 export default function CalBlock({
@@ -35,14 +35,13 @@ export default function CalBlock({
     user, 
     is30Minute,
     theDragState,
-    theSelectedDate
+    theSelectedDate,
+    isOnGcal
 }: DayBlockProps) {
 
     const [isDraggable, setIsDraggable] = useState(draggable)
     //@ts-ignore
     const [chosenDate, setChosenDate] = theSelectedDate
-
-    console.log(theSelectedDate);
 
     function getDefaultBlockColor() {
 
@@ -57,8 +56,6 @@ export default function CalBlock({
             if (!isDraggable || (isDraggable && isAdmin)) {
     
                 const percentageSelected = selectedCount / (calendarState.length);
-
-                console.log("percentage selected " + percentageSelected);
                 
                 if (selectedCount === 0) {
                     return "white"
@@ -86,6 +83,7 @@ export default function CalBlock({
 
     }
 
+
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     
     //@ts-ignore
@@ -96,7 +94,7 @@ export default function CalBlock({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {
-        console.log("shade color");
+
         return getDefaultBlockColor();
     });
 
@@ -104,7 +102,15 @@ export default function CalBlock({
         return getDefaultBlockColor();
     });
 
-    const [unShadeColor, setUnshadeColor] = useState("white");
+    const [unShadeColor, setUnshadeColor] = useState(() => {
+        return isOnGcal ? "gray-500" : "white";
+    });
+    
+    useEffect(() => {
+        setUnshadeColor(isOnGcal ? "gray-500" : "white");
+    }, [isOnGcal]);
+    
+
     //@ts-ignore
     const [selectedDate, setSelectedDate] = theSelectedDate;
 
@@ -341,9 +347,10 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={(!isDraggable || (isDraggable && isAdmin)) === false
-                ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-${unShadeColor} w-16 p-0 h-3`)
-                : `bg-${shadeColor} w-16 p-0 h-3`
+            className={
+                (!isDraggable || (isDraggable && isAdmin)) === false
+                ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} flex-1 w-16 p-0 h-3` : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`)
+                : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
             }
             
             style={

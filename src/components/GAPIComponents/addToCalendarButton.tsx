@@ -60,7 +60,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
         try {
             // Create event
             // @ts-ignore
-              const request = await gapi.client.calendar.events.insert({
+            const request = await gapi.client.calendar.events.insert({
                 'calendarId': 'primary',
                 'resource': event
               });

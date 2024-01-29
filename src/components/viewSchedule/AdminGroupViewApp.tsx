@@ -16,6 +16,8 @@ import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
 import ExportDecisionsToUser from "./ExportDecisionToUsers";
 import AddToGoogleCalendarButton from "../GAPIComponents/addToCalendarButton";
+import copy from "clipboard-copy"
+import {IconCopy} from "@tabler/icons-react"
 
 export default function AdminGroupViewApp() {
 
@@ -48,6 +50,8 @@ export default function AdminGroupViewApp() {
       dragStartedOn : false,
       affectedBlocks : new Set()
     })
+
+    const [copied, setCopied] = useState(false);
 
     const nav = useNavigate()
 
@@ -203,8 +207,30 @@ export default function AdminGroupViewApp() {
                                           weekday: "long", year: "numeric", month: "short",  
                                           day: "numeric", hour: "2-digit", minute: "2-digit"  
                                       }) : "not selected"}</h3>
-                        </div>
-                        {/* {chosenDayAndTime 
+    
+                        <button
+                          onClick={() => {
+                            copy(`${window.location.origin}/timeselect/${code}`)
+                            setCopied(true);
+                            setTimeout(() => {
+                              setCopied(false);
+                            }, 1000)
+                          }}
+                          className={`text-sm lg:text-base flex items-center gap-2 justify-center ${
+                            copied ? 'bg-green-700' : 'bg-slate-100'
+                          } ${
+                            copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
+                          }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
+                            copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
+                          }  
+            
+                          transition-colors relative`}    
+                                              >
+                          {copied ? 'Copied' : "Click to copy shareable link"}
+                          {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
+                        </button>
+
+                        {chosenDayAndTime 
                           ? <div className="mb-4">
                             <AddToGoogleCalendarButton />
                           </div>
@@ -244,6 +270,8 @@ export default function AdminGroupViewApp() {
                           theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
                           //@ts-ignore
                           theDragState={[dragState, setDragState]}
+                          //@ts-ignore
+                          theGoogleCalendarEvents={[undefined, undefined]}
                       />
 
                       <div className="flex flex-col m-2">

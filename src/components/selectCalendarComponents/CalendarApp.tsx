@@ -12,7 +12,7 @@ interface CalendarProps {
     title : string
     theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
-
+    theGoogleCalendarEvents : [Date, React.Dispatch<React.SetStateAction<Date>>]
 }
 
 export interface dragProperties { 
@@ -31,7 +31,8 @@ export default function Calender({
     isAdmin,
     title,
     theSelectedDate,
-    theDragState
+    theDragState,
+    theGoogleCalendarEvents
 }: CalendarProps) {
 
     //@ts-ignore
@@ -39,9 +40,12 @@ export default function Calender({
     
     //@ts-ignore
     const [calendarState, setCalendarState] = theCalendarState;
+
     let columnIndexOffset = 0
 
     const [dragState, setDragState] = theDragState
+
+    const [googleCalanderEvents, setGoogleCalanderEvents] = theGoogleCalendarEvents
 
     return (
         <div className="flex flex-col w-full">
@@ -78,6 +82,7 @@ export default function Calender({
                                     theCalendarFramework={theCalendarFramework}
                                     chartedUsersData={chartedUsersData}
                                     theSelectedDate={theSelectedDate}
+                                    theGoogleCalendarEvents={theGoogleCalendarEvents}
                                 />
                             </div>
                         );

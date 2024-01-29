@@ -206,7 +206,7 @@ export default function AboutUs() {
                 By 2024, our goal is to create a platform for making the scheduling of group events easier.
                 We took inspiration from sites like when2meet, reverse engineering the features we liked, 
                 and integrated our own ideas, features, and designs. As of right now, 
-                this app is built and maintained by a small team of passionate <a className="text-blue-500 " href="https://yalecomputersociety.org/">YCS (Yale Computer Society) </a>
+                this app is built and maintained by a small team of passionate <a className="text-blue-500 " href="https://yalecomputersociety.org/">y/cs (Yale Computer Society) </a>
                  developers hoping to make scheduling more user friendly and convenient. 
                 </p>
                 <img   

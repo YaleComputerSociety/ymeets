@@ -210,6 +210,8 @@ export default function ParticipantGroupViewApp() {
                             theSelectedDate={[undefined, undefined]}
                             //@ts-ignore
                             theDragState={[dragState, setDragState]}
+                            //@ts-ignore
+                            theGoogleCalendarEvents={[undefined, undefined]}
                         />
                     </div>
                 </div>
