@@ -7,7 +7,7 @@ import { calandarDate, calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex } from '../../firebase/events';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex, checkIfLoggedIn } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
 import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
@@ -18,6 +18,7 @@ import { Popup } from './SelectGCalsPopup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import {LoginPopup} from '../loginpopup/login_guest_popup';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -47,6 +48,11 @@ function TimeSelectApp() {
     const [locationOptions, setLocationOptions] = useState(Array<String>)
     
     const [chosenDateRange, setChosenDateRange] = useState([])
+    const [promptUserForLogin, setPromptUserForLogin] = useState(false);
+
+    const endPromptUserForLogin = () => {
+        setPromptUserForLogin(false);
+    }
 
     const [dragState, setDragState] = useState({
         dragStartedOnID : [], // [columnID, blockID]
@@ -211,6 +217,9 @@ function TimeSelectApp() {
         }
         
         fetchData().then(() => {
+            if (getAccountName() == "" || getAccountName() == undefined) {
+                setPromptUserForLogin(true)
+            }
             loadGapi()
         })
 
@@ -361,8 +370,10 @@ function TimeSelectApp() {
                         ))}
                     </FormGroup>
                 </Popup>
-
-                
+                {promptUserForLogin && <LoginPopup
+                    onClose={endPromptUserForLogin}
+                    enableAnonymousSignIn={true}
+                />}
                 </div>
                 
             </div>

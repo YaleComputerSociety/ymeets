@@ -64,7 +64,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
             <span className="mx-10 font-bold text-lg">—OR—</span>
 
             <span className="mx-4 text-lg">Enter name to Continue as Guest</span>
-    
+            
       {enableAnonymousSignIn && (
           <div className="flex items-center mt-4">
             <input
