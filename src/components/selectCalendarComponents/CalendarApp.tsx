@@ -55,7 +55,7 @@ export default function Calender({
                 </p>
             }
 
-            <div className="m-5">
+            <div className="flex justify-center md:m-5 md:justify-start">
                 <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-6 px-8 \
                                 md:bg-white md:rounded-lg">
                     {

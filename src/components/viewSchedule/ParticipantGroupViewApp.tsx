@@ -137,66 +137,46 @@ export default function ParticipantGroupViewApp() {
 
     return (
         <>
-            <div>
-                <button 
-                  onClick={() => {nav("/timeselect/" + code)}}
-                  className='font-bold rounded-full bg-blue-500 text-white py-3 px-6 text-base mb-6 ml-8 w-fit \
-                              transform transition-transform hover:scale-90 active:scale-100e'>
-                  <span className="mr-1">&#8592;</span> Edit Your Availiability
-                </button>
-                <div className="flex flex-col-reverse justify-center \
-                                md:flex-row mx-12">
-                    <div className="flex flex-col content-center ml-8 flex-wrap w-full \ 
-                                    md:w-[40%] md:content-start">
-                        <div className="flex flex-col space-y-7 max-w-sm mx-5 \
-                                        md:mt-12">
-                            <h1 className={"text-3xl font-bold text-center " + 
-                                        "md:text-left"}>Event: {eventName}</h1>
-                            <p className={"text-xl text-center " + 
-                                        "md:text-left"}>Desc: {eventDescription}</p>
 
-    {chosenLocation && <div className='mb-8'>
-                            <h3 className="text-m text-center /
-                                        md:text-left text-gray-400">
-                                Selected Location
-                            </h3>
-                            <h3 className="text-3xl font-bold text-center / 
-                                        md:text-left">{chosenLocation}
-                            </h3>
-                        </div>}
-                        {chosenTimeRange && <div className='mb-8'>
-                            <h3 className="text-m text-center /
-                                        md:text-left text-gray-400">
-                                Selected Time 
-                            </h3>
-                            <h3 className="text-3xl font-bold text-center / 
-                                        md:text-left">
-    {                                        //@ts-ignore
-    }                                       {chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} <br></br> 
-                                            {chosenTimeRange[0]}
-                            </h3>
-                        </div>}
+            <div className='flex justify-center'>
+                <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-40">
+                    <div className="flex flex-col content-center space-y-7 flex-none md:w-72 lg:w-80 mb-5 md:content-start md:mt-0">
+                        <button 
+                            onClick={() => {nav("/timeselect/" + code)}}
+                            className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                                        transform transition-transform hover:scale-90 active:scale-100e md:block'>
+                            <span className="mr-1">&#8592;</span> Edit Your Availiability
+                        </button>
 
-                                        
-                            
-                            <UserChart 
-                                chartedUsersData={[chartedUsers, setChartedUsers]}
-                            />
-                            <LocationChart 
-                            
+                        <div className = "hidden mb-4 flex flex-col space-y-5 hidden md:block">
+                            <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
+
+                            <div className="flex flex-col">
+                                <h3 className="text-base text-center md:text-left">
+                                Time:  {//@ts-ignore
+                                chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} {chosenTimeRange[0]}
+                                </h3>
+
+                                <h3 className="text-base text-center md:text-left">
+                                Location: {chosenLocation}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <UserChart 
+                            chartedUsersData={[chartedUsers, setChartedUsers]}
+                        />
+
+                        <LocationChart 
                             theSelectedLocation={[selectedLocation, setSelectedLocation]}
                             locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
                             locationVotes={Object.values(locationVotes)}
-                            />
-                    
-
-                            
-                        </div>
+                        />
                     </div>
-                    <div className="flex flex-col content-center mr-8 flex-wrap w-full \ 
-                                    md:w-1/2 md:content-end"> 
+
+                    <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end"> 
                         <Calender
-                            title={"Group Availability"}
+                            title={""}
                             isAdmin={false} 
                             //@ts-ignore
                             theCalendarState={[calendarState, setCalendarState]}
@@ -213,7 +193,37 @@ export default function ParticipantGroupViewApp() {
                             //@ts-ignore
                             theGoogleCalendarEvents={[undefined, undefined]}
                         />
+
                     </div>
+
+                    <div className="md:hidden">
+                        {/* (Mobile): Edit availability button */}
+                        
+                        <button 
+                        onClick={() => {nav("/timeselect/" + code)}}
+                        className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                                    transform transition-transform hover:scale-90 active:scale-100e'>
+                        <span className="mr-1">&#8592;</span> Edit Your Availiability
+                        </button>
+
+                        {/* (Mobile): Event name, location, and time */}
+
+                        <div className = "mb-4 flex flex-col space-y-5 mt-4">
+                        <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
+
+                        <div className="flex flex-col">
+                            <h3 className="text-base text-center md:text-left">
+                                Time:  {//@ts-ignore
+                                chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} {chosenTimeRange[0]}
+                            </h3>
+
+                            <h3 className="text-base text-center md:text-left">
+                                Location: {chosenLocation}
+                            </h3>
+                        </div>
+                        </div>
+                        
+                  </div>
                 </div>
             </div>
         </>

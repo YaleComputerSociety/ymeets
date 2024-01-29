@@ -16,6 +16,13 @@ export default function LocationChart({theSelectedLocation, locationOptions, loc
 
     // console.log(selectedLocation);
 
+    let combined = locationOptions.map((loc:any, idx:any) => {
+        return { location: loc, votes: locationVotes[idx] };
+    });
+    combined.sort((a:any, b:any) => b.votes - a.votes);
+    locationOptions = combined.map((item:any) => item.location);
+    locationVotes = combined.map((item:any) => item.votes);
+
     function handleRowClick(loc: string) {
 
         if (!checkIfAdmin()) {

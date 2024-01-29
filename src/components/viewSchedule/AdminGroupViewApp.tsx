@@ -160,7 +160,7 @@ export default function AdminGroupViewApp() {
   
   return ( <>
             <div className="flex justify-center">
-              <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7">
+              <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-40">
                   
                   {showGeneralPopup && <GeneralPopup 
                     onClose={() => {setShowGeneralPopup(false)}}
@@ -172,14 +172,14 @@ export default function AdminGroupViewApp() {
                       
                       <button 
                         onClick={() => {nav("/timeselect/" + code)}}
-                        className='font-bold rounded-full bg-blue-500 text-white text-base w-fit p-3 \
-                                    transform transition-transform hover:scale-90 active:scale-100e'>
+                        className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                                    transform transition-transform hover:scale-90 active:scale-100e md:block'>
                         <span className="mr-1">&#8592;</span> Edit Your Availiability
                       </button>
 
                       {/* Event name, location, and time */}
 
-                      <div className = "mb-4 flex flex-col space-y-5">
+                      <div className = "hidden mb-4 flex flex-col space-y-5 hidden md:block">
                           <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
 
                           <div className="flex flex-col">
@@ -196,13 +196,22 @@ export default function AdminGroupViewApp() {
                           </div>
                       </div>
 
-                      {/* Add to Google calendar button */}       
+                      {/* Add to Google calendar button and submit selection button */}       
 
-                      {chosenDayAndTime 
-                        ? <div className="mb-4">
-                          <AddToGoogleCalendarButton />
-                        </div>
-                        : undefined}
+                      <div className="flex flex-row space-x-2">
+                        {chosenDayAndTime 
+                          ? <div className="">
+                            <AddToGoogleCalendarButton />
+                          </div>
+                          : undefined}
+
+                        <button 
+                            onClick={handleSelectionSubmission}
+                            className='font-semibold rounded-md bg-blue-500 text-white px-1.5 py-3 text-sm \
+                                        transform transition-transform hover:scale-90 active:scale-100e'>
+                            Submit Selection
+                        </button>
+                      </div>
 
                       {/* User availability table */} 
 
@@ -220,15 +229,9 @@ export default function AdminGroupViewApp() {
 
                       {/* Submit selection button */} 
 
-                      <button 
-                          onClick={handleSelectionSubmission}
-                          className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
-                                      transform transition-transform hover:scale-90 active:scale-100e'>
-                          Submit Selection
-                      </button>
-
                       {selectionButtonClicked && <strong><p className="text-green-700 text-center transition-opacity duration-500 ease-in-out">Submitted!</p></strong>}
                   </div>
+                  
                   <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end"> 
                       <Calendar
                           title={""}
@@ -248,6 +251,37 @@ export default function AdminGroupViewApp() {
                           //@ts-ignore
                           theGoogleCalendarEvents={[undefined, undefined]}
                       />
+                  </div>
+
+                  <div className="md:hidden">
+                    {/* (Mobile): Edit availability button */}
+                      
+                    <button 
+                      onClick={() => {nav("/timeselect/" + code)}}
+                      className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                                  transform transition-transform hover:scale-90 active:scale-100e'>
+                      <span className="mr-1">&#8592;</span> Edit Your Availiability
+                    </button>
+
+                    {/* (Mobile): Event name, location, and time */}
+
+                    <div className = "mb-4 flex flex-col space-y-5 mt-4">
+                      <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
+
+                      <div className="flex flex-col">
+                        <h3 className="text-base text-center md:text-left">
+                          Time: {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                                    weekday: "long", year: "numeric", month: "short",  
+                                    day: "numeric", hour: "2-digit", minute: "2-digit"  
+                                }) : "not selected"}
+                        </h3>
+
+                        <h3 className="text-base text-center md:text-left">
+                          Location: {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        </h3>
+                      </div>
+                    </div>
+                    
                   </div>
               </div>
             </div>
