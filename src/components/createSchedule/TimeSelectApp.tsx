@@ -119,18 +119,19 @@ function TimeSelectApp() {
                         let startDate = new Date(theEvents[i].start.dateTime)
                         let endDate = new Date(theEvents[i].end.dateTime)
                      }
+                }
 
             } catch (error) {
                 console.error('Error fetching calendar events:', error);
             }
-        };
-    
-            if (gapi) {
-                getGoogleCalData(googleCalIds);
-            } else {
-                console.log("gapi not loaded")
-            }
+        }
 
+        if (gapi) {
+            getGoogleCalData(googleCalIds);
+        } else {
+            console.log("gapi not loaded")
+        }
+        
     }, [gapi, googleCalIds]);
 
     const fetchUserCals = () => {

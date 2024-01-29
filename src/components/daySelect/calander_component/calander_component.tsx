@@ -232,7 +232,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       {/* Login popup */}
       {showLoginPopup && <GeneralPopup 
         onClose={handleLoginPopupClose} 
-        message={"Please sign in before creating an event."} 
+        message={"Please sign in"} 
         isLogin={true} />
       }
       {/* General popup */}

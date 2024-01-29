@@ -207,7 +207,7 @@ export default function AdminGroupViewApp() {
                                           weekday: "long", year: "numeric", month: "short",  
                                           day: "numeric", hour: "2-digit", minute: "2-digit"  
                                       }) : "not selected"}</h3>
-    
+                        </div>
                         <button
                           onClick={() => {
                             copy(`${window.location.origin}/timeselect/${code}`)
@@ -234,7 +234,7 @@ export default function AdminGroupViewApp() {
                           ? <div className="mb-4">
                             <AddToGoogleCalendarButton />
                           </div>
-                          : undefined} */}
+                          : undefined}
                                           
                           {locationOptions.length > 0 && <LocationChart 
                               //@ts-ignore

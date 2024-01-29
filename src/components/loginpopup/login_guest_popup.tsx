@@ -49,7 +49,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
     return (
       <div className="popup-overlay active">
         <div className="popup-content p-10 mx-10 w-100">
-          <p className="mb-5 text-xl">Please sign in before creating an event.</p>
+          <p className="mb-5 text-xl text-center">Please sign in.</p>
     
           <div className="flex flex-col items-center mb-1">
     
