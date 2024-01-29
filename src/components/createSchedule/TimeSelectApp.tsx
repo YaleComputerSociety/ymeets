@@ -118,20 +118,7 @@ function TimeSelectApp() {
                     for (let i = 0; i < theEvents.length; i++) {
                         let startDate = new Date(theEvents[i].start.dateTime)
                         let endDate = new Date(theEvents[i].end.dateTime)
-
-                        if (startDate.getDay() != endDate.getDay()) {
-                            continue;
-                        }
-
-                        parsedEvents.push([startDate, endDate]);
-                    }
-                
-                }
-
-            console.log(parsedEvents);
-
-            //@ts-ignore
-            setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
+                     }
 
             } catch (error) {
                 console.error('Error fetching calendar events:', error);
