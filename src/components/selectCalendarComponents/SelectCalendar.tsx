@@ -20,8 +20,7 @@ interface SelectCalanderProps {
   theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
   theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined
   theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
-
-
+  theGoogleCalendarEvents : [Date, React.Dispatch<React.SetStateAction<Date>>] | undefined
 }
 
 function SelectCalander({
@@ -37,7 +36,8 @@ function SelectCalander({
   endDate,
   renderTime,
   theDragState,
-  theSelectedDate
+  theSelectedDate,
+  theGoogleCalendarEvents
 }: SelectCalanderProps) {
 
   let timeBlocks = generateTimeBlocks(startDate, endDate);
@@ -49,7 +49,9 @@ function SelectCalander({
     var minutes = Number.parseInt(time.slice(-2)) ;
     return hours + (minutes == 0 ? "" : ":" + minutes.toString().padStart(2, "0")) + " " + AmOrPm;
   }
-
+  
+  //@ts-ignore
+  const [googleCalendarEvents, setGoogleCalendarEvents] = theGoogleCalendarEvents
 
   return (
       <div className="max-h-120 m-2">
@@ -91,6 +93,7 @@ function SelectCalander({
                               <CalRow
                                   is30Minute={time.slice(3) === "30" ? true : false}
                                   key={time}
+                                  time={time}
                                   bucket={bucket}
                                   theCalendarState={theCalendarState}
                                   draggable={draggable}
@@ -100,9 +103,11 @@ function SelectCalander({
                                   isAdmin={isAdmin}
                                   // @ts-ignore
                                   theDragState={theDragState}
-                                theCalendarFramework={theCalendarFramework}
-                                chartedUsersData={chartedUsersData}
+                                  theCalendarFramework={theCalendarFramework}
+                                  chartedUsersData={chartedUsersData}
                                   theSelectedDate={theSelectedDate}
+                                  //@ts-ignore
+                                  theGoogleCalendarEvents={theGoogleCalendarEvents}
                                   // borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
                               />
                             </div>

@@ -1,6 +1,10 @@
 import { calandarDate, calendarDimensions, calanderState, userData } from  "../../types"
 import CalBlock from "./CalBlock";
 import { dragProperties } from "./CalendarApp";
+import { dateObjectToComparable } from "../utils/dateObjecToComparable";
+import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
+import { isTimeBetweenDates } from "../utils/isTimeBetweenDates";
+import { useState } from "react";
 
 
 interface CalRowProps {
@@ -17,6 +21,8 @@ interface CalRowProps {
     theCalendarFramework : [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined,
     borderStyle? : string // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
     theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
+    theGoogleCalendarEvents : [Date, React.Dispatch<React.SetStateAction<Date>>],
+    time : string
 }
 
 
@@ -34,17 +40,29 @@ export default function CalRow({
     theDragState,
     chartedUsersData,
     borderStyle,
-    theSelectedDate
+    theSelectedDate,
+    theGoogleCalendarEvents,
+    time
 } : CalRowProps) {
 
     const border = borderStyle ?? "solid"
+    
+    const [googleCalendarEvents, setGoogleCalendarEvents] = theGoogleCalendarEvents
+    const [isOnGcal, setIsOnGcal] = useState(false);
+
+    
 
     return (
         
-        <div className={`flex flex-row
+        <div className={`flex flex-row 
                        `}>
         {
-            bucket.map((d: calandarDate, columnIndex) => {                  
+            bucket.map((d: calandarDate, columnIndex) => {  
+
+                //@ts-ignore
+                const matchedDates = googleCalendarEvents?.filter(dates => dateObjectToComparable(dates[0]) === dateObjectToComparable(d.date));
+                //@ts-ignore
+                let isOnGcal = matchedDates?.some(dateRange => isTimeBetweenDates(dateRange[0], dateRange[1], time))      
                 return (
                     <CalBlock 
                         theCalendarFramework={theCalendarFramework}
@@ -59,7 +77,8 @@ export default function CalRow({
                         key={columnIndex}
                         chartedUsersData={chartedUsersData}
                         theSelectedDate={theSelectedDate}
-
+                        //@ts-ignore
+                        isOnGcal={isOnGcal}
                     />   
                 )
 

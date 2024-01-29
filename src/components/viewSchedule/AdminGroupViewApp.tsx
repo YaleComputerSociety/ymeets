@@ -270,6 +270,8 @@ export default function AdminGroupViewApp() {
                           theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
                           //@ts-ignore
                           theDragState={[dragState, setDragState]}
+                          //@ts-ignore
+                          theGoogleCalendarEvents={[undefined, undefined]}
                       />
 
                       <div className="flex flex-col m-2">
