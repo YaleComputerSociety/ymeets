@@ -12,7 +12,7 @@ interface CalendarProps {
     title : string
     theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
-
+    theGoogleCalendarEvents : [Date, React.Dispatch<React.SetStateAction<Date>>]
 }
 
 export interface dragProperties { 
@@ -31,7 +31,8 @@ export default function Calender({
     isAdmin,
     title,
     theSelectedDate,
-    theDragState
+    theDragState,
+    theGoogleCalendarEvents
 }: CalendarProps) {
 
     //@ts-ignore
@@ -39,6 +40,7 @@ export default function Calender({
     
     //@ts-ignore
     const [calendarState, setCalendarState] = theCalendarState;
+
     let columnIndexOffset = 0
 
     const [dragState, setDragState] = theDragState
@@ -63,28 +65,29 @@ export default function Calender({
                                     columnIndexOffset += prev_bucket.length;
                                 }
 
-                                return (
-                                    <div className="ml-2 mr-2" key={index}>
-                                        <SelectCalander 
-                                            renderTime={index == 0 ? true : false}
-                                            theCalendarState={[calendarState, setCalendarState]}
-                                            bucket={bucket}
-                                            draggable={draggable}
-                                            isAdmin={isAdmin}
-                                            key={index}
-                                            user={user}
-                                            columnIndexOffset={columnIndexOffset}
-                                            startDate={calendarFramework.startTime}
-                                            endDate={calendarFramework.endTime}
-                                            // @ts-ignore
-                                            theDragState={[dragState, setDragState]}
-                                            theCalendarFramework={theCalendarFramework}
-                                            chartedUsersData={chartedUsersData}
-                                            theSelectedDate={theSelectedDate}
-                                        />
-                                    </div>
-                                );
-                            })
+                        return (
+                            <div className="ml-2 mr-2" key={index}>
+                                <SelectCalander 
+                                    renderTime={index == 0 ? true : false}
+                                    theCalendarState={[calendarState, setCalendarState]}
+                                    bucket={bucket}
+                                    draggable={draggable}
+                                    isAdmin={isAdmin}
+                                    key={index}
+                                    user={user}
+                                    columnIndexOffset={columnIndexOffset}
+                                    startDate={calendarFramework.startTime}
+                                    endDate={calendarFramework.endTime}
+                                    // @ts-ignore
+                                    theDragState={[dragState, setDragState]}
+                                    theCalendarFramework={theCalendarFramework}
+                                    chartedUsersData={chartedUsersData}
+                                    theSelectedDate={theSelectedDate}
+                                    theGoogleCalendarEvents={theGoogleCalendarEvents}
+                                />
+                            </div>
+                        );
+                    })
                     }
                 </div>
             </div>

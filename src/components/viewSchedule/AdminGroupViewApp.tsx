@@ -16,6 +16,8 @@ import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
 import ExportDecisionsToUser from "./ExportDecisionToUsers";
 import AddToGoogleCalendarButton from "../GAPIComponents/addToCalendarButton";
+import copy from "clipboard-copy"
+import {IconCopy} from "@tabler/icons-react"
 
 export default function AdminGroupViewApp() {
 
@@ -49,6 +51,8 @@ export default function AdminGroupViewApp() {
       affectedBlocks : new Set()
     })
 
+    const [copied, setCopied] = useState(false);
+
     const nav = useNavigate()
 
     useEffect(() => {
@@ -74,6 +78,8 @@ export default function AdminGroupViewApp() {
                 //@ts-ignore
                 setSelectedLocation(selectedLocation);
                 setLoading(false);
+                //@ts-ignore
+                setSelectedDateTimeObjects(getChosenDayAndTime());
               }); 
               
           } else { // url is malformed
@@ -236,9 +242,11 @@ export default function AdminGroupViewApp() {
                           user={0}
                           isAdmin={true}
                           //@ts-ignore
-                          theSelectedDate={[selectedDate, setSelectedDate]}
+                          theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
                           //@ts-ignore
                           theDragState={[dragState, setDragState]}
+                          //@ts-ignore
+                          theGoogleCalendarEvents={[undefined, undefined]}
                       />
                   </div>
               </div>

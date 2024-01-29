@@ -7,30 +7,32 @@ import { auth } from "../../firebase/firebase";
 export default function GroupViewApp() {
 
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(null);
 
-    // useEffect(() => {
-    //     return auth.onAuthStateChanged((user) => {
-    //             if (checkIfAdmin()) {
-    //             // User is signed in.
-    //             // Redirect to AdminGroupViewApp (probably with {useStateBoolean && AdminGroupViewApp})
-    //             }
-    //         });
-    // }, []);
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            let isAdminResult = checkIfAdmin();
+            console.log(isAdminResult);
+            //@ts-ignore
+            setIsAdmin(isAdminResult);
+        }, 1000);
+
+        return () => clearTimeout(timerId);
+    }, []); 
 
     return (
         <>
-            {
-                // TODO : Is there a better way?
-                // Yes! Start with ParticipantGroupViewApp; use useEffect to add a listener on auth state change
-                setTimeout(() => {
-                    console.log("Check if admin: ", checkIfAdmin());
-                    return checkIfAdmin()
-                }, 5000) ? <div>
+            {isAdmin === null ? (
+                <div>Loading...</div>
+            ) : isAdmin ? (
+                <div>
                     <AdminGroupViewApp />
-                </div> : <div>
+                </div>
+            ) : (
+                <div>
                     <ParticipantGroupViewApp />
                 </div>
-            }   
+            )}
         </>
-    )
+    );
 }

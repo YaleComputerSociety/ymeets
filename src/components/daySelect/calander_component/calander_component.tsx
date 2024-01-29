@@ -218,7 +218,6 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
-        px={selectGeneralDays === false ? 92 : 0}
       />
 
       <div className="next-button-wrapper">
@@ -233,7 +232,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       {/* Login popup */}
       {showLoginPopup && <GeneralPopup 
         onClose={handleLoginPopupClose} 
-        message={"Please sign in before creating an event."} 
+        message={"Please sign in"} 
         isLogin={true} />
       }
       {/* General popup */}

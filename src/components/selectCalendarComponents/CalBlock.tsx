@@ -21,7 +21,7 @@ interface DayBlockProps {
     is30Minute : boolean
     theDragState : [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
     theSelectedDate : [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
-
+    isOnGcal : boolean
 }
 
 export default function CalBlock({
@@ -35,24 +35,29 @@ export default function CalBlock({
     user, 
     is30Minute,
     theDragState,
-    theSelectedDate
+    theSelectedDate,
+    isOnGcal
 }: DayBlockProps) {
+
+    const [isDraggable, setIsDraggable] = useState(draggable)
+    //@ts-ignore
+    const [chosenDate, setChosenDate] = theSelectedDate
 
     function getDefaultBlockColor() {
 
-            if (!draggable || (draggable && isAdmin)) {
-    
-                let selectedCount = 0;
-    
-                for (let i = 0; i < calendarState.length; i++) {
-                    if (calendarState[i][columnID][blockID] === true) {
-                        selectedCount += 1;
-                    }
-                }   
+            let selectedCount = 0;
+
+            for (let i = 0; i < calendarState.length; i++) {
+                if (calendarState[i][columnID][blockID] === true) {
+                    selectedCount += 1;
+                }
+            }   
+
+            if (!isDraggable || (isDraggable && isAdmin)) {
     
                 const percentageSelected = selectedCount / (calendarState.length);
                 
-                if (percentageSelected === 0) {
+                if (selectedCount === 0) {
                     return "white"
                 } else if (percentageSelected <= 0.25) {
                     return "sky-300"
@@ -64,10 +69,20 @@ export default function CalBlock({
                     return "sky-950"
                 }
             } else {
-                return "sky-300"
+                
+                if (!chosenDate) {
+                    return "sky-300";
+                } else {
+                    if (calendarState[user][columnID][blockID] === true) {
+                        return "sky-300"
+                    } else  {
+                        return "white"
+                    }
+                }
             }
 
     }
+
 
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     
@@ -79,6 +94,7 @@ export default function CalBlock({
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
     const [shadeColor, setShadeColor] = useState(() => {
+
         return getDefaultBlockColor();
     });
 
@@ -86,10 +102,18 @@ export default function CalBlock({
         return getDefaultBlockColor();
     });
 
-    const [unShadeColor, setUnshadeColor] = useState("white");
+    const [unShadeColor, setUnshadeColor] = useState(() => {
+        return isOnGcal ? "gray-500" : "white";
+    });
+    
+    useEffect(() => {
+        setUnshadeColor(isOnGcal ? "gray-500" : "white");
+    }, [isOnGcal]);
+    
+
     //@ts-ignore
     const [selectedDate, setSelectedDate] = theSelectedDate;
-    
+
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4;
 
     // handles the initial coloring of the block.
@@ -101,7 +125,7 @@ export default function CalBlock({
         // check if a selection has been made by the admin, locking the users from editing their
         // availability
         if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
-            draggable = false
+            setIsDraggable(false);
             
             let startTimeHHMM = dateObjectToHHMM(chosenDates[0])
             let endTimeHHMM = dateObjectToHHMM(chosenDates[1])
@@ -143,10 +167,9 @@ export default function CalBlock({
 
     }, []);
 
-
     useEffect(() => {
 
-        if (draggable === false) {
+        if (isDraggable === false) {
             return;
         }
         
@@ -208,7 +231,7 @@ export default function CalBlock({
     
         setCalanderState(oldCalState);
     
-    }, [draggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);   
+    }, [isDraggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);   
 
     const createNewDrag = () => {
 
@@ -242,7 +265,7 @@ export default function CalBlock({
         document.body.appendChild(crt);
         event.dataTransfer.setDragImage(crt, 0, 0);  
 
-        if (draggable == false) {
+        if (isDraggable == false) {
             return;
         }
 
@@ -252,7 +275,7 @@ export default function CalBlock({
 
     const handleBlockClick = () => {
         
-        if (draggable === true) {
+        if (isDraggable === true) {
 
             if (isAdmin === true) {
                 return;
@@ -275,7 +298,7 @@ export default function CalBlock({
       
     const handleBlockUpdate = () => {
 
-        if (draggable == false) {
+        if (isDraggable == false) {
             return;
         }
         
@@ -324,9 +347,10 @@ export default function CalBlock({
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
             onMouseLeave={() => setIsDottedBorder(false)}
-            className={(!draggable || (draggable && isAdmin)) === false
-                ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} w-16 p-0 h-3` : `bg-${unShadeColor} w-16 p-0 h-3`)
-                : `bg-${shadeColor} w-16 p-0 h-3`
+            className={
+                (!isDraggable || (isDraggable && isAdmin)) === false
+                ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} flex-1 w-16 p-0 h-3` : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`)
+                : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
             }
             
             style={

@@ -60,7 +60,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
         try {
             // Create event
             // @ts-ignore
-              const request = await gapi.client.calendar.events.insert({
+            const request = await gapi.client.calendar.events.insert({
                 'calendarId': 'primary',
                 'resource': event
               });
@@ -127,7 +127,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
         <button className="rounded-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
             id={user ? 'sync' : 'auth'}
             onClick={user ? () => createCalendarEvent(getEventObjectForGCal()) : undefined}>
-                Add to GCal
+                Add to Google Calendar
         </button>
     );
 }

@@ -28,7 +28,7 @@ export default function NavBar() {
             <div className="flex bg-white rounded-xl h-16 w-[90%] px-8 items-center justify-between shadow-lg">
                 <NavLogo></NavLogo>
                 <div className="inline-flex justify-self-end items-center space-x-4 order-2">
-                    <div className="inline-flex flex-col space-y-1 h-6 w-6 justify-center self-center md:hidden cursor-pointer order-1"
+                    {/* <div className="inline-flex flex-col space-y-1 h-6 w-6 justify-center self-center md:hidden cursor-pointer order-1"
                          onClick={navToggle}>
                         <svg viewBox="0 0 100 50" width="30" height="30" fill="currentColor"
                              className={menuOpen ? "text-blue-500" : "text-gray-500"}>
@@ -36,9 +36,9 @@ export default function NavBar() {
                             <rect y="25" width="85" height="10" rx="10"></rect>
                             <rect y="50" width="85" height="10" rx="10"></rect>
                         </svg>
-                    </div>
+                    </div> */}
                     <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>
-                    <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hidden hover:text-blue-700 md:inline-block flex items-center">About y/cs</a>
+                    {/* <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hidden hover:text-blue-700 md:inline-block flex items-center">About y/cs</a> */}
                     
                     {name != "" ? <button onClick={() => nav("/useraccount")} className={`text-gray-500 border border-gray-500 rounded-full \
                                     w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 hover:text-white\
@@ -55,13 +55,13 @@ export default function NavBar() {
                 </div>
             </div>
             {/* MOBILE MENU */}
-            <div className={`flex flex-col justify-center text-center items-center rounded-xl h-fit w-[90%]
+            {/* <div className={`flex flex-col justify-center text-center items-center rounded-xl h-fit w-[90%]
                              bg-white shadow-lg mt-2
                             ${menuOpen ? "inline-block" : "hidden"}
                             md:hidden`}>
                 <button onClick={() => {nav("/about-us"); console.log()}} className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</button>
                 <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 py-4 w-full">About y/cs</a>
-            </div>
+            </div> */}
         </div>
         {/* Acts as a buffer for floating nav */}
         <div className="h-32">
