@@ -35,7 +35,8 @@ export const LoginPageButtons = () => {
 
         }).catch((err) => {
             console.log(err);
-            alert('Code is invalid.');
+            console.log('Code is invalid.');
+            navigate("/notfound")
         });
     }
     const signInAndGoToEvent = () => {

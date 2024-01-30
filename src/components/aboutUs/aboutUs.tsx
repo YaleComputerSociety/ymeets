@@ -12,6 +12,7 @@ import LILY from "./LilyLin.jpeg"
 import LAILAH from "./lailah.jpeg"
 import JIAKANG from "./Jiakang.png"
 import ALAN from "./AlanXie.jpg"
+import SHANKARA from "./Shankara_Headshot.jpeg"
 
 const CONTRIBUTORS = [
     {
@@ -106,9 +107,9 @@ const CONTRIBUTORS = [
         title : ["Software Engineer"],
         founding : true,
         linkedin : "https://www.linkedin.com/in/shankaraabbineni/",
-        github : undefined,
+        github : "https://github.com/SAbbineni24",
         portfolio : undefined,
-        image: undefined
+        image: SHANKARA
 
 
     }

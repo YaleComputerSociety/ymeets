@@ -25,6 +25,8 @@ function TimeSelectApp() {
     const [showPopup, setShowPopup] = useState(false);
     const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
+    const nav = useNavigate();
+
     const openGcalPopup = () => {
         setGcalPopupOpen(true);
     };
@@ -169,6 +171,13 @@ function TimeSelectApp() {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
 
+                    console.log(dim);
+
+                    if (dim == undefined) {
+                        nav("/undefined")
+
+                    }
+
                     const accountName = getAccountName();
                     if (accountName === null) {   
                         console.warn("User not logged in");
@@ -200,6 +209,7 @@ function TimeSelectApp() {
                 });
             } else {
                 console.error("The event code in the URL doesn't exist");
+                nav("/notfound")
             }
         };
 
@@ -221,7 +231,10 @@ function TimeSelectApp() {
                 setPromptUserForLogin(true)
             }
             loadGapi()
-        })
+        }).catch((err) => {
+            console.log(err);
+        }
+        )
 
     }, []);
     
