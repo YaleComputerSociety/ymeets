@@ -119,10 +119,14 @@ export default function ParticipantGroupViewApp() {
                     
                     setChosenLocation(getChosenLocation())
                     setLoading(false);
+                }).catch((err) => {
+                    console.log(err)
+                    nav("/notfound")
                 }); 
 
             } else { // url is malformed
                 console.error("The event code in the URL doesn't exist");
+                nav("/notfound")
             }
         }
 

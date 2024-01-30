@@ -10,6 +10,7 @@ import {
     IconMapPin,
     IconEdit,
     IconInfoCircle,
+    IconTrash
   } from "@tabler/icons-react";
 
 import { getAccountId, getAllEventsForUser } from "../../firebase/events";
@@ -19,6 +20,8 @@ import copy from "clipboard-copy"
 import { logout } from "../../firebase/auth";
 import { Event, EventDetails } from "../../types";
 import { auth } from "../../firebase/firebase";
+import { deleteEvent } from "../../firebase/events";
+import GeneralPopup from "../daySelect/general_popup_component";
   
 interface AccountsPageEvent {
   name: string; 
@@ -27,6 +30,7 @@ interface AccountsPageEvent {
   startTime: string;
   endTime: string; 
   location: string;
+  iAmCreator: boolean
 }
 
 const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] => {
@@ -43,6 +47,8 @@ const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] =
         hour: '2-digit', minute: '2-digit', hour12: true
     }) : "TBD",
       location: event.details.chosenLocation || "TBD",
+      //@ts-ignore
+      iAmCreator : event.details.adminAccountId && event.details.adminAccountId == getAccountId()
     });
   });
 
@@ -148,12 +154,28 @@ export default function Accounts() {
                             className="text-sm lg:text-base bg-blue-500 flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
                         Open
                         </button>
+                        
                     </div>
                     </div>
+                    {event.iAmCreator && <button
+                      onClick={() => {
+                        deleteEvent(event.id).then(() => {
+                          window.location.reload();
+                        }).catch((err) => {
+                          
+
+                        });
+                      }}
+                      className="text-sm lg:text-base flex items-center gap-2 justify-center bg-red-900 text-white border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 active:bg-red-500 transition-colors"
+                    >
+                      Delete
+                      <IconTrash className="inline-block w-4 lg:w-5" />
+                    </button>}
+
                 </div>
                 ))}
             </div>
-            : <div>You have no events.</div>
+            : <div>You have no events or are logged is a guest.</div>
             }
 
             <div className="flex items-center justify-end">
@@ -163,6 +185,7 @@ export default function Accounts() {
             }} className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
                 Logout
             </button>
+          
             </div>
 
         
