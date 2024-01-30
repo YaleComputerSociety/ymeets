@@ -80,15 +80,14 @@ export default function AdminGroupViewApp() {
                 setLoading(false);
                 //@ts-ignore
                 setSelectedDateTimeObjects(getChosenDayAndTime());
+              }).catch((err) => {
+                  nav("/notfound")
               }); 
               
           } else { // url is malformed
-              setShowGeneralPopup(true);
+            nav("notfound")
           }
       }
-
-      
-
       fetchData();
 
       
