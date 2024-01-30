@@ -34,7 +34,6 @@ function Root() {
                 <Route path="*" element={<NotFound/>} />
             </Routes>
         </Router>
-        {/* <Footer/> */}
         </>
     )
 }
