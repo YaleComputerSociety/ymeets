@@ -226,8 +226,7 @@ function saveEventDetails(eventDetails: EventDetails) {
             details: eventDetails
         }).then(() => {
                 resolve();
-
-            }).catch((err) => {
+        }).catch((err) => {
                 console.log(err.msg);
                 reject(err);
 

@@ -183,14 +183,14 @@ export default function AdminGroupViewApp() {
 
                           <div className="flex flex-col">
                             <h3 className="text-base text-center md:text-left">
-                              Time: {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
                                         weekday: "long", year: "numeric", month: "short",  
                                         day: "numeric", hour: "2-digit", minute: "2-digit"  
                                     }) : "not selected"}
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
-                              Location: {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                            <span className='font-bold'>Location:</span>{chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
                           </div>
                       </div>
@@ -206,7 +206,7 @@ export default function AdminGroupViewApp() {
 
                         <button 
                             onClick={handleSelectionSubmission}
-                            className='font-semibold rounded-md bg-blue-500 text-white px-1.5 py-3 text-sm \
+                            className='font-semibold rounded-md bg-blue-500 text-white p-4 text-sm \
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                             Submit Selection
                         </button>
@@ -269,14 +269,14 @@ export default function AdminGroupViewApp() {
 
                       <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
-                          Time: {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                        <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
                                     weekday: "long", year: "numeric", month: "short",  
                                     day: "numeric", hour: "2-digit", minute: "2-digit"  
                                 }) : "not selected"}
                         </h3>
 
                         <h3 className="text-base text-center md:text-left">
-                          Location: {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                         </h3>
                       </div>
                     </div>

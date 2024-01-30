@@ -156,15 +156,18 @@ export default function ParticipantGroupViewApp() {
                             <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
 
                             <div className="flex flex-col">
-                                <h3 className="text-base text-center md:text-left">
-                                Time:  {//@ts-ignore
-                                chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} {chosenTimeRange[0]}
-                                </h3>
+                        <h3 className="text-base text-center md:text-left">
+                            {/*@ts-ignore*/}
+                          <span className='font-bold'>Time:</span> {chosenDateRange !== undefined ? chosenDateRange[0].toLocaleDateString('en-us', {  
+                                    weekday: "long", year: "numeric", month: "short",  
+                                    day: "numeric", hour: "2-digit", minute: "2-digit"  
+                                }) : "not selected"}
+                        </h3>
 
-                                <h3 className="text-base text-center md:text-left">
-                                Location: {chosenLocation}
-                                </h3>
-                            </div>
+                        <h3 className="text-base text-center md:text-left">
+                        <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        </h3>
+                      </div>
                         </div>
 
                         <UserChart 
@@ -216,15 +219,18 @@ export default function ParticipantGroupViewApp() {
                         <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
 
                         <div className="flex flex-col">
-                            <h3 className="text-base text-center md:text-left">
-                                Time:  {//@ts-ignore
-                                chosenDateRange.month}, {chosenDateRange.day}{numberEnding[chosenDateRange.day % 10] || "th"} {chosenTimeRange[0]}
-                            </h3>
+                        <h3 className="text-base text-center md:text-left">
+                            {/*@ts-ignore*/}
+                            <span className='font-bold'>Time:</span> {chosenDateRange !== undefined ? chosenDateRange[0].toLocaleDateString('en-us', {  
+                                    weekday: "long", year: "numeric", month: "short",  
+                                    day: "numeric", hour: "2-digit", minute: "2-digit"  
+                                }) : "not selected"}
+                        </h3>
 
-                            <h3 className="text-base text-center md:text-left">
-                                Location: {chosenLocation}
-                            </h3>
-                        </div>
+                        <h3 className="text-base text-center md:text-left">
+                        <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        </h3>
+                      </div>
                         </div>
                         
                   </div>
