@@ -181,7 +181,7 @@ export const DaySelectComponent = () => {
        
     return (
         <div className="flex flex-col justify-center items-center md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] md:content-start">
+            <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start">
                 <div className="space-y-3 mb-8 md:w-[90%] md:space-y-7 md:mt-12 ">
                     <div className="w-[100%] flex flex-row justify-center md:justify-start">
                         <input

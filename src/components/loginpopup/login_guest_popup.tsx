@@ -54,16 +54,16 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
           <div className="flex flex-col items-center mb-1">
     
             <button
-              className='font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-8 text-lg w-fit \
+              className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
                           transform transition-transform hover:scale-90 active:scale-100e flex items-center'
               onClick={handleSignInWithGoogle}
             >
               <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
             </button>
             
-            <span className="mx-10 my-8 font-bold text-lg">— OR —</span>
+            <span className="mx-10 my-8 font-bold text-md sm:text-lg">— OR —</span>
 
-            <span className="mx-4 text-lg">Enter Name to Continue as Guest</span>
+            <span className="mx-4 text-sm sm:text-lg">Enter Name to Continue as Guest</span>
             
       {enableAnonymousSignIn && (
           <div className="flex items-center mt-3">
