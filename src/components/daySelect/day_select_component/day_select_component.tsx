@@ -13,15 +13,15 @@ import TimeSelectComponent from "../time_select_component";
 export const DaySelectComponent = () => {
 
     // Default event start/end time values
-    const nineAMToday = new Date(new Date().toDateString());
-    nineAMToday.setHours(9);
-    const fivePMToday = new Date(new Date().toDateString());
-    fivePMToday.setHours(17);
+    const nineAM = new Date(`January 1, 2023`);
+    nineAM.setHours(9);
+    const fivePM = new Date(`January 1, 2023`);
+    fivePM.setHours(17);
     
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
-    const [startDate, setStartDate] = useState(nineAMToday);
-    const [endDate, setEndDate] = useState(fivePMToday);
+    const [startDate, setStartDate] = useState(nineAM);
+    const [endDate, setEndDate] = useState(fivePM);
     const [selectedDates, setSelectedDates] = useState([]);
     const [popUpMessage, setPopupMessage] = useState("");
     const [popUpIsOpen, setPopupIsOpen] = useState(false);
@@ -98,20 +98,20 @@ export const DaySelectComponent = () => {
         if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
         endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
             // alert('Make sure to enter times!');
-            showAlert('Make sure to enter times!');
+            alert('Make sure to enter times!');
             return;
         }
 
         if (startDate >= endDate) {
             // alert('Make sure your end time is after your start time!');
-            showAlert('Make sure your end time is after your start time!');
+            alert('Make sure your end time is after your start time!');
             return;
         }
 
         // Optional; backend supports an empty string for name
         if (eventName.length == 0) {
             // alert('Make sure to name your event!');
-            showAlert('Make sure to name your event!');
+            alert('Make sure to name your event!');
             return;
         }
 
@@ -130,7 +130,7 @@ export const DaySelectComponent = () => {
             });
 
             if (generallySelectedDates.length == 0) { 
-                showAlert('You need to pick some days!');
+                alert('You need to pick some days!');
                 return;
             }
 
@@ -157,7 +157,7 @@ export const DaySelectComponent = () => {
 
             if (selectedDates.length == 0) {
                 // alert('Make sure to enter dates!');
-                showAlert('Make sure to enter dates!');
+                alert('Make sure to enter dates!');
                 return;
             }
     

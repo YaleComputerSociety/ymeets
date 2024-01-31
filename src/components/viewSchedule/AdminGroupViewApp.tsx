@@ -97,14 +97,16 @@ export default function AdminGroupViewApp() {
       //@ts-ignore
 
       if (dragState.dragEndedOnID.length == 0) {
-        setGeneralPopupMessage("No new time selection made!");
-        setShowGeneralPopup(true);
+        // setGeneralPopupMessage("No new time selection made!");
+        // setShowGeneralPopup(true);
+        alert("No new time selection made!")
         return;
       }
 
       if (dragState.dragEndedOnID[0] != dragState.dragStartedOnID[0]) {
-        setGeneralPopupMessage("You must select times that occur on the same day!");
-        setShowGeneralPopup(true);
+        // setGeneralPopupMessage("You must select times that occur on the same day!");
+        // setShowGeneralPopup(true);
+        alert("No new time selection made!")
         return;
       }
 
@@ -183,14 +185,14 @@ export default function AdminGroupViewApp() {
 
                           <div className="flex flex-col">
                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
                                         weekday: "long", year: "numeric", month: "short",  
                                         day: "numeric", hour: "2-digit", minute: "2-digit"  
                                     }) : "not selected"}
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                            <span className='font-bold'>Location:</span>{chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
                           </div>
                       </div>
@@ -213,7 +215,7 @@ export default function AdminGroupViewApp() {
 
                         <button 
                             onClick={handleSelectionSubmission}
-                            className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
+                            className='font-semibold rounded-md bg-blue-500 text-white p-4 text-sm \
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                             Submit Selection
                         </button>
@@ -276,7 +278,7 @@ export default function AdminGroupViewApp() {
 
                       <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
-                        <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0].toLocaleDateString('en-us', {  
+                        <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
                                     weekday: "long", year: "numeric", month: "short",  
                                     day: "numeric", hour: "2-digit", minute: "2-digit"  
                                 }) : "not selected"}

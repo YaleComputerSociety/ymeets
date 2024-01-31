@@ -158,7 +158,7 @@ export default function ParticipantGroupViewApp() {
                             <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
                             {/*@ts-ignore*/}
-                          <span className='font-bold'>Time:</span> {chosenDateRange !== undefined ? chosenDateRange[0].toLocaleDateString('en-us', {  
+                          <span className='font-bold'>Time:</span> {chosenDateRange[0] !== undefined ? chosenDateRange[0]?.toLocaleDateString('en-us', {  
                                     weekday: "long", year: "numeric", month: "short",  
                                     day: "numeric", hour: "2-digit", minute: "2-digit"  
                                 }) : "not selected"}
@@ -221,7 +221,7 @@ export default function ParticipantGroupViewApp() {
                         <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
                             {/*@ts-ignore*/}
-                            <span className='font-bold'>Time:</span> {chosenDateRange !== undefined ? chosenDateRange[0].toLocaleDateString('en-us', {  
+                            <span className='font-bold'>Time:</span> {chosenDateRange[0] !== undefined ? chosenDateRange[0].toLocaleDateString('en-us', {  
                                     weekday: "long", year: "numeric", month: "short",  
                                     day: "numeric", hour: "2-digit", minute: "2-digit"  
                                 }) : "not selected"}
