@@ -126,8 +126,20 @@ function TimeSelectApp() {
                     for (let i = 0; i < theEvents.length; i++) {
                         let startDate = new Date(theEvents[i].start.dateTime)
                         let endDate = new Date(theEvents[i].end.dateTime)
-                     }
+
+                        if (startDate.getDay() != endDate.getDay()) {
+                            continue;
+                        }
+
+                        parsedEvents.push([startDate, endDate]);
+                    }
+
                 }
+
+            console.log(parsedEvents);
+
+            //@ts-ignore
+            setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
 
             } catch (error) {
                 console.error('Error fetching calendar events:', error);
@@ -135,6 +147,8 @@ function TimeSelectApp() {
         }
 
         if (gapi) {
+            console.log("gapi loaded")
+            console.log(googleCalIds);
             getGoogleCalData(googleCalIds);
         } else {
             console.log("gapi not loaded")
@@ -310,13 +324,13 @@ function TimeSelectApp() {
                         </button>
                         <br/>
                         { chosenDateRange !== undefined &&
-                            <div className='text-gray'>
+                            <div className='text-gray text-2xl text-bold'>
                                 Note : You can't edit your availability because the admin has already selected a time and/or location!
                             </div>
                         }
                     </div>
                 </div>
-                <div className="flex flex-col justify-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:content-start">
+                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:content-start`}>
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
@@ -336,7 +350,7 @@ function TimeSelectApp() {
                 />
                 {/*The first date having a year be 2000 means that it was a general days selection*/}
                 {/*@ts-ignore*/}
-                {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && <button onClick={() => {
+                {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && <button onClick={() => {
                         fetchUserCals()
                         .then((calendars) => {
                             
@@ -357,8 +371,9 @@ function TimeSelectApp() {
                         .catch(error => {
                           console.error("Error fetching Google Calendars:", error);
                         });
-                }} className="text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
-                    Toggle GCal Event Unavailabilities 
+                    }} className={`text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
+                  >
+                    Toggle GCal Availabilities
                 </button>}
                 <Popup isOpen={isGcalPopupOpen} onClose={closeGcalPopup} onCloseAndSubmit={onPopupCloseAndSubmit}>
                     <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
