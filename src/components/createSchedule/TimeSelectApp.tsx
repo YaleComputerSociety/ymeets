@@ -19,6 +19,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {LoginPopup} from '../loginpopup/login_guest_popup';
+import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -83,8 +84,8 @@ function TimeSelectApp() {
 
         } catch {
         gapiInstance.client.init({
-            apiKey: process.env.REACT_APP_API_KEY_GAPI,
-            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            apiKey: REACT_APP_API_KEY_GAPI,
+            clientId: REACT_APP_CLIENT_ID_GAPI,
             scope: SCOPES,
         });
         gapiInstance.client.load('calendar', 'v3');
@@ -308,7 +309,7 @@ function TimeSelectApp() {
             
                     <div>
                         {locationOptions.length > 0 && (
-                        <div className="w-96 flex-col content-center mt-5 mb-8 w-[100%]">
+                        <div className="flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
                             update={updateSelectedLocations}
                             locations={locationOptions}
