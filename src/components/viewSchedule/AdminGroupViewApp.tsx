@@ -166,7 +166,7 @@ export default function AdminGroupViewApp() {
                     message={generalPopupMessage}
                     isLogin={false}/>}
 
-                  <div className="flex flex-col content-center space-y-7 flex-none md:w-72 lg:w-80 mb-5 md:content-start md:mt-0">
+                  <div className="flex flex-col content-center space-y-7 flex-none md:w-80 lg:w-90 mb-5 md:content-start md:mt-0">
                       {/* Edit availability button */}
                       
                       <button 
@@ -190,7 +190,7 @@ export default function AdminGroupViewApp() {
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Location:</span>{chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                            <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
                           </div>
                       </div>
@@ -206,7 +206,7 @@ export default function AdminGroupViewApp() {
 
                         <button 
                             onClick={handleSelectionSubmission}
-                            className='font-semibold rounded-md bg-blue-500 text-white p-4 text-sm \
+                            className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                             Submit Selection
                         </button>

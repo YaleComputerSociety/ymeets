@@ -277,10 +277,10 @@ function TimeSelectApp() {
     
 
     return (
-        <div className="bg-sky-100 ml-5 w-[90%] items-center">
+        <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
                 {/*There was an mx-9*/}
-                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] w-[100%] md:content-center">
+                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
                     <div className="mb-8">
                         <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
                         <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
@@ -316,7 +316,7 @@ function TimeSelectApp() {
                         }
                     </div>
                 </div>
-                <div className="flex flex-col justify-center content-center h-1/4 mt-0 md:w-[55%] sm:w-[100%] md:content-start">
+                <div className="flex flex-col justify-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:content-start">
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
