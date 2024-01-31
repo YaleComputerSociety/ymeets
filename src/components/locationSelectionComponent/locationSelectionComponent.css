@@ -31,3 +31,6 @@
 .react-dropdown-select-item-selected{
     background-color:#3b82f6 !important;
 }
+.location-select-option{
+    overflow-x: scroll;
+}

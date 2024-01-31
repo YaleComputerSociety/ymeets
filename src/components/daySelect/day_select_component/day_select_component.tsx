@@ -209,6 +209,7 @@ export const DaySelectComponent = () => {
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
                             <input
                                 id="event-description"
+                                maxLength={30}
                                 style={{resize: "none"}}
                                 className="p-3 px-4 text-base w-[80%] border rounded-lg"
                                 placeholder="Add Location Options"
@@ -242,7 +243,7 @@ export const DaySelectComponent = () => {
                                     Click ENTER after typing a location to add an option for participants
                                 </div>
                             </div>
-                            <div className="flex flex-col justify-left items-center w-[100%] space-y-3">
+                            <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
                                 {locations.map((location, index) => (
                                     <div className="flex w-[100%] justify-center md:justify-start">
                                         <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
