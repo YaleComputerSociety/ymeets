@@ -159,14 +159,14 @@ export default function AdminGroupViewApp() {
   
   return ( <>
             <div className="flex justify-center">
-              <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-40">
+              <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
                   
                   {showGeneralPopup && <GeneralPopup 
                     onClose={() => {setShowGeneralPopup(false)}}
                     message={generalPopupMessage}
                     isLogin={false}/>}
 
-                  <div className="flex flex-col content-center space-y-7 flex-none md:w-80 lg:w-90 mb-5 md:content-start md:mt-0">
+                  <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                       {/* Edit availability button */}
                       
                       <button 
@@ -198,6 +198,13 @@ export default function AdminGroupViewApp() {
                       {/* Add to Google calendar button and submit selection button */}       
 
                       <div className="flex flex-row space-x-2">
+                      {/* replace w this and get gcal logo <button
+                          className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
+                                      transform transition-transform hover:scale-90 active:scale-100e flex items-center'
+                          onClick={handleSignInWithGoogle}
+                        >
+                          <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
+                        </button> */}
                         {chosenDayAndTime 
                           ? <div className="">
                             <AddToGoogleCalendarButton />
@@ -231,7 +238,7 @@ export default function AdminGroupViewApp() {
                       {selectionButtonClicked && <strong><p className="text-green-700 text-center transition-opacity duration-500 ease-in-out">Submitted!</p></strong>}
                   </div>
                   
-                  <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end"> 
+                  <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4"> 
                       <Calendar
                           title={""}
                           //@ts-ignore

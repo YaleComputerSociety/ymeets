@@ -316,7 +316,7 @@ function TimeSelectApp() {
                         }
                     </div>
                 </div>
-                <div className="flex flex-col justify-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:content-start">
+                <div className="flex flex-col justify-center content-center mt-0 mb-6 md:w-[45%] sm:w-[100%] md:content-start">
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
@@ -357,7 +357,7 @@ function TimeSelectApp() {
                         .catch(error => {
                           console.error("Error fetching Google Calendars:", error);
                         });
-                }} className="text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
+                }} className="text-lg ml-5 md:mb-6 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
                     Toggle GCal Event Unavailabilities 
                 </button>}
                 <Popup isOpen={isGcalPopupOpen} onClose={closeGcalPopup} onCloseAndSubmit={onPopupCloseAndSubmit}>

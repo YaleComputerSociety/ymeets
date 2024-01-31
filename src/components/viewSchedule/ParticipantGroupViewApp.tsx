@@ -143,8 +143,8 @@ export default function ParticipantGroupViewApp() {
         <>
 
             <div className='flex justify-center'>
-                <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-40">
-                    <div className="flex flex-col content-center space-y-7 flex-none md:w-72 lg:w-80 mb-5 md:content-start md:mt-0">
+                <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
+                    <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                         <button 
                             onClick={() => {nav("/timeselect/" + code)}}
                             className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
@@ -181,7 +181,7 @@ export default function ParticipantGroupViewApp() {
                         />
                     </div>
 
-                    <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end"> 
+                    <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end pl-4"> 
                         <Calender
                             title={""}
                             isAdmin={false} 
