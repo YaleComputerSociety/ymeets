@@ -25,7 +25,7 @@ export default function NavBar() {
     return (
         <>
         <div className="flex flex-col w-full mt-6 fixed justify-center z-50 items-center">
-            <div className="flex bg-white rounded-xl h-16 w-[90%] px-8 items-center justify-between shadow-lg">
+            <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
                 <NavLogo></NavLogo>
                 <div className="inline-flex justify-self-end items-center space-x-4 order-2">
                     {/* <div className="inline-flex flex-col space-y-1 h-6 w-6 justify-center self-center md:hidden cursor-pointer order-1"

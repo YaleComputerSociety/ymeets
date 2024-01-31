@@ -49,27 +49,27 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
     return (
       <div className="popup-overlay active">
         <div className="popup-content p-10 mx-10 w-100">
-          <p className="mb-5 text-xl text-center">Please sign in.</p>
-    
+          {/* <p className="mb-5 text-xl text-center">Please sign in.</p> */}
+
           <div className="flex flex-col items-center mb-1">
     
             <button
-              className='font-bold rounded bg-gray-200 text-gray-600 py-4 px-8 text-lg w-fit \
+              className='font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-8 text-lg w-fit \
                           transform transition-transform hover:scale-90 active:scale-100e flex items-center'
               onClick={handleSignInWithGoogle}
             >
               <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
             </button>
             
-            <span className="mx-10 font-bold text-lg">—OR—</span>
+            <span className="mx-10 my-8 font-bold text-lg">— OR —</span>
 
-            <span className="mx-4 text-lg">Enter name to Continue as Guest</span>
+            <span className="mx-4 text-lg">Enter Name to Continue as Guest</span>
             
       {enableAnonymousSignIn && (
-          <div className="flex items-center mt-4">
+          <div className="flex items-center mt-3">
             <input
-              className="rounded-l text-center py-4 px-4 text-lg bg-gray-200"
-              placeholder="Name"
+              className="rounded-l-md text-center py-2 px-4 text-md bg-white text-left border border-gray-300 border-2"
+              placeholder="Your Name"
               name="name"
               type="text"
               onChange={(event) => setInputName(event.target.value)}
@@ -77,7 +77,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
               autoComplete="off"
             />
             <button
-              className="rounded-r font-bold bg-gray-400 text-white disabled:text-opacity-60 py-4 px-4 text-lg hover:outline-blue-500 hover:outline-3"
+              className="rounded-r-md font-bold bg-gray-300 text-white disabled:text-opacity-60 py-2 px-4 text-lg hover:outline-blue-500 hover:outline-3"
               onClick={handleSignInWithoutGoogle}
             >
                 <span className="text-l">&rarr;</span>
