@@ -294,7 +294,7 @@ function TimeSelectApp() {
         <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
                 {/*There was an mx-9*/}
-                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
+                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[40%] md:pr-10 w-[100%] md:content-left md:px-[5%]">
                     <div className="mb-8">
                         <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
                         <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
@@ -331,7 +331,7 @@ function TimeSelectApp() {
                     </div>
                 </div>
 
-                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center content-center mt-0 mb-6 md:w-[45%] sm:w-[100%] md:content-start`}>
+                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center content-center items-center mt-0 mb-6 md:w-[50%] sm:w-[100%] md:content-start`}>
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
@@ -372,7 +372,7 @@ function TimeSelectApp() {
                         .catch(error => {
                           console.error("Error fetching Google Calendars:", error);
                         });
-                    }} className={`text-lg ml-5 md:mb-6 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
+                    }} className={`text-lg md:mb-6 bg-blue-500 w-fit flex 0gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
                   >
                     Toggle GCal Availabilities
                 </button>}

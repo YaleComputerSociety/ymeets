@@ -106,7 +106,7 @@ export default function AdminGroupViewApp() {
       if (dragState.dragEndedOnID[0] != dragState.dragStartedOnID[0]) {
         // setGeneralPopupMessage("You must select times that occur on the same day!");
         // setShowGeneralPopup(true);
-        alert("No new time selection made!")
+        alert("You must select times that occur on the same day!")
         return;
       }
 
@@ -173,7 +173,7 @@ export default function AdminGroupViewApp() {
                       
                       <button 
                         onClick={() => {nav("/timeselect/" + code)}}
-                        className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                        className='hidden font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
                                     transform transition-transform hover:scale-90 active:scale-100e md:block'>
                         <span className="mr-1">&#8592;</span> Edit Your Availiability
                       </button>
@@ -215,7 +215,7 @@ export default function AdminGroupViewApp() {
 
                         <button 
                             onClick={handleSelectionSubmission}
-                            className='font-semibold rounded-md bg-blue-500 text-white p-4 text-sm \
+                            className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                             Submit Selection
                         </button>
