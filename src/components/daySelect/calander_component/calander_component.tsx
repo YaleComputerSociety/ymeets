@@ -141,7 +141,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   };
   
   return (
-    <div className="calendar-wrapper">
+    <div className='calendar-wrapper'>
       {
         selectGeneralDays === false ? 
       <Calendar

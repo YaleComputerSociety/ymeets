@@ -277,24 +277,24 @@ function TimeSelectApp() {
     
 
     return (
-        <div className="bg-sky-100">
+        <div className="bg-sky-100 ml-5 w-[90%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
                 {/*There was an mx-9*/}
-                <div className="flex flex-col flex-wrap justify-start pt-12 md:w-[45%] sm:w-[100%] md:content-center">
+                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] w-[100%] md:content-center">
                     <div className="mb-8">
-                        <h3 className="text-m text-left text-gray-400">Event Name</h3>
-                        <h3 className="text-3xl font-bold text-left">{eventName}</h3>
+                        <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
+                        <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
                     </div>
                     {eventDescription && (
                         <div className="mb-8">
-                            <h3 className="text-m text-left text-gray-400">Description</h3>
-                            <h3 className="text-2xl font-bold text-left">{eventDescription}</h3>
+                            <h3 className="text-m text-left text-gray-400 w-[100%]">Description</h3>
+                            <h3 className="text-xl sm:text-2xl font-bold text-left w-[100%]">{eventDescription}</h3>
                         </div>
                     )}
             
                     <div>
                         {locationOptions.length > 0 && (
-                        <div className="w-96 flex-col content-center mt-5 mb-8">
+                        <div className="w-96 flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
                             update={updateSelectedLocations}
                             locations={locationOptions}
