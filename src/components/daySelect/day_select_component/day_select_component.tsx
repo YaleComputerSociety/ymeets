@@ -180,9 +180,9 @@ export const DaySelectComponent = () => {
     }
        
     return (
-        <div className="flex flex-col justify-center items-center md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-            <div className="flex flex-col flex-wrap justify-start content-center w-[100%] md:content-start">
-                <div className="space-y-3 mb-8 md:w-[90%] md:space-y-7 md:mt-12 ">
+        <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
+            <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6">
+                <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 ">
                     <div className="w-[100%] flex flex-row justify-center md:justify-start">
                         <input
                             id="event-name"
@@ -212,7 +212,7 @@ export const DaySelectComponent = () => {
                                 maxLength={30}
                                 style={{resize: "none"}}
                                 className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                                placeholder="Add Location Options"
+                                placeholder="Location Choices (Optional)"
                                 value={locationField}
                                 onChange={(e) => setLocationField(e.target.value)}
                                 onKeyDown={(e) => {
@@ -261,7 +261,7 @@ export const DaySelectComponent = () => {
                 
             </div>
             
-            <div className="flex flex-col space-y-7 mb-6 w-[85%]">
+            <div className="flex flex-col flex-wrap space-y-7 mb-6 w-[90%] sm:w-[85%]">
                 <button 
                     className="text-sm hover:scale-90 w-fit lg:text-base flex items-center gap-2 bg-blue-500 text-white font-medium py-1 sm:py-1.5 md:py-2 px-4 md:px-6 rounded-l active:bg-ymeets-light-blue transition-colors"
                     onClick={() => {setSelectGeneralDays((oldState) => {

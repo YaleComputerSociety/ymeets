@@ -124,7 +124,8 @@ function AddToGoogleCalendarButton(): JSX.Element {
     }
 
     return (  
-        <button className="rounded-md font-semibold bg-white text-black px-1.5 py-3 text-sm hover:text-blue-500"
+        <button className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm mb-8 w-fit 
+        transform transition-transform hover:scale-90 active:scale-100e"
             id={user ? 'sync' : 'auth'}
             onClick={user ? () => createCalendarEvent(getEventObjectForGCal()) : undefined}>
                 Add to Google Calendar

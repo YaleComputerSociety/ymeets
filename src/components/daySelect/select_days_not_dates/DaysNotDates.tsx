@@ -1,5 +1,6 @@
 import { useState } from "react";
 import TimeSelectComponent from "../time_select_component";
+import "./DaysNotDates.css";
 
 interface DaysNotDatesProps {
     theSelectedDays: [any, React.Dispatch<React.SetStateAction<any>>] | undefined;
@@ -30,7 +31,7 @@ export default function DaysNotDates({ theSelectedDays, selectedStartDate, selec
     }
 
     return (
-        <div>
+        <div className="days-calendar-wrapper">
             <div className="flex flex-row ">
                 {
                     DAYS.map((day) => (

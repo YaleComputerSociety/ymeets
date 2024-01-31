@@ -56,14 +56,14 @@ export const LoginPageButtons = () => {
     };
 
     return (
-        <div className="min-h-screen h-fit w-screen overflow-auto bg-sky-100 p-14 pt-0 \
+        <div className="h-fit w-full overflow-auto bg-sky-100 p-8 sm:p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60">
             <div className='flex-col-reverse justify-center \ 
-                            md:flex-row flex md:h-1/2'>
-                <div className='justify-center self-center space-y-12 mt-3 max-w-full min-w-[70%] md:w-[90%]'>
-                    <div className='flex flex-col space-y-10 w-full md:justify-end'>
-                        <h1 className='font-bold text-center text-5xl md:text-left xl:text-5xl md:pr-8'>A cleaner, faster way to schedule meetings.</h1>
-                        <h3 className='text-gray-600 text-center text-3xl md:text-left xl:text-3xl md:pr-8'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
+                            md:flex-row flex md:h-1/2 mb-8'>
+                <div className='justify-center self-center space-y-12 mt-3 max-w-full mb-4 min-w-[70%] md:w-[90%]'>
+                    <div className='flex flex-col space-y-5 sm:space-y-10 w-full md:justify-end'>
+                        <h1 className='font-bold text-center text-4xl sm:text-5xl md:text-left xl:text-5xl md:pr-8'>A cleaner, faster way to schedule meetings.</h1>
+                        <h3 className='text-gray-600 text-center text-xl sm:text-3xl md:text-left xl:text-3xl md:pr-8'>ymeets is a platform to plan gatherings at Yale more efficiently</h3>
                     </div>
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
@@ -85,8 +85,8 @@ export const LoginPageButtons = () => {
                         </div>
                     </div>
                 </div>
-                <div className='flex md:w-[40%] justify-center pb-7 md:pb-0 md:pl-0'>
-                    <img src={graphic} alt="graphic" className='w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
+                <div className='flex md:w-[40%] justify-center pb-4 sm:pb-7 md:pb-0 md:pl-0'>
+                    <img src={graphic} alt="graphic" className='w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
                 </div>
             </div>
             {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
