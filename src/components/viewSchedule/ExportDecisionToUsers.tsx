@@ -36,15 +36,12 @@ function ExportDecisionsToUser(props : any): JSX.Element {
     // Load gapi script and client
     useEffect(() => {
 
-
-
-        console.log(process.env.REACT_APP_CLIENT_ID_GAPI); // TODO
         async function loadGapi() {
             const newGapi = await loadGapiInsideDOM();
             loadGapiClient(newGapi);
             const newAuth2 = await loadAuth2(
                 newGapi,
-                process.env.REACT_APP_CLIENT_ID_GAPI || "",
+                REACT_APP_CLIENT_ID_GAPI || "",
                 SCOPES,
             );
             setGapi(newGapi);

@@ -39,7 +39,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
             loadGapiClient(newGapi);
             const newAuth2 = await loadAuth2(
                 newGapi,
-                process.env.REACT_APP_CLIENT_ID_GAPI || "",
+                REACT_APP_CLIENT_ID_GAPI || "",
                 SCOPES,
             );
             setGapi(newGapi);
