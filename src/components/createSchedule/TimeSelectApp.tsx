@@ -272,12 +272,14 @@ function TimeSelectApp() {
         const avail = calendarState[user]
         console.log("After conversion, ", avail);
         wrappedSaveParticipantDetails(avail, selectedLocations);
+        redirectToGroupview();
+    }
+
+    const redirectToGroupview = () => {
         navigate(`/groupview/${code}`);
     }
 
     const handleSubmitAvailability = () => {
-
-
         saveAvailAndLocationChanges();
     }
     
@@ -318,11 +320,20 @@ function TimeSelectApp() {
                         )}
                     </div>
                     <div className="flex flex-col items-center justify-center">
-                        <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
-                                            transform transition-transform hover:scale-90 active:scale-100e'
-                        onClick={handleSubmitAvailability}>
-                        Submit Availability
-                        </button>
+                        { chosenDateRange !== undefined ?
+                            <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
+                                                transform transition-transform hover:scale-90 active:scale-100e'
+                            onClick={redirectToGroupview}>
+                                See Everyone's Availability
+                            </button>
+                            :
+                            <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
+                                                transform transition-transform hover:scale-90 active:scale-100e'
+                            onClick={handleSubmitAvailability}>
+                            Submit Availability
+                            </button>                            
+                        }
+                        
                         <br/>
                         { chosenDateRange !== undefined &&
                             <div className='text-gray text-2xl text-bold'>

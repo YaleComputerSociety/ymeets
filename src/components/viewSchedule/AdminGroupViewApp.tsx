@@ -192,7 +192,7 @@ export default function AdminGroupViewApp() {
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Location:</span>{chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                            <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
                           </div>
                       </div>
