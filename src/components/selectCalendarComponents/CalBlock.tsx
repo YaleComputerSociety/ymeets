@@ -7,8 +7,10 @@ import { generateTimeBlocks } from "../utils/generateTimeBlocks";
 import { calandarDate } from "../../types";
 import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from "../../firebase/events";
 import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
+import ReactDOM from 'react-dom';
 
-interface DayBlockProps {
+
+interface CalBlockProps {
     blockID: number
     columnID: number
     theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>] | undefined
@@ -37,7 +39,11 @@ export default function CalBlock({
     theDragState,
     theSelectedDate,
     isOnGcal
-}: DayBlockProps) {
+}: CalBlockProps) {
+
+    const dragRef = useRef<HTMLDivElement>(null);
+    const elementId = `${columnID}-${blockID}`;
+
 
     const [isDraggable, setIsDraggable] = useState(draggable)
     //@ts-ignore
@@ -235,6 +241,8 @@ export default function CalBlock({
 
     const createNewDrag = () => {
 
+        console.log("drag started!");
+
         let oldState = dragState;
 
         if (calendarState[user][columnID][blockID] === true) {
@@ -256,7 +264,34 @@ export default function CalBlock({
 
     }
 
+    const handleTouchMove = (event: any) => {
+
+
+        const touch = event.touches[0];
+        const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY);
+       
+        //@ts-ignore
+        const [obtainedColumnID, onbtainedBlockID] = touchedElement?.id?.split('-').map(Number);
+
+        if (onbtainedBlockID === undefined) {
+            return;
+        }
+        
+        if (isDraggable == false) {
+            return;
+        }
+        
+        setDragState((oldState) => ({
+            ...oldState,
+            dragEndedOnID : [obtainedColumnID, onbtainedBlockID]
+        }))
+
+    };
+
     const handleDragStart = (event: any) => {
+        
+
+        console.log("drag started");
 
         const crt = event.target.cloneNode(true);
         crt.style.position = "absolute";
@@ -298,6 +333,8 @@ export default function CalBlock({
       
     const handleBlockUpdate = () => {
 
+        console.log("drag moved!")
+
         if (isDraggable == false) {
             return;
         }
@@ -306,6 +343,8 @@ export default function CalBlock({
             ...oldState,
             dragEndedOnID : [columnID, blockID]
         }))
+
+        console.log([columnID, blockID]);
 
       };
 
@@ -341,11 +380,41 @@ export default function CalBlock({
     return (
         <div
             draggable="true"
+            id={elementId}
+            ref={dragRef}
             onClick={handleBlockClick}
             onDragStart={handleDragStart}
             onDragEnter={handleBlockUpdate}
             onDragOver={handleBlockUpdate}
             onMouseOver={handleHover}
+            
+            onTouchStart={() => {
+
+                console.log("touch started!");
+                if (isDraggable == false) {
+                    return;
+                }
+
+                const dragStartEvent = new DragEvent('dragstart', {
+                    bubbles: true,
+                    cancelable: true,
+                    dataTransfer: new DataTransfer()
+                  });
+
+                  console.log(dragRef)
+
+                  if (dragRef.current) {
+                    dragRef.current.dispatchEvent(dragStartEvent);
+                  }
+
+                  document.body.style.overflow = "hidden"
+        
+                // createNewDrag();
+            }}  
+
+            onTouchEnd={() => {console.log("touch ended!"); document.body.style.overflow = "visible"}}
+            onTouchMove={handleTouchMove}
+
             onMouseLeave={() => setIsDottedBorder(false)}
             className={
                 (!isDraggable || (isDraggable && isAdmin)) === false
