@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
 import { SCOPES } from '../../firebase/firebase';
 import { getEventObjectForGCal } from '../../firebase/events';
+import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 
 // Credit to CourseTable team https://coursetable.com/about
 
@@ -21,8 +22,8 @@ function AddToGoogleCalendarButton(): JSX.Element {
 
         } catch {
         gapiInstance.client.init({
-            apiKey: process.env.REACT_APP_API_KEY_GAPI,
-            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            apiKey: REACT_APP_API_KEY_GAPI,
+            clientId: REACT_APP_CLIENT_ID_GAPI,
             scope: SCOPES,
         });
         gapiInstance.client.load('calendar', 'v3');
@@ -38,7 +39,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
             loadGapiClient(newGapi);
             const newAuth2 = await loadAuth2(
                 newGapi,
-                process.env.REACT_APP_CLIENT_ID_GAPI || "",
+                REACT_APP_CLIENT_ID_GAPI || "",
                 SCOPES,
             );
             setGapi(newGapi);

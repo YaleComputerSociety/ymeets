@@ -50,13 +50,13 @@ export default function Calender({
     return (
         <div className="flex flex-col max-w-full">
             {
-                hasTitle && <p className="text-2xl sm:text-4xl my-5 mb-4 sm:mb-1 sm:ml-6 font-bold">
+                hasTitle && <p className="text-3xl sm:text-4xl my-5 mb-4 sm:mb-1 sm:ml-6 font-bold">
                     {title}
                 </p>
             }
 
             <div className="flex justify-center mb-4 md:m-5 md:justify-start">
-                <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-3 sm:py-6 px-4 sm:px-8 \
+                <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-3 sm:pt-6 sm:pb-0 px-4 sm:px-8 \
                                 md:bg-white rounded-lg">
                     {
                         calendarFramework?.dates.map((bucket : calandarDate[], index: number) => {
@@ -66,7 +66,7 @@ export default function Calender({
                                 }
 
                         return (
-                            <div className="ml-2 mr-2 mb-12" key={index}>
+                            <div className="ml-2 mr-2 mb-2" key={index}>
                                 <SelectCalander 
                                     renderTime={index == 0 ? true : false}
                                     theCalendarState={[calendarState, setCalendarState]}
