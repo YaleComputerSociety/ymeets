@@ -31,6 +31,7 @@ export const LocationSelectionComponent = (props:any) => {
             noDataRenderer={() => (
                 <div className="p-2 text-center">No location options set :(</div>
             )}     
+
         />
     );
 }

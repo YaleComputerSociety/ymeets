@@ -79,18 +79,18 @@ function TimeSelectApp() {
     //@ts-ignore
     const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
         gapiInstance.load(GAPI_CLIENT_NAME, () => {
-            try {
-                gapiInstance.client.load('calendar', 'v3');
-
-            } catch {
-            gapiInstance.client.init({
-                apiKey: REACT_APP_API_KEY_GAPI,
-                clientId: REACT_APP_CLIENT_ID_GAPI,
-                scope: SCOPES,
-            });
+        try {
             gapiInstance.client.load('calendar', 'v3');
 
-            }
+        } catch {
+        gapiInstance.client.init({
+            apiKey: process.env.REACT_APP_API_KEY_GAPI,
+            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            scope: SCOPES,
+        });
+        gapiInstance.client.load('calendar', 'v3');
+
+        }
         });
     };
 
@@ -190,8 +190,8 @@ function TimeSelectApp() {
 
                     if (dim == undefined) {
                         nav("/undefined")
-
                     }
+                
 
                     const accountName = getAccountName();
                     if (accountName === null) {   
@@ -216,11 +216,23 @@ function TimeSelectApp() {
                     setLocationOptions(getLocationOptions());
 
                     //@ts-ignore
-                    setChosenDateRange(getChosenDayAndTime);
+
+                    let theRange = getChosenDayAndTime()
+
+                    //@ts-ignore
+                    setChosenDateRange(theRange);
 
                     // @ts-ignore
                     setCalendarState([...availabilities, avail]);
                     setCalendarFramework(dim);
+
+                    console.log(theRange);
+
+                    //@ts-ignore
+                    if (theRange != undefined && theRange?.length !== 0) {
+                        nav("/groupview/" + code)
+                    }
+
                 });
             } else {
                 console.error("The event code in the URL doesn't exist");
@@ -233,7 +245,7 @@ function TimeSelectApp() {
             loadGapiClient(newGapi);
             const newAuth2 = await loadAuth2(
                 newGapi,
-                REACT_APP_CLIENT_ID_GAPI || "",
+                process.env.REACT_APP_CLIENT_ID_GAPI || "",
                 SCOPES,
             );
             setGapi(newGapi);
@@ -272,14 +284,12 @@ function TimeSelectApp() {
         const avail = calendarState[user]
         console.log("After conversion, ", avail);
         wrappedSaveParticipantDetails(avail, selectedLocations);
-        redirectToGroupview();
-    }
-
-    const redirectToGroupview = () => {
         navigate(`/groupview/${code}`);
     }
 
     const handleSubmitAvailability = () => {
+
+
         saveAvailAndLocationChanges();
     }
     
@@ -297,11 +307,12 @@ function TimeSelectApp() {
         <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
                 {/*There was an mx-9*/}
-                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[40%] md:pr-10 w-[100%] md:content-left md:px-[5%]">
+                <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
                     <div className="mb-8">
                         <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
                         <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
                     </div>
+
                     {eventDescription && (
                         <div className="mb-8">
                             <h3 className="text-m text-left text-gray-400 w-[100%]">Description</h3>
@@ -309,31 +320,26 @@ function TimeSelectApp() {
                         </div>
                     )}
             
-                    <div>
+                  
+
+                    {chosenDateRange == undefined && <div>
                         {locationOptions.length > 0 && (
-                        <div className="flex-col content-center mt-5 mb-8 w-[100%]">
+                        <div className="w-96 flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
-                            update={updateSelectedLocations}
-                            locations={locationOptions}
+                                update={updateSelectedLocations}
+                                locations={locationOptions}
                             />
                         </div>
                         )}
                     </div>
+                    }
+
                     <div className="flex flex-col items-center justify-center">
-                        { chosenDateRange !== undefined ?
-                            <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
-                                                transform transition-transform hover:scale-90 active:scale-100e'
-                            onClick={redirectToGroupview}>
-                                See Everyone's Availability
-                            </button>
-                            :
-                            <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
-                                                transform transition-transform hover:scale-90 active:scale-100e'
-                            onClick={handleSubmitAvailability}>
-                            Submit Availability
-                            </button>                            
-                        }
-                        
+                        <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
+                                            transform transition-transform hover:scale-90 active:scale-100e'
+                        onClick={handleSubmitAvailability}>
+                        Submit Availability / View Group Availability
+                        </button>
                         <br/>
                         { chosenDateRange !== undefined &&
                             <div className='text-gray text-2xl text-bold'>
@@ -342,8 +348,7 @@ function TimeSelectApp() {
                         }
                     </div>
                 </div>
-
-                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center content-center items-center mt-0 mb-6 md:w-[50%] sm:w-[100%] md:content-start`}>
+                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:content-start`}>
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
@@ -384,7 +389,7 @@ function TimeSelectApp() {
                         .catch(error => {
                           console.error("Error fetching Google Calendars:", error);
                         });
-                    }} className={`text-lg md:mb-6 bg-blue-500 w-fit flex 0gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
+                    }} className={`text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
                   >
                     Toggle GCal Availabilities
                 </button>}

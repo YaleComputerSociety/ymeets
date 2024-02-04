@@ -395,19 +395,18 @@ export default function CalBlock({
                     return;
                 }
 
+                document.body.style.overflow = "hidden"
+
                 const dragStartEvent = new DragEvent('dragstart', {
                     bubbles: true,
                     cancelable: true,
                     dataTransfer: new DataTransfer()
                   });
 
-                  console.log(dragRef)
-
                   if (dragRef.current) {
                     dragRef.current.dispatchEvent(dragStartEvent);
                   }
 
-                  document.body.style.overflow = "hidden"
         
                 // createNewDrag();
             }}  

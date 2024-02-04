@@ -282,7 +282,6 @@ export const DaySelectComponent = () => {
                                     clearOnSelect={false}
                                     placeholder="Select location preference(s)"
                                     values={[]} 
-                                    className="drop-down-style"
                                     onChange={(values) => {
                                         console.log(values);
                         

@@ -22,9 +22,7 @@ export default function GroupViewApp() {
 
     return (
         <>
-            {isAdmin === null ? (
-                <div>Loading...</div>
-            ) : isAdmin ? (
+            {checkIfAdmin() ? (
                 <div>
                     <AdminGroupViewApp />
                 </div>

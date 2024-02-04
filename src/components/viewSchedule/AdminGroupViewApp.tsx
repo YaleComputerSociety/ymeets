@@ -36,7 +36,7 @@ export default function AdminGroupViewApp() {
     // probably deprecated
     const [selectedDate, setSelectedDate] = useState();
 
-    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState();
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [selectionButtonClicked, setSelectionButtonClicked] = useState(false);
@@ -80,6 +80,9 @@ export default function AdminGroupViewApp() {
                 setLoading(false);
                 //@ts-ignore
                 setSelectedDateTimeObjects(getChosenDayAndTime());
+                
+                console.log(selectedDateTimeObjects);
+
               }).catch((err) => {
                   nav("/notfound")
               }); 
@@ -171,20 +174,23 @@ export default function AdminGroupViewApp() {
                   <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                       {/* Edit availability button */}
                       
+                      <div className="justify-center">
                       <button 
-                        onClick={() => {nav("/timeselect/" + code)}}
-                        className='hidden font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
-                                    transform transition-transform hover:scale-90 active:scale-100e md:block'>
-                        <span className="mr-1">&#8592;</span> Edit Your Availiability
-                      </button>
+                            disabled={selectedDateTimeObjects !== undefined && selectedDateTimeObjects?.length !== 0}
+                            onClick={() => {nav("/timeselect/" + code)}}
+                            className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
+                                        transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
+                            <span className="mr-1">&#8592;</span> Edit Your Availiability
+                        </button>
+                        </div>
 
                       {/* Event name, location, and time */}
 
                       <div className = "hidden mb-4 flex flex-col space-y-5 hidden md:block">
-                          <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
+                          <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
 
                           <div className="flex flex-col">
-                            <h3 className="text-base text-center md:text-left">
+                             <h3 className="text-base text-center md:text-left">
                             <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
                                         weekday: "long", year: "numeric", month: "short",  
                                         day: "numeric", hour: "2-digit", minute: "2-digit"  
@@ -194,6 +200,28 @@ export default function AdminGroupViewApp() {
                             <h3 className="text-base text-center md:text-left">
                             <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
+
+                            <button
+                          onClick={() => {
+                            copy(`${window.location.origin}/timeselect/${code}`)
+                            setCopied(true);
+                            setTimeout(() => {
+                              setCopied(false);
+                            }, 1000)
+                          }}
+                          className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                            copied ? 'bg-green-700' : 'bg-slate-100'
+                          } ${
+                            copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
+                          }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
+                            copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
+                          }  
+            
+                          transition-colors relative`}    
+                                              >
+                          {copied ? 'Copied' : "Click to copy shareable link"}
+                          {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
+                        </button>
 
 
                             {
@@ -281,17 +309,19 @@ export default function AdminGroupViewApp() {
                   <div className="md:hidden">
                     {/* (Mobile): Edit availability button */}
                       
-                    <button 
+                    {/* <button 
                       onClick={() => {nav("/timeselect/" + code)}}
                       className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
                                   transform transition-transform hover:scale-90 active:scale-100e'>
                       <span className="mr-1">&#8592;</span> Edit Your Availiability
-                    </button>
+                    </button> */}
 
                     {/* (Mobile): Event name, location, and time */}
 
                     <div className = "mb-4 flex flex-col space-y-5 mt-4">
-                      <h3 className="text-3xl text-center md:text-left">{eventName}</h3>
+
+                      
+                      <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
 
                       <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
@@ -304,6 +334,28 @@ export default function AdminGroupViewApp() {
                         <h3 className="text-base text-center md:text-left">
                         <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                         </h3>
+
+                        <button
+                          onClick={() => {
+                            copy(`${window.location.origin}/timeselect/${code}`)
+                            setCopied(true);
+                            setTimeout(() => {
+                              setCopied(false);
+                            }, 1000)
+                          }}
+                          className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                            copied ? 'bg-green-700' : 'bg-slate-100'
+                          } ${
+                            copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
+                          }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
+                            copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
+                          }  
+            
+                          transition-colors relative`}    
+                                              >
+                          {copied ? 'Copied' : "Click to copy shareable link"}
+                          {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
+                        </button>
                         
                         <div className="flex justify-center">
                         {chosenLocation && (
