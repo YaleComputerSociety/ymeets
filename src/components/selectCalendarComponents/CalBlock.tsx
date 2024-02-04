@@ -390,7 +390,7 @@ export default function CalBlock({
             
             onTouchStart={() => {
 
-                console.log("touch started!");
+        
                 if (isDraggable == false) {
                     return;
                 }
@@ -412,7 +412,22 @@ export default function CalBlock({
                 // createNewDrag();
             }}  
 
-            onTouchEnd={() => {console.log("touch ended!"); document.body.style.overflow = "visible"}}
+            onTouchEnd={() => {
+                console.log("touch ended!"); 
+
+                document.body.style.overflow = "visible"
+                
+                //@ts-expect-error
+                setDragState((prev) => {
+
+
+                    return {dragStartedOnID : [], // [columnID, blockID]
+                    dragEndedOnID : [],
+                    dragStartedOn : false,
+                    affectedBlocks : new Set()}
+                    
+                })
+            }}
             onTouchMove={handleTouchMove}
 
             onMouseLeave={() => setIsDottedBorder(false)}
