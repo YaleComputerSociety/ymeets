@@ -39,6 +39,7 @@
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "^5.0.1",
+    "react-select": "^5.8.0",
     "reactjs-popup": "^2.0.6",
     "tippy": "^0.0.0",
     "tippy.js": "^6.3.7",

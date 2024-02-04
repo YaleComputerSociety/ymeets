@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import LocationSelectionComponent from "../../locationSelectionComponent"
 import DaysNotDates from "../select_days_not_dates/DaysNotDates";
 import TimeSelectComponent from "../time_select_component";
+import Select from "react-dropdown-select";
 
 export const DaySelectComponent = () => {
 
@@ -27,6 +28,42 @@ export const DaySelectComponent = () => {
     const [popUpIsOpen, setPopupIsOpen] = useState(false);
     const [locations, updateLocationsState] = useState<string[]>([]);
     const [locationField, setLocationField] = useState("");
+    const [locationOptions, setLocationOptions] = useState<any[]>([
+        {
+            label : "TSAI City",
+            value : "TSAI City"
+        },
+        {
+            label : "17 Hillhouse",
+            value : "17 Hillhouse"
+        },
+        {
+            label : "HQ",
+            value : "HQ"
+        },
+        {
+            label : "WLH",
+            value : "WLH"
+        },
+        {
+            label : "SSS",
+            value : "SSS"
+        },
+        {
+            label : "Sterling",
+            value : "Sterling"
+        },
+        {
+            label : "Watson",
+            value : "Watson",
+        },
+        {
+            label : "Marx",
+            value : "Marx"
+        }
+
+
+    ]);
 
     const handleUpdateStartTime = (time: Date) => {
         setStartDate(time)
@@ -207,7 +244,7 @@ export const DaySelectComponent = () => {
 
                     <div className="mt-0">
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
-                            <input
+                            {/* <input
                                 id="event-description"
                                 maxLength={30}
                                 style={{resize: "none"}}
@@ -229,21 +266,42 @@ export const DaySelectComponent = () => {
                                         }
                                     }
                                 }}
-                            />
-                            {/* <select id="event-location" className="flex justify-left border p-3 px-4 text-base w-[80%]">
-                                <option value="bass">No Location</option>
-                                <option value="sterling">Sterling Library</option>
-                                <option value="tsai">Tsai City</option>
-                                <option value="CEID">Bass Library</option>
-                            </select> */}
+
+                                
+                            /> */}
+                               <Select  
+                                    multi
+                                    create={true}
+                                    onCreateNew={(newItem) => {
+                                        console.log(newItem);
+                                        setLocationOptions((oldOptions: any) => {
+                                            return [...oldOptions, newItem];
+                                        });
+                                    }}
+                                    options={locationOptions} 
+                                    clearOnSelect={false}
+                                    placeholder="Select location preference(s)"
+                                    values={[]} 
+                                    className="drop-down-style"
+                                    onChange={(values) => {
+                                        console.log(values);
+                        
+                                        const selectedValues = values.map((val) => val.value);
+                                        console.log(selectedValues);
+                                        updateLocationsState(selectedValues)
+                        
+                                    }}
+                                />
+
+
                         </div>
                         <div className="mb-6">
                             <div className="w-[100%] flex flex-row justify-center md:justify-start mb-6">
                                 <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
-                                    Click ENTER after typing a location to add an option for participants
+                                    TYPE and click ENTER to add options not listed.
                                 </div>
                             </div>
-                            <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
+                            {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
                                 {locations.map((location, index) => (
                                     <div className="flex w-[100%] justify-center md:justify-start">
                                         <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
@@ -254,7 +312,7 @@ export const DaySelectComponent = () => {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

@@ -194,6 +194,21 @@ export default function AdminGroupViewApp() {
                             <h3 className="text-base text-center md:text-left">
                             <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                             </h3>
+
+
+                            {
+                       chosenLocation && (
+                                <button
+                                onClick={() => {
+                                  window.open("https://25live.collegenet.com/pro/yale#!/home/event/form", "_blank");
+                              }}
+                                    className="font-bold mt-2 rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+                                >
+                                    Book Room
+                                </button>
+                            )
+                    
+                            }
                           </div>
                       </div>
 
@@ -219,6 +234,8 @@ export default function AdminGroupViewApp() {
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                             Submit Selection
                         </button>
+
+                        
                       </div>
 
                       {/* User availability table */} 
@@ -287,6 +304,25 @@ export default function AdminGroupViewApp() {
                         <h3 className="text-base text-center md:text-left">
                         <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                         </h3>
+                        
+                        <div className="flex justify-center">
+                        {chosenLocation && (
+                                <button
+                                onClick={() => {
+                                  window.open("https://25live.collegenet.com/pro/yale#!/home/event/form", "_blank");
+                              }}
+                                    className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+                                >
+                                    Book Room
+                                </button>
+                            )
+                    
+                            }
+                          </div>
+
+                      
+
+                        
                       </div>
                     </div>
                     

@@ -10,8 +10,10 @@ import NavBar from "./components/navbar/NavBar"
 import Footer from "./components/footer/Footer"
 import Accounts from './components/accounts/Accounts';
 import GroupViewApp from './components/viewSchedule/GroupViewApp';
-import AboutUs from "./components/aboutUs/aboutUs";
+import AboutUs from "./components/AboutUs/aboutUs";
 import NotFound from "./components/NotFound/NotFound";
+import { Provider } from 'react-redux';
+
 
 function Root() {
 
