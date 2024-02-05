@@ -8,6 +8,7 @@ import { calandarDate } from "../../types";
 import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from "../../firebase/events";
 import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
 import ReactDOM from 'react-dom';
+import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 
 
 interface CalBlockProps {
@@ -271,6 +272,13 @@ export default function CalBlock({
         const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY);
        
         //@ts-ignore
+        const touchedEleId = touchedElement?.id
+
+        if (!touchedEleId?.includes("-")) {
+            return;
+        }
+
+        //@ts-ignore
         const [obtainedColumnID, onbtainedBlockID] = touchedElement?.id?.split('-').map(Number);
 
         if (onbtainedBlockID === undefined) {
@@ -395,38 +403,33 @@ export default function CalBlock({
                     return;
                 }
 
-                document.body.style.overflow = "hidden"
-
                 const dragStartEvent = new DragEvent('dragstart', {
                     bubbles: true,
                     cancelable: true,
                     dataTransfer: new DataTransfer()
                   });
 
-                  if (dragRef.current) {
+                if (dragRef.current) {
                     dragRef.current.dispatchEvent(dragStartEvent);
-                  }
+                }
+                
+                disableBodyScroll(document.body)
+                
+                //@ts-ignore
+                // document.body.style.WebkitOverflowScrolling = 'touch';
 
-        
-                // createNewDrag();
             }}  
 
             onTouchEnd={() => {
-                console.log("touch ended!"); 
+           
+                enableBodyScroll(document.body)
 
-                document.body.style.overflow = "visible"
-                
-                //@ts-expect-error
-                setDragState((prev) => {
+                //@ts-ignore
+                // document.body.style.WebkitOverflowScrolling = 'auto';
 
-
-                    return {dragStartedOnID : [], // [columnID, blockID]
-                    dragEndedOnID : [],
-                    dragStartedOn : false,
-                    affectedBlocks : new Set()}
-                    
-                })
+            
             }}
+
             onTouchMove={handleTouchMove}
 
             onMouseLeave={() => setIsDottedBorder(false)}

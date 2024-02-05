@@ -13,6 +13,7 @@ import GroupViewApp from './components/viewSchedule/GroupViewApp';
 import AboutUs from "./components/AboutUs/aboutUs";
 import NotFound from "./components/NotFound/NotFound";
 import { Provider } from 'react-redux';
+import { Privacy } from "./components/AboutUs/Privacy";
 
 
 function Root() {
@@ -34,6 +35,7 @@ function Root() {
                 <Route path="/useraccount" element={<Accounts />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="*" element={<NotFound/>} />
+                <Route path="/privacy" element={<Privacy/>}></Route>
             </Routes>
         </Router>
         </>

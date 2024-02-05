@@ -209,6 +209,8 @@ export default function AboutUs() {
                 and integrated our own ideas, features, and designs. As of right now, 
                 this app is built and maintained by a small team of passionate <a className="text-blue-500 " href="https://yalecomputersociety.org/">y/cs (Yale Computer Society) </a>
                  developers hoping to make scheduling more user friendly and convenient. 
+
+                If you have concerns about our app uses your information, please go to the following <a className="text-blue-500" href="/privacy">page</a> to view our privacy policy.
                 </p>
                 <img   
                     className="inline-block mb-6 md:ml-6"
