@@ -10,7 +10,7 @@ export default function Footer() {
             </p>
             <p className="px-2 hover:text-blue-700">
             <a href="/privacy">
-                privacy policy
+                privacy policy + limited use agreement
             </a>
             </p>
         </div>

@@ -581,6 +581,13 @@ export function Privacy() {
       <ul>
         <li>By email: yalecomputersociety@gmail.com</li>
       </ul>
+      <h1 className="font-bold">Limited Use Agreeement</h1>
+      <p>ymeets complies with the Google API Services User Data Policy, including the Limited Use requirements.
+        Here is a <span className="font-bold text-sky-900"><a className="text-sky-900" href="https://developers.google.com/terms/api-services-user-data-policy">link </a></span>to Google's API Service Data Policy, if you wish to learn more about the constraints
+        to which we comply.
+      </p>
+
+
       </div>
         </div>
     )
