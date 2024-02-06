@@ -413,17 +413,25 @@ export default function CalBlock({
                     dragRef.current.dispatchEvent(dragStartEvent);
                 }
                 
-                disableBodyScroll(document.body)
-                
+                // disableBodyScroll(document.body)
+
+                //@ts-ignore
+                // document.getElementById("cal").style.overflow = "hidden"
+                // document.body.style.overflow = "hidden"
+
                 //@ts-ignore
                 // document.body.style.WebkitOverflowScrolling = 'touch';
 
             }}  
 
             onTouchEnd={() => {
-           
-                enableBodyScroll(document.body)
 
+                //@ts-ignore
+                // document.getElementById("cal").style.fixed = "auto"
+                // document.body.style.overflow = "visible"
+
+
+    
                 //@ts-ignore
                 // document.body.style.WebkitOverflowScrolling = 'auto';
 

@@ -54,7 +54,8 @@ function SelectCalander({
   const [googleCalendarEvents, setGoogleCalendarEvents] = theGoogleCalendarEvents
 
   return (
-      <div className="max-h-120 m-2">
+      <div className="max-h-120 m-2"
+      style={{ touchAction: 'none'}}>
         {
           timeBlocks.map((hour: string[], blockIDOffset: number) => {
 
