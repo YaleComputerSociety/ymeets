@@ -1,7 +1,6 @@
 import * as React from "react";
 // import background from '../landingpage/landingbackground.jpg'
 import {useNavigate} from 'react-router-dom';
-import { signInWithGoogle } from "../../firebase/auth";
 import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 import LoginPopup from "../loginpopup";
@@ -14,12 +13,6 @@ export const LoginPageButtons = () => {
     const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
 
     const handleSignInWithGoogle = () => {
-        // if (!checkIfLoggedIn()) {
-        //     signInWithGoogle().then(() => {
-        //         navigate('./dayselect');
-        //         return;
-        //     });
-        // }
         navigate('./dayselect');      
     }
 

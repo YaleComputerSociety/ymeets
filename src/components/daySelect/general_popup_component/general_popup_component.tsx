@@ -14,10 +14,12 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({ onClose, message, is
     const navigate = useNavigate();
   
     const handleSignInWithGoogle = () => {
-      signInWithGoogle().then(() => {
-        navigate('/dayselect');
-        onClose(); 
-        document.body.classList.remove('popup-open'); 
+      signInWithGoogle().then((loginSuccessful) => {
+        if (loginSuccessful !== false) {
+          navigate('/dayselect');
+          onClose(); 
+          document.body.classList.remove('popup-open'); 
+        }
       });
     };
   

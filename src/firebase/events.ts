@@ -188,7 +188,7 @@ const getParticipantIndex = (name: string, accountId: string = ""): number | und
                 index = i;
         }
     }
-    console.log("Found index: ", index);
+    // console.log("Found index: ", index);
     return index;
 } 
 

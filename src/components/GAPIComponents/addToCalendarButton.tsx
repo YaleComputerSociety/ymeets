@@ -47,7 +47,9 @@ function AddToGoogleCalendarButton(): JSX.Element {
             setLoading(false);
         }
 
-        loadGapi();
+        loadGapi().catch((err) => {
+            console.error("Error loading Google Calendar API: ", err);
+        });
     }, []);
 
     const createCalendarEvent = useCallback(

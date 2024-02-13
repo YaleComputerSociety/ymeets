@@ -84,8 +84,8 @@ function TimeSelectApp() {
 
         } catch {
         gapiInstance.client.init({
-            apiKey: process.env.REACT_APP_API_KEY_GAPI,
-            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            apiKey: REACT_APP_API_KEY_GAPI,
+            clientId: REACT_APP_CLIENT_ID_GAPI,
             scope: SCOPES,
         });
         gapiInstance.client.load('calendar', 'v3');
@@ -245,7 +245,7 @@ function TimeSelectApp() {
             loadGapiClient(newGapi);
             const newAuth2 = await loadAuth2(
                 newGapi,
-                process.env.REACT_APP_CLIENT_ID_GAPI || "",
+                REACT_APP_CLIENT_ID_GAPI || "",
                 SCOPES,
             );
             setGapi(newGapi);
@@ -257,7 +257,11 @@ function TimeSelectApp() {
             if (getAccountName() == "" || getAccountName() == undefined) {
                 setPromptUserForLogin(true)
             }
-            loadGapi()
+            try {
+                loadGapi()
+            } catch (err){
+                console.warn("Error loading gapi: ", err);
+            }
         }).catch((err) => {
             console.log(err);
         }
@@ -368,31 +372,32 @@ function TimeSelectApp() {
                 />
                 {/*The first date having a year be 2000 means that it was a general days selection*/}
                 {/*@ts-ignore*/}
-                {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && <button onClick={() => {
-                        fetchUserCals()
-                        .then((calendars) => {
-                            
+                {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && getAccountId() !== ""
+                && <button onClick={() => {
+                            fetchUserCals()
+                            .then((calendars) => {
+                                
 
-                            //@ts-ignore
-                            const calendarIDs = calendars.map(calendar => calendar.id);
+                                //@ts-ignore
+                                const calendarIDs = calendars.map(calendar => calendar.id);
 
-                            console.log("User's Google Calendars:", calendars);
-                            
-                            //@ts-ignore
-                            setGoogleCalendars(calendars);
+                                console.log("User's Google Calendars:", calendars);
+                                
+                                //@ts-ignore
+                                setGoogleCalendars(calendars);
 
-                            setGcalPopupOpen(true);
+                                setGcalPopupOpen(true);
 
-                            // setGoogleCalIds(calendarIDs)
-                  
-                        })
-                        .catch(error => {
-                          console.error("Error fetching Google Calendars:", error);
-                        });
-                    }} className={`text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
-                  >
-                    Toggle GCal Availabilities
-                </button>}
+                                // setGoogleCalIds(calendarIDs)
+                    
+                            })
+                            .catch(error => {
+                            console.error("Error fetching Google Calendars:", error);
+                            });
+                        }} className={`text-lg ml-5 bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue disabled:bg-gray-500 active:bg-ymeets-light-blue transition-colors`}
+                    >
+                        Toggle GCal Availabilities
+                    </button>}
                 <Popup isOpen={isGcalPopupOpen} onClose={closeGcalPopup} onCloseAndSubmit={onPopupCloseAndSubmit}>
                     <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
                     <FormGroup>

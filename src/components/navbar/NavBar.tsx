@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { IconUser } from "@tabler/icons-react"
 import { signInWithGoogle } from "../../firebase/auth"
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "../../firebase/firebase"
 
 export default function NavBar() {
     const [menuOpen, setMenuOpen] = React.useState(false)
@@ -17,9 +19,9 @@ export default function NavBar() {
     }
 
     useEffect(() => {
-        setTimeout(() => {
+        return onAuthStateChanged(auth, () => {
             setName(getAccountName().split(' ')[0]);
-        }, 500)  
+        });  
     }) 
 
     return (
@@ -46,8 +48,10 @@ export default function NavBar() {
                         Welcome, {name}
                     </button> :
                     <button onClick={() => {
-                        signInWithGoogle().then(() => {
-                            window.location.reload()
+                        signInWithGoogle().then((loginSuccessful) => {
+                            if (loginSuccessful) {
+                                window.location.reload();
+                            }
                         })}}>
                     <IconUser/>
                     </button>

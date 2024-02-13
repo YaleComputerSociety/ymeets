@@ -16,10 +16,12 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
     const [ inputName, setInputName ] = useState("");
   
     const handleSignInWithGoogle = () => {
-      signInWithGoogle().then(() => {
-        navigate('/dayselect');
-        onClose(); 
-        document.body.classList.remove('popup-open'); 
+      signInWithGoogle().then((loginSuccessful) => {
+          if (loginSuccessful !== false) {
+          navigate('/dayselect');
+          onClose(); 
+          document.body.classList.remove('popup-open'); 
+        }
       });
     };
 
@@ -68,7 +70,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
       {enableAnonymousSignIn && (
           <div className="flex items-center mt-3">
             <input
-              className="rounded-l-md text-center py-2 px-4 text-md bg-white text-left border border-gray-300 border-2"
+              className="rounded-l-md py-2 px-4 text-md bg-white text-left border-gray-300 border-2"
               placeholder="Your Name"
               name="name"
               type="text"

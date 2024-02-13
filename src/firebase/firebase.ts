@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBXVTeKhSvRq-6x5XeQKh9DVTYW8twa6nQ",
-  authDomain: "studybuddy-392c7.firebaseapp.com",
+  authDomain: "ymeets.com",
   projectId: "studybuddy-392c7",
   storageBucket: "studybuddy-392c7.appspot.com",
   messagingSenderId: "83459975838",
