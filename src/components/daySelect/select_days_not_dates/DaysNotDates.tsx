@@ -28,7 +28,7 @@ export default function DaysNotDates({ theSelectedDays, selectedStartDate, selec
 
   return (
     <div className="days-calendar-wrapper">
-      <div className="flex flex-row mt-32">
+      <div className="flex flex-row mt-12">
         {DAYS.map((day) => (
           <div key={day} className="mr-1 sm:w-1/7 md:w-1/7 lg:w-1/7 w-full sm:w-1/4 md:w-1/8 lg:w-1/10">
             <p className="text-grey mb-2">{day}</p>

@@ -142,6 +142,11 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   
   return (
     <div className='calendar-wrapper'>
+      <TimeSelectComponent
+        updateStart={handleUpdateStartTime}
+        updateEnd={handleUpdateEndTime}
+        paddingTop={selectGeneralDays ? 6 : 92}
+      />
       {
         selectGeneralDays === false ? 
       <Calendar
@@ -214,11 +219,6 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
              selectedEndDate={[endDate, setEndDate]}
       />
       }
-      
-      <TimeSelectComponent
-        updateStart={handleUpdateStartTime}
-        updateEnd={handleUpdateEndTime}
-      />
 
       <div className="next-button-wrapper">
         <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>
