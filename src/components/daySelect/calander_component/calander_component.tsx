@@ -145,7 +145,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
-        paddingTop={selectGeneralDays ? 6 : 92}
+        paddingClass={selectGeneralDays ? 'top-6' : 'top-[92px]'}
       />
       {
         selectGeneralDays === false ? 
