@@ -14,6 +14,8 @@ import GeneralPopup from '../general_popup_component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import DaysNotDates from "../select_days_not_dates/DaysNotDates";
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>],
@@ -51,10 +53,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
 
   const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
-  const arr1: any[] = [];
   const [selectedDates, setSelectedDates] = theSelectedDates
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(selectedDates);
@@ -105,40 +104,6 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   const handleUpdateEventName = (name: any) => {
     updateEventName(name)
   }
-
-  const dates = [
-    "September 5, 2022 00:00:00",
-    "September 5, 2022 23:59:59",
-    "October 18, 2022 00:00:00",
-    "October 23, 2022 23:59:59",
-    "November 18, 2022 00:00:00",
-    "November 27, 2022 23:59:59",
-    "December 21, 2022 00:00:00",
-    "January 15, 2023 23:59:59",
-    "January 16, 2023 00:00:00",
-    "January 16, 2023 23:59:59",
-    "March 10, 2023 00:00:00",
-    "March 27, 2023 23:59:59",
-  ];
-  const holidays = dates.map((item) => new Date(item));
-
-  const getHolidayName = (date: Date) => {
-    if (holidays[0] <= date && date <= holidays[1]) {
-      return "Labor Day";
-    } else if (holidays[2] <= date && date <= holidays[3]) {
-      return "October Recess";
-    } else if (holidays[4] <= date && date <= holidays[5]) {
-      return "November Recess";
-    } else if (holidays[6] <= date && date <= holidays[7]) {
-      return "Winter Recess";
-    } else if (holidays[8] <= date && date <= holidays[9]) {
-      return "MLK Day";
-    } else if (holidays[10] <= date && date <= holidays[11]) {
-      return "Spring Recess";
-    } else {
-      return "";
-    }
-  };
   
   return (
     <div className='calendar-wrapper'>
@@ -154,41 +119,9 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         selectRange={false}
         showNeighboringMonth={true}
         minDetail="month"
-        tileDisabled={({ activeStartDate, date, view }) => {
-          if (holidays[0] <= date && date <= holidays[1]) {
-            return true;
-          } else if (holidays[2] <= date && date <= holidays[3]) {
-            return true;
-          } else if (holidays[4] <= date && date <= holidays[5]) {
-            return true;
-          } else if (holidays[6] <= date && date <= holidays[7]) {
-            return true;
-          } else if (holidays[8] <= date && date <= holidays[9]) {
-            return true;
-          } else if (holidays[10] <= date && date <= holidays[11]) {
-            return true;
-          } else {
-            return false;
-          }
-        }}
         tileContent={({ date, view }) => {      
-          const holidayName = getHolidayName(date);   
           return (
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>         
-              {holidayName && (
-                <div 
-                  className="tooltip-overlay has-tooltip" 
-                  data-title={holidayName} 
-                  style={{ 
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0,
-                    zIndex: 3
-                  }}
-                ></div>
-              )}     
               <CircleComponent
                 date={date}
                 add={addDay}
@@ -219,6 +152,8 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
       />
+
+      <Tooltip id="holiday-tooltip" style={{ zIndex: 3 }} />
 
       <div className="next-button-wrapper">
         <Popup open={popupIsOpen} closeOnDocumentClick onClose={() => setPopupIsOpen(false)}>
