@@ -84,6 +84,11 @@ export default function Accounts() {
     const [filter, setFilter] = useState("");
 
     const [events, setEvents] = useState<AccountsPageEvent[]>([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
+
+    const triggerRefresh = () => {
+      setRefreshTrigger(!refreshTrigger);
+    }
 
     const handleInputChange = (e: any) => {
         setFilter(e.target.value);
@@ -160,13 +165,14 @@ export default function Accounts() {
                     {event.iAmCreator && <button
                       onClick={() => {
                         deleteEvent(event.id).then(() => {
-                          window.location.reload();
+                          // delete it locally
+                          setEvents(events.filter(e => e.id != event.id));
                         }).catch((err) => {
                           
 
                         });
                       }}
-                      className="text-sm lg:text-base flex items-center gap-2 justify-center bg-red-900 text-white border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 active:bg-red-500 transition-colors"
+                      className="text-sm lg:text-base flex items-center gap-2 justify-center text-white border border-red-400 text-red-500 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 hover:text-white active:bg-red-500 transition-colors"
                     >
                       Delete
                       <IconTrash className="inline-block w-4 lg:w-5" />
