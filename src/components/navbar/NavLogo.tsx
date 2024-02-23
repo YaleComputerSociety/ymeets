@@ -14,7 +14,7 @@ export default function NavLogo() {
                     <div className="mr-2">
                         <CalendarIcon></CalendarIcon>
                     </div>
-                    <span className="text-2xl font-bold font-mono">y/meets</span> 
+                    <span className="text-2xl font-bold font-mono">ymeets</span> 
                 </div>
             </a>
         </div>

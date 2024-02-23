@@ -167,7 +167,7 @@ export default function Accounts() {
 
                         });
                       }}
-                      className="text-sm lg:text-base flex items-center gap-2 justify-center text-white border border-red-400 text-red-500 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 hover:text-white active:bg-red-500 transition-colors"
+                      className="text-sm lg:text-base flex items-center gap-2 justify-center border border-red-400 text-red-500 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 hover:text-white active:bg-red-500 transition-colors"
                     >
                       Delete
                       <IconTrash className="inline-block w-4 lg:w-5" />
