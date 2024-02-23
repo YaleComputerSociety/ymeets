@@ -67,13 +67,13 @@ export default function CalBlock({
                 if (selectedCount === 0) {
                     return "white"
                 } else if (percentageSelected <= 0.25) {
-                    return "sky-300"
+                    return "sky-200"
                 } else if (percentageSelected <= 0.50) {
-                    return "sky-600"
+                    return "sky-300"
                 } else if (percentageSelected <= 0.75) {
-                    return "sky-800"
-                } else {
-                    return "sky-950"
+                    return "teal-400"
+                } else if (percentageSelected == 1) {
+                    return "green-400"
                 }
             } else {
                 
