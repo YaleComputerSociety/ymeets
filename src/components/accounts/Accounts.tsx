@@ -84,11 +84,6 @@ export default function Accounts() {
     const [filter, setFilter] = useState("");
 
     const [events, setEvents] = useState<AccountsPageEvent[]>([]);
-    const [refreshTrigger, setRefreshTrigger] = useState(false);
-
-    const triggerRefresh = () => {
-      setRefreshTrigger(!refreshTrigger);
-    }
 
     const handleInputChange = (e: any) => {
         setFilter(e.target.value);
