@@ -11,11 +11,17 @@ export const LoginPageButtons = () => {
     const [showInput, setShowInput] = React.useState(true)
     const [eventCode, setEventCode] = React.useState("");
     const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
+    const [showFormValidation, setShowFormValidation] = React.useState<boolean>(false);
+    const [formErrorMessage, setFormErrorMessage] = React.useState("")
 
     const handleSignInWithGoogle = () => {
         navigate('./dayselect');      
     }
 
+    function formValidationPopup(message : string){
+        setShowFormValidation(true);
+        setFormErrorMessage(message);
+    }
     const showEventInput = () => {
         setShowInput(!showInput)
     }  
@@ -28,12 +34,12 @@ export const LoginPageButtons = () => {
 
         }).catch((err) => {
             console.log(err);
-            alert('Code is invalid.');
+            formValidationPopup('Code is invalid.');
         });
     }
     const signInAndGoToEvent = () => {
         if (eventCode.length != 6){
-            alert("Codes are 6 characters long.")
+            formValidationPopup("Codes are 6 characters long.")
         }
         else if (checkIfLoggedIn()) {
             goToEvent();
@@ -64,7 +70,7 @@ export const LoginPageButtons = () => {
                                            transform transition-transform hover:scale-90 active:scale-100e' 
                                            onClick={() => {handleSignInWithGoogle()}}>I'm a Host</button>
                         <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
-                        <div className={showInput ? "hidden" : "flex flex-nowrap"}>
+                        <div className={showInput ? "hidden" : "flex flex-nowrap relative"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>
                             <input className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"
                                     placeholder="Enter your event code"
@@ -75,6 +81,7 @@ export const LoginPageButtons = () => {
                                     onClick={signInAndGoToEvent}> 
                                 Join 
                             </button>
+                            <div className={!showFormValidation ? "hidden" : "text-blue-500 absolute -bottom-10 text-center w-full"}>Try Again: {formErrorMessage}</div>
                         </div>
                     </div>
                 </div>
