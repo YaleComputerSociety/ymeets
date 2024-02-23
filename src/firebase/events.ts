@@ -165,7 +165,11 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     // Update backend
     return new Promise((resolve, reject) => {
         const eventsRef = collection(db, "events")
-        setDoc(doc(eventsRef, id), newEvent) // addDoc as overwrite-safe alt
+        setDoc(doc(eventsRef, id), {
+            ...newEvent,
+            //@ts-ignore
+            participants: [eventDetails.adminAccountId]
+        }) // addDoc as overwrite-safe alt
             .then((result: void) => {
                 resolve(newEvent);
 

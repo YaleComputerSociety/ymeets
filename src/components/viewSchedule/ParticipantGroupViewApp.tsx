@@ -25,7 +25,7 @@ export default function ParticipantGroupViewApp() {
     const [selectedLocation, setSelectedLocation] = useState("");
     const [chosenLocation, setChosenLocation] = useState("")
     const [chosenTimeRange, setChosenTimeRange] = useState(undefined);
-    const [chosenDateRange, setChosenDateRange] = useState([]);
+    const [chosenDateRange, setChosenDateRange] = useState<[Date, Date] | undefined>();
 
 
     const [ loading, setLoading ] = useState(true);
@@ -87,7 +87,6 @@ export default function ParticipantGroupViewApp() {
 
                     let getChosenDayAndTimeVar = getChosenDayAndTime()
                     
-                    //@ts-ignore
                     setChosenDateRange(getChosenDayAndTimeVar);
                        
                     if (getChosenDayAndTimeVar != undefined) {
@@ -138,27 +137,29 @@ export default function ParticipantGroupViewApp() {
                 <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
                     <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                         <button 
-                            disabled={chosenDateRange != undefined && chosenDateRange?.length !== 0}
+                            disabled={chosenDateRange != undefined}
                             onClick={() => {nav("/timeselect/" + code)}}
                             className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
                                         transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </button>
-                        {chosenDateRange != undefined && chosenDateRange?.length !== 0 && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                        {chosenDateRange != undefined && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
                             NOTE: Admin has selected a time, so you cannot edit your availability
                         </div>
                         }
 
-                        <div className = "hidden mb-4 flex flex-col space-y-5 hidden md:block">
+                        <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
                             <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
 
                             <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
                             {/*@ts-ignore*/}
-                          <span className='font-bold'>Time:</span> {chosenDateRange != undefined && chosenDateRange[0] !== undefined ? chosenDateRange[0]?.toLocaleDateString('en-us', {  
-                                    weekday: "long", year: "numeric", month: "short",  
-                                    day: "numeric", hour: "2-digit", minute: "2-digit"  
-                                }) : "not selected"}
+                            <span className='font-bold'>Time:</span> {chosenDateRange !== undefined ? (chosenDateRange[0]?.toLocaleDateString('en-us', {  
+                                        weekday: "long", year: "numeric", month: "short",  
+                                        day: "numeric", hour: "numeric", minute: "2-digit"  
+                                    }) + " — " + chosenDateRange[1]?.toLocaleTimeString('en-us', {  
+                                      hour: "numeric", minute: "2-digit"  
+                                  })) : "not selected"}
                         </h3>
 
                         <h3 className="text-base text-center md:text-left">

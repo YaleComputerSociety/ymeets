@@ -186,15 +186,17 @@ export default function AdminGroupViewApp() {
 
                       {/* Event name, location, and time */}
 
-                      <div className = "hidden mb-4 flex flex-col space-y-5 hidden md:block">
+                      <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
                           <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
 
                           <div className="flex flex-col">
                              <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
+                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? (chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
                                         weekday: "long", year: "numeric", month: "short",  
-                                        day: "numeric", hour: "2-digit", minute: "2-digit"  
-                                    }) : "not selected"}
+                                        day: "numeric", hour: "numeric", minute: "2-digit"  
+                                    }) + " — " + chosenDayAndTime[1]?.toLocaleTimeString('en-us', {  
+                                      hour: "numeric", minute: "2-digit"  
+                                  })) : "not selected"}
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
