@@ -20,6 +20,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {LoginPopup} from '../loginpopup/login_guest_popup';
 import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
+import { LoadingAnim } from "../loadingAnim/loadingAnim";
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -270,7 +271,10 @@ function TimeSelectApp() {
     }, []);
     
     if (loading) {
-        return <p>Loading...</p>
+        return <div className="w-full h-[60%] flex flex-col items-center justify-center">
+            <LoadingAnim/>
+            <p className="text-gray-500">Loading...</p>
+            </div>;
     }
 
     const getCurrentUserIndex = () => {

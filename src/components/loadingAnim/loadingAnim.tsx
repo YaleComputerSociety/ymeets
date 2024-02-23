@@ -5,23 +5,23 @@ export const LoadingAnim = () => {
         <rect x="81" y="42" width="19" height="31" rx="5" fill="#3C82F6"/>
         <rect x="149" y="41" width="19" height="31" rx="5" fill="#3C82F6"/>
         
-        <rect x="80" y="124" width="25" height="25" rx="5" fill="#3C82F6">
-            <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.5s"/>
+        <rect x="80" y="124" width="25" height="25" rx="5" fill="#3C82F6" opacity="0">
+            <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.25s"/>
         </rect>
-        <rect x="113" y="124" width="25" height="25" rx="5" fill="#3C82F6">
-            <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="1s"/>
+        <rect x="113" y="124" width="25" height="25" rx="5" fill="#3C82F6" opacity="0">
+            <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.5s"/>
         </rect>
-        <rect x="105.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 105.113 181)" fill="#3C82F6">
-        <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="1s"/>
+        <rect x="105.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 105.113 181)" fill="#3C82F6" opacity="0">
+        <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.5s"/>
         </rect>
-        <rect x="138.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 138.113 181)" fill="#3C82F6">
-        <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="1.5s"/>
+        <rect x="138.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 138.113 181)" fill="#3C82F6" opacity="0">
+        <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.75s"/>
         </rect>
-        <rect id="br-block" x="171.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 171.113 181)" fill="#3C82F6">
-        <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="2s"/>
+        <rect id="br-block" x="171.113" y="181" width="25" height="25" rx="5" transform="rotate(179.741 171.113 181)" fill="#3C82F6" opacity="0">
+        <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="1s"/>
         </rect>
-        <rect x="146" y="124" width="25" height="25" rx="5" fill="#3C82F6">
-        <animate attributeName="opacity" dur="4s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="1.5s"/>
+        <rect x="146" y="124" width="25" height="25" rx="5" fill="#3C82F6" opacity="0">
+        <animate attributeName="opacity" dur="2s" keyTimes="0;0.1;0.5;0.6;1" values="0;1;1;0;0" repeatCount="indefinite" begin="0.75s"/>
         </rect>
     </svg>)
 };
