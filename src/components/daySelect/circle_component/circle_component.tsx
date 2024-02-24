@@ -1,30 +1,60 @@
 import * as React from "react";
 import "./circle_component.css";
 
-import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
-import "tippy.js/themes/material.css";
-
 import { useState, useEffect } from "react";
+
+type Holidays = {
+  [key: string]: Date | Date[];
+};
 
 export const CircleComponent = (props: any) => {
 
-  const dates = [
-    "September 5, 2022 00:00:00",
-    "September 5, 2022 23:59:59",
-    "October 18, 2022 00:00:00",
-    "October 23, 2022 23:59:59",
-    "November 18, 2022 00:00:00",
-    "November 27, 2022 23:59:59",
-    "December 21, 2022 00:00:00",
-    "January 15, 2023 23:59:59",
-    "January 16, 2023 00:00:00",
-    "January 16, 2023 23:59:59",
-    "March 10, 2023 00:00:00",
-    "March 27, 2023 23:59:59",
-  ];
+  // Holidays found here: https://your.yale.edu/work-yale/benefits/paid-time/official-yale-holidays
+  const holidays: Holidays = {
+    'New Year\'s Day': new Date(2000, 0, 1),
+    'MLK Jr Day': new Date(2000, 0, 15),
+    'Spring Break': Array.from({length: 16}, (_, i) => new Date(2000, 2, 9 + i)),
+    // 'Good Friday': new Date(2000, 2, 29),
+    // 'Memorial Day': new Date(2000, 4, 27),
+    // 'Juneteenth': new Date(2000, 5, 19),
+    'Fourth of July': new Date(2000, 6, 4),
+    'Labor Day': new Date(2000, 8, 2),
+    'October Break': Array.from({length: 5}, (_, i) => new Date(2000, 9, 16 + i)),
+    'Thanksgiving Day': new Date(2000, 10, 28),
+    'November Break': Array.from({length: 9}, (_, i) => new Date(2000, 10, 23 + i)),
+    'Christmas Day': new Date(2000, 11, 25)
+  };
 
-  const holidays = dates.map((item) => new Date(item));
+  const isHoliday = (date: Date) => {
+    const month = date.getMonth();
+    const day = date.getDate();
+  
+    for (const holiday in holidays) {
+      const holidayDate = holidays[holiday];
+      if (Array.isArray(holidayDate)) {
+        if (holidayDate.some(hd => hd.getMonth() === month && hd.getDate() === day)) {
+          return {
+            isHoliday: true,
+            holidayName: holiday
+          };
+        }
+      } else if (holidayDate.getMonth() === month && holidayDate.getDate() === day) {
+        return {
+          isHoliday: true,
+          holidayName: holiday
+        };
+      }
+    }
+  
+    return {
+      isHoliday: false,
+      holidayName: null
+    }
+  };
+
+  const holidayMetadata = isHoliday(props.date);
+
+  const [isSelected, setIsSelected] = useState(false);
 
   const [active, toggleActive] = useState((props.isActive ? "active-circle" : "not-active-circle"));
 
@@ -32,117 +62,30 @@ export const CircleComponent = (props: any) => {
     if (active.localeCompare("not-active-circle") === 0) {
       toggleActive("active-circle");
       props.add(props.date);
+      setIsSelected(true);
     } else {
       toggleActive("not-active-circle");
       props.remove(props.date);
+      setIsSelected(false);
     }
   };
 
-    // useEffect(() => {
-  //   tippy("#laborDay", {
-  //     content: "Labor Day",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-
-  //   tippy("#octoberRecess", {
-  //     content: "October Recess",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-
-  //   tippy("#novemberRecess", {
-  //     content: "November Recess",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-
-  //   tippy("#winterRecess", {
-  //     content: "Winter Recess",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-
-  //   tippy("#mlkDay", {
-  //     content: "MLK Day",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-
-  //   tippy("#springRecess", {
-  //     content: "Spring Recess",
-  //     trigger: "mouseenter focus",
-  //     theme: "material",
-  //   });
-  // }, [props.date, props.selectedDays]);
-
   return (
     <div className={`circle ${active}`}>
-           {(() => {
-        if (holidays[0] <= props.date && props.date <= holidays[1]) {
-          return (
-            <button
-              id="laborDay"
-              className={active}
-              onClick={handleToggleActive}
-            >
-              {props.date.getDate()}
-            </button>
-          );
-        } else if (holidays[2] <= props.date && props.date <= holidays[3]) {
-          return (
-            <button
-              id="octoberRecess"
-              className={active}
-              onClick={handleToggleActive}
-            >
-              {props.date.getDate()}
-            </button>
-          );
-        } else if (holidays[4] <= props.date && props.date <= holidays[5]) {
-          return (
-            <button
-              id="novemberRecess"
-              className={active}
-              onClick={handleToggleActive}
-            >
-              {props.date.getDate()}
-            </button>
-          );
-        } else if (holidays[6] <= props.date && props.date <= holidays[7]) {
-          return (
-            <button
-              id="winterRecess"
-              className={active}
-              onClick={handleToggleActive}
-            >
-              {props.date.getDate()}
-            </button>
-          );
-        } else if (holidays[8] <= props.date && props.date <= holidays[9]) {
-          return (
-            <button id="mlkDay" className={active} onClick={handleToggleActive}>
-              {props.date.getDate()}
-            </button>
-          );
-        } else if (holidays[10] <= props.date && props.date <= holidays[11]) {
-          return (
-            <button
-              id="springRecess"
-              className={active}
-              onClick={handleToggleActive}
-            >
-              {props.date.getDate()}
-            </button>
-          );
-        } else {
-          return (
-            <button className={active} onClick={handleToggleActive}>
-              {props.date.getDate()}
-            </button>
-          );
-        }
-      })()}
+      {
+        holidayMetadata.isHoliday ?
+        <button className={`circle-button ${active}`} onClick={handleToggleActive} data-tooltip-id="holiday-tooltip" data-tooltip-content={`${holidayMetadata.holidayName}`} >
+          {props.date.getDate()}
+        </button> :
+        <button className={`circle-button ${active}`} onClick={handleToggleActive} >
+        {props.date.getDate()}
+        </button>
+      }
+      {
+        holidayMetadata.isHoliday ?
+        <div className={`holiday-indicator ${isSelected ? 'selected' : ''}`}></div> :
+        null
+      }
     </div>
   );
 };

@@ -41,6 +41,7 @@
     "react-router-dom": "^6.15.0",
     "react-scripts": "^5.0.1",
     "react-select": "^5.8.0",
+    "react-tooltip": "^5.26.3",
     "reactjs-popup": "^2.0.6",
     "tippy": "^0.0.0",
     "tippy.js": "^6.3.7",

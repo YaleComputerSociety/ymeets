@@ -1,5 +1,5 @@
-.circle > button {
-    background: none !important;
+.circle > button.circle-button, .circle > button.active-circle {
+    background: none;
     /* padding: 40%, 40%, 40%, 40%;
     border-radius: 100%; */
     /* position: absolute;
@@ -17,6 +17,21 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
+}
+
+.circle > .holiday-indicator {
+    border-radius: 50%;
+    background-color: rgb(81,145,242);
+    height: 4px;
+    width: 4px;
+    border-width: 0px;
+    position: absolute;
+    top: 40px;
+    z-index: 3 !important;
+}
+
+.holiday-indicator.selected {
+    background-color: white;
 }
 
 button.active-circle {
