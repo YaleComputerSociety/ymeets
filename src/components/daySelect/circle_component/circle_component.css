@@ -30,6 +30,10 @@
     z-index: 3 !important;
 }
 
+.holiday-indicator.selected {
+    background-color: white;
+}
+
 button.active-circle {
     background-color: rgb(81,145,242) !important;
     color: white;
