@@ -288,8 +288,7 @@ export const DaySelectComponent = () => {
                                         const selectedValues = values.map((val) => val.value);
                                         console.log(selectedValues);
                                         updateLocationsState(selectedValues)
-                        
-                                    }}
+                                                        }}
                                 />
 
 
@@ -320,7 +319,8 @@ export const DaySelectComponent = () => {
             
             <div className="flex flex-col flex-wrap space-y-7 mb-6 w-[90%] sm:w-[85%]">
                 <button 
-                    className="text-sm hover:scale-90 w-fit lg:text-base flex items-center gap-2 bg-blue-500 text-white font-medium py-1 sm:py-1.5 md:py-2 px-4 md:px-6 rounded-l active:bg-ymeets-light-blue transition-colors"
+                     className="font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
+                     transform transition-transform hover:scale-90 active:scale-100e"
                     onClick={() => {setSelectGeneralDays((oldState) => {
                         return !oldState
                     })}}
