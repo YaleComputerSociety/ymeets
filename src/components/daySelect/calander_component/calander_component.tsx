@@ -107,6 +107,11 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
   
   return (
     <div className='calendar-wrapper'>
+      <TimeSelectComponent
+        updateStart={handleUpdateStartTime}
+        updateEnd={handleUpdateEndTime}
+        paddingClass={selectGeneralDays ? 'top-6' : 'top-[92px]'}
+      />
       {
         selectGeneralDays === false ? 
       <Calendar
@@ -147,11 +152,6 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
              selectedEndDate={[endDate, setEndDate]}
       />
       }
-      
-      <TimeSelectComponent
-        updateStart={handleUpdateStartTime}
-        updateEnd={handleUpdateEndTime}
-      />
 
       <Tooltip id="holiday-tooltip" style={{ zIndex: 3 }} />
 

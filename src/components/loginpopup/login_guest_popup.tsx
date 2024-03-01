@@ -38,6 +38,12 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
         });
       });
     };
+
+    const handleKeyPress = (e: any) => {
+      if (e.key == 'Enter') {
+          handleSignInWithoutGoogle();
+        }
+    }
   
     React.useEffect(() => {
       // Add the class when the component mounts
@@ -75,6 +81,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({ onClose, enableAnonymous
               name="name"
               type="text"
               onChange={(event) => setInputName(event.target.value)}
+              onKeyDown={handleKeyPress}
               value={inputName}
               autoComplete="off"
             />

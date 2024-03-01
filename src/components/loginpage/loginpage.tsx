@@ -28,6 +28,11 @@ export const LoginPageButtons = () => {
     const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
         setEventCode(event.target.value)
     }
+    const handleKeyPress = (e: any) => {
+        if (e.key == 'Enter') {
+            signInAndGoToEvent();
+        }
+    }
     const goToEvent = () => {
         getEventById(eventCode).then((result) => {
             navigate('/timeselect/' + eventCode);
@@ -76,6 +81,7 @@ export const LoginPageButtons = () => {
                                     placeholder="Enter your event code"
                                     name="eventCode"
                                     onInput={updateEventCode}
+                                    onKeyDown={handleKeyPress}
                                     autoComplete="off"/>
                             <button className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
                                     onClick={signInAndGoToEvent}> 
