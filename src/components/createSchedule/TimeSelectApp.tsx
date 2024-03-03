@@ -21,6 +21,8 @@ import Checkbox from '@mui/material/Checkbox';
 import {LoginPopup} from '../loginpopup/login_guest_popup';
 import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 import { LoadingAnim } from "../loadingAnim/loadingAnim";
+import { signInWithGoogle } from '../../firebase/auth';
+import LOGO from "../daySelect/general_popup_component/googlelogo.png";
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -332,7 +334,7 @@ function TimeSelectApp() {
 
                     {chosenDateRange == undefined && <div>
                         {locationOptions.length > 0 && (
-                        <div className="w-96 flex-col content-center mt-5 mb-8 w-[100%]">
+                        <div className="flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
                                 update={updateSelectedLocations}
                                 locations={locationOptions}
@@ -377,11 +379,10 @@ function TimeSelectApp() {
                 {/*The first date having a year be 2000 means that it was a general days selection*/}
                 {/*@ts-ignore*/}
                 {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && getAccountId() !== ""
-                && <button onClick={() => {
+                ? <button onClick={() => {
                             fetchUserCals()
                             .then((calendars) => {
                                 
-
                                 //@ts-ignore
                                 const calendarIDs = calendars.map(calendar => calendar.id);
 
@@ -404,6 +405,12 @@ function TimeSelectApp() {
                         active:bg-ymeets-light-blue transition-colors`}
                     >
                         Toggle GCal Availabilities
+                    </button>
+                    : <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
+                                        transform transition-transform hover:scale-90 active:scale-100e flex items-center'
+                            onClick={signInWithGoogle}>
+                            <img src={LOGO} alt="Logo" className="mr-3 h-7" /> 
+                            Sign in with Google to access GCAL
                     </button>}
                 <Popup isOpen={isGcalPopupOpen} onClose={closeGcalPopup} onCloseAndSubmit={onPopupCloseAndSubmit}>
                     <h2 className="text-2xl font-bold mb-4">Select GCals</h2>

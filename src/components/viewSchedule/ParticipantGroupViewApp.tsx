@@ -5,11 +5,12 @@ import LocationChart from "../hoverViewComponents/LocationChart";
 import { calanderState, userData } from "../../types"
 import { calendarDimensions } from "../../types"
 import eventAPI from "../../firebase/eventAPI";
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions } from '../../firebase/events';
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, updateAnonymousUserToAuthUser, getAccountName } from '../../firebase/events';
 import { useParams } from 'react-router-dom';
 import Calender from '../selectCalendarComponents/CalendarApp';
 import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
 import { useNavigate } from 'react-router-dom';
+import AddToGoogleCalendarButton from '../GAPIComponents/addToCalendarButton';
 
 
 export default function ParticipantGroupViewApp() {
@@ -151,6 +152,12 @@ export default function ParticipantGroupViewApp() {
                         <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
                             <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
 
+                            {chosenDateRange
+                          ? <div className="">
+                            <AddToGoogleCalendarButton />
+                          </div>
+                          : undefined}
+
                             <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
                             {/*@ts-ignore*/}
@@ -212,12 +219,16 @@ export default function ParticipantGroupViewApp() {
                                         transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </button>
-                                
-
                         {/* (Mobile): Event name, location, and time */}
 
                         <div className = "mb-4 flex flex-col space-y-5 mt-4">
                         <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
+
+                        {chosenDateRange
+                          ? <div className="">
+                            <AddToGoogleCalendarButton />
+                          </div>
+                          : undefined}
 
                         <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
@@ -229,8 +240,9 @@ export default function ParticipantGroupViewApp() {
                         </h3>
 
                         <h3 className="text-base text-center md:text-left">
-                        <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        <span className='font-bold'>Location: </span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
                         </h3>
+                        
                       </div>
                         </div>
                         

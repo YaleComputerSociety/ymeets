@@ -3,7 +3,7 @@ import { calanderState, userData } from "../../types"
 import { calendarDimensions } from  "../../types"
 import eventAPI from "../../firebase/eventAPI";
 import Calendar from "../selectCalendarComponents/CalendarApp"
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime } from '../../firebase/events';
+import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime, updateAnonymousUserToAuthUser, getAccountName } from '../../firebase/events';
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import LocationChart from "../hoverViewComponents/LocationChart";
@@ -257,6 +257,7 @@ export default function AdminGroupViewApp() {
                             <AddToGoogleCalendarButton />
                           </div>
                           : undefined}
+                          
 
                         <button 
                             onClick={handleSelectionSubmission}

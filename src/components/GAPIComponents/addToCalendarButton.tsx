@@ -1,56 +1,67 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
 import { SCOPES } from '../../firebase/firebase';
-import { getEventObjectForGCal } from '../../firebase/events';
+import { getAccountId, getEventObjectForGCal } from '../../firebase/events';
 import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
+import { GAPIContext } from '../../firebase/gapiContext';
+import { signInWithGoogle } from '../../firebase/auth';
 
 // Credit to CourseTable team https://coursetable.com/about
 
 const GAPI_CLIENT_NAME = 'client:auth2';
 
 function AddToGoogleCalendarButton(): JSX.Element {
-    const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
-    const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
-    const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext);
+    const [loading, setLoading] = useState(false);
 
-    // Load gapi client after gapi script loaded
-    const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
-        gapiInstance.load(GAPI_CLIENT_NAME, () => {
-        try {
-            gapiInstance.client.load('calendar', 'v3');
+    // TODO; if the user is anonymous, this should say "sign into Google to Add to GCAL" first. 
+    // we should try to update them to an authed user first, then add to Google Calendar.
+    // This should not say loading if the user is not signed in; it should say "Sign in to Google to Add to GCAL"
 
-        } catch {
-        gapiInstance.client.init({
-            apiKey: REACT_APP_API_KEY_GAPI,
-            clientId: REACT_APP_CLIENT_ID_GAPI,
-            scope: SCOPES,
-        });
-        gapiInstance.client.load('calendar', 'v3');
 
-        }
-        });
-    };
 
-    // Load gapi script and client
-    useEffect(() => {
-        async function loadGapi() {
-            const newGapi = await loadGapiInsideDOM();
-            loadGapiClient(newGapi);
-            const newAuth2 = await loadAuth2(
-                newGapi,
-                REACT_APP_CLIENT_ID_GAPI || "",
-                SCOPES,
-            );
-            setGapi(newGapi);
-            setAuthInstance(newAuth2);
-            setLoading(false);
-        }
+    // const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
+    // const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
+    // const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
+    // const [loading, setLoading] = useState(true);
 
-        loadGapi().catch((err) => {
-            console.error("Error loading Google Calendar API: ", err);
-        });
-    }, []);
+    // // Load gapi client after gapi script loaded
+    // const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
+    //     gapiInstance.load(GAPI_CLIENT_NAME, () => {
+    //     try {
+    //         gapiInstance.client.load('calendar', 'v3');
+
+    //     } catch {
+    //     gapiInstance.client.init({
+    //         apiKey: REACT_APP_API_KEY_GAPI,
+    //         clientId: REACT_APP_CLIENT_ID_GAPI,
+    //         scope: SCOPES,
+    //     });
+    //     gapiInstance.client.load('calendar', 'v3');
+
+    //     }
+    //     });
+    // };
+
+    // // Load gapi script and client
+    // useEffect(() => {
+    //     async function loadGapi() {
+    //         const newGapi = await loadGapiInsideDOM();
+    //         loadGapiClient(newGapi);
+    //         const newAuth2 = await loadAuth2(
+    //             newGapi,
+    //             REACT_APP_CLIENT_ID_GAPI || "",
+    //             SCOPES,
+    //         );
+    //         setGapi(newGapi);
+    //         setAuthInstance(newAuth2);
+    //         setLoading(false);
+    //     }
+
+    //     loadGapi().catch((err) => {
+    //         console.error("Error loading Google Calendar API: ", err);
+    //     });
+    // }, []);
 
     const createCalendarEvent = useCallback(
         async (event: any) => { 
@@ -92,48 +103,47 @@ function AddToGoogleCalendarButton(): JSX.Element {
 
     }, [gapi]);
 
-    useEffect(() => {
-        if (!authInstance) {
-            return;
+    // useEffect(() => {
+    //     if (!authInstance) {
+    //         return;
 
-        }
-        if (authInstance.isSignedIn.get()) {
-            setUser(authInstance.currentUser.get());
+    //     }
+    //     if (authInstance.isSignedIn.get()) {
+    //         setUser(authInstance.currentUser.get());
 
-        } else {
-            const signInButton = document.getElementById('auth');
-            authInstance.attachClickHandler(
-                signInButton,
-                {},
-                (googleUser) => {
-                    if (signInButton && signInButton.id == 'auth') {
-                        setUser(googleUser);
-                        createCalendarEvent(getEventObjectForGCal());
-                        signInButton.id = 'sync';
-                    }
-                },
-                (error) => {
-                    console.log("Error: ", error);
-                    // alert('[GCAL]: Error signing in to Google Calendar: ' + error);
-                },
-            );
-        }
-    }, [authInstance, user, createCalendarEvent]);
+    //     } else {
+    //         const signInButton = document.getElementById('auth');
+    //         authInstance.attachClickHandler(
+    //             signInButton,
+    //             {},
+    //             (googleUser) => {
+    //                 if (signInButton && signInButton.id == 'auth') {
+    //                     setUser(googleUser);
+    //                     createCalendarEvent(getEventObjectForGCal());
+    //                     signInButton.id = 'sync';
+    //                 }
+    //             },
+    //             (error) => {
+    //                 console.log("Error: ", error);
+    //                 // alert('[GCAL]: Error signing in to Google Calendar: ' + error);
+    //             },
+    //         );
+    //     }
+    // }, [authInstance, user, createCalendarEvent]);
 
-    if (loading) {
+    if (loading || GAPILoading) {
         return (
             <p>Loading...</p>
         );
     }
 
-    return (  
+    return (<>
         <button className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm mb-8 w-fit 
         transform transition-transform hover:scale-90 active:scale-100e"
-            id={user ? 'sync' : 'auth'}
-            onClick={user ? () => createCalendarEvent(getEventObjectForGCal()) : undefined}>
-                Add to Google Calendar
+            onClick={getAccountId() !== "" ? () => createCalendarEvent(getEventObjectForGCal()) : () => {signInWithGoogle(undefined, gapi, handleIsSignedIn)}}>
+                {getAccountId() !== "" ? "Add to Google Calendar" : "Sign in to Google to Add to GCAL"}
         </button>
-    );
+    </>);
 }
 
 export default AddToGoogleCalendarButton;

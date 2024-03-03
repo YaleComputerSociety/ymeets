@@ -1,13 +1,37 @@
+import { MouseEventHandler, useContext } from 'react';
+import { getAccountId, getAccountName, updateAnonymousUserToAuthUser } from './events';
 import { auth, googleProvider } from './firebase';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { GAPIContext } from './gapiContext';
+import { get } from 'http';
 
 // Google sign in
 // returns error message
-const signInWithGoogle = async () => {
+const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?: ((arg0: boolean) => void)) => {
+
+    // Check if user is already signed in (anonymously)
+    // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
+    let formerName = "";
+    if (auth.currentUser?.isAnonymous) {
+        console.log("User is already signed in anonymously");
+        formerName = auth.currentUser.displayName || "";
+    }
+
     try {
-        const res = await signInWithPopup(auth, googleProvider);
-        const user = res.user;
-        return res;
+        // if (!gapi) {
+        //     console.log("TRYING TO SIGN IN WITHOUT GAPI")
+        //     return
+        // }
+        // const res = await signInWithPopup(auth, googleProvider);
+        const auth2 = gapi.auth2.getAuthInstance()
+        // await auth2.signIn().catch((err) => {console.log("*Error signing in: ", err)});
+        auth2.signIn().then((googleUser: any) => { 
+            console.log('Signed in as: ' + googleUser);
+            if (handleIsSignedIn) {handleIsSignedIn(true)};
+        });
+
+        if (formerName !== "") await updateAnonymousUserToAuthUser(formerName);
+        return true;
 
     } catch (err: any) {
         console.error(err);
@@ -15,18 +39,61 @@ const signInWithGoogle = async () => {
     }
 };
 
+// useEffect(() => {
+//     if (!authInstance) {
+//         return;
+
+//     }
+//     if (authInstance.isSignedIn.get()) {
+//         setUser(authInstance.currentUser.get());
+
+//     } else {
+//         const signInButton = document.getElementById('auth');
+//         authInstance.attachClickHandler(
+//             signInButton,
+//             {},
+//             (googleUser) => {
+//                 if (signInButton && signInButton.id == 'auth') {
+//                     setUser(googleUser);
+//                     createCalendarEvent(getEventObjectForGCal());
+//                     signInButton.id = 'sync';
+//                 }
+//             },
+//             (error) => {
+//                 console.log("Error: ", error);
+//                 // alert('[GCAL]: Error signing in to Google Calendar: ' + error);
+//             },
+//         );
+//     }
+// }, [authInstance, user, createCalendarEvent]);
+
 onAuthStateChanged(auth, async (user) => {
+    console.log(user);
     if (user) {
-        console.log("Logged in ", user  )
-    }else{
+        console.log("Logged in ", user)
+    } else{
         console.log("Logged out");
     }
 });
 
 // logout
-const logout = () => {
-    console.log('signing out');
-    signOut(auth);
+const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
+    if (loadedGAPI === null) {
+        try {
+            gapi.auth2.getAuthInstance().signOut();
+        } catch (err) {
+            console.error("Error signing out (failing to load GAPI): ", err);
+        }
+        return
+    }
+
+    const auth2 = loadedGAPI.auth2.getAuthInstance()
+
+    auth2.signOut().then(() => {
+        signOut(auth);    
+    });
+
+    console.log('signed out');
 };
 
 export {

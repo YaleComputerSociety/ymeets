@@ -1,5 +1,5 @@
 // where the Routing thing goes.
-import React from "react";
+import React, { useState } from "react";
 import './Root.css';
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import LoginPageButtons from './components/loginpage';
@@ -14,29 +14,32 @@ import AboutUs from "./components/aboutUs/aboutUs";
 import NotFound from "./components/NotFound/NotFound";
 import { Provider } from 'react-redux';
 import { Privacy } from "./components/aboutUs/Privacy";
+import { GAPIContextWrapper } from "./firebase/gapiContext";
 
 function Root() {
 
     return (
         <>
-        <Router>
+        <GAPIContextWrapper>
+            <Router>
 
-        <header>
-            <NavBar></NavBar>
-        </header>
+            <header>
+                <NavBar></NavBar>
+            </header>
 
-            <Routes>
-                <Route path='/' element={<LoginPageButtons />} />
-                <Route path='/dayselect' element={<DaySelectComponent />} />
-                <Route path='/eventcode' element={<EnterCodeComp />} />
-                <Route path='/timeselect/:code' element={<TimeSelectApp />} />
-                <Route path='/groupview/:code' element={<GroupViewApp />} />
-                <Route path="/useraccount" element={<Accounts />} />
-                <Route path="/about-us" element={<AboutUs />} />
-                <Route path="*" element={<NotFound/>} />
-                <Route path="/privacy" element={<Privacy/>}></Route>
-            </Routes>
-        </Router>
+                <Routes>
+                    <Route path='/' element={<LoginPageButtons />} />
+                    <Route path='/dayselect' element={<DaySelectComponent />} />
+                    <Route path='/eventcode' element={<EnterCodeComp />} />
+                    <Route path='/timeselect/:code' element={<TimeSelectApp />} />
+                    <Route path='/groupview/:code' element={<GroupViewApp />} />
+                    <Route path="/useraccount" element={<Accounts />} />
+                    <Route path="/about-us" element={<AboutUs />} />
+                    <Route path="*" element={<NotFound/>} />
+                    <Route path="/privacy" element={<Privacy/>}></Route>
+                </Routes>
+            </Router>
+            </GAPIContextWrapper>
         </>
     )
 }

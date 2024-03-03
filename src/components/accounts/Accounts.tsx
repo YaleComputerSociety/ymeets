@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     IconPlus,
     IconCopy,
@@ -22,6 +22,7 @@ import { Event, EventDetails } from "../../types";
 import { auth } from "../../firebase/firebase";
 import { deleteEvent } from "../../firebase/events";
 import GeneralPopup from "../daySelect/general_popup_component";
+import { GAPIContext } from "../../firebase/gapiContext";
   
 interface AccountsPageEvent {
   name: string; 
@@ -57,7 +58,8 @@ const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] =
 
 
 export default function Accounts() {
-    
+    const { gapi } = useContext(GAPIContext);
+  
     useEffect(() => {
 
       const retrieveAndSetEvents = async () => {
@@ -181,7 +183,7 @@ export default function Accounts() {
 
             <div className="flex items-center justify-end">
             <button onClick={() => {
-                    logout();
+                    logout(gapi);
                     nav("/");
             }} className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
                 Logout
