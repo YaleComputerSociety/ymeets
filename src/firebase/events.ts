@@ -280,13 +280,13 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
             partRef = doc(participantsRef, participant.name);
         }
 
-        console.log("This is at issue: ", {
-            name: participant.name,
-            accountId: participant.accountId || "",
-            availability: JSON.stringify(participant.availability),
-            location: participant.location || "",
+        // console.log("This is at issue: ", {
+        //     name: participant.name,
+        //     accountId: participant.accountId || "",
+        //     availability: JSON.stringify(participant.availability),
+        //     location: participant.location || "",
 
-          });
+        //   });
 
         setDoc(partRef, {
             name: participant.name,
@@ -306,6 +306,52 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     });
 }
 
+async function updateAnonymousUserToAuthUser(name: string) {
+    const accountName = getAccountName();
+    const accountId = getAccountId();
+
+    if (accountId === "") Promise.reject("User is not signed in");
+    const eventsRef = collection(db, "events");
+    const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
+    const anonymousPartRef = doc(participantsRef, name);
+    const authedPartRef = doc(participantsRef, accountId);
+
+    // Update local
+    // TODO TO BE TESTED: I think this is fine....?
+    let availability;
+    workingEvent.participants.forEach((part, index) => {
+        if (part.name == name && part.accountId == "") {
+            workingEvent.participants[index].accountId = accountName;
+            workingEvent.participants[index].accountId = accountId;
+            availability = workingEvent.participants[index].availability;
+        }
+    });
+
+    // Anonymous user has not submitted their availability yet
+    // So nothing to update. 
+    if (availability === undefined) return;
+
+    // Update Backend
+    const batch = writeBatch(db);
+
+    // Delete old anonymous doc
+    batch.delete(anonymousPartRef);
+    
+    // Create (update) new authed doc with old availability
+    batch.set(authedPartRef, {
+        name: accountName,
+        accountId: accountId,
+        availability: JSON.stringify(availability),
+      });
+
+    // This updates the participants list in the event details object 
+    batch.update(doc(eventsRef, workingEvent.publicId), {
+        participants: arrayUnion(getAccountId())
+    });
+
+    return batch.commit();
+
+}
 
 // // TODO retire in favor of wrappedSaveParticipantDetails
 // // Sets the availability of a participant of the name parameter with their 
@@ -557,6 +603,7 @@ export {
 
     // All Participants (Async)
     wrappedSaveParticipantDetails,
+    updateAnonymousUserToAuthUser,
     // setAvailability,
     // setLocationPreference,
 
