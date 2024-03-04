@@ -19,21 +19,21 @@ export const LandingPageButtons = () => {
     // apiCalendar.onLoad(() => {
     //     // setLoaded(true);
     // });
-    React.useEffect(() => {
-        const script = document.createElement('script');
-        script.src =  "https://apis.google.com/js/api.js"
-        document.body.appendChild(script);
+    // React.useEffect(() => {
+    //     const script = document.createElement('script');
+    //     script.src =  "https://apis.google.com/js/api.js"
+    //     document.body.appendChild(script);
 
-        script.onload = () => {
-            console.log(window.gapi.load('client:auth2', () => {
-                console.log("Then...")
-                window.gapi.load('client:auth2', () => {
-                    console.log("init now");
-                })
-            console.log("Script loaded!");
-            }))
-        }
-    }, []);
+    //     script.onload = () => {
+    //         console.log(window.gapi.load('client:auth2', () => {
+    //             console.log("Then...")
+    //             window.gapi.load('client:auth2', () => {
+    //                 console.log("init now");
+    //             })
+    //         console.log("Script loaded!");
+    //         }))
+    //     }
+    // }, []);
         // : undefined;
     // const initClient = () => {
     //     gapi.load('client', () => {
@@ -116,14 +116,14 @@ export const LandingPageButtons = () => {
             //   }
             //   window.gapi.load('client', init);
 
-    const gapiLoaded = () => {
-        console.log("Gapi loaded from script tag");
-        console.log("token", gapi.auth.getToken());
-    }
+    // const gapiLoaded = () => {
+    //     console.log("Gapi loaded from script tag");
+    //     console.log("token", gapi.auth.getToken());
+    // }
 
     return (
         <div className='bg-gradient-to-r from-blue-400 via-blue-300 to-blue-200 h-screen w-screen flex justify-center'>
-           <script async defer src="https://apis.google.com/js/api.js" onLoad={gapiLoaded}></script>
+           {/* <script async defer src="https://apis.google.com/js/api.js" onLoad={gapiLoaded}></script> */}
             <div className='w-4/5 sm:w-4/6 md:w-1/2 mx-auto'>
                 <div className='text-center h-30 mb-16 mt-40'>
                     <Link to='/dayselect'>
@@ -135,11 +135,11 @@ export const LandingPageButtons = () => {
                         <button className='bg-blue-900 text-white border-none rounded-lg cursor-pointer text-base w-4/5 h-16 sm:w-4/5 sm:h-14 md:text-lg md:w-6/12 transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none shadow-lg' onClick={() => {console.log("Hilogin")}}>Use Event Code</button>
                     </Link>
                 </div>
-                <div className='text-center h-30 mt-5 '>
+                {/* <div className='text-center h-30 mt-5 '>
                         <button disabled={loading} onClick={testCalendarApi} className='bg-blue-900 text-white border-none rounded-lg cursor-pointer text-base w-4/5 h-16 sm:w-4/5 sm:h-14 md:text-lg md:w-6/12 transform transition-transform hover:scale-95 active:scale-100 hover:shadow-none shadow-lg'>
                             Test Calendar API 
                             </button>
-                </div>
+                </div> */}
             </div>
         </div>
     );

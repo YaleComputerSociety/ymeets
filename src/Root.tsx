@@ -10,10 +10,9 @@ import NavBar from "./components/navbar/NavBar"
 import Footer from "./components/footer/Footer"
 import Accounts from './components/accounts/Accounts';
 import GroupViewApp from './components/viewSchedule/GroupViewApp';
-import AboutUs from "./components/aboutUs/aboutUs";
+import AboutUs from "./components/AboutUs/aboutUs";
 import NotFound from "./components/NotFound/NotFound";
-import { Provider } from 'react-redux';
-import { Privacy } from "./components/aboutUs/Privacy";
+import { Privacy } from "./components/AboutUs/Privacy";
 import { GAPIContextWrapper } from "./firebase/gapiContext";
 
 function Root() {
@@ -36,7 +35,7 @@ function Root() {
                     <Route path="/useraccount" element={<Accounts />} />
                     <Route path="/about-us" element={<AboutUs />} />
                     <Route path="*" element={<NotFound/>} />
-                    <Route path="/privacy" element={<Privacy/>}></Route>
+                    <Route path="/privacy" element={<Privacy/>} />
                 </Routes>
             </Router>
             </GAPIContextWrapper>

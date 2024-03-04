@@ -309,8 +309,9 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
 async function updateAnonymousUserToAuthUser(name: string) {
     const accountName = getAccountName();
     const accountId = getAccountId();
+    console.log(accountName);
 
-    if (accountId === "") Promise.reject("User is not signed in");
+    if (accountName === "") Promise.reject("User is not signed in");
     const eventsRef = collection(db, "events");
     const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
     const anonymousPartRef = doc(participantsRef, name);

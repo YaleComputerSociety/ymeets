@@ -23,6 +23,8 @@ import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase
 import { LoadingAnim } from "../loadingAnim/loadingAnim";
 import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from "../daySelect/general_popup_component/googlelogo.png";
+import { GAPIContext } from '../../firebase/gapiContext';
+import { useContext } from 'react';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -58,6 +60,7 @@ function TimeSelectApp() {
 
     const endPromptUserForLogin = () => {
         setPromptUserForLogin(false);
+        window.location.reload();
     }
 
     const [dragState, setDragState] = useState({
@@ -67,9 +70,14 @@ function TimeSelectApp() {
         affectedBlocks : new Set()
     })
 
-    const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
-    const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
-    const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
+    const gapiContext = useContext(GAPIContext);
+    const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext;
+
+    
+
+    // const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
+    // const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
+    // const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
 
     const [googleCalendarEvents, setGoogleCalendarEvents] = useState<Date[]>([]);
     const [googleCalIds, setGoogleCalIds] = useState<string[]>(["primary"]);
@@ -80,22 +88,22 @@ function TimeSelectApp() {
 
     // Load gapi client after gapi script loaded
     //@ts-ignore
-    const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
-        gapiInstance.load(GAPI_CLIENT_NAME, () => {
-        try {
-            gapiInstance.client.load('calendar', 'v3');
+    // const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
+    //     gapiInstance.load(GAPI_CLIENT_NAME, () => {
+    //     try {
+    //         gapiInstance.client.load('calendar', 'v3');
 
-        } catch {
-        gapiInstance.client.init({
-            apiKey: REACT_APP_API_KEY_GAPI,
-            clientId: REACT_APP_CLIENT_ID_GAPI,
-            scope: SCOPES,
-        });
-        gapiInstance.client.load('calendar', 'v3');
+    //     } catch {
+    //     gapiInstance.client.init({
+    //         apiKey: REACT_APP_API_KEY_GAPI,
+    //         clientId: REACT_APP_CLIENT_ID_GAPI,
+    //         scope: SCOPES,
+    //     });
+    //     gapiInstance.client.load('calendar', 'v3');
 
-        }
-        });
-    };
+    //     }
+    //     });
+    // };
 
     useEffect(() => {
         const getGoogleCalData = async (calIds: string[]) => {
@@ -192,15 +200,17 @@ function TimeSelectApp() {
                     console.log(dim);
 
                     if (dim == undefined) {
-                        nav("/undefined")
+                        nav("/notfound")
                     }
-                
 
+
+                    console.log("here!");
                     const accountName = getAccountName();
                     if (accountName === null) {   
-                        console.warn("User not logged in");
+                        console.log("User not logged in");
                         return;
                     }
+                    console.log("here2!");
                     
                     //@ts-ignore
                     setChosenDateRange(getChosenDayAndTime());
@@ -231,6 +241,7 @@ function TimeSelectApp() {
 
                     console.log(theRange);
 
+                    // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
                     //@ts-ignore
                     if (theRange != undefined && theRange?.length !== 0) {
                         nav("/groupview/" + code)
@@ -243,28 +254,34 @@ function TimeSelectApp() {
             }
         };
 
-        async function loadGapi() {
-            const newGapi = await loadGapiInsideDOM();
-            loadGapiClient(newGapi);
-            const newAuth2 = await loadAuth2(
-                newGapi,
-                REACT_APP_CLIENT_ID_GAPI || "",
-                SCOPES,
-            );
-            setGapi(newGapi);
-            setAuthInstance(newAuth2);
-            setLoading(false);
-        }
+        // async function loadGapi() {
+        //     const newGapi = await loadGapiInsideDOM();
+        //     loadGapiClient(newGapi);
+        //     const newAuth2 = await loadAuth2(
+        //         newGapi,
+        //         REACT_APP_CLIENT_ID_GAPI || "",
+        //         SCOPES,
+        //     );
+        //     setGapi(newGapi);
+        //     setAuthInstance(newAuth2);
+        //     setLoading(false);
+        // }
         
         fetchData().then(() => {
+            console.log("data fetched");
+            console.log(calendarFramework);
+
             if (getAccountName() == "" || getAccountName() == undefined) {
                 setPromptUserForLogin(true)
             }
-            try {
-                loadGapi()
-            } catch (err){
-                console.warn("Error loading gapi: ", err);
-            }
+
+            setLoading(false);
+
+            // try {
+            //     loadGapi()
+            // } catch (err){
+            //     console.warn("Error loading gapi: ", err);
+            // }
         }).catch((err) => {
             console.log(err);
         }
@@ -408,7 +425,7 @@ function TimeSelectApp() {
                     </button>
                     : <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
                                         transform transition-transform hover:scale-90 active:scale-100e flex items-center'
-                            onClick={signInWithGoogle}>
+                            onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn)}}>
                             <img src={LOGO} alt="Logo" className="mr-3 h-7" /> 
                             Sign in with Google to access GCAL
                     </button>}

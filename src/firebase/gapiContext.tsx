@@ -47,7 +47,11 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) =>
             apiKey: REACT_APP_API_KEY_GAPI,
             clientId: REACT_APP_CLIENT_ID_GAPI,
             scope: SCOPES,
-        });
+        }).then(() => {
+            console.log("inited");
+        }
+
+        );
         gapiInstance.client.load('calendar', 'v3');
 
         }

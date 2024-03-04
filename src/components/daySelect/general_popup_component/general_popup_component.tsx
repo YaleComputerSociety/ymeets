@@ -3,6 +3,8 @@ import { signInWithGoogle } from "../../../firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import './general_popup_component.css';
 import LOGO from "./googlelogo.png";
+import { useContext } from 'react';
+import { GAPIContext } from '../../../firebase/gapiContext';
 
 interface GeneralPopupProps {
     onClose: () => void;
@@ -12,13 +14,22 @@ interface GeneralPopupProps {
 
 export const GeneralPopup: React.FC<GeneralPopupProps> = ({ onClose, message, isLogin }) => {
     const navigate = useNavigate();
-  
+
+    const gapiContext = useContext(GAPIContext);
+
+    // Access properties or functions from the context
+    const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext;
+
+
     const handleSignInWithGoogle = () => {
-      signInWithGoogle().then((loginSuccessful) => {
+      
+      signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
         if (loginSuccessful !== false) {
           navigate('/dayselect');
           onClose(); 
           document.body.classList.remove('popup-open'); 
+        } else {
+          console.log("log in unsuccessful")
         }
       });
     };

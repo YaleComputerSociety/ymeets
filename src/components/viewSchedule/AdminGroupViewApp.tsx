@@ -14,7 +14,7 @@ import { start } from "repl";
 import { getChosenLocation } from "../../firebase/events";
 import GeneralPopup from "../daySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
-import ExportDecisionsToUser from "./ExportDecisionToUsers";
+import ExportDecisionsToUser from "../../deprecated/ExportDecisionToUsers";
 import AddToGoogleCalendarButton from "../GAPIComponents/addToCalendarButton";
 import copy from "clipboard-copy"
 import {IconCopy} from "@tabler/icons-react"
