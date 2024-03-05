@@ -10,16 +10,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex, checkIfLoggedIn } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
-import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
-import { SCOPES, auth } from '../../firebase/firebase';
-import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
-import { start } from 'repl';
+import { getChosenDayAndTime } from '../../firebase/events';
 import { Popup } from './SelectGCalsPopup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {LoginPopup} from '../loginpopup/login_guest_popup';
-import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 import { LoadingAnim } from "../loadingAnim/loadingAnim";
 import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from "../daySelect/general_popup_component/googlelogo.png";
@@ -73,37 +69,10 @@ function TimeSelectApp() {
     const gapiContext = useContext(GAPIContext);
     const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext;
 
-    
-
-    // const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
-    // const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
-    // const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
-
     const [googleCalendarEvents, setGoogleCalendarEvents] = useState<Date[]>([]);
     const [googleCalIds, setGoogleCalIds] = useState<string[]>(["primary"]);
     const [googleCalendars, setGoogleCalendars] = useState<any[]>([])
     const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>()
-
-    const GAPI_CLIENT_NAME = 'client:auth2';
-
-    // Load gapi client after gapi script loaded
-    //@ts-ignore
-    // const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
-    //     gapiInstance.load(GAPI_CLIENT_NAME, () => {
-    //     try {
-    //         gapiInstance.client.load('calendar', 'v3');
-
-    //     } catch {
-    //     gapiInstance.client.init({
-    //         apiKey: REACT_APP_API_KEY_GAPI,
-    //         clientId: REACT_APP_CLIENT_ID_GAPI,
-    //         scope: SCOPES,
-    //     });
-    //     gapiInstance.client.load('calendar', 'v3');
-
-    //     }
-    //     });
-    // };
 
     useEffect(() => {
         const getGoogleCalData = async (calIds: string[]) => {
@@ -253,19 +222,6 @@ function TimeSelectApp() {
                 nav("/notfound")
             }
         };
-
-        // async function loadGapi() {
-        //     const newGapi = await loadGapiInsideDOM();
-        //     loadGapiClient(newGapi);
-        //     const newAuth2 = await loadAuth2(
-        //         newGapi,
-        //         REACT_APP_CLIENT_ID_GAPI || "",
-        //         SCOPES,
-        //     );
-        //     setGapi(newGapi);
-        //     setAuthInstance(newAuth2);
-        //     setLoading(false);
-        // }
         
         fetchData().then(() => {
             console.log("data fetched");
@@ -277,11 +233,6 @@ function TimeSelectApp() {
 
             setLoading(false);
 
-            // try {
-            //     loadGapi()
-            // } catch (err){
-            //     console.warn("Error loading gapi: ", err);
-            // }
         }).catch((err) => {
             console.log(err);
         }

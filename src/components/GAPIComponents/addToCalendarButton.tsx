@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
-import { SCOPES } from '../../firebase/firebase';
 import { getAccountId, getEventObjectForGCal } from '../../firebase/events';
-import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { signInWithGoogle } from '../../firebase/auth';
 

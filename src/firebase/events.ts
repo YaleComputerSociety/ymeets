@@ -314,8 +314,13 @@ async function updateAnonymousUserToAuthUser(name: string) {
     if (accountName === "") Promise.reject("User is not signed in");
     const eventsRef = collection(db, "events");
     const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
+
+    console.log(participantsRef);
+    console.log(name);
+    console.log(accountId)
     const anonymousPartRef = doc(participantsRef, name);
     const authedPartRef = doc(participantsRef, accountId);
+    console.log("got here!")
 
     // Update local
     // TODO TO BE TESTED: I think this is fine....?
