@@ -1,5 +1,6 @@
 import { MouseEventHandler, useContext } from 'react';
 import { getAccountId, getAccountName, updateAnonymousUserToAuthUser } from './events';
+
 import { auth, googleProvider } from './firebase';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { GAPIContext } from './gapiContext';
@@ -7,6 +8,7 @@ import { get } from 'http';
 
 // Google sign in
 // returns error message
+
 const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?: ((arg0: boolean) => void)) => {
     return new Promise(async (resolve, reject) => {
         // Check if user is already signed in (anonymously)
@@ -36,7 +38,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
             reject(false);
         }
     });
-};
 
 
 // useEffect(() => {

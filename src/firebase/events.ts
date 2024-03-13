@@ -309,6 +309,7 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
 async function updateAnonymousUserToAuthUser(name: string) {
     const accountName = getAccountName();
     const accountId = getAccountId();
+
     console.log(accountName);
 
     try {
@@ -358,10 +359,11 @@ async function updateAnonymousUserToAuthUser(name: string) {
     });
 
     return batch.commit();
+
     } catch (err) {
         console.log(err)
     };
-}
+
 
 // // TODO retire in favor of wrappedSaveParticipantDetails
 // // Sets the availability of a participant of the name parameter with their 
