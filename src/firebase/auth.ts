@@ -8,36 +8,36 @@ import { get } from 'http';
 // Google sign in
 // returns error message
 const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?: ((arg0: boolean) => void)) => {
+    return new Promise(async (resolve, reject) => {
+        // Check if user is already signed in (anonymously)
+        // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
+        let formerName = "";
+        if (auth.currentUser?.isAnonymous) {
+            console.log("User is already signed in anonymously");
+            formerName = auth.currentUser.displayName || "";
+        }
 
-    // Check if user is already signed in (anonymously)
-    // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
-    let formerName = "";
-    if (auth.currentUser?.isAnonymous) {
-        console.log("User is already signed in anonymously");
-        formerName = auth.currentUser.displayName || "";
-    }
+        try {
+            const auth2 = gapi.auth2.getAuthInstance();
+            auth2.signIn().then((googleUser: any) => {
+                console.log('Signed in as: ' + googleUser);
+                if (handleIsSignedIn) { handleIsSignedIn(true); }
 
-    try {
-        // if (!gapi) {
-        //     console.log("TRYING TO SIGN IN WITHOUT GAPI")
-        //     return
-        // }
-        // const res = await signInWithPopup(auth, googleProvider);
-        const auth2 = gapi.auth2.getAuthInstance()
-        // await auth2.signIn().catch((err) => {console.log("*Error signing in: ", err)});
-        auth2.signIn().then((googleUser: any) => { 
-            console.log('Signed in as: ' + googleUser);
-            if (handleIsSignedIn) {handleIsSignedIn(true)};
-        });
-
-        if (formerName !== "") await updateAnonymousUserToAuthUser(formerName);
-        return true;
-
-    } catch (err: any) {
-        console.error(err);
-        return false;
-    }
+                if (formerName !== "") {
+                    updateAnonymousUserToAuthUser(formerName)
+                        .then(() => resolve(true))
+                        .catch((updateError) => reject(updateError));
+                } else {
+                    resolve(true);
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            reject(false);
+        }
+    });
 };
+
 
 // useEffect(() => {
 //     if (!authInstance) {

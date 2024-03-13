@@ -311,6 +311,8 @@ async function updateAnonymousUserToAuthUser(name: string) {
     const accountId = getAccountId();
     console.log(accountName);
 
+    try {
+
     if (accountName === "") Promise.reject("User is not signed in");
     const eventsRef = collection(db, "events");
     const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
@@ -356,7 +358,9 @@ async function updateAnonymousUserToAuthUser(name: string) {
     });
 
     return batch.commit();
-
+    } catch (err) {
+        console.log(err)
+    };
 }
 
 // // TODO retire in favor of wrappedSaveParticipantDetails
