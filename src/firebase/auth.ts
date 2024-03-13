@@ -38,6 +38,7 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
             reject(false);
         }
     });
+}
 
 
 // useEffect(() => {

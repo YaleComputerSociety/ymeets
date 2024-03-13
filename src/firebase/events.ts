@@ -309,61 +309,59 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
 async function updateAnonymousUserToAuthUser(name: string) {
     const accountName = getAccountName();
     const accountId = getAccountId();
-
     console.log(accountName);
 
     try {
 
-    if (accountName === "") Promise.reject("User is not signed in");
-    const eventsRef = collection(db, "events");
-    const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
+        if (accountName === "") Promise.reject("User is not signed in");
+        const eventsRef = collection(db, "events");
+        const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
 
-    console.log(participantsRef);
-    console.log(name);
-    console.log(accountId)
-    const anonymousPartRef = doc(participantsRef, name);
-    const authedPartRef = doc(participantsRef, accountId);
-    console.log("got here!")
+        console.log(participantsRef);
+        console.log(name);
+        console.log(accountId)
+        const anonymousPartRef = doc(participantsRef, name);
+        const authedPartRef = doc(participantsRef, accountId);
+        console.log("got here!")
 
-    // Update local
-    // TODO TO BE TESTED: I think this is fine....?
-    let availability;
-    workingEvent.participants.forEach((part, index) => {
-        if (part.name == name && part.accountId == "") {
-            workingEvent.participants[index].accountId = accountName;
-            workingEvent.participants[index].accountId = accountId;
-            availability = workingEvent.participants[index].availability;
-        }
-    });
+        // Update local
+        // TODO TO BE TESTED: I think this is fine....?
+        let availability;
+        workingEvent.participants.forEach((part, index) => {
+            if (part.name == name && part.accountId == "") {
+                workingEvent.participants[index].accountId = accountName;
+                workingEvent.participants[index].accountId = accountId;
+                availability = workingEvent.participants[index].availability;
+            }
+        });
 
-    // Anonymous user has not submitted their availability yet
-    // So nothing to update. 
-    if (availability === undefined) return;
+        // Anonymous user has not submitted their availability yet
+        // So nothing to update. 
+        if (availability === undefined) return;
 
-    // Update Backend
-    const batch = writeBatch(db);
+        // Update Backend
+        const batch = writeBatch(db);
 
-    // Delete old anonymous doc
-    batch.delete(anonymousPartRef);
-    
-    // Create (update) new authed doc with old availability
-    batch.set(authedPartRef, {
-        name: accountName,
-        accountId: accountId,
-        availability: JSON.stringify(availability),
-      });
+        // Delete old anonymous doc
+        batch.delete(anonymousPartRef);
+        
+        // Create (update) new authed doc with old availability
+        batch.set(authedPartRef, {
+            name: accountName,
+            accountId: accountId,
+            availability: JSON.stringify(availability),
+        });
 
-    // This updates the participants list in the event details object 
-    batch.update(doc(eventsRef, workingEvent.publicId), {
-        participants: arrayUnion(getAccountId())
-    });
+        // This updates the participants list in the event details object 
+        batch.update(doc(eventsRef, workingEvent.publicId), {
+            participants: arrayUnion(getAccountId())
+        });
 
-    return batch.commit();
-
+        return batch.commit();
     } catch (err) {
         console.log(err)
     };
-
+}
 
 // // TODO retire in favor of wrappedSaveParticipantDetails
 // // Sets the availability of a participant of the name parameter with their 
