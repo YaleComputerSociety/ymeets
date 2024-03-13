@@ -7,6 +7,8 @@ import { IconUser } from "@tabler/icons-react"
 import { signInWithGoogle } from "../../firebase/auth"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "../../firebase/firebase"
+import { GAPIContext } from "../../firebase/gapiContext"
+import { useContext } from "react"
 
 export default function NavBar() {
     const [menuOpen, setMenuOpen] = React.useState(false)
@@ -17,6 +19,9 @@ export default function NavBar() {
     const navToggle = () => {
         setMenuOpen(menuOpen ? false : true)
     }
+
+    const { gapi, handleIsSignedIn } = useContext(GAPIContext);
+
 
     useEffect(() => {
         return onAuthStateChanged(auth, () => {
@@ -48,7 +53,8 @@ export default function NavBar() {
                         Welcome, {name}
                     </button> :
                     <button onClick={() => {
-                        signInWithGoogle().then((loginSuccessful) => {
+                        console.log("clicked in in!")
+                        signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
                             if (loginSuccessful) {
                                 window.location.reload();
                             }

@@ -310,11 +310,20 @@ async function updateAnonymousUserToAuthUser(name: string) {
     const accountName = getAccountName();
     const accountId = getAccountId();
 
-    if (accountId === "") Promise.reject("User is not signed in");
+    console.log(accountName);
+
+    try {
+
+    if (accountName === "") Promise.reject("User is not signed in");
     const eventsRef = collection(db, "events");
     const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
+
+    console.log(participantsRef);
+    console.log(name);
+    console.log(accountId)
     const anonymousPartRef = doc(participantsRef, name);
     const authedPartRef = doc(participantsRef, accountId);
+    console.log("got here!")
 
     // Update local
     // TODO TO BE TESTED: I think this is fine....?
@@ -351,7 +360,10 @@ async function updateAnonymousUserToAuthUser(name: string) {
 
     return batch.commit();
 
-}
+    } catch (err) {
+        console.log(err)
+    };
+
 
 // // TODO retire in favor of wrappedSaveParticipantDetails
 // // Sets the availability of a participant of the name parameter with their 

@@ -10,17 +10,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex, checkIfLoggedIn } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
-import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
-import { SCOPES, auth } from '../../firebase/firebase';
-import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
-import { start } from 'repl';
+import { getChosenDayAndTime } from '../../firebase/events';
 import { Popup } from './SelectGCalsPopup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {LoginPopup} from '../loginpopup/login_guest_popup';
-import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../../firebase/gapi_keys';
 import { LoadingAnim } from "../loadingAnim/loadingAnim";
+import { signInWithGoogle } from '../../firebase/auth';
+import LOGO from "../daySelect/general_popup_component/googlelogo.png";
+import { GAPIContext } from '../../firebase/gapiContext';
+import { useContext } from 'react';
 
 function TimeSelectApp() {
     const { code } = useParams();
@@ -56,6 +56,7 @@ function TimeSelectApp() {
 
     const endPromptUserForLogin = () => {
         setPromptUserForLogin(false);
+        window.location.reload();
     }
 
     const [dragState, setDragState] = useState({
@@ -65,35 +66,13 @@ function TimeSelectApp() {
         affectedBlocks : new Set()
     })
 
-    const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null);
-    const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null);
-    const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null);
+    const gapiContext = useContext(GAPIContext);
+    const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext;
 
     const [googleCalendarEvents, setGoogleCalendarEvents] = useState<Date[]>([]);
     const [googleCalIds, setGoogleCalIds] = useState<string[]>(["primary"]);
     const [googleCalendars, setGoogleCalendars] = useState<any[]>([])
     const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>()
-
-    const GAPI_CLIENT_NAME = 'client:auth2';
-
-    // Load gapi client after gapi script loaded
-    //@ts-ignore
-    const loadGapiClient = (gapiInstance: typeof globalThis.gapi) => {
-        gapiInstance.load(GAPI_CLIENT_NAME, () => {
-        try {
-            gapiInstance.client.load('calendar', 'v3');
-
-        } catch {
-        gapiInstance.client.init({
-            apiKey: REACT_APP_API_KEY_GAPI,
-            clientId: REACT_APP_CLIENT_ID_GAPI,
-            scope: SCOPES,
-        });
-        gapiInstance.client.load('calendar', 'v3');
-
-        }
-        });
-    };
 
     useEffect(() => {
         const getGoogleCalData = async (calIds: string[]) => {
@@ -190,15 +169,17 @@ function TimeSelectApp() {
                     console.log(dim);
 
                     if (dim == undefined) {
-                        nav("/undefined")
+                        nav("/notfound")
                     }
-                
 
+
+                    console.log("here!");
                     const accountName = getAccountName();
                     if (accountName === null) {   
-                        console.warn("User not logged in");
+                        console.log("User not logged in");
                         return;
                     }
+                    console.log("here2!");
                     
                     //@ts-ignore
                     setChosenDateRange(getChosenDayAndTime());
@@ -229,6 +210,7 @@ function TimeSelectApp() {
 
                     console.log(theRange);
 
+                    // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
                     //@ts-ignore
                     if (theRange != undefined && theRange?.length !== 0) {
                         nav("/groupview/" + code)
@@ -240,29 +222,17 @@ function TimeSelectApp() {
                 nav("/notfound")
             }
         };
-
-        async function loadGapi() {
-            const newGapi = await loadGapiInsideDOM();
-            loadGapiClient(newGapi);
-            const newAuth2 = await loadAuth2(
-                newGapi,
-                REACT_APP_CLIENT_ID_GAPI || "",
-                SCOPES,
-            );
-            setGapi(newGapi);
-            setAuthInstance(newAuth2);
-            setLoading(false);
-        }
         
         fetchData().then(() => {
+            console.log("data fetched");
+            console.log(calendarFramework);
+
             if (getAccountName() == "" || getAccountName() == undefined) {
                 setPromptUserForLogin(true)
             }
-            try {
-                loadGapi()
-            } catch (err){
-                console.warn("Error loading gapi: ", err);
-            }
+
+            setLoading(false);
+
         }).catch((err) => {
             console.log(err);
         }
@@ -332,7 +302,7 @@ function TimeSelectApp() {
 
                     {chosenDateRange == undefined && <div>
                         {locationOptions.length > 0 && (
-                        <div className="w-96 flex-col content-center mt-5 mb-8 w-[100%]">
+                        <div className="flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
                                 update={updateSelectedLocations}
                                 locations={locationOptions}
@@ -377,11 +347,10 @@ function TimeSelectApp() {
                 {/*The first date having a year be 2000 means that it was a general days selection*/}
                 {/*@ts-ignore*/}
                 {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && getAccountId() !== ""
-                && <button onClick={() => {
+                ? <button onClick={() => {
                             fetchUserCals()
                             .then((calendars) => {
                                 
-
                                 //@ts-ignore
                                 const calendarIDs = calendars.map(calendar => calendar.id);
 
@@ -404,6 +373,12 @@ function TimeSelectApp() {
                         active:bg-ymeets-light-blue transition-colors`}
                     >
                         Toggle GCal Availabilities
+                    </button>
+                    : <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
+                                        transform transition-transform hover:scale-90 active:scale-100e flex items-center'
+                            onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn).then(() => {console.log("logged here in"); window.location.reload()})}}>
+                            <img src={LOGO} alt="Logo" className="mr-3 h-7" /> 
+                            Sign in with Google to access GCAL
                     </button>}
                 <Popup isOpen={isGcalPopupOpen} onClose={closeGcalPopup} onCloseAndSubmit={onPopupCloseAndSubmit}>
                     <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
