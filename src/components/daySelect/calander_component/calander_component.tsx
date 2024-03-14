@@ -6,11 +6,10 @@ import CircleComponent from "../circle_component";
 import TimeSelectComponent from "../time_select_component";
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
-import frontendEventAPI from "../../../firebase/eventAPI";
 import { useState, useEffect } from "react";
-import { createEvent, getEventById, checkIfLoggedIn } from "../../../firebase/events";
-import "../calander_component/calander_component.css"
-import GeneralPopup from '../general_popup_component'
+import { checkIfLoggedIn } from "../../../firebase/events";
+import "./calander_component.css"
+import GeneralPopup from "../general_popup_component";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import DaysNotDates from "../select_days_not_dates/DaysNotDates";

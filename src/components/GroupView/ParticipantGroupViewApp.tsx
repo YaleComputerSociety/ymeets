@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useState } from "react";
-import UserChart from "../hoverViewComponents/UserChart";
-import LocationChart from "../hoverViewComponents/LocationChart";
+import UserChart from "./UserChart";
+import LocationChart from "./LocationChart";
 import { calanderState, userData } from "../../types"
 import { calendarDimensions } from "../../types"
 import eventAPI from "../../firebase/eventAPI";
@@ -10,10 +10,13 @@ import { useParams } from 'react-router-dom';
 import Calender from '../selectCalendarComponents/CalendarApp';
 import { getChosenLocation, getChosenDayAndTime } from '../../firebase/events';
 import { useNavigate } from 'react-router-dom';
-import AddToGoogleCalendarButton from '../GAPIComponents/addToCalendarButton';
+import AddToGoogleCalendarButton from './AddToCalendarButton';
 
-
-export default function ParticipantGroupViewApp() {
+/**
+ * 
+ * @returns Page Component Page
+ */
+export default function ParticipantGroupViewPage() {
     const { code } = useParams();
     const testData = eventAPI.getTestData()
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
@@ -39,34 +42,6 @@ export default function ParticipantGroupViewApp() {
     })
 
     const nav = useNavigate();
-
-    const monthDictionary = {
-        0: 'January',
-        1: 'February',
-        2: 'March',
-        3: 'April',
-        4: 'May',
-        5: 'June',
-        6: 'July',
-        7: 'August',
-        8: 'September',
-        9: 'October',
-        10: 'November',
-        11: 'December',
-    };
-
-    const numberEnding = {
-        1: "st",
-        2: "nd",
-        3: "rd",
-        4: "th",
-        5: "th",
-        6: "th",
-        7: "th",
-        8: "th",
-        9: "th",
-        10: "th",
-    }
 
     useEffect(() => {
 
@@ -176,6 +151,7 @@ export default function ParticipantGroupViewApp() {
                         </div>
 
                         <UserChart 
+                            //@ts-ignore
                             chartedUsersData={[chartedUsers, setChartedUsers]}
                         />
 

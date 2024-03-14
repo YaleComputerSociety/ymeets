@@ -1,9 +1,9 @@
 import { calandarDate, calendarDimensions, calanderState, userData } from  "../../types"
 import CalBlock from "./CalBlock";
 import { dragProperties } from "./CalendarApp";
-import { dateObjectToComparable } from "../utils/dateObjecToComparable";
-import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
-import { isTimeBetweenDates } from "../utils/isTimeBetweenDates";
+import { dateObjectToComparable } from "../utils/functions/dateObjecToComparable";
+import { dateObjectToHHMM } from "../utils/functions/dateObjecToHHMM";
+import { isTimeBetweenDates } from "../utils/functions/isTimeBetweenDates";
 import { useState } from "react";
 
 

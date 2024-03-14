@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login_guest_popup.css';
 import { User, UserCredential, signInAnonymously, updateProfile } from 'firebase/auth';
-import { signInWithGoogle } from '../../firebase/auth';
-import { auth } from '../../firebase/firebase';
+import { signInWithGoogle } from '../../../../firebase/auth';
+import { auth } from '../../../../firebase/firebase';
 import LOGO from "./googlelogo.png";
 
 interface LoginPopupProps {

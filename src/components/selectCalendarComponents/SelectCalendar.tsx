@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "tailwindcss/tailwind.css";
 import { calandarDate, calendarDimensions, calanderState, userData } from  "../../types"
-import { generateTimeBlocks } from "../utils/generateTimeBlocks";
+import { generateTimeBlocks } from "../utils/functions/generateTimeBlocks";
 import CalRow from "./CalRow";
 import DateBar from "./DateBar";
 import { dragProperties } from "./CalendarApp";

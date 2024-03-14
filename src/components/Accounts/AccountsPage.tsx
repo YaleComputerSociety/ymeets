@@ -21,7 +21,6 @@ import { logout } from "../../firebase/auth";
 import { Event, EventDetails } from "../../types";
 import { auth } from "../../firebase/firebase";
 import { deleteEvent } from "../../firebase/events";
-import GeneralPopup from "../daySelect/general_popup_component";
 import { GAPIContext } from "../../firebase/gapiContext";
   
 interface AccountsPageEvent {
@@ -34,6 +33,11 @@ interface AccountsPageEvent {
   iAmCreator: boolean
 }
 
+/**
+ * Parses the backend event object into a type that the AccountsPage component understands.
+ * @param events Event[]
+ * @returns AccountsPageEvent[]
+ */
 const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] => {
   const accountPageEvents: AccountsPageEvent[] = [];
   events.forEach((event) => {
@@ -56,8 +60,13 @@ const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] =
   return accountPageEvents;
 }
 
-
-export default function Accounts() {
+/**
+ * Page Component. Renders the events associated with a logged in Google account. 
+ * Renders nothing if no events are associated or the user is logged in anonymously 
+ * or not at all
+ * @returns Page Component Render
+ */
+export default function AccountsPage() {
     const { gapi } = useContext(GAPIContext);
   
     useEffect(() => {
@@ -71,11 +80,7 @@ export default function Accounts() {
           });
         }
       }
-      
-      // setTimeout(() => {
-      //   retrieveAndSetEvents();
-      // }, 2000);
-
+  
       return auth.onAuthStateChanged(() => {
         retrieveAndSetEvents();
       });

@@ -1,18 +1,15 @@
 // where the Routing thing goes.
-import React, { useState } from "react";
 import './Root.css';
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
-import LoginPageButtons from './components/loginpage';
-import DaySelectComponent from './components/daySelect/day_select_component';
-import TimeSelectApp from './components/createSchedule/TimeSelectApp';
-import EnterCodeComp from './components/entercodepage';
-import NavBar from "./components/navbar/NavBar"
-import Footer from "./components/footer/Footer"
-import Accounts from './components/accounts/Accounts';
-import GroupViewApp from './components/viewSchedule/GroupViewApp';
-import AboutUs from "./components/AboutUs/aboutUs";
+import HomePage from './components/Home/HomePage';
+import DaySelectComponent from './components/DaySelect/day_select_component';
+import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
+import NavBar from "./components/NavBar/NavBar"
+import AccountsPage from './components/Accounts/AccountsPage';
+import GroupViewApp from './components/GroupView/GroupViewPage';
+import AboutUsPage from "./components/AboutUs/AboutUsPage";
 import NotFound from "./components/NotFound/NotFound";
-import { Privacy } from "./components/AboutUs/Privacy";
+import PrivacyPage from "./components/PrivacyPage/PrivacyPage";
 import { GAPIContextWrapper } from "./firebase/gapiContext";
 
 function Root() {
@@ -27,15 +24,14 @@ function Root() {
             </header>
 
                 <Routes>
-                    <Route path='/' element={<LoginPageButtons />} />
+                    <Route path='/' element={<HomePage />} />
                     <Route path='/dayselect' element={<DaySelectComponent />} />
-                    <Route path='/eventcode' element={<EnterCodeComp />} />
-                    <Route path='/timeselect/:code' element={<TimeSelectApp />} />
+                    <Route path='/timeselect/:code' element={<TimeSelectPage />} />
                     <Route path='/groupview/:code' element={<GroupViewApp />} />
-                    <Route path="/useraccount" element={<Accounts />} />
-                    <Route path="/about-us" element={<AboutUs />} />
+                    <Route path="/useraccount" element={<AccountsPage />} />
+                    <Route path="/about-us" element={<AboutUsPage />} />
                     <Route path="*" element={<NotFound/>} />
-                    <Route path="/privacy" element={<Privacy/>} />
+                    <Route path="/privacy" element={<PrivacyPage/>} />
                 </Routes>
             </Router>
             </GAPIContextWrapper>

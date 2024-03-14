@@ -1,6 +1,6 @@
 import { checkIfAdmin } from "../../firebase/events";
-import ParticipantGroupViewApp from "./ParticipantGroupViewApp";
-import AdminGroupViewApp from "./AdminGroupViewApp";
+import ParticipantGroupViewPage from "./ParticipantGroupViewApp";
+import AdminGroupViewPage from "./AdminGroupViewApp";
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase/firebase";
 
@@ -24,11 +24,11 @@ export default function GroupViewApp() {
         <>
             {checkIfAdmin() ? (
                 <div>
-                    <AdminGroupViewApp />
+                    <AdminGroupViewPage />
                 </div>
             ) : (
                 <div>
-                    <ParticipantGroupViewApp />
+                    <ParticipantGroupViewPage />
                 </div>
             )}
         </>

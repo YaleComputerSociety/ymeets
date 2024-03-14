@@ -1,6 +1,10 @@
 import "./privacyPolicy.css"
 
-export function Privacy() {
+/**
+ * 
+ * @returns Page Component 
+ */
+export default function PrivacyPage() {
     
     return (
         <div className="bg-sky-100 ml-20 mr-20">

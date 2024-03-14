@@ -7,14 +7,18 @@ interface LocationChartProps {
     locationVotes : any
 }
 
+
+/**
+ * 
+ * @param LocationChartProps 
+ * @returns Page Support Component - Admin
+ */
 export default function LocationChart({theSelectedLocation, locationOptions, locationVotes} : LocationChartProps) {
 
     //@ts-ignore
     const [selectedLocation, setSelectedLocation] = theSelectedLocation;
     
     const [isClicked, setIsClicked] = useState(selectedLocation !== "");
-
-    // console.log(selectedLocation);
 
     let combined = locationOptions.map((loc:any, idx:any) => {
         return { location: loc, votes: locationVotes[idx] };

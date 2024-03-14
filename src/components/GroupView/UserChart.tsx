@@ -6,10 +6,14 @@ interface UserChart {
     chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>]
 }
 
-// TODO : Create a UserChart
-export default function UserChart(props: any) {
+/**
+ * 
+ * @param UserChart
+ * @returns Page Support Component - Admin View
+ */
+export default function UserChart({chartedUsersData}: UserChart) {
 
-    const [chartedUsers, setChartedUsers] = props.chartedUsersData;
+    const [chartedUsers, setChartedUsers] = chartedUsersData;
 
     var rows: Array<string>[] = []
     var numRows: number = Math.max(chartedUsers.available.length, 

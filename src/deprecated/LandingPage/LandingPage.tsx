@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
 
-
-
-export const LandingPageButtons = () => {
+export const LandingPage = () => {
 
     return (
         <div className='bg-gradient-to-r from-blue-400 via-blue-300 to-blue-200 h-screen w-screen flex justify-center'>

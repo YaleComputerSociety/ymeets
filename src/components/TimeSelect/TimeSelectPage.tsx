@@ -1,8 +1,8 @@
 import React from 'react';
-import LocationSelectionComponent from '../locationSelectionComponent';
+import { LocationSelectionComponent } from './LocationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect, useCallback } from "react"
-import Footer from '../footer/Footer';
+import Footer from '../utils/components/Footer';
 import { calandarDate, calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
@@ -11,18 +11,22 @@ import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabili
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
 import { getChosenDayAndTime } from '../../firebase/events';
-import { Popup } from './SelectGCalsPopup';
+import { Popup } from '../utils/components/Popup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import {LoginPopup} from '../loginpopup/login_guest_popup';
-import { LoadingAnim } from "../loadingAnim/loadingAnim";
+import {LoginPopup} from '../utils/components/LoginPopup/login_guest_popup';
+import { LoadingAnim } from "../utils/components/LoadingAnim";
 import { signInWithGoogle } from '../../firebase/auth';
-import LOGO from "../daySelect/general_popup_component/googlelogo.png";
+import LOGO from "../DaySelect/general_popup_component/googlelogo.png";
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 
-function TimeSelectApp() {
+/**
+ * 
+ * @returns Page Component
+ */
+function TimeSelectPage() {
     const { code } = useParams();
     const [showPopup, setShowPopup] = useState(false);
     const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
@@ -414,4 +418,4 @@ function TimeSelectApp() {
     );
 }
 
-export default TimeSelectApp;
+export default TimeSelectPage;

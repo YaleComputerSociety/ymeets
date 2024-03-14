@@ -3,20 +3,16 @@ import * as React from "react";
 import {useNavigate} from 'react-router-dom';
 import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
-import LoginPopup from "../loginpopup";
-import Footer from "../footer/Footer";
+import LoginPopup from "../utils/components/LoginPopup";
+import Footer from "../utils/components/Footer";
 
-export const LoginPageButtons = () => {
+export default function HomePage()  {
     const navigate = useNavigate();
     const [showInput, setShowInput] = React.useState(true)
     const [eventCode, setEventCode] = React.useState("");
     const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
     const [showFormValidation, setShowFormValidation] = React.useState<boolean>(false);
     const [formErrorMessage, setFormErrorMessage] = React.useState("")
-
-    const handleSignInWithGoogle = () => {
-        navigate('./dayselect');      
-    }
 
     function formValidationPopup(message : string){
         setShowFormValidation(true);
@@ -73,7 +69,7 @@ export const LoginPageButtons = () => {
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
                         <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg \
                                            transform transition-transform hover:scale-90 active:scale-100e' 
-                                           onClick={() => {handleSignInWithGoogle()}}>I'm a Host</button>
+                                           onClick={() => {navigate("/dayselect")}}>I'm a Host</button>
                         <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
                         <div className={showInput ? "hidden" : "flex flex-nowrap relative"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>

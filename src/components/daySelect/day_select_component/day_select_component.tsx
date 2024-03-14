@@ -1,14 +1,9 @@
-import * as React from "react";
 import { useState } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from "../../../firebase/eventAPI";
 import { getAccountId, getAccountName } from "../../../firebase/events";
-import { EventDetails } from "../../../types";
 import { useNavigate } from "react-router-dom";
-import LocationSelectionComponent from "../../locationSelectionComponent"
-import DaysNotDates from "../select_days_not_dates/DaysNotDates";
-import TimeSelectComponent from "../time_select_component";
 import Select from "react-dropdown-select";
 
 export const DaySelectComponent = () => {

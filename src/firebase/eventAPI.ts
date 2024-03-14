@@ -2,7 +2,7 @@ import { start } from "repl";
 import { calendarDimensions, calanderState, userData, calendar, user, calandarDate } from "../types";
 import { createEvent, getAllAvailabilities, getAllAvailabilitiesNames, setChosenDate, setChosenLocation, getChosenLocation, getChosenDayAndTime, getDates, getStartAndEndTimes } from "./events";
 import { Availability, Location, Event, EventDetails } from "../types";
-import { generateTimeBlocks } from "../components/utils/generateTimeBlocks";
+import { generateTimeBlocks } from "../components/utils/functions/generateTimeBlocks";
 
 // TODO fetch event details -> calendarFramework
 

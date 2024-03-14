@@ -3,10 +3,10 @@ import "tailwindcss/tailwind.css";
 import { calanderState, userData, user, calendarDimensions } from "../../types"
 import { useRef } from "react";
 import { dragProperties } from "./CalendarApp";
-import { generateTimeBlocks } from "../utils/generateTimeBlocks";
+import { generateTimeBlocks } from "../utils/functions/generateTimeBlocks";
 import { calandarDate } from "../../types";
 import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from "../../firebase/events";
-import { dateObjectToHHMM } from "../utils/dateObjecToHHMM";
+import { dateObjectToHHMM } from "../utils/functions/dateObjecToHHMM";
 import ReactDOM from 'react-dom';
 import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 

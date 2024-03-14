@@ -126,6 +126,12 @@ interface ContributorCardProps {
     image : string | undefined,
 }
 
+/**
+ * Page Support Component for the AboutUsPage. Displays information about
+ * a contributer to the project
+ * @param ContributerCardProps 
+ * @returns Page Support Component
+ */
 function ContributorCard({name, title, founding, linkedin, portfolio, github, image} : ContributorCardProps) {
     console.log(name, image);
     return (
@@ -192,7 +198,11 @@ function ContributorCard({name, title, founding, linkedin, portfolio, github, im
 
 }
 
-export default function AboutUs() {
+/**
+ * About Us.
+ * @returns Page Component
+ */
+export default function AboutUsPage() {
     return <div className="flex flex-row justify-center items-center w-screen">
         <div className="w-[80%] md:w-[70%]">
             <h1 className="text-5xl font-bold mb-7">Our Story</h1>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getLocationsVotes } from "../../firebase/events";
 import { getParticipantIndex, getAccountId, getAccountName } from "../../firebase/events";
 
-export const LocationSelectionComponent = (props:any) => {
+export function LocationSelectionComponent (props: any)  {
     let locations : Array<String> = props.locations
     let options = locations.map(loc => {
         return {

@@ -6,20 +6,22 @@ import Calendar from "../selectCalendarComponents/CalendarApp"
 import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime, updateAnonymousUserToAuthUser, getAccountName } from '../../firebase/events';
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import LocationChart from "../hoverViewComponents/LocationChart";
-import UserChart from "../hoverViewComponents/UserChart";
-import { generateTimeBlocks } from "../utils/generateTimeBlocks";
+import LocationChart from "./LocationChart";
+import UserChart from "./UserChart";
+import { generateTimeBlocks } from "../utils/functions/generateTimeBlocks";
 import { setChosenDate } from "../../firebase/events";
-import { start } from "repl";
 import { getChosenLocation } from "../../firebase/events";
-import GeneralPopup from "../daySelect/general_popup_component";
+import GeneralPopup from "../DaySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
-import ExportDecisionsToUser from "../../deprecated/ExportDecisionToUsers";
-import AddToGoogleCalendarButton from "../GAPIComponents/addToCalendarButton";
+import AddToGoogleCalendarButton from "./AddToCalendarButton";
 import copy from "clipboard-copy"
 import {IconCopy} from "@tabler/icons-react"
 
-export default function AdminGroupViewApp() {
+/**
+ * Group view if you are logged in as the creator of the event.
+ * @returns Page Component
+ */
+export default function AdminGroupViewPage() {
 
     const testData = eventAPI.getTestData()
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
@@ -272,6 +274,7 @@ export default function AdminGroupViewApp() {
                       {/* User availability table */} 
 
                       {chartedUsers !== undefined && <UserChart 
+                          //@ts-ignore
                           chartedUsersData={[chartedUsers, setChartedUsers]}
                       />}
 
@@ -310,14 +313,6 @@ export default function AdminGroupViewApp() {
                   </div>
 
                   <div className="md:hidden">
-                    {/* (Mobile): Edit availability button */}
-                      
-                    {/* <button 
-                      onClick={() => {nav("/timeselect/" + code)}}
-                      className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
-                                  transform transition-transform hover:scale-90 active:scale-100e'>
-                      <span className="mr-1">&#8592;</span> Edit Your Availiability
-                    </button> */}
 
                     {/* (Mobile): Event name, location, and time */}
 
