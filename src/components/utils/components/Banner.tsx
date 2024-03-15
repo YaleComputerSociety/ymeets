@@ -3,26 +3,26 @@ import { useState } from "react";
 
 interface Props {
     title : string;
-    text : string;
+    text?: string;
 
 }
 
 export default function Banner({title, text}: Props) {
 
-    const [bannerVisible, setBannerVisible] = useState(true);
+    const [bannerVisible, setBannerVisible] = useState(localStorage.getItem("hasClosedBefore") !== "true");
 
     return (
         <>
         {
-            bannerVisible && <div className="w-full sm:w-1/2 opacity-80 bg-white p-4">
+            bannerVisible && <div className="w-full opacity-80 bg-white p-4">
                 <div className="flex flex-row">
-                    <button onClick={() => {setBannerVisible(false)}} className="mr-3 text-lg">
+                    <button onClick={() => {setBannerVisible(false); localStorage.setItem('hasClosedBefore', `true`); }} className="mr-3 text-lg">
                         <MdOutlineClose
                             size={28}
                         />
                     </button>
 
-                    <p className="font-bold mr-1">{title}: </p>
+                    <p className="font-bold mr-1">{title} - </p>
                     
                     <a target="_blank" href="https://forms.gle/PPiGK3DKWXgV4rLUA">
                         <p className="underline">{text}</p>

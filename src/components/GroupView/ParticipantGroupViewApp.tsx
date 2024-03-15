@@ -193,6 +193,7 @@ export default function ParticipantGroupViewPage() {
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </Button>
                         </div>
+                        
                         {/* (Mobile): Event name, location, and time */}
 
                         <div className = "mb-4 flex flex-col space-y-5 mt-4">

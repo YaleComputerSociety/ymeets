@@ -6,7 +6,7 @@ import graphic from './calendargraphic.png';
 import LoginPopup from "../utils/components/LoginPopup";
 import Footer from "../utils/components/Footer";
 import Button from "../utils/components/Button";
-
+import Banner from "../utils/components/Banner";
 export default function HomePage()  {
     const navigate = useNavigate();
     const [showInput, setShowInput] = React.useState(true)
@@ -57,6 +57,7 @@ export default function HomePage()  {
     };
 
     return (
+        <>
         <div className="h-fit w-full overflow-auto bg-sky-100 p-8 sm:p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60">
             <div className='flex-col-reverse justify-center \ 
@@ -93,6 +94,7 @@ export default function HomePage()  {
             {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
             <Footer />
         </div>
+        </>
     );
 }
 

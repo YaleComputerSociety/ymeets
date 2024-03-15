@@ -11,11 +11,13 @@ import AboutUsPage from "./components/AboutUs/AboutUsPage";
 import NotFound from "./components/NotFound/NotFound";
 import PrivacyPage from "./components/PrivacyPage/PrivacyPage";
 import { GAPIContextWrapper } from "./firebase/gapiContext";
-
+import Banner from './components/utils/components/Banner';
 function Root() {
 
     return (
         <>
+        <Banner title="Now in alpha" text='Please Report Bugs'/>
+
         <GAPIContextWrapper>
             <Router>
 
