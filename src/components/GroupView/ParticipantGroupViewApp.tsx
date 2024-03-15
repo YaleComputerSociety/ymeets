@@ -12,6 +12,7 @@ import { getChosenLocation, getParticipantIndex, getAccountId, getChosenDayAndTi
 import { useNavigate } from 'react-router-dom';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
 import Button from '../utils/components/Button';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
 
 
 /**
@@ -97,7 +98,9 @@ export default function ParticipantGroupViewPage() {
 
 
     if (loading) {
-        return <p>Loading...</p>
+        return <div className='flex items-center justify-center'>
+            <LoadingAnim/>
+        </div>
     }
 
     return (
@@ -193,7 +196,7 @@ export default function ParticipantGroupViewPage() {
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </Button>
                         </div>
-                        
+
                         {/* (Mobile): Event name, location, and time */}
 
                         <div className = "mb-4 flex flex-col space-y-5 mt-4">

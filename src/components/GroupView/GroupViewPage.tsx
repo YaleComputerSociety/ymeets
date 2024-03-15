@@ -1,9 +1,8 @@
-import { checkIfAdmin } from "../../firebase/events";
+import { checkIfAdmin, getEventOnPageload } from "../../firebase/events";
 import ParticipantGroupViewPage from "./ParticipantGroupViewApp";
 import AdminGroupViewPage from "./AdminGroupViewApp";
 import { useEffect, useState } from "react";
-import { auth } from "../../firebase/firebase";
-
+import { useParams } from "react-router-dom";
 /**
  * 
  * Determines which Group View to render depending on if an admin is logged in or not.
@@ -12,9 +11,24 @@ import { auth } from "../../firebase/firebase";
  */
 export default function GroupViewApp() {
 
+    const [isAdmin, setIsAdmin] = useState(checkIfAdmin());
+
+    const { code } = useParams();
+
+    useEffect(() => {
+        //@ts-ignore
+        getEventOnPageload(code).then(() => {
+            setIsAdmin(checkIfAdmin())
+        }).catch((err) => {
+            console.log("code is wrong")
+        })
+    }, [])
+
+
     return (
         <>
-            {checkIfAdmin() ? (
+
+            {isAdmin ? (
                 <div>
                     <AdminGroupViewPage />
                 </div>

@@ -18,6 +18,7 @@ import copy from "clipboard-copy"
 import {IconCopy} from "@tabler/icons-react"
 import Button from "../utils/components/Button";
 import { Popup } from "../utils/components/Popup";
+import { LoadingAnim } from "../utils/components/LoadingAnim";
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -170,6 +171,12 @@ export default function AdminGroupViewPage() {
     }
     return user;
 }
+
+if (loading) {
+  return <div className='flex items-center justify-center'>
+      <LoadingAnim/>
+  </div>
+}
   
   return ( <>
             <div className="flex justify-center">
@@ -193,6 +200,13 @@ export default function AdminGroupViewPage() {
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </Button>
                         </div>
+                        <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                            NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/> 
+                            <br/>
+                            {locationOptions.length > 0  && <span>Click on a location to select it as the place to meet</span> } After, click
+                            Submit Selection.
+                        </div>
+                        
 
                       {/* Event name, location, and time */}
 
@@ -319,7 +333,8 @@ export default function AdminGroupViewPage() {
                   >
                     <div className="text-xl">
                       <br></br>
-                      <span className="font-bold">Warning: </span> You cannot undo this action! Are you sure?
+                      <span className="font-bold">Warning: </span> Submitting this selection will lock all other participants from being able to edit their availability.
+                      You cannot undo this action! Are you sure?
                     </div>
                   </Popup>
 
