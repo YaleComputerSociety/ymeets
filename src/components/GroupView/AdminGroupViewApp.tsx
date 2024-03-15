@@ -16,6 +16,8 @@ import { useNavigate } from "react-router-dom";
 import AddToGoogleCalendarButton from "./AddToCalendarButton";
 import copy from "clipboard-copy"
 import {IconCopy} from "@tabler/icons-react"
+import Button from "../utils/components/Button";
+import { Popup } from "../utils/components/Popup";
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -54,6 +56,9 @@ export default function AdminGroupViewPage() {
     })
 
     const [copied, setCopied] = useState(false);
+
+    const [selectionConfirmed, setSelectionConfirmed] = useState(false);
+    const [selectionConfirmedPopupOpen, setSelectionConfirmedPopupOpen] = useState(false)
 
     const nav = useNavigate()
 
@@ -105,55 +110,56 @@ export default function AdminGroupViewPage() {
         return;
       }
 
-      //@ts-ignore
-      let calDate = [].concat(...calendarFramework.dates)[dragState.dragStartedOnID[0]]
-      let timeBlocks = generateTimeBlocks(calendarFramework?.startTime, calendarFramework?.endTime)
-      //@ts-ignore
-      let times = [].concat(...timeBlocks);
-
-      if (dragState.dragStartedOnID.length > 0 && dragState.dragEndedOnID.length > 0) {
-
-        let selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
-        let selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
-        
-        //@ts-ignore
-        let [startHour, startMinute] = selectedStartTimeHHMM.split(":").map(Number);
-        //@ts-ignore
-        let [endHour, endMinute] = selectedEndTimeHHMM.split(":").map(Number);
 
         //@ts-ignore
-        let selectedStartTimeDateObject = new Date(calDate.date);
-        selectedStartTimeDateObject.setHours(startHour);
-        selectedStartTimeDateObject.setMinutes(startMinute);
-
+        let calDate = [].concat(...calendarFramework.dates)[dragState.dragStartedOnID[0]]
+        let timeBlocks = generateTimeBlocks(calendarFramework?.startTime, calendarFramework?.endTime)
         //@ts-ignore
-        let selectedEndTimeDateObject = new Date(calDate.date);
-        selectedEndTimeDateObject.setHours(endHour);
-        selectedEndTimeDateObject.setMinutes(endMinute);
-        
-        // update on client side (set SelectedDateTimeObjects) + backend (setChosenDate)
-        //@ts-ignore
-        setSelectedDateTimeObjects([selectedStartTimeDateObject, selectedEndTimeDateObject])
-        
-        setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject).then(() => {
-            setSelectionButtonClicked(true);
-        })
+        let times = [].concat(...timeBlocks);
 
-        setSelectedLocation(adminChosenLocation);
-        
-        if (selectedLocation != undefined) {
-          setChosenLocation(selectedLocation);
+        if (dragState.dragStartedOnID.length > 0 && dragState.dragEndedOnID.length > 0) {
+
+          let selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
+          let selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
+          
+          //@ts-ignore
+          let [startHour, startMinute] = selectedStartTimeHHMM.split(":").map(Number);
+          //@ts-ignore
+          let [endHour, endMinute] = selectedEndTimeHHMM.split(":").map(Number);
+
+          //@ts-ignore
+          let selectedStartTimeDateObject = new Date(calDate.date);
+          selectedStartTimeDateObject.setHours(startHour);
+          selectedStartTimeDateObject.setMinutes(startMinute);
+
+          //@ts-ignore
+          let selectedEndTimeDateObject = new Date(calDate.date);
+          selectedEndTimeDateObject.setHours(endHour);
+          selectedEndTimeDateObject.setMinutes(endMinute);
+          
+          // update on client side (set SelectedDateTimeObjects) + backend (setChosenDate)
+          //@ts-ignore
+          setSelectedDateTimeObjects([selectedStartTimeDateObject, selectedEndTimeDateObject])
+          
+          setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject).then(() => {
+              setSelectionButtonClicked(true);
+          })
+
+          setSelectedLocation(adminChosenLocation);
+          
+          if (selectedLocation != undefined) {
+            setChosenLocation(selectedLocation);
+          }
+
+        }
+        if (selectedLocation != "" && selectedLocation != undefined) {
+          //@ts-ignore
+          setSelectedLocation(selectedLocation)
         }
 
-      }
-      if (selectedLocation != "" && selectedLocation != undefined) {
-        //@ts-ignore
-        setSelectedLocation(selectedLocation)
-      }
+        window.location.reload();
+        
 
-      setTimeout(() => {
-        setSelectionButtonClicked(false);
-      }, 3000)
   }
 
   const getCurrentUserIndex = () => {
@@ -178,13 +184,14 @@ export default function AdminGroupViewPage() {
                       {/* Edit availability button */}
                       
                       <div className="justify-center">
-                      <button 
-                            disabled={selectedDateTimeObjects !== undefined && selectedDateTimeObjects?.length !== 0}
+                      <Button 
+                            bgColor="blue-500"
+                            textColor='white'
+                            disabled={selectedDateTimeObjects != undefined}
                             onClick={() => {nav("/timeselect/" + code)}}
-                            className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
-                                        transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
+                        >
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
-                        </button>
+                        </Button>
                         </div>
 
                       {/* Event name, location, and time */}
@@ -203,9 +210,9 @@ export default function AdminGroupViewPage() {
                                   })) : "not selected"}
                             </h3>
 
-                            <h3 className="text-base text-center md:text-left">
+                            {locationOptions.length > 0 && <h3 className="text-base text-center md:text-left">
                             <span className='font-bold'>Location:</span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
-                            </h3>
+                            </h3>}
 
                             <button
                           onClick={() => {
@@ -256,7 +263,7 @@ export default function AdminGroupViewPage() {
                           
 
                         <button 
-                            onClick={handleSelectionSubmission}
+                            onClick={() => {setSelectionConfirmedPopupOpen(true)}}
                             className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                                Submit Selection
@@ -306,6 +313,16 @@ export default function AdminGroupViewPage() {
                       />
                   </div>
 
+                  <Popup onCloseAndSubmit={handleSelectionSubmission}
+                         onClose={() => setSelectionConfirmedPopupOpen(false)}
+                         isOpen={selectionConfirmedPopupOpen}
+                  >
+                    <div className="text-xl">
+                      <br></br>
+                      <span className="font-bold">Warning: </span> You cannot undo this action! Are you sure?
+                    </div>
+                  </Popup>
+
                   <div className="md:hidden">
 
                     {/* (Mobile): Event name, location, and time */}
@@ -325,9 +342,9 @@ export default function AdminGroupViewPage() {
                                 }) : "not selected"}
                         </h3>
 
-                        <h3 className="text-base text-center md:text-left">
+                        {locationOptions.length > 0 && <h3 className="text-base text-center md:text-left">
                         <span className='font-bold'>Location:</span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
-                        </h3>
+                        </h3>}
 
                         <button
                           onClick={() => {

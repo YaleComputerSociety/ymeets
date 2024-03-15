@@ -11,6 +11,7 @@ import Calender from '../selectCalendarComponents/CalendarApp';
 import { getChosenLocation, getParticipantIndex, getAccountId, getChosenDayAndTime } from '../../firebase/events';
 import { useNavigate } from 'react-router-dom';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
+import Button from '../utils/components/Button';
 
 
 /**
@@ -105,13 +106,14 @@ export default function ParticipantGroupViewPage() {
             <div className='flex justify-center'>
                 <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
                     <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
-                        <button 
+                        <Button 
+                            bgColor="blue-500"
+                            textColor='white'
                             disabled={selectedDateTimeObjects != undefined}
                             onClick={() => {nav("/timeselect/" + code)}}
-                            className='hidden font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
-                                        transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
+                        >
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
-                        </button>
+                        </Button>
                         {selectedDateTimeObjects != undefined && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
                             NOTE: Admin has selected a time, so you cannot edit your availability
                         </div>
@@ -138,9 +140,9 @@ export default function ParticipantGroupViewPage() {
                                   })) : "not selected"}
                         </h3>
 
-                        <h3 className="text-base text-center md:text-left">
+                        {locationOptions.length > 0 && <h3 className="text-base text-center md:text-left">
                         <span className='font-bold'>Location:</span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
-                        </h3>
+                        </h3>}
                       </div>
                         </div>
 
@@ -182,13 +184,14 @@ export default function ParticipantGroupViewPage() {
                         {/* (Mobile): Edit availability button */}
                         
                         <div className='flex items-center justify-center '>
-                        <button 
-                            disabled={selectedDateTimeObjects !== undefined}
+                        <Button 
+                            bgColor="blue-500"
+                            textColor='white'
+                            disabled={selectedDateTimeObjects != undefined}
                             onClick={() => {nav("/timeselect/" + code)}}
-                            className='font-bold rounded-md bg-blue-500 text-white text-base w-fit p-3 \
-                                        transform transition-transform hover:scale-90 active:scale-100e md:block disabled:bg-gray-500 disabled:opacity-50'>
+                        >
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
-                        </button>
+                        </Button>
                         </div>
                         {/* (Mobile): Event name, location, and time */}
 
@@ -211,9 +214,9 @@ export default function ParticipantGroupViewPage() {
                                 }) : "not selected"}
                         </h3>
 
-                        <h3 className="text-base text-center md:text-left">
+                        {locationOptions.length > 0 && <h3 className="text-base text-center md:text-left">
                         <span className='font-bold'>Location: </span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
-                        </h3>
+                        </h3>}
                         
                       </div>
                         </div>
