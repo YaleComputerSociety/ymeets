@@ -1,6 +1,6 @@
 import { LocationSelectionComponent } from './LocationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
@@ -27,14 +27,9 @@ import Button from '../utils/components/Button';
  */
 function TimeSelectPage() {
     const { code } = useParams();
-    const [showPopup, setShowPopup] = useState(false);
     const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
     const nav = useNavigate();
-
-    const openGcalPopup = () => {
-        setGcalPopupOpen(true);
-    };
     
     const closeGcalPopup = () => {
         setGcalPopupOpen(false);
@@ -168,8 +163,6 @@ function TimeSelectPage() {
                 await getEventOnPageload(code).then(() => {
                     const { availabilities, participants } = eventAPI.getCalendar();
                     const dim = eventAPI.getCalendarDimensions();
-
-                    console.log(dim);
 
                     if (dim == undefined) {
                         nav("/notfound")
