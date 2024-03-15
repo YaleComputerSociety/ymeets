@@ -75,23 +75,6 @@ export default function ParticipantGroupViewPage() {
                     
                     setSelectedDateTimeObjects(getChosenDayAndTime());
                        
-                    // if (getChosenDayAndTimeVar != undefined) {
-                    //     //@ts-ignore
-                    //     setChosenTimeRange([getChosenDayAndTimeVar[0].toLocaleTimeString('en-US', {
-                    //         hour: '2-digit',
-                    //         minute: '2-digit',
-                    //         hour12: false,
-                    //     }), 
-                        
-                    //     //@ts-ignore
-                    //     getChosenDayAndTimeVar[1].toLocaleTimeString('en-US', {
-                    //         hour: '2-digit',
-                    //         minute: '2-digit',
-                    //         hour12: false,
-                    //     })
-                    //     ])
-                    // }
-
                     //@ts-ignore
                     
                     setSelectedLocation(getChosenLocation())

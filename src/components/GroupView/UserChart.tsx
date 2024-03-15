@@ -1,12 +1,13 @@
 import ChartRow from "./UserChartRow";
-import { useState } from "react";
-import {userData, user } from "../../types"
+import { userData } from "../../types"
 
 interface UserChart {
     chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>]
 }
 
 /**
+ * 
+ * Renders who is available during certain time blocks
  * 
  * @param UserChart
  * @returns Page Support Component - Admin View

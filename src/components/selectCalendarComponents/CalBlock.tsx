@@ -259,7 +259,7 @@ export default function CalBlock({
 
     }
 
-    const handleTouchMove = (event: any) => {
+    const handleMobileAvailabilitySelect = (event: any) => {
 
 
         const touch = event.touches[0];
@@ -273,9 +273,9 @@ export default function CalBlock({
         }
 
         //@ts-ignore
-        const [obtainedColumnID, onbtainedBlockID] = touchedElement?.id?.split('-').map(Number);
+        const [obtainedColumnID, obtainedBlockID] = touchedElement?.id?.split('-').map(Number);
 
-        if (onbtainedBlockID === undefined) {
+        if (obtainedBlockID === undefined) {
             return;
         }
         
@@ -285,16 +285,13 @@ export default function CalBlock({
         
         setDragState((oldState) => ({
             ...oldState,
-            dragEndedOnID : [obtainedColumnID, onbtainedBlockID]
+            dragEndedOnID : [obtainedColumnID, obtainedBlockID]
         }))
 
     };
 
     const handleDragStart = (event: any) => {
         
-
-        console.log("drag started");
-
         const crt = event.target.cloneNode(true);
         crt.style.position = "absolute";
         crt.style.left = "-9999px"; 
@@ -308,7 +305,7 @@ export default function CalBlock({
 
         createNewDrag();
 
-      };
+    };
 
     const handleBlockClick = () => {
         
@@ -333,7 +330,7 @@ export default function CalBlock({
         }   
     }
       
-    const handleBlockUpdate = () => {
+    const handleDesktopAvailabilitySelect = () => {
 
         if (isDraggable == false) {
             return;
@@ -344,10 +341,9 @@ export default function CalBlock({
             dragEndedOnID : [columnID, blockID]
         }))
 
-      };
+    };
 
-
-    const handleHover = (event : any) => {
+    const handleDesktopHoverChartedUser = () => {
         var availableUsers : user[] = []
         var unavailableUsers : user[] = []
 
@@ -357,7 +353,7 @@ export default function CalBlock({
                 let user = chartedUsers.users[i]
                 let oldData = {...calendarState}
                 
-                let indexOfCol = columnID % 7 
+                let indexOfCol = columnID 
 
                 if(oldData[user.id][indexOfCol][blockID] == true || shadeColor == "green-700"){
                     availableUsers.push(user)
@@ -373,9 +369,47 @@ export default function CalBlock({
 
     }
 
+    const handleMobileHoverChartedUser = (event: any) => {
+
+        var availableUsers : user[] = []
+        var unavailableUsers : user[] = []
+
+        const touch = event.touches[0];
+
+        const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY);
+       
+        //@ts-ignore
+        const touchedEleId = touchedElement?.id
+
+        if (!touchedEleId?.includes("-")) {
+            return;
+        }
+
+        //@ts-ignore
+        const [obtainedColumnID, obtainedBlockID] = touchedElement?.id?.split('-').map(Number);
+        if( chartedUsers != undefined ){
+
+            for(let i = 0; i < chartedUsers.users.length; i++){
+                let user = chartedUsers.users[i]
+                let oldData = {...calendarState}
+                
+                let indexOfCol = obtainedColumnID 
+
+                if(oldData[user.id][indexOfCol][obtainedBlockID] == true || shadeColor == "green-700"){
+                    availableUsers.push(user)
+                }
+                else{
+                    unavailableUsers.push(user)
+                }
+            }
+            setChartedUsers({users: chartedUsers.users, 
+                            available: availableUsers, 
+                            unavailable: unavailableUsers})
+        }
+    }
+
     const borderTop = is30Minute ? '1px dotted #000' : 'none';
     
-    console.log(isOnGcal);
     return (
         <div
             draggable="true"
@@ -383,12 +417,10 @@ export default function CalBlock({
             ref={dragRef}
             onClick={handleBlockClick}
             onDragStart={handleDragStart}
-            onDragEnter={handleBlockUpdate}
-            onDragOver={handleBlockUpdate}
-            onMouseOver={handleHover}
-            
+            onDragEnter={handleDesktopAvailabilitySelect}
+            onDragOver={handleDesktopAvailabilitySelect}
+            onMouseOver={handleDesktopHoverChartedUser}
             onTouchStart={() => {
-
         
                 if (isDraggable == false) {
                     return;
@@ -399,14 +431,20 @@ export default function CalBlock({
                     cancelable: true,
                     dataTransfer: new DataTransfer()
                   });
-
+                
+                // this will trigger the dragStart handler.
                 if (dragRef.current) {
                     dragRef.current.dispatchEvent(dragStartEvent);
                 }
 
+                handleDesktopHoverChartedUser();
+
             }}  
 
-            onTouchMove={handleTouchMove}
+            onTouchMove={(e) => {
+                handleMobileAvailabilitySelect(e);
+                handleMobileHoverChartedUser(e);
+            }}
 
             onMouseLeave={() => setIsDottedBorder(false)}
             className={

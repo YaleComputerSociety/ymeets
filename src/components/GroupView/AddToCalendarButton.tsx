@@ -5,6 +5,8 @@ import { signInWithGoogle } from '../../firebase/auth';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 /**
  * 
+ * Facilates exporting the event to the currently logged in user's calandear
+ * 
  * @returns Page Support Component - Admin View
  */
 function AddToGoogleCalendarButton(): JSX.Element {

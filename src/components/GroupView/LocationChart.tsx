@@ -10,6 +10,8 @@ interface LocationChartProps {
 
 /**
  * 
+ * Contains information on the vote count for each location.
+ * 
  * @param LocationChartProps 
  * @returns Page Support Component - Admin
  */

@@ -18,7 +18,7 @@ import copy from "clipboard-copy"
 import {IconCopy} from "@tabler/icons-react"
 
 /**
- * Group view if you are logged in as the creator of the event.
+ * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
 export default function AdminGroupViewPage() {
