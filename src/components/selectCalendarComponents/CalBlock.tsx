@@ -7,9 +7,6 @@ import { generateTimeBlocks } from "../utils/functions/generateTimeBlocks";
 import { calandarDate } from "../../types";
 import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from "../../firebase/events";
 import { dateObjectToHHMM } from "../utils/functions/dateObjecToHHMM";
-import ReactDOM from 'react-dom';
-import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
-
 
 interface CalBlockProps {
     blockID: number
@@ -41,16 +38,15 @@ export default function CalBlock({
     theSelectedDate,
     isOnGcal
 }: CalBlockProps) {
-
+        
     const dragRef = useRef<HTMLDivElement>(null);
     const elementId = `${columnID}-${blockID}`;
 
-
-    const [isDraggable, setIsDraggable] = useState(draggable)
+    const [isDraggable, setIsDraggable] = useState(draggable);
     //@ts-ignore
-    const [chosenDate, setChosenDate] = theSelectedDate
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = theSelectedDate
 
-    function getDefaultBlockColor() {
+    function getDefaultShadeColor() {
 
             let selectedCount = 0;
 
@@ -59,8 +55,12 @@ export default function CalBlock({
                     selectedCount += 1;
                 }
             }   
-
+            
+            // if its not draggable -> just a participant group view
+            // if it is draggble and is an admin -> admin group view
+            // all other cases must just be a timeselect.
             if (!isDraggable || (isDraggable && isAdmin)) {
+                // one of the groupviews
     
                 const percentageSelected = selectedCount / (calendarState.length);
                 
@@ -75,21 +75,12 @@ export default function CalBlock({
                 } else if (percentageSelected == 1) {
                     return "green-400"
                 }
+
             } else {
-                
-                if (!chosenDate) {
-                    return "sky-300";
-                } else {
-                    if (calendarState[user][columnID][blockID] === true) {
-                        return "sky-300"
-                    } else  {
-                        return "white"
-                    }
-                }
+                // timeselect - shade color is just going to be sky
+                return "sky-300"
             }
-
     }
-
 
     const [chartedUsers, setChartedUsers] = chartedUsersData ? chartedUsersData : [null, null]
     
@@ -100,30 +91,37 @@ export default function CalBlock({
     //@ts-ignore
     const [calendarFramework, setCalendarFramework] = theCalendarFramework
     const prevDragState = useRef(dragState);
-    const [shadeColor, setShadeColor] = useState(() => {
-
-        return getDefaultBlockColor();
-    });
-
-    const [selectionColor, setSelectionColor] = useState(() => {
-        return getDefaultBlockColor();
-    });
-
-    const [unShadeColor, setUnshadeColor] = useState(() => {
-        return isOnGcal ? "gray-500" : "white";
-    });
     
+    
+    // handles the color that is created when the user drags over the block and it is unselected (value of block is initfalse)
+    const [shadeColor, setShadeColor] = useState(() => {
+        return getDefaultShadeColor();
+    });
+
+    // when the admin is making a selection, the shade color needs to be overwritten.
+    // this stores the original shade color in case the admin unselects and selects something
+    // different
+    const [originalShadeColor, setOriginalShadeColor] = useState(() => {
+        return getDefaultShadeColor();
+    });
+
+    // handles the color that is created when the user drags over the block and it IS selected (value of the block init true)
+    const [unShadeColor, setUnshadeColor] = useState(() => {
+        return isOnGcal ? "gray-500" : "white"; // always white unless it is a gcal block
+    });
+
+    // need this for some reason as well, investigate
     useEffect(() => {
         setUnshadeColor(isOnGcal ? "gray-500" : "white");
     }, [isOnGcal]);
     
 
-    //@ts-ignore
-    const [selectedDate, setSelectedDate] = theSelectedDate;
-
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4;
 
-    // handles the initial coloring of the block.
+    // handles the initial coloring of the block. 
+    // Depends on if this is a groupview calander, or a time selection calander, which is determined
+    // by the draggability of the calandar in the getDefaultBlock() function.
+
     useEffect(() => {
 
         //@ts-ignore
@@ -163,17 +161,16 @@ export default function CalBlock({
                     endColumnID = i
                 }
             }
-            
-            // if this block falls within the selection box, then set the color of that block to be selection colored,
-            // return.
+            // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
             if (columnID >= startColumnID && columnID <= endColumnID && startBlockID <= blockID && endBlockID >= blockID ) {
-                setShadeColor("green-700")
+                setShadeColor("green-700");
                 return;
             }
         }
 
     }, []);
 
+    // handles drag update logic
     useEffect(() => {
 
         if (isDraggable === false) {
@@ -225,11 +222,10 @@ export default function CalBlock({
             }
         
         } else {
-
             if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
                 setShadeColor("green-700");
             } else {
-                setShadeColor(selectionColor);
+                setShadeColor(originalShadeColor);
             }
 
         }
@@ -241,8 +237,6 @@ export default function CalBlock({
     }, [isDraggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID]);   
 
     const createNewDrag = () => {
-
-        console.log("drag started!");
 
         let oldState = dragState;
 
@@ -341,8 +335,6 @@ export default function CalBlock({
       
     const handleBlockUpdate = () => {
 
-        console.log("drag moved!")
-
         if (isDraggable == false) {
             return;
         }
@@ -351,8 +343,6 @@ export default function CalBlock({
             ...oldState,
             dragEndedOnID : [columnID, blockID]
         }))
-
-        console.log([columnID, blockID]);
 
       };
 
@@ -385,6 +375,7 @@ export default function CalBlock({
 
     const borderTop = is30Minute ? '1px dotted #000' : 'none';
     
+    console.log(isOnGcal);
     return (
         <div
             draggable="true"
@@ -412,31 +403,8 @@ export default function CalBlock({
                 if (dragRef.current) {
                     dragRef.current.dispatchEvent(dragStartEvent);
                 }
-                
-                // disableBodyScroll(document.body)
-
-                //@ts-ignore
-                // document.getElementById("cal").style.overflow = "hidden"
-                // document.body.style.overflow = "hidden"
-
-                //@ts-ignore
-                // document.body.style.WebkitOverflowScrolling = 'touch';
 
             }}  
-
-            onTouchEnd={() => {
-
-                //@ts-ignore
-                // document.getElementById("cal").style.fixed = "auto"
-                // document.body.style.overflow = "visible"
-
-
-    
-                //@ts-ignore
-                // document.body.style.WebkitOverflowScrolling = 'auto';
-
-            
-            }}
 
             onTouchMove={handleTouchMove}
 

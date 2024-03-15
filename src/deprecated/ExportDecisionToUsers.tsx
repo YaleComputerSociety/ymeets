@@ -3,6 +3,7 @@ import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
 import { SCOPES } from '../firebase/firebase';
 import { getChosenDayAndTime } from '../firebase/events';
 import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from '../firebase/gapi_keys';
+import { LoadingAnim } from '../components/utils/components/LoadingAnim';
 
 // Credit to CourseTable team https://coursetable.com/about
 const GAPI_CLIENT_NAME = 'client:auth2';

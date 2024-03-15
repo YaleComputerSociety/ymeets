@@ -1,9 +1,7 @@
-import React from 'react';
 import { LocationSelectionComponent } from './LocationSelectionComponent';
 // import GroupAvailCal from "./components/GroupAvailCal"
 import { useState, useEffect, useCallback } from "react"
-import Footer from '../utils/components/Footer';
-import { calandarDate, calanderState, userData } from '../../types'
+import { calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,7 +39,6 @@ function TimeSelectPage() {
         setGcalPopupOpen(false);
     };
 
-
     const navigate = useNavigate();
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
@@ -54,9 +51,12 @@ function TimeSelectPage() {
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
     const [locationOptions, setLocationOptions] = useState(Array<String>)
-    
-    const [chosenDateRange, setChosenDateRange] = useState([])
+
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([])
     const [promptUserForLogin, setPromptUserForLogin] = useState(false);
+
+    // hook that handles whether or not we are working with dates, or just selecting days of the week
+    const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false)
 
     const endPromptUserForLogin = () => {
         setPromptUserForLogin(false);
@@ -71,7 +71,7 @@ function TimeSelectPage() {
     })
 
     const gapiContext = useContext(GAPIContext);
-    const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext;
+    const { gapi, handleIsSignedIn } = gapiContext;
 
     const [googleCalendarEvents, setGoogleCalendarEvents] = useState<Date[]>([]);
     const [googleCalIds, setGoogleCalIds] = useState<string[]>(["primary"]);
@@ -120,8 +120,6 @@ function TimeSelectPage() {
                     }
 
                 }
-
-            console.log(parsedEvents);
 
             //@ts-ignore
             setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
@@ -176,17 +174,13 @@ function TimeSelectPage() {
                         nav("/notfound")
                     }
 
-
-                    console.log("here!");
                     const accountName = getAccountName();
                     if (accountName === null) {   
                         console.log("User not logged in");
                         return;
-                    }
-                    console.log("here2!");
-                    
+                    }                    
                     //@ts-ignore
-                    setChosenDateRange(getChosenDayAndTime());
+                    setSelectedDateTimeObjects(getChosenDayAndTime());
 
                     let avail: Availability | undefined =
                         getAccountId() === "" ? getAvailabilityByAccountId(getAccountId()) : getAvailabilityByName(accountName);
@@ -202,19 +196,20 @@ function TimeSelectPage() {
                     setLocationOptions(getLocationOptions());
 
                     //@ts-ignore
-
                     let theRange = getChosenDayAndTime()
 
                     //@ts-ignore
-                    setChosenDateRange(theRange);
+                    setSelectedDateTimeObjects(theRange);
 
                     // @ts-ignore
                     setCalendarState([...availabilities, avail]);
                     setCalendarFramework(dim);
-
-                    console.log(theRange);
+                    
+                    /* The first date having a year be 2000 means that it was a general days selection */
+                    setAreSelectingGeneralDays(dim?.dates[0][0].date?.getFullYear() == 2000 && theRange === undefined)
 
                     // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
+       
                     //@ts-ignore
                     if (theRange != undefined && theRange?.length !== 0) {
                         nav("/groupview/" + code)
@@ -228,9 +223,6 @@ function TimeSelectPage() {
         };
         
         fetchData().then(() => {
-            console.log("data fetched");
-            console.log(calendarFramework);
-
             if (getAccountName() == "" || getAccountName() == undefined) {
                 setPromptUserForLogin(true)
             }
@@ -270,21 +262,9 @@ function TimeSelectPage() {
     }
 
     const handleSubmitAvailability = () => {
-
-
         saveAvailAndLocationChanges();
     }
     
-    const handleShowPopup = () => {
-        setShowPopup(true);
-    };
-
-    const handlePopupClose = () => {
-        setShowPopup(false);
-    };
-
-    
-
     return (
         <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
@@ -304,7 +284,7 @@ function TimeSelectPage() {
             
                   
 
-                    {chosenDateRange == undefined && <div>
+                    {selectedDateTimeObjects == undefined && <div>
                         {locationOptions.length > 0 && (
                         <div className="flex-col content-center mt-5 mb-8 w-[100%]">
                             <LocationSelectionComponent
@@ -323,14 +303,14 @@ function TimeSelectPage() {
                         Submit Availability / View Group Availability
                         </button>
                         <br/>
-                        { chosenDateRange !== undefined &&
+                        { selectedDateTimeObjects !== undefined &&
                             <div className='text-gray text-2xl text-bold'>
                                 Note : You can't edit your availability because the admin has already selected a time and/or location!
                             </div>
                         }
                     </div>
                 </div>
-                <div className={`flex flex-col ${chosenDateRange !== undefined ? 'opacity-60' : ''} justify-center items-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:items-start`}>
+                <div className={`flex flex-col ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''} justify-center items-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:items-start`}>
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
@@ -341,16 +321,15 @@ function TimeSelectPage() {
                     draggable={true}
                     chartedUsersData={undefined}
                     //@ts-ignore
-                    theSelectedDate={[chosenDateRange, setChosenDateRange]}
+                    theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
                     //@ts-ignore
                     theDragState={[dragState, setDragState]}
                     isAdmin={false}
                     //@ts-ignore
                     theGoogleCalendarEvents={[googleCalendarEvents, setGoogleCalendarEvents]}
                 />
-                {/*The first date having a year be 2000 means that it was a general days selection*/}
                 {/*@ts-ignore*/}
-                {calendarFramework?.dates[0][0].date?.getFullYear() !== 2000 && chosenDateRange === undefined && getAccountId() !== ""
+                {!areSelectingGeneralDays && getAccountId() !== ""
                 ? <button onClick={() => {
                             fetchUserCals()
                             .then((calendars) => {
@@ -364,8 +343,6 @@ function TimeSelectPage() {
                                 setGoogleCalendars(calendars);
 
                                 setGcalPopupOpen(true);
-
-                                // setGoogleCalIds(calendarIDs)
                     
                             })
                             .catch(error => {
@@ -378,7 +355,7 @@ function TimeSelectPage() {
                     >
                         Toggle GCal Availabilities
                     </button>
-                    : <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
+                    : !areSelectingGeneralDays && <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
                                         transform transition-transform hover:scale-90 active:scale-100e flex items-center'
                             onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn).then(() => {console.log("logged here in"); window.location.reload()})}}>
                             <img src={LOGO} alt="Logo" className="mr-3 h-7" /> 

@@ -50,9 +50,6 @@ function SelectCalander({
     return hours + (minutes == 0 ? "" : ":" + minutes.toString().padStart(2, "0")) + " " + AmOrPm;
   }
   
-  //@ts-ignore
-  const [googleCalendarEvents, setGoogleCalendarEvents] = theGoogleCalendarEvents
-
   return (
       <div className="max-h-120 m-2"
       style={{ touchAction: 'none'}}>
@@ -72,9 +69,6 @@ function SelectCalander({
                         />
                       </div>
                   }  
-
-    
-
     
 
                   <div className="flex flex-col">
@@ -109,7 +103,6 @@ function SelectCalander({
                                   theSelectedDate={theSelectedDate}
                                   //@ts-ignore
                                   theGoogleCalendarEvents={theGoogleCalendarEvents}
-                                  // borderStyle={time.slice(-2) =="00" ? "solid" : "dotted"}
                               />
                             </div>
                           </div>

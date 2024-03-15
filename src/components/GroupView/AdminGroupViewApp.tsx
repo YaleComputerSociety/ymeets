@@ -3,7 +3,7 @@ import { calanderState, userData } from "../../types"
 import { calendarDimensions } from  "../../types"
 import eventAPI from "../../firebase/eventAPI";
 import Calendar from "../selectCalendarComponents/CalendarApp"
-import { getEventOnPageload, getEventName, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime, updateAnonymousUserToAuthUser, getAccountName } from '../../firebase/events';
+import { getEventOnPageload, getEventName, getParticipantIndex, getAccountId, getEventDescription, getLocationsVotes, getLocationOptions, setChosenLocation, getChosenDayAndTime, updateAnonymousUserToAuthUser, getAccountName } from '../../firebase/events';
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import LocationChart from "./LocationChart";
@@ -23,26 +23,26 @@ import {IconCopy} from "@tabler/icons-react"
  */
 export default function AdminGroupViewPage() {
 
-    const testData = eventAPI.getTestData()
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
     const { code } = useParams();
+    
     const [chartedUsers, setChartedUsers] = useState<userData | undefined>(undefined)
     const [eventName, setEventName] = useState("")
     const [eventDescription, setEventDescription] = useState("")
+
     const [locationVotes, setLocationVotes] = useState(Object)
     const [locationOptions, setLocationOptions] = useState(Array<String>)
 
-    const [selectedLocation, setSelectedLocation] = useState("");
+    // this is the location that admin selected on the CLIENT side
+    const [adminChosenLocation, setAdminChosenLocation] = useState<string | undefined>(undefined)
     
-    // probably deprecated
-    const [selectedDate, setSelectedDate] = useState();
-
-    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([]);
+    // this is the location the admin previously submitted / submitted to the backend
+    const [selectedLocation, setSelectedLocation] = useState<string | undefined>(undefined);
+    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<Date[]>([]);
 
     const [loading, setLoading] = useState(true);
     const [selectionButtonClicked, setSelectionButtonClicked] = useState(false);
-
     const [showGeneralPopup, setShowGeneralPopup] = useState(false);
     const [generalPopupMessage, setGeneralPopupMessage] = useState("")
 
@@ -74,17 +74,12 @@ export default function AdminGroupViewPage() {
                 setEventDescription(getEventDescription());
                 setLocationVotes(getLocationsVotes());
                 setLocationOptions(getLocationOptions());
-
-                let selectedLocation = getChosenLocation();
                 
                 //@ts-ignore
-                setSelectedLocation(selectedLocation);
+                setSelectedLocation(getChosenLocation());
                 setLoading(false);
                 //@ts-ignore
                 setSelectedDateTimeObjects(getChosenDayAndTime());
-                
-                console.log(selectedDateTimeObjects);
-
               }).catch((err) => {
                   nav("/notfound")
               }); 
@@ -99,18 +94,13 @@ export default function AdminGroupViewPage() {
   }, []);
 
   function handleSelectionSubmission() {
-      //@ts-ignore
 
       if (dragState.dragEndedOnID.length == 0) {
-        // setGeneralPopupMessage("No new time selection made!");
-        // setShowGeneralPopup(true);
         alert("No new time selection made!")
         return;
       }
 
       if (dragState.dragEndedOnID[0] != dragState.dragStartedOnID[0]) {
-        // setGeneralPopupMessage("You must select times that occur on the same day!");
-        // setShowGeneralPopup(true);
         alert("You must select times that occur on the same day!")
         return;
       }
@@ -140,19 +130,25 @@ export default function AdminGroupViewPage() {
         let selectedEndTimeDateObject = new Date(calDate.date);
         selectedEndTimeDateObject.setHours(endHour);
         selectedEndTimeDateObject.setMinutes(endMinute);
-
+        
+        // update on client side (set SelectedDateTimeObjects) + backend (setChosenDate)
         //@ts-ignore
         setSelectedDateTimeObjects([selectedStartTimeDateObject, selectedEndTimeDateObject])
-        console.log("date time object set" + selectedDateTimeObjects)
+        
         setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject).then(() => {
             setSelectionButtonClicked(true);
         })
 
+        setSelectedLocation(adminChosenLocation);
+        
+        if (selectedLocation != undefined) {
+          setChosenLocation(selectedLocation);
+        }
+
       }
-      
       if (selectedLocation != "" && selectedLocation != undefined) {
         //@ts-ignore
-        setChosenLocation(selectedLocation)
+        setSelectedLocation(selectedLocation)
       }
 
       setTimeout(() => {
@@ -160,9 +156,14 @@ export default function AdminGroupViewPage() {
       }, 3000)
   }
 
-  const chosenLocation = getChosenLocation();
-  const chosenDayAndTime = getChosenDayAndTime();
-  // console.log("Chosen day ", chosenDayAndTime);
+  const getCurrentUserIndex = () => {
+    let user = getParticipantIndex(getAccountName(), getAccountId());
+    if (user === undefined) { // new user => last availability
+        user = (calendarState !== undefined) ? Object.keys(calendarState).length - 1 : 0;
+
+    }
+    return user;
+}
   
   return ( <>
             <div className="flex justify-center">
@@ -190,19 +191,20 @@ export default function AdminGroupViewPage() {
 
                       <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
                           <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
+                          <h3 className="text-xl  text-center md:text-left">{eventDescription}</h3>
 
                           <div className="flex flex-col">
                              <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? (chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
+                            <span className='font-bold'>Time:</span> {selectedDateTimeObjects !== undefined ? (selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {  
                                         weekday: "long", year: "numeric", month: "short",  
                                         day: "numeric", hour: "numeric", minute: "2-digit"  
-                                    }) + " — " + chosenDayAndTime[1]?.toLocaleTimeString('en-us', {  
+                                    }) + " — " + selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {  
                                       hour: "numeric", minute: "2-digit"  
                                   })) : "not selected"}
                             </h3>
 
                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                            <span className='font-bold'>Location:</span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
                             </h3>
 
                             <button
@@ -229,7 +231,7 @@ export default function AdminGroupViewPage() {
 
 
                             {
-                       chosenLocation && (
+                       selectedLocation && (
                                 <button
                                 onClick={() => {
                                   window.open("https://25live.collegenet.com/pro/yale#!/home/event/form", "_blank");
@@ -244,17 +246,9 @@ export default function AdminGroupViewPage() {
                           </div>
                       </div>
 
-                      {/* Add to Google calendar button and submit selection button */}       
-
                       <div className="flex flex-row space-x-2">
-                      {/* replace w this and get gcal logo <button
-                          className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
-                                      transform transition-transform hover:scale-90 active:scale-100e flex items-center'
-                          onClick={handleSignInWithGoogle}
-                        >
-                          <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
-                        </button> */}
-                        {chosenDayAndTime 
+                 
+                        {selectedDateTimeObjects 
                           ? <div className="">
                             <AddToGoogleCalendarButton />
                           </div>
@@ -265,7 +259,7 @@ export default function AdminGroupViewPage() {
                             onClick={handleSelectionSubmission}
                             className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
                                         transform transition-transform hover:scale-90 active:scale-100e'>
-                            Submit Selection
+                               Submit Selection
                         </button>
 
                         
@@ -282,7 +276,7 @@ export default function AdminGroupViewPage() {
 
                       {locationOptions.length > 0 && <LocationChart 
                           //@ts-ignore
-                          theSelectedLocation={[selectedLocation, setSelectedLocation]}
+                          theSelectedLocation={[adminChosenLocation, setAdminChosenLocation]}
                           locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
                           locationVotes={Object.values(locationVotes)}/>}
 
@@ -301,7 +295,7 @@ export default function AdminGroupViewPage() {
                           //@ts-ignore
                           chartedUsersData={[chartedUsers, setChartedUsers]}
                           draggable={true}
-                          user={0}
+                          user={getCurrentUserIndex()}
                           isAdmin={true}
                           //@ts-ignore
                           theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
@@ -320,17 +314,19 @@ export default function AdminGroupViewPage() {
 
                       
                       <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
+                      <h3 className="text-xl text-center md:text-left">{eventDescription}</h3>
+
 
                       <div className="flex flex-col">
                         <h3 className="text-base text-center md:text-left">
-                        <span className='font-bold'>Time:</span> {chosenDayAndTime !== undefined ? chosenDayAndTime[0]?.toLocaleDateString('en-us', {  
+                        <span className='font-bold'>Time:</span> {selectedDateTimeObjects !== undefined ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {  
                                     weekday: "long", year: "numeric", month: "short",  
                                     day: "numeric", hour: "2-digit", minute: "2-digit"  
                                 }) : "not selected"}
                         </h3>
 
                         <h3 className="text-base text-center md:text-left">
-                        <span className='font-bold'>Location:</span> {chosenLocation !== undefined ? getChosenLocation() : "not selected"}
+                        <span className='font-bold'>Location:</span> {selectedLocation !== undefined ? selectedLocation : "not selected"}
                         </h3>
 
                         <button
@@ -356,7 +352,7 @@ export default function AdminGroupViewPage() {
                         </button>
                         
                         <div className="flex justify-center">
-                        {chosenLocation && (
+                        {selectedLocation && (
                                 <button
                                 onClick={() => {
                                   window.open("https://25live.collegenet.com/pro/yale#!/home/event/form", "_blank");
@@ -369,10 +365,6 @@ export default function AdminGroupViewPage() {
                     
                             }
                           </div>
-
-                      
-
-                        
                       </div>
                     </div>
                     

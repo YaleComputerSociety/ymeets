@@ -32,6 +32,10 @@ const checkIfAdmin = (): boolean => {
     return false
 }
 
+/**
+ * 
+ * @returns Account ID, if and only if the user is not anonymously logged in.
+ */
 const getAccountId = (): string => {
     if (auth.currentUser !== null && !auth.currentUser.isAnonymous) {
         return auth.currentUser.uid;
@@ -445,6 +449,7 @@ async function setChosenLocation(chosenLocation: Location): Promise<void> {
 function getLocationOptions(): Location[] {
     return workingEvent.details.plausibleLocations
 }
+
 
 // Retrieves the name of the event
 function getEventName(): string {

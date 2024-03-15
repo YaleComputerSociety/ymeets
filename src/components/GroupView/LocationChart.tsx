@@ -37,8 +37,6 @@ export default function LocationChart({theSelectedLocation, locationOptions, loc
             setIsClicked(!isClicked);
         } 
 
-        
-
         setSelectedLocation(loc);
     }
     

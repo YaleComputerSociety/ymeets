@@ -35,18 +35,7 @@ export default function NavBar() {
             <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
                 <NavLogo></NavLogo>
                 <div className="inline-flex justify-self-end items-center space-x-4 order-2">
-                    {/* <div className="inline-flex flex-col space-y-1 h-6 w-6 justify-center self-center md:hidden cursor-pointer order-1"
-                         onClick={navToggle}>
-                        <svg viewBox="0 0 100 50" width="30" height="30" fill="currentColor"
-                             className={menuOpen ? "text-blue-500" : "text-gray-500"}>
-                            <rect width="85" height="10" rx="10"></rect>
-                            <rect y="25" width="85" height="10" rx="10"></rect>
-                            <rect y="50" width="85" height="10" rx="10"></rect>
-                        </svg>
-                    </div> */}
-                    <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>
-                    {/* <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hidden hover:text-blue-700 md:inline-block flex items-center">About y/cs</a> */}
-                    
+                    <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>                    
                     {name != "" ? <button onClick={() => nav("/useraccount")} className={`text-gray-500 border border-gray-500 rounded-full \
                                     w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 hover:text-white\
                                     text-sm ${name == "" ? "hidden" : "inline-block"}`}>
