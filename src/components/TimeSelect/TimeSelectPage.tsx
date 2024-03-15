@@ -19,6 +19,7 @@ import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from "../DaySelect/general_popup_component/googlelogo.png";
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
+import Button from '../utils/components/Button';
 
 /**
  * 
@@ -297,11 +298,12 @@ function TimeSelectPage() {
                     }
 
                     <div className="flex flex-col items-center justify-center">
-                        <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg mb-8 w-fit 
-                                            transform transition-transform hover:scale-90 active:scale-100e'
+                        <Button 
+                        bgColor='blue-500'
+                        textColor='white'
                         onClick={handleSubmitAvailability}>
                         Submit Availability / View Group Availability
-                        </button>
+                        </Button>
                         <br/>
                         { selectedDateTimeObjects !== undefined &&
                             <div className='text-gray text-2xl text-bold'>
@@ -330,7 +332,10 @@ function TimeSelectPage() {
                 />
                 {/*@ts-ignore*/}
                 {!areSelectingGeneralDays && getAccountId() !== ""
-                ? <button onClick={() => {
+                ? <Button
+                        bgColor="blue-500"
+                        textColor='white'
+                        onClick={() => {
                             fetchUserCals()
                             .then((calendars) => {
                                 
@@ -348,13 +353,10 @@ function TimeSelectPage() {
                             .catch(error => {
                             console.error("Error fetching Google Calendars:", error);
                             });
-                        }} className={`text-lg ml-5 bg-blue-500 w-fit py-4 px-7
-                        flex items-left gap-2 text-white font-medium rounded-full 
-                        hover:bg-ymeets-med-blue disabled:bg-gray-500 
-                        active:bg-ymeets-light-blue transition-colors`}
+                        }} 
                     >
                         Toggle GCal Availabilities
-                    </button>
+                    </Button>
                     : !areSelectingGeneralDays && <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
                                         transform transition-transform hover:scale-90 active:scale-100e flex items-center'
                             onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn).then(() => {console.log("logged here in"); window.location.reload()})}}>

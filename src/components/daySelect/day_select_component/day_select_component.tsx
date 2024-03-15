@@ -5,6 +5,7 @@ import frontendEventAPI from "../../../firebase/eventAPI";
 import { getAccountId, getAccountName } from "../../../firebase/events";
 import { useNavigate } from "react-router-dom";
 import Select from "react-dropdown-select";
+import Button from '../../utils/components/Button';
 
 export const DaySelectComponent = () => {
 
@@ -314,8 +315,9 @@ export const DaySelectComponent = () => {
             </div>
             
             <div className="flex flex-col flex-wrap space-y-7 mb-6 w-[90%] sm:w-[85%]">
-                <button 
-                    className="text-sm hover:scale-90 w-fit lg:text-base flex items-center gap-2 bg-blue-500 text-white font-medium py-1 sm:py-1.5 md:py-2 px-4 md:px-6 rounded-l active:bg-ymeets-light-blue transition-colors"
+                <Button 
+                    bgColor='blue-500'
+                    textColor='white'
                     onClick={() => {setSelectGeneralDays((oldState) => {
                         return !oldState
                     })}}
@@ -323,7 +325,7 @@ export const DaySelectComponent = () => {
                     {
                         selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
                     }
-                </button>
+                </Button>
             
                 <div className="w-full h-2/4">
             
@@ -341,11 +343,16 @@ export const DaySelectComponent = () => {
                     />  
                 
                 </div>
-                <button onClick={verifyNextAndSubmitEvent}
-                    className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg w-fit place-self-center \
-                                transform transition-transform hover:scale-90 active:scale-100e'>
+                <div className='flex items-center justify-center'>
+                <Button 
+                    textColor='white'
+                    bgColor='blue-500'
+                    onClick={verifyNextAndSubmitEvent}
+                    
+                >
                                     Next
-                </button>
+                </Button>
+                </div>
             </div>
             
         </div>

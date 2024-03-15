@@ -1,3 +1,4 @@
+
 import React, { useContext } from "react";
 import {
     IconPlus,
@@ -22,7 +23,8 @@ import { Event, EventDetails } from "../../types";
 import { auth } from "../../firebase/firebase";
 import { deleteEvent } from "../../firebase/events";
 import { GAPIContext } from "../../firebase/gapiContext";
-  
+import Button from "../utils/components/Button";
+
 interface AccountsPageEvent {
   name: string; 
   id: string;
@@ -116,10 +118,15 @@ export default function AccountsPage() {
                             <IconSearch className="inline-block w-4 md:w-5" />
                             </div>
                         </div>
-                        <button onClick={() => nav("/dayselect")} className="text-sm lg:text-base flex items-center gap-2 bg-blue-500 text-white font-medium py-1 sm:py-1.5 md:py-2 px-4 md:px-6 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
-                            <IconPlus className="inline-block w-4 md:w-5" />
-                            Create event
-                        </button>
+                        <Button 
+                            bgColor="blue-500"
+                            textColor="white"
+                            onClick={() => nav("/dayselect")}>
+                            <IconPlus 
+                              size={30}
+                              className="inline-block w-4 md:w-5 mr-2" />
+                            Create Event
+                        </Button>
                     </div>
             </div>
             

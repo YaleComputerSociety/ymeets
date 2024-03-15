@@ -5,6 +5,7 @@ import { checkIfLoggedIn, getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 import LoginPopup from "../utils/components/LoginPopup";
 import Footer from "../utils/components/Footer";
+import Button from "../utils/components/Button";
 
 export default function HomePage()  {
     const navigate = useNavigate();
@@ -67,9 +68,7 @@ export default function HomePage()  {
                     </div>
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
-                        <button className='font-bold rounded-full bg-blue-500 text-white py-4 px-7 text-lg \
-                                           transform transition-transform hover:scale-90 active:scale-100e' 
-                                           onClick={() => {navigate("/dayselect")}}>I'm a Host</button>
+                        <Button bgColor="blue-500" textColor="white" onClick={() => navigate("/dayselect")}>I'm a Host</Button>
                         <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-lg transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
                         <div className={showInput ? "hidden" : "flex flex-nowrap relative"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>
@@ -88,7 +87,7 @@ export default function HomePage()  {
                     </div>
                 </div>
                 <div className='flex md:w-[40%] justify-center pb-4 sm:pb-7 md:pb-0 md:pl-0'>
-                    <img src={graphic} alt="graphic" className='w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
+                    <img src={graphic} alt="graphic" className=' w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]'/>
                 </div>
             </div>
             {showLoginPopup && <LoginPopup onClose={handleLoginPopupClose} enableAnonymousSignIn={true} />}
