@@ -25,6 +25,7 @@ export interface EventDetails {
 export interface Participant {
     name: string,
     accountId?: string,
+    email?: string,
     availability: Availability, // Availability || JSON string of Availability type
     location: Location[],
 }

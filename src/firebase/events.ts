@@ -48,6 +48,10 @@ const getAccountName = (): string => {
     return auth.currentUser?.displayName ? auth.currentUser.displayName : "";
 }
 
+const getAccountEmail = (): string => {
+    return auth.currentUser?.email ? auth.currentUser.email : "";
+}
+
 // https://firebase.google.com/docs/firestore/manage-data/add-data
 // may have better way to generate id (Firestore can do it automatically)
 const generateUniqueId = (): string => {
@@ -246,6 +250,8 @@ function saveEventDetails(eventDetails: EventDetails) {
 // Updates the participants list of the working event 
 // with the participant passed in, overwriting if they already exist
 async function saveParticipantDetails(participant: Participant): Promise<void> {
+    participant.email = getAccountEmail();
+
     // Update local copy
     let flag = false
     workingEvent.participants.forEach((part, index) => {
@@ -284,17 +290,10 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
             partRef = doc(participantsRef, participant.name);
         }
 
-        // console.log("This is at issue: ", {
-        //     name: participant.name,
-        //     accountId: participant.accountId || "",
-        //     availability: JSON.stringify(participant.availability),
-        //     location: participant.location || "",
-
-        //   });
-
         setDoc(partRef, {
             name: participant.name,
             accountId: participant.accountId || "",
+            email: getAccountEmail(),
             availability: JSON.stringify(participant.availability),
             location: participant.location || "",
 
@@ -321,15 +320,10 @@ async function updateAnonymousUserToAuthUser(name: string) {
         const eventsRef = collection(db, "events");
         const participantsRef = collection(doc(eventsRef, workingEvent.publicId), "participants");
 
-        console.log(participantsRef);
-        console.log(name);
-        console.log(accountId)
         const anonymousPartRef = doc(participantsRef, name);
         const authedPartRef = doc(participantsRef, accountId);
-        console.log("got here!")
 
         // Update local
-        // TODO TO BE TESTED: I think this is fine....?
         let availability;
         workingEvent.participants.forEach((part, index) => {
             if (part.name == name && part.accountId == "") {
@@ -352,6 +346,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
         // Create (update) new authed doc with old availability
         batch.set(authedPartRef, {
             name: accountName,
+            email: getAccountEmail(),
             accountId: accountId,
             availability: JSON.stringify(availability),
         });
@@ -367,49 +362,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
     };
 }
 
-// // TODO retire in favor of wrappedSaveParticipantDetails
-// // Sets the availability of a participant of the name parameter with their 
-// // availability object; passing in their accountId is optional addition verification
-// async function setAvailability(name: string, availability: Availability, accountId: string = ""): Promise<void> {
-//     let index = getParticipantIndex(name, accountId);
-
-//     // if (index !== undefined) {
-//     //     workingEvent.participants[index].availability = JSON.stringify(availability);
-//     // } else {
-//     //     workingEvent.participants.push({
-//     //         name: name,
-//     //         accountId: accountId,
-//     //         availability: JSON.stringify(availability),
-//     //         location: "",
-//     //     });
-//     // }
-
-//     return saveParticipantDetails({
-//         name: name,
-//         accountId: accountId,
-//         availability: JSON.stringify(availability),
-//         location: index ? workingEvent.participants[index].location : "",
-//     });
-// }
-
-// // TODO retire
-// // Sets the location preference of a participant of the name parameter with 
-// // location parameter object; passing in their accountId is optional addition verification
-// async function setLocationPreference(name: string, location: Location, accountId: string = ""): Promise<void> {
-//     let index = getParticipantIndex(name, accountId);
-//     if (index === undefined) throw Error("Participant has not submitted availability yet!"); 
-
-//     workingEvent.participants[index].location = location;
-
-//     // return saveParticipantDetails({
-//     //     name: name,
-//     //     accountId: accountId,
-//     //     availability: index ? JSON.stringify(workingEvent.participants[index].availability) : undefined,
-//     //     location: location,
-//     // });
-// }
-
-async function wrappedSaveParticipantDetails(availability: Availability, locations: Location[]): Promise<void> {
+async function wrappedSaveParticipantDetails(availability: Availability, locations: Location[] | undefined): Promise<void> {
     let name = getAccountName();
     if (!name) {
         console.warn("User not signed in"); 
@@ -419,9 +372,10 @@ async function wrappedSaveParticipantDetails(availability: Availability, locatio
     return saveParticipantDetails({
         name: name,
         accountId: getAccountId(),
+        email: getAccountEmail(),
         //@ts-ignore
         availability: JSON.stringify(availability),
-        location: locations,
+        location: locations !== undefined ? locations : [],
     });
 }
 
@@ -547,6 +501,37 @@ function getLocationsVotes(): { [id: Location]: number; } | any {
     return votes
 }
 
+// Retrieves the availability object of the participant matching `name`
+function getLocationVotesByName(name: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].name == name) {
+            // @ts-ignore
+            return workingEvent.participants[i].location;
+        }
+    }
+    return undefined;
+}
+
+// Retrieves the availability object of the participant matching `accountId`
+function getLocationVotesByAccountId(accountId: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].accountId == accountId) {
+            // @ts-ignore
+            return workingEvent.participants[i].location;
+        }
+    }
+}
+
+function getEmails(): string[] {
+    let emails: string[] = []
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].email !== undefined && workingEvent.participants[i].email !== "") {
+            emails.push(workingEvent.participants[i].email || "")
+        }
+    }
+    return emails
+}
+
 function getDates(): Date[] {
     return workingEvent.details.dates;
 }
@@ -590,10 +575,11 @@ export {
     // Firebase Wrappers
     getAccountId,
     getAccountName,
+    getAccountEmail,
     checkIfLoggedIn,
+    checkIfAdmin,
 
     // Misc
-    checkIfAdmin,
     getAllEventsForUser,
     
     // High Level (Async)
@@ -610,11 +596,14 @@ export {
     getAllAvailabilitiesNames,
     getAvailabilityByAccountId,
     getAvailabilityByName,
+    getLocationVotesByName,
+    getLocationVotesByAccountId,
     getEventDescription,
     getEventName,
     getLocationOptions,
     getLocationsVotes,
     getEventObjectForGCal,
+    getEmails,
 
     // All Participants (Async)
     wrappedSaveParticipantDetails,
