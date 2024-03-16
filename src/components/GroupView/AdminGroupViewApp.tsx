@@ -11,7 +11,7 @@ import UserChart from "./UserChart";
 import { generateTimeBlocks } from "../utils/functions/generateTimeBlocks";
 import { setChosenDate } from "../../firebase/events";
 import { getChosenLocation } from "../../firebase/events";
-import GeneralPopup from "../DaySelect!/general_popup_component";
+import GeneralPopup from "../DaySelect/general_popup_component";
 import { useNavigate } from "react-router-dom";
 import AddToGoogleCalendarButton from "./AddToCalendarButton";
 import copy from "clipboard-copy"

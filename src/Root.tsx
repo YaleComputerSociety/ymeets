@@ -2,11 +2,11 @@
 import './Root.css';
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
 import HomePage from './components/Home/HomePage';
-import DaySelectComponent from './components/DaySelect!/day_select_component';
+import DaySelectComponent from './components/DaySelect/day_select_component';
 import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
 import NavBar from "./components/NavBar/NavBar"
 import AccountsPage from './components/Accounts/AccountsPage';
-import GroupViewApp from './components/GroupView!/GroupViewPage';
+import GroupViewApp from './components/GroupView/GroupViewPage';
 import AboutUsPage from "./components/AboutUs/AboutUsPage";
 import NotFound from "./components/NotFound/NotFound";
 import PrivacyPage from "./components/PrivacyPage/PrivacyPage";
