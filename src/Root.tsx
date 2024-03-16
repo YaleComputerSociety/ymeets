@@ -16,7 +16,7 @@ function Root() {
 
     return (
         <>
-        <Banner title="Now in alpha" text='Please Report Bugs'/>
+        <Banner title="Now in alpha" text='Please report bugs'/>
 
         <GAPIContextWrapper>
             <Router>

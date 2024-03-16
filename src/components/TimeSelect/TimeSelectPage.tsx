@@ -295,7 +295,7 @@ function TimeSelectPage() {
                         bgColor='blue-500'
                         textColor='white'
                         onClick={handleSubmitAvailability}>
-                        Submit Availability / View Group Availability
+                            Submit Availability / View Group Availability
                         </Button>
                         <br/>
                         { selectedDateTimeObjects !== undefined &&
