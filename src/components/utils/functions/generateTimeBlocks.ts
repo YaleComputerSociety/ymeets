@@ -1,4 +1,4 @@
-export function generateTimeBlocks(startDate, endDate) {
+export function generateTimeBlocks(startDate: any, endDate:any) {
   const startHour = startDate.getHours()
   // necessary to role 11:59 PM into 12:00AM
   const endHour = endDate.getMinutes() == 59 ? endDate.getHours() + 1 : endDate.getHours();

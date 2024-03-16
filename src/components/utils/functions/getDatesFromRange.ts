@@ -1,4 +1,4 @@
-export function getDatesFromRange(startDate, endDate) {
+export function getDatesFromRange(startDate:any, endDate:any) {
     const dateWithDay = [];
     const currentDate = new Date(startDate);
     const lastDate = new Date(endDate);

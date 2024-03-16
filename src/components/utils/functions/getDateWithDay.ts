@@ -1,4 +1,4 @@
-export function getDateWithDay(singleDate) {
+export function getDateWithDay(singleDate: any) {
     const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
     // Create a new Date object with the input date in the local time zone

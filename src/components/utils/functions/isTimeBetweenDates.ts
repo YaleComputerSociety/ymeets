@@ -1,4 +1,4 @@
-export function isTimeBetweenDates(startDate, endDate, timeString) {
+export function isTimeBetweenDates(startDate:any, endDate:any, timeString:any) {
     const [hours, minutes] = timeString.split(':').map(Number);
   
     const startTime = new Date(startDate);

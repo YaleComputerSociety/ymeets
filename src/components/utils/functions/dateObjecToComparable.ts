@@ -1,4 +1,4 @@
-export function dateObjectToComparable(dateObject) {
+export function dateObjectToComparable(dateObject: any) {
 
 
     const month = dateObject.getMonth() + 1;
