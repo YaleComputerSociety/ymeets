@@ -58,7 +58,6 @@ export default function AdminGroupViewPage() {
 
     const [copied, setCopied] = useState(false);
 
-    const [selectionConfirmed, setSelectionConfirmed] = useState(false);
     const [selectionConfirmedPopupOpen, setSelectionConfirmedPopupOpen] = useState(false)
 
     const nav = useNavigate()

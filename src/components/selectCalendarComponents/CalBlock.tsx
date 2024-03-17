@@ -87,7 +87,11 @@ export default function CalBlock({
              }
              // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
              if (columnID >= startColumnID && columnID <= endColumnID && startBlockID <= blockID && endBlockID >= blockID ) {
-                 return "green-700"
+                if (blockID == endBlockID) { // for that last one, based on how blocks are coded.
+                    return ""
+                }
+                
+                return "green-700"
              }
          }
 
@@ -414,10 +418,6 @@ export default function CalBlock({
     }
 
     const borderTop = is30Minute ? '1px dotted #000' : 'none';
-    
-    console.log(shadeColor);
-    console.log(unShadeColor);
-    console.log(originalShadeColor);
     
     return (
         <div
