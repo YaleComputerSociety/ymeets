@@ -2,10 +2,10 @@ import { useState, useCallback, useContext } from 'react';
 import { getAccountId, getEventObjectForGCal } from '../../firebase/events';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { signInWithGoogle } from '../../firebase/auth';
-import { LoadingAnim } from '../utils/components/LoadingAnim';
+
 /**
  * 
- * Facilates exporting the event to the currently logged in user's calandear
+ * Facilitates exporting the event to the currently logged in user's calandear
  * 
  * @returns Page Support Component - Admin View
  */
@@ -48,7 +48,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
     }
 
     return (<>
-        <button className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm w-fit 
+        <button className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm w-full   
         transform transition-transform hover:scale-90 active:scale-100e"
             onClick={getAccountId() !== "" ? () => createCalendarEvent(getEventObjectForGCal()) : () => {signInWithGoogle(undefined, gapi, handleIsSignedIn)}}>
                 {getAccountId() !== "" ? "Add to Google Calendar" : "Sign in to Google to Add to GCAL"}

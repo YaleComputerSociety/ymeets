@@ -40,12 +40,12 @@ export default function AdminGroupViewPage() {
     // this is the location that admin selected on the CLIENT side
     const [adminChosenLocation, setAdminChosenLocation] = useState<string | undefined>(undefined)
     
-    // this is the location the admin previously submitted / submitted to the backend
+    // this is the location the admin previously submitted / submitted to the backend, which is pulled and set
+    // or updated to be the admin location
     const [selectedLocation, setSelectedLocation] = useState<string | undefined>(undefined);
     const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<Date[]>([]);
 
     const [loading, setLoading] = useState(true);
-    const [selectionButtonClicked, setSelectionButtonClicked] = useState(false);
     const [showGeneralPopup, setShowGeneralPopup] = useState(false);
     const [generalPopupMessage, setGeneralPopupMessage] = useState("")
 
@@ -135,6 +135,16 @@ export default function AdminGroupViewPage() {
 
           //@ts-ignore
           let selectedEndTimeDateObject = new Date(calDate.date);
+          
+          endMinute += 15
+          if (endMinute == 60) {
+              endMinute = 0
+              endHour += 1
+              if (endHour == 25) {
+                 endHour = 0
+              }
+          }
+
           selectedEndTimeDateObject.setHours(endHour);
           selectedEndTimeDateObject.setMinutes(endMinute);
           
@@ -143,24 +153,16 @@ export default function AdminGroupViewPage() {
           setSelectedDateTimeObjects([selectedStartTimeDateObject, selectedEndTimeDateObject])
           
           setChosenDate(selectedStartTimeDateObject, selectedEndTimeDateObject).then(() => {
-              setSelectionButtonClicked(true);
-          })
-
-          setSelectedLocation(adminChosenLocation);
+              setSelectedLocation(adminChosenLocation);
           
-          if (selectedLocation != undefined) {
-            setChosenLocation(selectedLocation);
-          }
+              if (adminChosenLocation != undefined) {
+                setChosenLocation(adminChosenLocation);
+              }
 
+              setSelectionConfirmedPopupOpen(false);
+
+          })
         }
-        if (selectedLocation != "" && selectedLocation != undefined) {
-          //@ts-ignore
-          setSelectedLocation(selectedLocation)
-        }
-
-        window.location.reload();
-        
-
   }
 
   const getCurrentUserIndex = () => {
@@ -204,7 +206,7 @@ if (loading) {
                             NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/> 
                             <br/>
                             {locationOptions.length > 0  && <span>Click on a location to select it as the place to meet</span> } After, click
-                            Submit Selection.
+                            <span className="font-bold"> Submit Selection.</span>
                         </div>
                         
 
@@ -276,12 +278,12 @@ if (loading) {
                           : undefined}
                           
 
-                        <button 
+                        {!selectedDateTimeObjects && <button 
                             onClick={() => {setSelectionConfirmedPopupOpen(true)}}
                             className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
                                         transform transition-transform hover:scale-90 active:scale-100e'>
                                Submit Selection
-                        </button>
+                        </button>}
 
                         
                       </div>
@@ -301,9 +303,6 @@ if (loading) {
                           locationOptions={locationOptions.length > 0 ? locationOptions : [""]}
                           locationVotes={Object.values(locationVotes)}/>}
 
-                      {/* Submit selection button */} 
-
-                      {selectionButtonClicked && <strong><p className="text-green-700 text-center transition-opacity duration-500 ease-in-out">Submitted!</p></strong>}
                   </div>
                   
                   <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4"> 

@@ -44,7 +44,56 @@ export default function CalBlock({
 
     const [isDraggable, setIsDraggable] = useState(draggable);
     //@ts-ignore
-    const [selectedDateTimeObjects, setSelectedDateTimeObjects] = theSelectedDate
+
+    function checkIfBlockIsAdminSelection() {
+
+         //@ts-ignore
+         let chosenDates = getChosenDayAndTime()
+         console.log(chosenDates);
+         
+         // check if a selection has been made by the admin, locking the users from editing their
+         // availability
+         if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
+             setIsDraggable(false);
+             
+             let startTimeHHMM = dateObjectToHHMM(chosenDates[0])
+             let endTimeHHMM = dateObjectToHHMM(chosenDates[1])
+ 
+             //@ts-ignore
+             let times = [].concat(...generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime))
+             //@ts-ignore
+             let dates = [].concat(...calendarFramework.dates)
+ 
+             //@ts-ignore
+             let startBlockID = times.indexOf(startTimeHHMM)
+ 
+             //@ts-ignore
+             let endBlockID = times.indexOf(endTimeHHMM)
+             
+             let startColumnID = -1 
+             
+             let endColumnID = -1
+ 
+             for (let i = 0; i < dates.length; i++) {
+             
+                 //@ts-ignore
+                 if (dates[i].calanderDay == chosenDates[0].getDate()) {
+                     startColumnID = i
+                 }
+                 //@ts-ignore
+                 if (dates[i].calanderDay == chosenDates[1].getDate()) {
+                     endColumnID = i
+                 }
+             }
+             // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
+             if (columnID >= startColumnID && columnID <= endColumnID && startBlockID <= blockID && endBlockID >= blockID ) {
+                 return "green-700"
+             }
+         }
+
+         return ""
+
+    }
 
     function getDefaultShadeColor() {
 
@@ -59,6 +108,12 @@ export default function CalBlock({
             // if its not draggable -> just a participant group view
             // if it is draggble and is an admin -> admin group view
             // all other cases must just be a timeselect.
+            let res = checkIfBlockIsAdminSelection();
+
+            if (res != "") {
+                return res
+            }
+
             if (!isDraggable || (isDraggable && isAdmin)) {
                 // one of the groupviews
     
@@ -103,6 +158,7 @@ export default function CalBlock({
     // different
     const [originalShadeColor, setOriginalShadeColor] = useState(() => {
         return getDefaultShadeColor();
+        
     });
 
     // handles the color that is created when the user drags over the block and it IS selected (value of the block init true)
@@ -118,57 +174,6 @@ export default function CalBlock({
 
     const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4;
 
-    // handles the initial coloring of the block. 
-    // Depends on if this is a groupview calander, or a time selection calander, which is determined
-    // by the draggability of the calandar in the getDefaultBlock() function.
-
-    useEffect(() => {
-
-        //@ts-ignore
-        let chosenDates = getChosenDayAndTime()
-        
-        // check if a selection has been made by the admin, locking the users from editing their
-        // availability
-        if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
-            setIsDraggable(false);
-            
-            let startTimeHHMM = dateObjectToHHMM(chosenDates[0])
-            let endTimeHHMM = dateObjectToHHMM(chosenDates[1])
-
-            //@ts-ignore
-            let times = [].concat(...generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime))
-            //@ts-ignore
-            let dates = [].concat(...calendarFramework.dates)
-
-            //@ts-ignore
-            let startBlockID = times.indexOf(startTimeHHMM)
-
-            //@ts-ignore
-            let endBlockID = times.indexOf(endTimeHHMM)
-            
-            let startColumnID = -1 
-            
-            let endColumnID = -1
-
-            for (let i = 0; i < dates.length; i++) {
-            
-                //@ts-ignore
-                if (dates[i].calanderDay == chosenDates[0].getDate()) {
-                    startColumnID = i
-                }
-                //@ts-ignore
-                if (dates[i].calanderDay == chosenDates[1].getDate()) {
-                    endColumnID = i
-                }
-            }
-            // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
-            if (columnID >= startColumnID && columnID <= endColumnID && startBlockID <= blockID && endBlockID >= blockID ) {
-                setShadeColor("green-700");
-                return;
-            }
-        }
-
-    }, []);
 
     // handles drag update logic
     useEffect(() => {
@@ -409,6 +414,10 @@ export default function CalBlock({
     }
 
     const borderTop = is30Minute ? '1px dotted #000' : 'none';
+    
+    console.log(shadeColor);
+    console.log(unShadeColor);
+    console.log(originalShadeColor);
     
     return (
         <div

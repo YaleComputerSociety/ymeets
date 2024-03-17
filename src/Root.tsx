@@ -12,6 +12,7 @@ import NotFound from "./components/NotFound/NotFound";
 import PrivacyPage from "./components/Privacy/PrivacyPage";
 import { GAPIContextWrapper } from "./firebase/gapiContext";
 import Banner from './components/utils/components/Banner';
+
 function Root() {
 
     return (
