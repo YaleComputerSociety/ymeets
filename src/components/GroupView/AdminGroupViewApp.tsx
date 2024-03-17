@@ -191,7 +191,7 @@ if (loading) {
                   <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                       {/* Edit availability button */}
                       
-                      <div className="justify-center">
+                      <div className="">
                       <Button 
                             bgColor="blue-500"
                             textColor='white'
@@ -201,12 +201,12 @@ if (loading) {
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </Button>
                         </div>
-                        <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                        {!selectedDateTimeObjects && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
                             NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/> 
                             <br/>
                             {locationOptions.length > 0  && <span>Click on a location to select it as the place to meet</span> } After, click
                             <span className="font-bold"> Submit Selection.</span>
-                        </div>
+                        </div>}
                         
 
                       {/* Event name, location, and time */}
@@ -247,8 +247,9 @@ if (loading) {
             
                           transition-colors relative`}    
                                               >
-                          {copied ? 'Copied' : "Click to copy shareable link"}
                           {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
+                          {copied ? 'Copied' : "Shareable Link"}
+
                         </button>
 
 

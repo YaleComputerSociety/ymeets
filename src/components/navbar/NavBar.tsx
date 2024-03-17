@@ -37,7 +37,7 @@ export default function NavBar() {
                 <div className="inline-flex justify-self-end items-center space-x-4 order-2">
                     <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>                    
                     {name != "" ? <button onClick={() => nav("/useraccount")} className={`text-gray-500 border border-gray-500 rounded-full \
-                                    w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 hover:text-white\
+                                    w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 transition hover:scale-102 drop-shadow-2xl hover:text-white\
                                     text-sm ${name == "" ? "hidden" : "inline-block"}`}>
                         Welcome, {name}
                     </button> :
