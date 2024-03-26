@@ -103,7 +103,7 @@ export default function AccountsPage() {
       <div className="min-h-screen flex flex-col items-center">
             <div className="pt-6 sm:pt-9 md:pt-12 lg:pt-16 xl:pt-20 pb-12 sm:pb-16 md:pb-20 lg:pb-24 xl:pb-28 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
                 <div className="flex flex-col sm:flex-row justify-between lg:items-center gap-6 sm:gap-8">
-                        <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700">
+                        <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700">
                         Your Events
                         </h2>
                         <div className="flex flex-col items-start sm:items-stretch sm:flex-row gap-4 sm:gap-4.5 md:gap-5 lg:gap-6 xl:gap-7">

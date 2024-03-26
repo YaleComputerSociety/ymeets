@@ -21,11 +21,7 @@ function Root() {
 
         <GAPIContextWrapper>
             <Router>
-
-            <header>
                 <NavBar></NavBar>
-            </header>
-
                 <Routes>
                     <Route path='/' element={<HomePage />} />
                     <Route path='/dayselect' element={<DaySelectComponent />} />

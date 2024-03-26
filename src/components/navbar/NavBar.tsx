@@ -13,6 +13,8 @@ import { useContext } from "react"
 export default function NavBar() {
     const [menuOpen, setMenuOpen] = React.useState(false)
     const [name, setName] = useState("")
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
 
     const nav = useNavigate()
     
@@ -31,41 +33,44 @@ export default function NavBar() {
 
     return (
         <>
-        <div className="flex flex-col w-full mt-6 fixed justify-center z-40 items-center">
+            <div className="flex flex-col w-full mt-6 justify-center z-40 items-center">
             <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
                 <NavLogo></NavLogo>
                 <div className="inline-flex justify-self-end items-center space-x-4 order-2">
                     <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>                    
-                    {name != "" ? <button onClick={() => nav("/useraccount")} className={`text-gray-500 border border-gray-500 rounded-full \
-                                    w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 transition hover:scale-102 drop-shadow-2xl hover:text-white\
-                                    text-sm ${name == "" ? "hidden" : "inline-block"}`}>
-                        Welcome, {name}
-                    </button> :
-                    <button onClick={() => {
-                        console.log("clicked in in!")
-                        signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
-                            if (loginSuccessful) {
-                                window.location.reload();
-                            }
-                        })}}>
-                    <IconUser/>
-                    </button>
-                    }
-                </div>
-            </div>
-            {/* MOBILE MENU */}
-            {/* <div className={`flex flex-col justify-center text-center items-center rounded-xl h-fit w-[90%]
-                             bg-white shadow-lg mt-2
-                            ${menuOpen ? "inline-block" : "hidden"}
-                            md:hidden`}>
-                <button onClick={() => {nav("/about-us"); console.log()}} className="hover:text-blue-700 py-4 border-b border-gray-300 w-full">About Us</button>
-                <a href="https://yalecomputersociety.org/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 py-4 w-full">About y/cs</a>
-            </div> */}
-        </div>
-        {/* Acts as a buffer for floating nav */}
-        <div className="h-32">
+                    {name != "" ? <div 
+                                    className="relative inline-block" 
+                                    onMouseEnter={() => setIsDropdownOpen(true)} 
+                                    onMouseLeave={() => setIsDropdownOpen(false)}
 
+                                >
+                                    <button 
+                                        onClick={() => nav("/useraccount")} 
+                                        className={`text-gray-500 flex flex-row border border-gray-500 rounded-full w-fit h-fit px-3 py-1 self-center hover:bg-gray-500 transition hover:scale-102 drop-shadow-2xl hover:text-white text-sm`}
+                                    >
+                                        Welcome, {name}                             
+                                    </button>
+                                    <div 
+                                        className={`absolute bg-white border border-gray-500 rounded-lg shadow-md mt-2 py-1 w-24 z-10 ${isDropdownOpen ? 'block' : 'hidden'}`}
+                                        onMouseEnter={() => setIsDropdownOpen(true)} 
+                                        onMouseLeave={() => setIsDropdownOpen(false)}
+                                    >
+                                        {/* Dropdown content */}
+                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100">Logout</a>
+                                    </div>
+                        </div> : <button onClick={() => {
+                                signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
+                                    if (loginSuccessful) {
+                                        window.location.reload();
+                                    }
+                                })}}>
+                            <IconUser/>
+                            </button>
+                            }
+                        </div>
+            </div>
         </div>
+        <div className="h-10"></div>
         </>
     )
 }
