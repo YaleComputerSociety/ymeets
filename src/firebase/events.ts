@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot, deleteDoc, writeBatch } from 'firebase/firestore';
+import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot, deleteDoc, writeBatch, FieldValue, deleteField } from 'firebase/firestore';
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types';
 import { auth, db } from './firebase';
 
@@ -380,8 +380,19 @@ async function wrappedSaveParticipantDetails(availability: Availability, locatio
 }
 
 // Sets the official date for the event; must be called by the admin 
-async function setChosenDate(chosenStartDate: Date, chosenEndDate: Date): Promise<void> {
-    if (chosenEndDate > chosenStartDate) {
+async function setChosenDate(chosenStartDate: Date | undefined, chosenEndDate: Date | undefined): Promise<void> {
+    if ((chosenStartDate === undefined && chosenEndDate !== undefined ) ||
+        (chosenStartDate !== undefined && chosenEndDate === undefined)) {
+            throw("Both start and end dates must be defined or undefined, not one of each!")
+
+    // unselect chosen date
+    } else if (chosenStartDate === undefined && chosenEndDate === undefined) {
+        delete workingEvent.details.chosenStartDate;
+        delete workingEvent.details.chosenEndDate;
+
+    // make sure the order is correct 
+    // @ts-ignore
+    } else if (chosenEndDate > chosenStartDate) {
         workingEvent.details.chosenStartDate = chosenStartDate;
         workingEvent.details.chosenEndDate = chosenEndDate;
     } else {
@@ -393,7 +404,10 @@ async function setChosenDate(chosenStartDate: Date, chosenEndDate: Date): Promis
 }
 
 // Sets the official location for the event; must be called by the admin 
-async function setChosenLocation(chosenLocation: Location): Promise<void> {
+async function setChosenLocation(chosenLocation: Location | undefined): Promise<void> {
+    if (chosenLocation === undefined) {
+        delete workingEvent.details.chosenLocation;
+    }
     workingEvent.details.chosenLocation = chosenLocation
 
     return saveEventDetails(workingEvent.details)
