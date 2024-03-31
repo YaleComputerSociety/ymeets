@@ -24,6 +24,7 @@ import { auth } from "../../firebase/firebase";
 import { deleteEvent } from "../../firebase/events";
 import { GAPIContext } from "../../firebase/gapiContext";
 import Button from "../utils/components/Button";
+import { LoadingAnim } from "../utils/components/LoadingAnim";
 
 interface AccountsPageEvent {
   name: string; 
@@ -80,6 +81,10 @@ export default function AccountsPage() {
           await getAllEventsForUser(getAccountId()).then((eventsUnparsed) => {
             setEvents(parseEventObjectForAccountsPage(eventsUnparsed) || []);
           });
+
+        } else {
+          setEvents([]);
+
         }
       }
   
@@ -92,7 +97,7 @@ export default function AccountsPage() {
     const nav = useNavigate();
     const [filter, setFilter] = useState("");
 
-    const [events, setEvents] = useState<AccountsPageEvent[]>([]);
+    const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
 
     const handleInputChange = (e: any) => {
         setFilter(e.target.value);
@@ -130,8 +135,12 @@ export default function AccountsPage() {
                     </div>
             </div>
             
-            
-            {events.length != 0 ? 
+            {events === undefined 
+            ? <div className='flex items-center justify-center'>
+                <p>Loading...</p>
+              </div>
+            : undefined}
+            {events && events.length != 0 ? 
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
                 {events.filter((e) => e.id.includes(filter) || e.name.includes(filter)).map((event) => (
                 <div className="bg-white rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10">
@@ -190,7 +199,11 @@ export default function AccountsPage() {
                 </div>
                 ))}
             </div>
-            : <div>You have no events or are logged is a guest.</div>
+            : (events !== undefined) ? 
+                (getAccountId() === "")
+                  ? <div>You are logged is a guest.</div>
+                  : <div>You have no events.</div>
+                : undefined
             }
 
             <div className="flex items-center justify-end">
