@@ -23,7 +23,6 @@ export const DaySelectComponent = () => {
     const [popUpMessage, setPopupMessage] = useState("");
     const [popUpIsOpen, setPopupIsOpen] = useState(false);
     const [locations, updateLocationsState] = useState<string[]>([]);
-    const [locationField, setLocationField] = useState("");
     const [locationOptions, setLocationOptions] = useState<any[]>([
         {
             label : "TSAI City",
@@ -266,6 +265,7 @@ export const DaySelectComponent = () => {
                                 
                             /> */}
                                <Select  
+                                    style={{ width : "100%", height: "100%", minWidth: "24.5vw" }} // Set the width to 300px (adjust as needed)
                                     multi
                                     create={true}
                                     onCreateNew={(newItem) => {
@@ -276,7 +276,6 @@ export const DaySelectComponent = () => {
                                     }}
                                     options={locationOptions} 
                                     clearOnSelect={false}
-                                    placeholder="Select location preference(s)"
                                     values={[]} 
                                     onChange={(values) => {
                                         console.log(values);

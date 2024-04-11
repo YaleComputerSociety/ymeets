@@ -13,8 +13,6 @@ import { useContext } from "react"
 export default function NavBar() {
     const [menuOpen, setMenuOpen] = React.useState(false)
     const [name, setName] = useState("")
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
 
     const nav = useNavigate()
     
@@ -40,9 +38,6 @@ export default function NavBar() {
                     <a href="/about-us" className="hidden hover:text-blue-700 md:inline-block flex items-center">About Us</a>                    
                     {name != "" ? <div 
                                     className="relative inline-block" 
-                                    onMouseEnter={() => setIsDropdownOpen(true)} 
-                                    onMouseLeave={() => setIsDropdownOpen(false)}
-
                                 >
                                     <button 
                                         onClick={() => nav("/useraccount")} 
@@ -50,14 +45,6 @@ export default function NavBar() {
                                     >
                                         Welcome, {name}                             
                                     </button>
-                                    <div 
-                                        className={`absolute bg-white border border-gray-500 rounded-lg shadow-md mt-2 py-1 w-24 z-10 ${isDropdownOpen ? 'block' : 'hidden'}`}
-                                        onMouseEnter={() => setIsDropdownOpen(true)} 
-                                        onMouseLeave={() => setIsDropdownOpen(false)}
-                                    >
-                                        {/* Dropdown content */}
-                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100">Logout</a>
-                                    </div>
                         </div> : <button onClick={() => {
                                 signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
                                     if (loginSuccessful) {

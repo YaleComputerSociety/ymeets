@@ -86,7 +86,6 @@ function TimeSelectPage() {
                 if (calIds.length == 0) {
                     setGoogleCalendarEvents([]);
                     return;
-
                 }
 
                 for (let i = 0; i < calIds.length; i++) {

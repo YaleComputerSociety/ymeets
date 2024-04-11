@@ -364,7 +364,7 @@ export default function CalBlock({
                 
                 let indexOfCol = columnID 
 
-                if(oldData[user.id][indexOfCol][blockID] == true || shadeColor == "green-700"){
+                if(oldData[user.id][indexOfCol][blockID] == true){
                     availableUsers.push(user)
                 }
                 else{

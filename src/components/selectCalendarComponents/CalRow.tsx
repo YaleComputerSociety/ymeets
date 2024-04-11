@@ -63,6 +63,7 @@ export default function CalRow({
                 const matchedDates = googleCalendarEvents?.filter(dates => dateObjectToComparable(dates[0]) === dateObjectToComparable(d.date));
                 //@ts-ignore
                 let isOnGcal = matchedDates?.some(dateRange => isTimeBetweenDates(dateRange[0], dateRange[1], time))      
+                
                 return (
                     <CalBlock 
                         theCalendarFramework={theCalendarFramework}
