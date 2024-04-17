@@ -24,7 +24,10 @@ export default function Banner({title, text}: Props) {
 
                     <p className="font-bold mr-1">{title} - </p>
                     
-                    <a target="_blank" href="https://forms.gle/PPiGK3DKWXgV4rLUA">
+                    {/* <a target="_blank" href="https://forms.gle/PPiGK3DKWXgV4rLUA">
+                        <p className="underline">{text}</p>
+                    </a> */}
+                    <a data-canny-link href="https://ymeets.canny.io">
                         <p className="underline">{text}</p>
                     </a>
                 </div>

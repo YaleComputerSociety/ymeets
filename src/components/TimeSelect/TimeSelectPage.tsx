@@ -259,19 +259,20 @@ function TimeSelectPage() {
     }
     
     return (
+        // <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
         <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
                 {/*There was an mx-9*/}
                 <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
-                    <div className="mb-8">
-                        <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
-                        <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
+                    <div className="mb-2">
+                        <h3 className="text-m text-left text-gray-400 w-[100%] mb-0">Event Name</h3> 
+                        <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%] mb-4 mt-0">{eventName}</h3>
                     </div>
 
                     {eventDescription && (
-                        <div className="mb-8">
-                            <h3 className="text-m text-left text-gray-400 w-[100%]">Description</h3>
-                            <h3 className="text-xl sm:text-2xl font-bold text-left w-[100%]">{eventDescription}</h3>
+                        <div className="mb-6">
+                            <h3 className="text-m text-left text-gray-400 w-[100%] mb-0">Description</h3>
+                            <h3 className="text-xl sm:text-2xl font-bold text-left w-[100%] mb-4 mt-0">{eventDescription}</h3>
                         </div>
                     )}
             
@@ -294,7 +295,7 @@ function TimeSelectPage() {
                         bgColor='blue-500'
                         textColor='white'
                         onClick={handleSubmitAvailability}>
-                            Submit Availability / View Group Availability
+                            Submit Availability
                         </Button>
                         <br/>
                         { selectedDateTimeObjects !== undefined &&
@@ -304,7 +305,7 @@ function TimeSelectPage() {
                         }
                     </div>
                 </div>
-                <div className={`flex flex-col ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''} justify-center items-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:items-start`}>
+                <div className={`flex flex-col ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''} justify-center items-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:items-start mb-8`}>
                 <Calendar
                     title={"Enter Your Availability"}
                     // @ts-ignore
