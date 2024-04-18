@@ -25,39 +25,33 @@ export const DaySelectComponent = () => {
     const [locations, updateLocationsState] = useState<string[]>([]);
     const [locationOptions, setLocationOptions] = useState<any[]>([
         {
-            label : "TSAI City",
-            value : "TSAI City"
-        },
-        {
             label : "17 Hillhouse",
             value : "17 Hillhouse"
+        },
+        {
+            label : "Bass",
+            value : "Bass",
         },
         {
             label : "HQ",
             value : "HQ"
         },
         {
-            label : "WLH",
-            value : "WLH"
-        },
-        {
-            label : "SSS",
-            value : "SSS"
+            label : "LC",
+            value : "LC"
         },
         {
             label : "Sterling",
             value : "Sterling"
         },
         {
-            label : "Watson",
-            value : "Watson",
+            label : "TSAI City",
+            value : "TSAI City"
         },
         {
-            label : "Marx",
-            value : "Marx"
+            label : "WLH",
+            value : "WLH"
         }
-
-
     ]);
 
     const handleUpdateStartTime = (time: Date) => {
@@ -285,6 +279,8 @@ export const DaySelectComponent = () => {
                                         updateLocationsState(selectedValues)
                         
                                     }}
+                                    placeholder="Location Options"
+                                    // className="w-[80%] border rounded-lg p-3 px-4 text-base"
                                 />
 
 
@@ -292,7 +288,7 @@ export const DaySelectComponent = () => {
                         <div className="mb-6">
                             <div className="w-[100%] flex flex-row justify-center md:justify-start mb-6">
                                 <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
-                                    TYPE and click ENTER to add options not listed.
+                                    Type and click ENTER to add options not listed.
                                 </div>
                             </div>
                             {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
@@ -326,6 +322,17 @@ export const DaySelectComponent = () => {
                     }
                 </Button>
             
+                {/* <label
+                    htmlFor="Toggle3"
+                    className="inline-flex items-center p-2 rounded-md cursor-pointer dark:text-gray-100"
+                    onClick={() => setSelectGeneralDays((oldState) => !oldState)}
+                >
+                    <input id="Toggle3" type="checkbox" className="hidden peer" />
+                    <span className="px-4 py-2 rounded-l-md dark:bg-violet-600 peer-checked:dark:bg-gray-700">
+                        {selectGeneralDays ? 'Select Specific Dates' : 'Select General Days'}
+                    </span>
+                </label> */}
+             
                 <div className="w-full h-2/4">
             
                     <CalanderComponent 
