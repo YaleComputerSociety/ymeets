@@ -20,6 +20,7 @@ export interface EventDetails {
     chosenLocation?: Location,
     chosenStartDate?: Date,
     chosenEndDate?: Date // minutes
+    extraEmails?: string[] // string[]
 }
 
 export interface Participant {

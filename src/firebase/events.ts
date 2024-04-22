@@ -15,6 +15,7 @@ var workingEvent: Event = {
         startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
         plausibleLocations: ["HH17", "Sterling"],
+        extraEmails: [],
     }, 
     participants: []
 };
@@ -554,21 +555,57 @@ function getStartAndEndTimes(): Date[] {
     return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
+function getCalendarEventId(): string {
+    return "meets" + workingEvent.publicId.toLowerCase();
+}
+
+// Emails added by the admin, not associated with any participant
+function getExtraEmails(): string[] {
+    return workingEvent.details.extraEmails || [];
+}
+
+// Add email to working event and then save to backend
+// but does not add repeats
+function addExtraEmail(email: string) {
+
+    if (workingEvent.details.extraEmails === undefined) {
+        workingEvent.details.extraEmails = []
+    }
+
+    if (email && !getExtraEmails().includes(email)) {
+        workingEvent.details.extraEmails.push(email);
+        saveEventDetails(workingEvent.details);
+    }
+
+    return workingEvent.details.extraEmails;
+}
+
+// Remove email to working event and then save to backend
+function removeExtraEmail(email: string) {
+    if (workingEvent.details.extraEmails === undefined) {
+        workingEvent.details.extraEmails = []
+    }
+
+    if (email && getExtraEmails().includes(email)) {
+        workingEvent.details.extraEmails = getExtraEmails().filter((e) => e !== email);
+        saveEventDetails(workingEvent.details);
+    }
+
+    return workingEvent.details.extraEmails;
+}
+
+// https://developers.google.com/calendar/api/v3/reference/events/insert
+// Disable google calendar button on participant view?
 function getEventObjectForGCal() {
-    console.log({
-        'summary': workingEvent.details.name,
-        'location': workingEvent.details.chosenLocation,
-        'description': workingEvent.details.description,
-        'start': {
-            'dateTime': workingEvent.details.chosenStartDate,
-            'timeZone': 'America/New_York'
-        },
-        'end': {
-            'dateTime': workingEvent.details.chosenEndDate,
-            'timeZone': 'America/New_York'
-        },
+
+    const emailsObj = getEmails().map((email) => {
+        return { 'email': email }
     });
-    return {
+
+    const eventObjectForGCal = {
+        'id': getCalendarEventId(), // Will throw error if event already exists with same id when using insert method
+        'attendees': emailsObj,
+        'sendUpdates': 'all', // TODO: verify this is intended behavior, especially on event updates (which...might never happen?) https://developers.google.com/calendar/api/v3/reference/events/insert
         'summary': workingEvent.details.name,
         'location': workingEvent.details.chosenLocation,
         'description': workingEvent.details.description,
@@ -581,6 +618,9 @@ function getEventObjectForGCal() {
             'timeZone': 'America/New_York'
         },
     };
+
+    // console.log(eventObjectForGCal);
+    return eventObjectForGCal;
 }
 
 export { workingEvent } // For interal use; use getters and setters below
@@ -595,6 +635,7 @@ export {
 
     // Misc
     getAllEventsForUser,
+    getCalendarEventId,
     
     // High Level (Async)
     getEventOnPageload,
@@ -629,6 +670,9 @@ export {
     setChosenLocation,
     setChosenDate,
     deleteEvent,
+    getExtraEmails,
+    addExtraEmail,
+    removeExtraEmail,
 
     getParticipantIndex,
     
