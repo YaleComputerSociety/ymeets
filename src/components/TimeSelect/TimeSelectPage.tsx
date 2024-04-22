@@ -262,7 +262,7 @@ function TimeSelectPage() {
         // <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
         <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
             <div className="flex flex-col justify-center content-center md:flex-row md:mx-12">
-                {/*There was an mx-9*/}
+                {/*There was an mx-9*/} 
                 <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
                     <div className="mb-2">
                         <h3 className="text-m text-left text-gray-400 w-[100%] mb-0">Event Name</h3> 
