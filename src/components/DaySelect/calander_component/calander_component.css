@@ -96,7 +96,7 @@ abbr {
 
 button.react-calendar__tile {
     /* min-height: 75px !important; */
-    min-height: 55px !important;
+    min-height: 50px !important;
     position: relative !important;
     padding: 0 !important;
     font-size: 1.2rem !important;
@@ -130,7 +130,7 @@ button.react-calendar__tile div {
 .react-calendar__month-view__weekdays {
     border-bottom: none !important;
     padding-bottom: 0 !important;
-    padding-top: 20px !important;
+    padding-top: 17px !important;
     border-top: 1px solid lightgray !important;
 }
 
@@ -195,10 +195,10 @@ button.react-calendar__tile div {
 .calendar-wrapper {
     position: relative;
     width: 100%;
-    padding: 2rem !important;
+    padding: 1.8rem 2rem 1.3rem 2rem !important;
     background-color: white;
     /* min-height: fit-content; */
-    padding : "10px";
+    /* padding: "10px"; */
     /* min-height: 350px !important; */
     border-radius: 10px !important;
     /* margin-top: 65px; */

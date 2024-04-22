@@ -12,6 +12,11 @@
     height: 28px !important;
 }
 
+.calendar-time-select {
+    justify-content: center !important;
+    align-items: center !important;
+}
+
 .time-select-text {
     font-size: 0.9rem;
     text-align: right;
@@ -41,3 +46,20 @@
     align-items: center !important;
 } */
 
+/* Custom Scrollbar */
+.react-dropdown-select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.react-dropdown-select-dropdown::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.react-dropdown-select-dropdown::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 3px;
+}
+
+.react-dropdown-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}

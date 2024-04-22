@@ -313,7 +313,7 @@ export const DaySelectComponent = () => {
                 
             </div>
             
-            <div className="flex flex-col flex-wrap space-y-4 mb-6 w-[90%] sm:w-[85%]">
+            <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
                 {/* <Button 
                     bgColor='blue-500'
                     textColor='white'
@@ -355,7 +355,7 @@ export const DaySelectComponent = () => {
                     </button>
                 </div>
              
-                <div className="w-full h-2/4">
+                <div className="w-full h-2/4 xs:mb-2 md:mb-0">
             
                     <CalanderComponent 
                         theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
