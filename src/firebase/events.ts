@@ -544,6 +544,14 @@ function getEmails(): string[] {
             emails.push(workingEvent.participants[i].email || "")
         }
     }
+
+    // merge list with getExtraEmails call but without repeats
+    getExtraEmails().forEach((email) => {
+        if (!emails.includes(email)) {
+            emails.push(email);
+        }
+    });
+    
     return emails
 }
 
