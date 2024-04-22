@@ -204,6 +204,10 @@ export const DaySelectComponent = () => {
         }
 
     }
+
+    const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
+        setSelectGeneralDays(tab === 'General Days');
+    };
        
     return (
         <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
@@ -279,7 +283,7 @@ export const DaySelectComponent = () => {
                                         updateLocationsState(selectedValues)
                         
                                     }}
-                                    placeholder="Location Options"
+                                    placeholder="Locations (Optional)"
                                     // className="w-[80%] border rounded-lg p-3 px-4 text-base"
                                 />
 
@@ -309,8 +313,8 @@ export const DaySelectComponent = () => {
                 
             </div>
             
-            <div className="flex flex-col flex-wrap space-y-7 mb-6 w-[90%] sm:w-[85%]">
-                <Button 
+            <div className="flex flex-col flex-wrap space-y-4 mb-6 w-[90%] sm:w-[85%]">
+                {/* <Button 
                     bgColor='blue-500'
                     textColor='white'
                     onClick={() => {setSelectGeneralDays((oldState) => {
@@ -320,18 +324,36 @@ export const DaySelectComponent = () => {
                     {
                         selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
                     }
-                </Button>
-            
-                {/* <label
-                    htmlFor="Toggle3"
-                    className="inline-flex items-center p-2 rounded-md cursor-pointer dark:text-gray-100"
-                    onClick={() => setSelectGeneralDays((oldState) => !oldState)}
-                >
-                    <input id="Toggle3" type="checkbox" className="hidden peer" />
-                    <span className="px-4 py-2 rounded-l-md dark:bg-violet-600 peer-checked:dark:bg-gray-700">
-                        {selectGeneralDays ? 'Select Specific Dates' : 'Select General Days'}
-                    </span>
-                </label> */}
+                </Button> */}
+
+                <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
+                    <button
+                        onClick={() => handleTabChange('Specific Days')}
+                        className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+                        selectGeneralDays ? 'text-black' : 'text-white'
+                        }`}
+                    >
+                        <span className="relative z-10">Specific Days</span>
+                        <div
+                        className={`absolute rounded-md transition-transform duration-300 ${
+                            selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
+                        } bg-blue-600`}
+                        />
+                    </button>
+                    <button
+                        onClick={() => handleTabChange('General Days')}
+                        className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+                        selectGeneralDays ? 'text-white' : 'text-black'
+                        }`}
+                    >
+                        <span className="relative z-10">General Days</span>
+                        <div
+                        className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
+                            selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
+                        } bg-blue-600`}
+                        />
+                    </button>
+                </div>
              
                 <div className="w-full h-2/4">
             

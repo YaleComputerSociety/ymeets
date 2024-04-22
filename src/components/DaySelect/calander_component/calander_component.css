@@ -199,7 +199,7 @@ button.react-calendar__tile div {
     background-color: white;
     /* min-height: fit-content; */
     padding : "10px";
-    min-height: 350px !important;
+    /* min-height: 350px !important; */
     border-radius: 10px !important;
     /* margin-top: 65px; */
 }
@@ -227,7 +227,7 @@ button.react-calendar__tile div {
     position: absolute;
     display: grid;
     justify-items: start;
-    height: 60px;
+    /* height: 60px; */
     margin-top: 5%;
 }
 
