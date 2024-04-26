@@ -5,7 +5,7 @@ import { calanderState, userData } from '../../types'
 import { calendarDimensions } from '../../types'
 import eventAPI from "../../firebase/eventAPI"
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getParticipantIndex, checkIfLoggedIn } from '../../firebase/events';
+import { getAccountId, getAccountName, getAvailabilityByAccountId, getAvailabilityByName, getEventOnPageload, wrappedSaveParticipantDetails, getEventName, getEventDescription, getLocationOptions, getLocationByName, getLocationByAccountId, getParticipantIndex, checkIfLoggedIn } from '../../firebase/events';
 import { Availability } from '../../types';
 import Calendar from "../selectCalendarComponents/CalendarApp";
 import { getChosenDayAndTime } from '../../firebase/events';
@@ -40,7 +40,7 @@ function TimeSelectPage() {
     const [calendarState, setCalendarState] = useState<calanderState | undefined>(undefined);
     const [calendarFramework, setCalendarFramework] = useState<calendarDimensions | undefined>(undefined)
 
-    const [selectedLocations, updateSelectedLocations] = useState([]);
+    const [selectedLocations, updateSelectedLocations] = useState<string[] | undefined>(undefined)
 
     const [ loading, setLoading ] = useState(true);
 
@@ -182,11 +182,16 @@ function TimeSelectPage() {
                         avail = eventAPI.getEmptyAvailability(dim);
                     }
 
+                    let loc: string[] | undefined =
+                        getAccountId() === "" ? getLocationByAccountId(getAccountId()) : getLocationByName(accountName);
+
                     setChartedUsers(participants);
 
                     setEventName(getEventName());
                     setEventDescription(getEventDescription());
                     setLocationOptions(getLocationOptions());
+
+                    updateSelectedLocations(loc);
 
                     //@ts-ignore
                     let theRange = getChosenDayAndTime()

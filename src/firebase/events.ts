@@ -536,6 +536,26 @@ function getLocationVotesByAccountId(accountId: string): Location[] | undefined 
     }
 }
 
+// Retrieves the list of locations preferred by participant matching `name`
+function getLocationByName(name: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].name == name) {
+            // @ts-ignore
+            return workingEvent.participants[i].location
+        }
+    }
+}
+
+// Retrieves the list of locations preferred by participant matching `accountId`
+function getLocationByAccountId(accountId: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].accountId == accountId) {
+            // @ts-ignore
+            return workingEvent.participants[i].location
+        }
+    }
+}
+
 function getEmails(): string[] {
     let emails: string[] = []
     for (let i = 0; i < workingEvent.participants.length; i++) {
@@ -612,6 +632,8 @@ export {
     getAvailabilityByName,
     getLocationVotesByName,
     getLocationVotesByAccountId,
+    getLocationByName,
+    getLocationByAccountId,
     getEventDescription,
     getEventName,
     getLocationOptions,
