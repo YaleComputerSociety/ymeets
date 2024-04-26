@@ -418,6 +418,25 @@ function getLocationOptions(): Location[] {
     return workingEvent.details.plausibleLocations
 }
 
+// Retrieves the list of locations preferred by participant matching `name`
+function getLocationByName(name: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].name == name) {
+            // @ts-ignore
+            return workingEvent.participants[i].location
+        }
+    }
+}
+
+// Retrieves the list of locations preferred by participant matching `accountId`
+function getLocationByAccountId(accountId: string): Location[] | undefined {
+    for (let i = 0; i < workingEvent.participants.length; i++) {
+        if (workingEvent.participants[i].accountId == accountId) {
+            // @ts-ignore
+            return workingEvent.participants[i].location
+        }
+    }
+}
 
 // Retrieves the name of the event
 function getEventName(): string {
@@ -615,6 +634,8 @@ export {
     getEventDescription,
     getEventName,
     getLocationOptions,
+    getLocationByName,
+    getLocationByAccountId,
     getLocationsVotes,
     getEventObjectForGCal,
     getEmails,
