@@ -221,6 +221,7 @@ export const DaySelectComponent = () => {
                             placeholder="Event Name"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
+                        
                         />
                     </div>
                     <div className="w-[100%] flex flex-row justify-center md:justify-start">
@@ -237,33 +238,8 @@ export const DaySelectComponent = () => {
 
                     <div className="mt-0">
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
-                            {/* <input
-                                id="event-description"
-                                maxLength={30}
-                                style={{resize: "none"}}
-                                className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                                placeholder="Location Choices (Optional)"
-                                value={locationField}
-                                onChange={(e) => setLocationField(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        // Check if the location already exists
-                                        if (!locations.includes(locationField)) {
-                                            const tmp_locations: any = [...locations, locationField];
-                                            setLocationField("");
-                                            updateLocationsState(tmp_locations);
-
-                                        } else {
-                                            // Clear the text field without adding a new location
-                                            setLocationField("");
-                                        }
-                                    }
-                                }}
-
-                                
-                            /> */}
                                <Select  
-                                    style={{ width : "100%", height: "100%", minWidth: "24.5vw" }} // Set the width to 300px (adjust as needed)
+                                    style={{ height: "100%", minWidth: "24.5vw", width: "25vw"}} 
                                     multi
                                     create={true}
                                     onCreateNew={(newItem) => {
@@ -275,11 +251,8 @@ export const DaySelectComponent = () => {
                                     options={locationOptions} 
                                     clearOnSelect={false}
                                     values={[]} 
-                                    onChange={(values) => {
-                                        console.log(values);
-                        
+                                    onChange={(values) => {                        
                                         const selectedValues = values.map((val) => val.value);
-                                        console.log(selectedValues);
                                         updateLocationsState(selectedValues)
                         
                                     }}

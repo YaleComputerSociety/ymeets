@@ -11,8 +11,11 @@ import {
     IconMapPin,
     IconEdit,
     IconInfoCircle,
-    IconTrash
+    IconTrash,
   } from "@tabler/icons-react";
+
+  import { FaCog } from 'react-icons/fa';
+
 
 import { getAccountId, getAllEventsForUser } from "../../firebase/events";
 import { useNavigate } from "react-router-dom";

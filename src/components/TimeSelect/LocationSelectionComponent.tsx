@@ -21,7 +21,6 @@ export function LocationSelectionComponent (props: any)  {
             multi 
             create={false}
             options={options} 
-    
             clearOnSelect={false}
             placeholder="Select location preference(s)"
             values={[]} 
