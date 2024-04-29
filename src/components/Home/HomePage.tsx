@@ -8,6 +8,7 @@ import Footer from "../utils/components/Footer";
 import Button from "../utils/components/Button";
 import ButtonSmall from "../utils/components/ButtonSmall";
 import Banner from "../utils/components/Banner";
+import InformationPopup from "../utils/components/InformationPopup";
 export default function HomePage()  {
     const navigate = useNavigate();
     const [showInput, setShowInput] = React.useState(true)
@@ -72,7 +73,7 @@ export default function HomePage()  {
                     <div className='flex flex-col justify-center items-center space-y-5 \
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0'>
                         <Button bgColor="blue-500" textColor="white" onClick={() => navigate("/dayselect")}>I'm a Host</Button> 
-                        <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-3 px-5 text-md transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
+                        <button className={!showInput ? "hidden" : 'font-bold rounded-full bg-white text-black py-4 px-7 text-md transform transition-transform hover:scale-90 active:scale-100 mb-4'} onClick={() => {showEventInput()}}>I'm a Participant</button>
                         <div className={showInput ? "hidden" : "flex flex-nowrap relative"}>
                             <label className="hidden" htmlFor="eventCode">Event Code</label>
                             <input className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"

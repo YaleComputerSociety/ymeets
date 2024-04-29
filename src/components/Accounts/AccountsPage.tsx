@@ -14,8 +14,9 @@ import {
     IconTrash,
   } from "@tabler/icons-react";
 
-  import { FaCog } from 'react-icons/fa';
-
+import { FaCog } from 'react-icons/fa';
+import { checkIfLoggedIn } from "../../firebase/events";
+import { signInWithGoogle } from "../../firebase/auth";
 
 import { getAccountId, getAllEventsForUser } from "../../firebase/events";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +29,7 @@ import { deleteEvent } from "../../firebase/events";
 import { GAPIContext } from "../../firebase/gapiContext";
 import Button from "../utils/components/Button";
 import { LoadingAnim } from "../utils/components/LoadingAnim";
+import LoginButton  from "../utils/components/LoginButton";
 
 interface AccountsPageEvent {
   name: string; 
@@ -73,7 +75,7 @@ const parseEventObjectForAccountsPage = (events: Event[]): AccountsPageEvent[] =
  * @returns Page Component Render
  */
 export default function AccountsPage() {
-    const { gapi } = useContext(GAPIContext);
+  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
   
     useEffect(() => {
 
@@ -204,18 +206,20 @@ export default function AccountsPage() {
             </div>
             : (events !== undefined) ? 
                 (getAccountId() === "")
-                  ? <div>You are logged is a guest.</div>
+                  ? <div>You are logged in as a guest. </div>
                   : <div>You have no events.</div>
                 : undefined
             }
 
             <div className="flex items-center justify-end">
-            <button onClick={() => {
+            {checkIfLoggedIn() ? <button onClick={() => {
                     logout(gapi);
                     nav("/");
             }} className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors">
                 Logout
-            </button>
+            </button> : 
+            <LoginButton />
+            }
           
             </div>
 

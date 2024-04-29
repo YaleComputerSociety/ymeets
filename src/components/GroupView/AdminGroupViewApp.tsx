@@ -19,6 +19,7 @@ import {IconCopy} from "@tabler/icons-react"
 import Button from "../utils/components/Button";
 import { Popup } from "../utils/components/Popup";
 import { LoadingAnim } from "../utils/components/LoadingAnim";
+import InformationPopup from "../utils/components/InformationPopup";
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -68,7 +69,6 @@ export default function AdminGroupViewPage() {
           if (code && code.length == 6) {
               await getEventOnPageload(code).then(() => {
                 const { availabilities, participants } = eventAPI.getCalendar();
-                // console.log("Avails: ", availabilities);
                 const dates = eventAPI.getCalendarDimensions();
 
                 setChartedUsers(participants);
@@ -191,24 +191,19 @@ if (loading) {
                   <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                       {/* Edit availability button */}
                       
-                      <div className="">
-                      <Button 
-                            bgColor="blue-500"
-                            textColor='white'
-                            disabled={selectedDateTimeObjects != undefined}
-                            onClick={() => {nav("/timeselect/" + code)}}
-                        >
-                            <span className="mr-1">&#8592;</span> Edit Your Availiability
-                        </Button>
+                      <div className="flex flex-row">
+                        <div className="flex-grow">
+                          <Button 
+                              bgColor="blue-500"
+                              textColor='white'
+                              disabled={selectedDateTimeObjects != undefined}
+                              onClick={() => {nav("/timeselect/" + code)}}
+                            >
+                              <span className="mr-1">&#8592;</span> Edit Your Availiability
+                          </Button>
                         </div>
-                        {!selectedDateTimeObjects && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
-                            NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/> 
-                            <br/>
-                            {locationOptions.length > 0  && <span>Click on a location to select it as the place to meet</span> } After, click
-                            <span className="font-bold"> Submit Selection.</span>
-                        </div>}
-                        
-
+                      </div>
+                       
                       {/* Event name, location, and time */}
 
                       <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
@@ -216,13 +211,13 @@ if (loading) {
                           <h3 className="text-xl  text-center md:text-left">{eventDescription}</h3>
 
                           <div className="flex flex-col">
-                             <h3 className="text-base text-center md:text-left">
-                            <span className='font-bold'>Time:</span> {selectedDateTimeObjects !== undefined ? (selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {  
-                                        weekday: "long", year: "numeric", month: "short",  
-                                        day: "numeric", hour: "numeric", minute: "2-digit"  
-                                    }) + " — " + selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {  
-                                      hour: "numeric", minute: "2-digit"  
-                                  })) : "not selected"}
+                            <h3 className="text-base text-center md:text-left">
+                              <span className='font-bold'>Time:</span> {selectedDateTimeObjects !== undefined ? (selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {  
+                                          weekday: "long", year: "numeric", month: "short",  
+                                          day: "numeric", hour: "numeric", minute: "2-digit"  
+                                      }) + " — " + selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {  
+                                        hour: "numeric", minute: "2-digit"  
+                                    })) : "not selected"}
                             </h3>
 
                             {locationOptions.length > 0 && <h3 className="text-base text-center md:text-left">
@@ -230,13 +225,13 @@ if (loading) {
                             </h3>}
 
                             <button
-                          onClick={() => {
-                            copy(`${window.location.origin}/timeselect/${code}`)
-                            setCopied(true);
-                            setTimeout(() => {
-                              setCopied(false);
-                            }, 1000)
-                          }}
+                              onClick={() => {
+                                copy(`${window.location.origin}/timeselect/${code}`)
+                                setCopied(true);
+                                setTimeout(() => {
+                                  setCopied(false);
+                                }, 1000)
+                              }}
                           className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
                             copied ? 'bg-green-700' : 'bg-slate-100'
                           } ${
@@ -252,40 +247,31 @@ if (loading) {
 
                         </button>
 
-
-                            {
-                       selectedLocation && (
-                                <button
+                        <br/>
+                        {
+                        selectedLocation && (
+                                <Button
+                                textColor="white"
+                                bgColor="blue-500"
                                 onClick={() => {
                                   window.open("https://25live.collegenet.com/pro/yale#!/home/event/form", "_blank");
-                              }}
-                                    className="font-bold mt-2 rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+                                }}
                                 >
-                                    Book Room
-                                </button>
+                                  Book Room
+                                </Button>
                             )
                     
-                            }
-                          </div>
+                        }
+                        </div>
                       </div>
 
                       <div className="flex flex-row space-x-2">
                  
                         {selectedDateTimeObjects 
-                          ? <div className="">
+                          ? <div className="w-full">
                             <AddToGoogleCalendarButton />
                           </div>
-                          : undefined}
-                          
-
-                        {!selectedDateTimeObjects && <button 
-                            onClick={() => {setSelectionConfirmedPopupOpen(true)}}
-                            className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
-                                        transform transition-transform hover:scale-90 active:scale-100e'>
-                               Submit Selection
-                        </button>}
-
-                        
+                          : undefined}      
                       </div>
 
                       {/* User availability table */} 
@@ -304,27 +290,51 @@ if (loading) {
                           locationVotes={Object.values(locationVotes)}/>}
 
                   </div>
+                  <div>
+                    <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4"> 
+                        <Calendar
+                            title={""}
+                            //@ts-ignore
+                            theCalendarState={[calendarState, setCalendarState]}
+                            //@ts-ignore
+                            theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                            //@ts-ignore
+                            chartedUsersData={[chartedUsers, setChartedUsers]}
+                            draggable={true}
+                            user={getCurrentUserIndex()}
+                            isAdmin={true}
+                            //@ts-ignore
+                            theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
+                            //@ts-ignore
+                            theDragState={[dragState, setDragState]}
+                            //@ts-ignore
+                            theGoogleCalendarEvents={[undefined, undefined]}
+                        />
+                        
+                    </div>
                   
-                  <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4"> 
-                      <Calendar
-                          title={""}
-                          //@ts-ignore
-                          theCalendarState={[calendarState, setCalendarState]}
-                          //@ts-ignore
-                          theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                          //@ts-ignore
-                          chartedUsersData={[chartedUsers, setChartedUsers]}
-                          draggable={true}
-                          user={getCurrentUserIndex()}
-                          isAdmin={true}
-                          //@ts-ignore
-                          theSelectedDate={[selectedDateTimeObjects, setSelectedDateTimeObjects]}
-                          //@ts-ignore
-                          theDragState={[dragState, setDragState]}
-                          //@ts-ignore
-                          theGoogleCalendarEvents={[undefined, undefined]}
-                      />
+                    <div className="pl-6">
+                      {!selectedDateTimeObjects && <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
+                                {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
+                                {locationOptions.length == 0 ? <InformationPopup 
+                                  content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection"
+                                /> : <InformationPopup 
+                                content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection."
+                              /> }
+                              
+                            </div>}
+                      </div>
+                      <div className="flex items-center justify-center">
+                      {!selectedDateTimeObjects && <button 
+                            onClick={() => {setSelectionConfirmedPopupOpen(true)}}
+                            className='font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit 
+                                        transform transition-transform hover:scale-90 active:scale-100e'>
+                               Submit Selection
+                        </button>}
+                      </div>
                   </div>
+            
+                 
 
                   <Popup onCloseAndSubmit={handleSelectionSubmission}
                          onClose={() => setSelectionConfirmedPopupOpen(false)}
@@ -345,7 +355,7 @@ if (loading) {
 
                       
                       <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
-                      <h3 className="text-xl text-center md:text-left">{eventDescription}</h3>
+                      <h3 className="text-md text-center md:text-left">{eventDescription}</h3>
 
 
                       <div className="flex flex-col">

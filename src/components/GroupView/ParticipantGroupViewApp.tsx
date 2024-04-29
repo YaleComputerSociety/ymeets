@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
 import Button from '../utils/components/Button';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
+import InformationPopup from '../utils/components/InformationPopup';
 
 
 /**
@@ -106,7 +107,7 @@ export default function ParticipantGroupViewPage() {
     return (
         <>
 
-            <div className='flex justify-center'>
+            <div className='flex justify-center items-center'>
                 <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
                     <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
                         <Button 
@@ -117,10 +118,10 @@ export default function ParticipantGroupViewPage() {
                         >
                             <span className="mr-1">&#8592;</span> Edit Your Availiability
                         </Button>
-                        {selectedDateTimeObjects != undefined && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                        {/* {selectedDateTimeObjects != undefined && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
                             NOTE: Admin has selected a time, so you cannot edit your availability
                         </div>
-                        }
+                        } */}
 
                         <div className = "hidden mb-4 flex flex-col space-y-5 md:block">
                             <h3 className="text-3xl font-bold text-center md:text-left">{eventName}</h3>
@@ -160,42 +161,38 @@ export default function ParticipantGroupViewPage() {
                             locationVotes={Object.values(locationVotes)}
                         />
                     </div>
+                    
+                    <div>
+                        <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end pl-4"> 
+                            <Calender
+                                title={""}
+                                isAdmin={false} 
+                                //@ts-ignore
+                                theCalendarState={[calendarState, setCalendarState]}
+                                //@ts-ignore
+                                theCalendarFramework={[calendarFramework, setCalendarFramework] }
+                                //@ts-ignore
+                                chartedUsersData={[chartedUsers, setChartedUsers]}
+                                draggable={false}
+                                user={getCurrentUserIndex()}
+                                //@ts-ignore
+                                theSelectedDate={[undefined, undefined]}
+                                //@ts-ignore
+                                theDragState={[dragState, setDragState]}
+                                //@ts-ignore
+                                theGoogleCalendarEvents={[undefined, undefined]}
+                            />
 
-                    <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end pl-4"> 
-                        <Calender
-                            title={""}
-                            isAdmin={false} 
-                            //@ts-ignore
-                            theCalendarState={[calendarState, setCalendarState]}
-                            //@ts-ignore
-                            theCalendarFramework={[calendarFramework, setCalendarFramework] }
-                            //@ts-ignore
-                            chartedUsersData={[chartedUsers, setChartedUsers]}
-                            draggable={false}
-                            user={getCurrentUserIndex()}
-                            //@ts-ignore
-                            theSelectedDate={[undefined, undefined]}
-                            //@ts-ignore
-                            theDragState={[dragState, setDragState]}
-                            //@ts-ignore
-                            theGoogleCalendarEvents={[undefined, undefined]}
-                        />
-
+                        </div>
+                        <div className='ml-7'>
+                            {selectedDateTimeObjects != undefined && <InformationPopup 
+                                    content={"NOTE: Admin has selected a time, so you cannot edit your availability"}
+                            />}
+                        </div>
                     </div>
 
                     <div className="md:hidden">
-                        {/* (Mobile): Edit availability button */}
-                        
-                        <div className='flex items-center justify-center '>
-                        <Button 
-                            bgColor="blue-500"
-                            textColor='white'
-                            disabled={selectedDateTimeObjects != undefined}
-                            onClick={() => {nav("/timeselect/" + code)}}
-                        >
-                            <span className="mr-1">&#8592;</span> Edit Your Availiability
-                        </Button>
-                        </div>
+            
 
                         {/* (Mobile): Event name, location, and time */}
 
