@@ -39,10 +39,10 @@ export default function NavBar() {
     return (
         <>
             <div className="flex flex-col w-full mt-6 justify-center z-40 items-center">
-            <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
-                <NavLogo></NavLogo>
-                <div className="inline-flex justify-self-end items-center space-x-4 order-2">
-                    {name != "" ? <div 
+                <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
+                    <NavLogo />
+                    <div className="flex items-center space-x-4">
+                        {name && <div 
                                     className="relative inline-block" 
                                 >
                                     <div 
@@ -50,55 +50,36 @@ export default function NavBar() {
                                     >
                                         Welcome, {name}                             
                                     </div>
-                        </div> : <button onClick={() => {
-                                signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
-                                    if (loginSuccessful) {
-                                        window.location.reload();
-                                    }
-                                })}}>
-                        {
-                        /* <IconUser
-                            color="gray"
-                            size={25}
-                        /> */
+                        </div> 
                         }
-                        </button>
-                    }
-                    <div className="relative">
-                        <button
-                                className="menu-button"
-                                onClick={handleGearClick}
-                            >   
-                                <FaCog 
-                                    className="text-gray-500 my-1" 
-                                    size={25}
-                                />
+                        <div className="relative">
+                            <button className="menu-button" onClick={handleGearClick}>
+                                <FaCog className="text-gray-500 mt-1" size={25} />
                             </button>
-                            {/* we need a better cal recurring for general days */}
                             {isOpen && (
-                            <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 right-0 left-auto">
-                                <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                        <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => {nav("/about-us"); setIsOpen(false)}}>About Us</a>
-                                        <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => {nav("/useraccount"); setIsOpen(false)}}>Events</a>
-                                        {
-                                            checkIfLoggedIn() ? 
-                                                <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => {logout(gapi); setIsOpen(false)}}>Logout</a> :
-                                                <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => {
-                                                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
-                                                        if (loginSuccessful) {
-                                                            window.location.reload();
-                                                        }
-                                                    })
-                                                }}>Login</a>
-                                        }
+                                <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 right-0 left-auto">
+                                    <div className="py-1 border border-gray-400 rounded-lg" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                        <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => { nav("/about-us"); setIsOpen(false) }}>About Us</a>
+                                        <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => { nav("/useraccount"); setIsOpen(false) }}>Events</a>
+                                        {checkIfLoggedIn() ? (
+                                            <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => { logout(gapi); setIsOpen(false) }}>Logout</a>
+                                        ) : (
+                                            <a href="#" className="block px-4 text-right py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => {
+                                                signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
+                                                    if (loginSuccessful) {
+                                                        window.location.reload();
+                                                    }
+                                                })
+                                            }}>Login</a>
+                                        )}
                                     </div>
                                 </div>
                             )}
-                            </div>
+                        </div>
                     </div>
+                </div>
             </div>
-        </div>
-        <div className="h-10"></div>
+            <div className="h-10"></div>
         </>
     )
 }
