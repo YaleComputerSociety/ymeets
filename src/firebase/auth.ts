@@ -2,7 +2,7 @@ import { MouseEventHandler, useContext } from 'react';
 import { getAccountId, getAccountName, updateAnonymousUserToAuthUser } from './events';
 
 import { auth, googleProvider } from './firebase';
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
 import { GAPIContext } from './gapiContext';
 import { get } from 'http';
 
@@ -20,6 +20,7 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
         }
 
         try {
+            if (gapi) {
             const auth2 = gapi.auth2.getAuthInstance();
             auth2.signIn().then((googleUser: any) => {
                 console.log('Signed in as: ' + googleUser);
@@ -32,10 +33,42 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
                 } else {
                     resolve(true);
                 }
+            }).catch((error: any) => {
+                console.error(error);
+                resolve(false);
             });
+
+            } else { 
+
+                // try signing in with firebase (gapi not working...such as mobile???)
+                try {
+                    signInWithRedirect(auth, googleProvider)
+                        .then((googleUser: any) => {
+                            console.log('Signed in as: ' + googleUser);
+                            if (handleIsSignedIn) { handleIsSignedIn(true); }
+
+                            if (formerName !== "") {
+                                updateAnonymousUserToAuthUser(formerName)
+                                    .then(() => resolve(true))
+                                    .catch((updateError) => resolve(false));
+                            } else {
+                                resolve(true);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                            resolve(false);
+                        });
+                } catch (err) {
+                    console.error(err);
+                    resolve(false);
+                }
+
+            }
         } catch (err) {
             console.error(err);
-            reject(false);
+            resolve(false);
+            
         }
     });
 }

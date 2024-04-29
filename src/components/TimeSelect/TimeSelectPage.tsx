@@ -352,7 +352,7 @@ function TimeSelectPage() {
                     </Button>
                     : !areSelectingGeneralDays && <button className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
                                         transform transition-transform hover:scale-90 active:scale-100e flex items-center'
-                            onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn).then(() => {console.log("logged here in"); window.location.reload()})}}>
+                            onClick={() => {signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {if (loginSuccessful) {console.log("logged here in"); window.location.reload()} else {console.log("login failed");}})}}>
                             <img src={LOGO} alt="Logo" className="mr-3 h-7" /> 
                             Sign in with Google to access GCAL
                     </button>}
