@@ -239,7 +239,7 @@ export const DaySelectComponent = () => {
                     <div className="mt-0">
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
                                <Select  
-                                    style={{ height: "100%", minWidth: "24.5vw", width: "25vw"}} 
+                                    // style={{ height: "100%", minWidth: "24.5vw", width: "25vw"}} 
                                     multi
                                     create={true}
                                     onCreateNew={(newItem) => {

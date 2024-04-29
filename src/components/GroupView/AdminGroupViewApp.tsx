@@ -290,7 +290,7 @@ if (loading) {
                           locationVotes={Object.values(locationVotes)}/>}
 
                   </div>
-                  <div className="max-w-[50%]">
+                  <div className="max-w-[100%] lg:max-w-[50%] ">
                     <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4"> 
                         <Calendar
                             title={""}

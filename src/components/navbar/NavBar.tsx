@@ -46,7 +46,7 @@ export default function NavBar() {
                                     className="relative inline-block" 
                                 >
                                     <div 
-                                        className={`text-gray-500 flex flex-row border border-gray-500 rounded-full w-fit h-fit px-3 py-1 self-center transition drop-shadow-2xl text-sm`}
+                                        className={`text-gray-500 flex flex-row border border-gray-500 rounded-full w-fit h-fit px-3 py-1 self-center transition drop-shadow-2xl text-xs lg:text-sm`}
                                     >
                                         Welcome, {name}                             
                                     </div>
