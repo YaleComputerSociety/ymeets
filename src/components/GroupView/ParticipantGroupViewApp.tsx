@@ -162,7 +162,7 @@ export default function ParticipantGroupViewPage() {
                         />
                     </div>
                     
-                    <div>
+                    <div className='max-w-[50%]'>
                         <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end pl-4"> 
                             <Calender
                                 title={""}
