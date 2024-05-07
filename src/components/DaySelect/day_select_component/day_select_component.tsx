@@ -234,6 +234,7 @@ export const DaySelectComponent = () => {
                             value={eventDescription}
                             onChange={(e) => setEventDescription(e.target.value)}
                             rows={1}
+                            maxLength={175}
                         />
                     </div>
 

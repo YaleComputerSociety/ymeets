@@ -265,13 +265,13 @@ function TimeSelectPage() {
                 <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
                     <div className="mb-8">
                         <h3 className="text-m text-left text-gray-400 w-[100%]">Event Name</h3>
-                        <h3 className="text-2xl sm:text-3xl font-bold text-left w-[100%]">{eventName}</h3>
+                        <h3 className="text-2xl sm:text-3xl font-bold text-left max-w-[300px]" style = {{wordWrap: 'break-word'}}>{eventName}</h3>
                     </div>
 
                     {eventDescription && (
                         <div className="mb-8">
                             <h3 className="text-m text-left text-gray-400 w-[100%]">Description</h3>
-                            <h3 className="text-xl sm:text-2xl font-bold text-left w-[100%]">{eventDescription}</h3>
+                            <h3 className="text-xl sm:text-2xl font-bold text-left max-w-[300px]" style = {{wordWrap: 'break-word'}}>{eventDescription}</h3>
                         </div>
                     )}
             
