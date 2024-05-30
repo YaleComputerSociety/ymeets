@@ -30,6 +30,7 @@ export function LocationSelectionComponent (props: any)  {
             noDataRenderer={() => (
                 <div className="p-2 text-center">No location options set :(</div>
             )}     
+            style={{ width: "20vw" }}
 
         />
     );

@@ -2,8 +2,6 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 import { useState } from "react";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 
-
-
 interface Props {
     content : string
 }
@@ -11,14 +9,14 @@ export default function InformationPopup({content} : Props) {
     const [opacity, setOpacity] = useState(0); // State to control opacity
 
     return (
-        <div className="relative z-10">
+        <div className="relative">
           
                 <IoMdInformationCircleOutline 
                 onMouseEnter={() => setOpacity(1)} // Set opacity to 1 on mouse enter
                 onMouseLeave={() => {
-                    setOpacity(0); // Set opacity to 0 with delay
+                    setOpacity(0); 
 
-                }}
+                }}  
                 className="cursor-pointer"
                 size={24} />
             <div

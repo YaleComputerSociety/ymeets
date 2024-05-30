@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from "../../../firebase/eventAPI";
@@ -6,6 +6,8 @@ import { getAccountId, getAccountName } from "../../../firebase/events";
 import { useNavigate } from "react-router-dom";
 import Select from "react-dropdown-select";
 import Button from '../../utils/components/Button';
+import { useRef } from 'react';
+import InformationPopup from '../../utils/components/InformationPopup';
 
 export const DaySelectComponent = () => {
 
@@ -14,6 +16,28 @@ export const DaySelectComponent = () => {
     nineAM.setHours(9);
     const fivePM = new Date(`January 1, 2023`);
     fivePM.setHours(17);
+
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+  
+
+    useEffect(() => {
+        if (containerRef.current) {
+            //@ts-ignore
+          setContainerWidth(containerRef.current.offsetWidth);
+        }
+      }, []);
+    
+      useEffect(() => {
+        const handleResize = () => {
+          if (containerRef.current) {
+            //@ts-ignore
+            setContainerWidth(containerRef.current.offsetWidth);
+          }
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+      }, []);
     
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
@@ -237,9 +261,9 @@ export const DaySelectComponent = () => {
                     </div>
 
                     <div className="mt-0">
-                        <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2">
+                        <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2" ref={containerRef}>
                                <Select  
-                                    // style={{ height: "100%", minWidth: "24.5vw", width: "25vw"}} 
+                                    style={{ height: "100%", zIndex:1000}} 
                                     multi
                                     create={true}
                                     onCreateNew={(newItem) => {
@@ -256,18 +280,63 @@ export const DaySelectComponent = () => {
                                         updateLocationsState(selectedValues)
                         
                                     }}
-                                    placeholder="Locations (Optional)"
+                                    dropdownPosition="auto"
+                                    contentRenderer={({ props, state }) => {
+                                        let widthUsed = 0;
+                                        const itemStyles = {
+                                          display: 'inline-block',
+                                          textOverflow: 'ellipsis',
+                                          whiteSpace: 'nowrap',
+                                          overflow: 'hidden',
+                                          marginRight: '5px',
+                                          padding: '2px 5px',
+                                          border: '1px solid #ccc',
+                                          borderRadius: '8px',
+                                        };
+                                        const itemsToRender = state.values.filter((item) => {
+                                          const itemWidth = 100; // Adjust this value based on your estimation or measurement
+                                          if (widthUsed + itemWidth <= containerWidth) {
+                                            widthUsed += itemWidth;
+                                            return true;
+                                          }
+                                          return false;
+                                        });
+                              
+                                        return (
+                                            <div style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              overflow: 'hidden',
+                                              textOverflow: 'ellipsis',
+                                              whiteSpace: 'nowrap',
+                                              minHeight: '36px', // Adjust the min-height as needed
+                                              minWidth: "20vw",
+                                              padding: '8px', // Adjust padding to make it look balanced
+                                              fontSize: "16px"
+                                            }}>
+                                              {itemsToRender.length === 0 && <span style={{ color: 'gray', fontStyle: 'italic' }}>Enter Possible Locations (Optional)</span>}
+                                              {itemsToRender.map((item, index) => (
+                                                //@ts-ignore
+                                                <div key={index} style={itemStyles}>
+                                                  {item.label}
+                                                </div>
+                                              ))}
+                                              {state.values.length > itemsToRender.length && <span style={{ paddingLeft: '5px' }}>...</span>}
+                                            </div>
+                                          );
+                                          
+                                      }}
                                     // className="w-[80%] border rounded-lg p-3 px-4 text-base"
                                 />
 
 
                         </div>
                         <div className="mb-6">
-                            <div className="w-[100%] flex flex-row justify-center md:justify-start mb-6">
-                                <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
+                            <InformationPopup 
+                                content='                                    
                                     Type and click ENTER to add options not listed.
-                                </div>
-                            </div>
+                                '
+                            />
                             {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
                                 {locations.map((location, index) => (
                                     <div className="flex w-[100%] justify-center md:justify-start">

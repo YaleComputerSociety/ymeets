@@ -32,6 +32,10 @@ module.exports = {
       },
       scale : {
         "102" : "1.02"
+      },
+      width: {
+        '20vw': '30vw',
+        '40vw': '40vw', // add 40vw if you need it for toggling
       }
     },
   },

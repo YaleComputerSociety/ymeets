@@ -32,7 +32,17 @@ export default function NavBar() {
 
     useEffect(() => {
         return onAuthStateChanged(auth, () => {
-            setName(getAccountName().split(' ')[0]);
+
+            let obtainedName = getAccountName().split(' ')[0]
+
+            console.log(obtainedName)
+
+            if (obtainedName.length >= 6) {
+                setName(obtainedName.slice(0, 3) + "...") 
+            } else {
+                setName(obtainedName);
+            }
+
         });  
     }) 
 
