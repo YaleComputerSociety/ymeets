@@ -12,8 +12,14 @@
     background-color: white !important;
 }
 
+.highlight {
+    font-weight: 1000;
+    color:rgb(14 165 233) !important;
+    text-decoration: underline;
+  }
+
 .react-calendar__tile--active:hover {
-    background-color: none;
+    /* background-color: none; */
 }
 
 .react-calendar__month-view__weekdays {

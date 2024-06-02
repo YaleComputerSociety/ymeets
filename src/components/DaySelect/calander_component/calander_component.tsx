@@ -40,6 +40,29 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
     }, 500);
   }, []);
 
+  const today = new Date();
+
+  //@ts-ignore
+  const tileClassName = ({ date, view }) => {
+
+    console.log(today);
+
+    // Add class to tiles in month view only
+    if (view === 'month') {
+      // Check if the date is today
+      if (
+        date.getFullYear() === today.getFullYear() &&
+        date.getMonth() === today.getMonth() &&
+        date.getDate() === today.getDate()
+      ) {
+        console.log("hgiht!")
+        return 'highlight';
+      }
+    }
+    return null;
+  };
+
+
   const handleLoginPopupClose = () => {
     setShowLoginPopup(false);
   };
@@ -123,6 +146,7 @@ export const CalanderComponent = ({theEventName, selectedStartDate, selectedEndD
         selectRange={false}
         showNeighboringMonth={true}
         minDetail="month"
+        tileClassName={tileClassName}
         tileContent={({ date, view }) => {      
           return (
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>         
