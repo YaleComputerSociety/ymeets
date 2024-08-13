@@ -251,12 +251,10 @@ export default class FrontendEventAPI {
 
     const availMatrix: calanderState = []
     for (let i = 0; i < avails.length; i++) {
-      // @ts-expect-error
       availMatrix.push(avails[i])
     }
 
     return {
-      // @ts-expect-error
       availabilities: availMatrix,
       participants: userData
     }
@@ -272,7 +270,6 @@ export default class FrontendEventAPI {
         unavailable: []
       },
 
-      // @ts-expect-error
       scheduleDataEmpty: [
         [
           [false, false, false, false, false, false, false, false],

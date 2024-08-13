@@ -1,28 +1,53 @@
 import React, { useEffect, useState, useRef } from 'react'
 import 'tailwindcss/tailwind.css'
-import { calanderState, userData, user, calendarDimensions, calandarDate } from '../../types'
+import {
+  calanderState,
+  userData,
+  user,
+  calendarDimensions,
+  calandarDate,
+} from '../../types'
 import { dragProperties } from './CalendarApp'
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks'
-import { getChosenDayAndTime, getAccountId, getParticipantIndex, getAccountName } from '../../firebase/events'
+import {
+  getChosenDayAndTime,
+  getAccountId,
+  getParticipantIndex,
+  getAccountName,
+} from '../../firebase/events'
 import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM'
 
 interface CalBlockProps {
   blockID: number
   columnID: number
-  theCalendarState: [calanderState, React.Dispatch<React.SetStateAction<calanderState>>] | undefined
-  theCalendarFramework: [calendarDimensions, React.Dispatch<React.SetStateAction<calendarDimensions>>] | undefined
-  chartedUsersData: [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined
+  theCalendarState:
+    | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
+    | undefined
+  theCalendarFramework:
+    | [
+        calendarDimensions,
+        React.Dispatch<React.SetStateAction<calendarDimensions>>,
+      ]
+    | undefined
+  chartedUsersData:
+    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | undefined
   draggable: boolean
   isAdmin?: boolean
   user: number
   theDragStartedOn?: any
   is30Minute: boolean
-  theDragState: [dragProperties, React.Dispatch<React.SetStateAction<dragProperties>>]
-  theSelectedDate: [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>] | undefined
+  theDragState: [
+    dragProperties,
+    React.Dispatch<React.SetStateAction<dragProperties>>,
+  ]
+  theSelectedDate:
+    | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
+    | undefined
   isOnGcal: boolean
 }
 
-export default function CalBlock ({
+export default function CalBlock({
   blockID,
   columnID,
   theCalendarState,
@@ -34,19 +59,14 @@ export default function CalBlock ({
   is30Minute,
   theDragState,
   theSelectedDate,
-  isOnGcal
+  isOnGcal,
 }: CalBlockProps) {
   const dragRef = useRef<HTMLDivElement>(null)
   const elementId = `${columnID}-${blockID}`
 
   const [isDraggable, setIsDraggable] = useState(draggable)
-  // @ts-expect-error
-
-  function checkIfBlockIsAdminSelection () {
-    // @ts-expect-error
+  function checkIfBlockIsAdminSelection() {
     const chosenDates = getChosenDayAndTime()
-    console.log(chosenDates)
-
     // check if a selection has been made by the admin, locking the users from editing their
     // availability
     if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
@@ -55,9 +75,13 @@ export default function CalBlock ({
       const startTimeHHMM = dateObjectToHHMM(chosenDates[0])
       const endTimeHHMM = dateObjectToHHMM(chosenDates[1])
 
-      // @ts-expect-error
-      const times = [].concat(...generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime))
-      // @ts-expect-error
+      const times = [].concat(
+        //@ts-expect-error
+        ...generateTimeBlocks(
+          calendarFramework.startTime,
+          calendarFramework.endTime
+        )
+      )
       const dates = [].concat(...calendarFramework.dates)
 
       // @ts-expect-error
@@ -81,8 +105,14 @@ export default function CalBlock ({
         }
       }
       // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
-      if (columnID >= startColumnID && columnID <= endColumnID && startBlockID <= blockID && endBlockID >= blockID) {
-        if (blockID == endBlockID) { // for that last one, based on how blocks are coded.
+      if (
+        columnID >= startColumnID &&
+        columnID <= endColumnID &&
+        startBlockID <= blockID &&
+        endBlockID >= blockID
+      ) {
+        if (blockID == endBlockID) {
+          // for that last one, based on how blocks are coded.
           return ''
         }
 
@@ -93,7 +123,7 @@ export default function CalBlock ({
     return ''
   }
 
-  function getDefaultShadeColor () {
+  function getDefaultShadeColor() {
     let selectedCount = 0
 
     for (let i = 0; i < calendarState.length; i++) {
@@ -114,13 +144,13 @@ export default function CalBlock ({
     if (!isDraggable || (isDraggable && isAdmin)) {
       // one of the groupviews
 
-      const percentageSelected = selectedCount / (calendarState.length)
+      const percentageSelected = selectedCount / calendarState.length
 
       if (selectedCount === 0) {
         return 'white'
       } else if (percentageSelected <= 0.25) {
         return 'sky-200'
-      } else if (percentageSelected <= 0.50) {
+      } else if (percentageSelected <= 0.5) {
         return 'sky-300'
       } else if (percentageSelected <= 0.75) {
         return 'teal-400'
@@ -165,7 +195,9 @@ export default function CalBlock ({
     setUnshadeColor(isOnGcal ? 'gray-500' : 'white')
   }, [isOnGcal])
 
-  const NUM_OF_TIME_BLOCKS = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime).length * 4
+  const NUM_OF_TIME_BLOCKS =
+    generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
+      .length * 4
 
   // handles drag update logic
   useEffect(() => {
@@ -182,14 +214,26 @@ export default function CalBlock ({
 
     prevDragState.current = dragState
 
-    for (let col = Math.min(startCol, endCol); col <= Math.max(startCol, endCol); col++) {
-      for (let block = Math.min(startBlock, endBlock); block <= Math.max(startBlock, endBlock); block++) {
+    for (
+      let col = Math.min(startCol, endCol);
+      col <= Math.max(startCol, endCol);
+      col++
+    ) {
+      for (
+        let block = Math.min(startBlock, endBlock);
+        block <= Math.max(startBlock, endBlock);
+        block++
+      ) {
         curAffectedBlocks.push([col, block])
         oldDragState.blocksAffectedDuringDrag.add(`${col}-${block}`)
       }
     }
 
-    if (startCol === endCol && startBlock === endBlock && (blockID == 0 || blockID == NUM_OF_TIME_BLOCKS)) {
+    if (
+      startCol === endCol &&
+      startBlock === endBlock &&
+      (blockID == 0 || blockID == NUM_OF_TIME_BLOCKS)
+    ) {
       curAffectedBlocks = []
     }
 
@@ -197,18 +241,26 @@ export default function CalBlock ({
 
     if (!isAdmin) {
       if (dragState.dragStartedOn) {
-        if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
+        if (
+          curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)
+        ) {
           oldCalState[user][columnID][blockID] = false
         } else {
-          if (dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)) {
+          if (
+            dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)
+          ) {
             oldCalState[user][columnID][blockID] = true
           }
         }
       } else {
-        if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
+        if (
+          curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)
+        ) {
           oldCalState[user][columnID][blockID] = true
         } else {
-          if (dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)) {
+          if (
+            dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)
+          ) {
             oldCalState[user][columnID][blockID] = false
           }
         }
@@ -224,7 +276,12 @@ export default function CalBlock ({
     setDragState(oldDragState)
 
     setCalanderState(oldCalState)
-  }, [isDraggable, dragState.dragStartedOn, dragState.dragStartedOnID, dragState.dragEndedOnID])
+  }, [
+    isDraggable,
+    dragState.dragStartedOn,
+    dragState.dragStartedOnID,
+    dragState.dragEndedOnID,
+  ])
 
   const createNewDrag = () => {
     const oldState = dragState
@@ -246,9 +303,11 @@ export default function CalBlock ({
 
   const handleMobileAvailabilitySelect = (event: any) => {
     const touch = event.touches[0]
-    const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY)
+    const touchedElement = document.elementFromPoint(
+      touch.clientX,
+      touch.clientY
+    )
 
-    // @ts-expect-error
     const touchedEleId = touchedElement?.id
 
     if (!touchedEleId?.includes('-')) {
@@ -256,7 +315,9 @@ export default function CalBlock ({
     }
 
     // @ts-expect-error
-    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id?.split('-').map(Number)
+    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
+      ?.split('-')
+      .map(Number)
 
     if (obtainedBlockID === undefined) {
       return
@@ -268,7 +329,7 @@ export default function CalBlock ({
 
     setDragState((oldState) => ({
       ...oldState,
-      dragEndedOnID: [obtainedColumnID, obtainedBlockID]
+      dragEndedOnID: [obtainedColumnID, obtainedBlockID],
     }))
   }
 
@@ -312,7 +373,7 @@ export default function CalBlock ({
 
     setDragState((oldState) => ({
       ...oldState,
-      dragEndedOnID: [columnID, blockID]
+      dragEndedOnID: [columnID, blockID],
     }))
   }
 
@@ -336,7 +397,7 @@ export default function CalBlock ({
       setChartedUsers({
         users: chartedUsers.users,
         available: availableUsers,
-        unavailable: unavailableUsers
+        unavailable: unavailableUsers,
       })
     }
   }
@@ -347,9 +408,11 @@ export default function CalBlock ({
 
     const touch = event.touches[0]
 
-    const touchedElement = document.elementFromPoint(touch.clientX, touch.clientY)
+    const touchedElement = document.elementFromPoint(
+      touch.clientX,
+      touch.clientY
+    )
 
-    // @ts-expect-error
     const touchedEleId = touchedElement?.id
 
     if (!touchedEleId?.includes('-')) {
@@ -357,7 +420,9 @@ export default function CalBlock ({
     }
 
     // @ts-expect-error
-    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id?.split('-').map(Number)
+    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
+      ?.split('-')
+      .map(Number)
     if (chartedUsers != undefined) {
       for (let i = 0; i < chartedUsers.users.length; i++) {
         const user = chartedUsers.users[i]
@@ -365,7 +430,10 @@ export default function CalBlock ({
 
         const indexOfCol = obtainedColumnID
 
-        if (oldData[user.id][indexOfCol][obtainedBlockID] == true || shadeColor == 'green-700') {
+        if (
+          oldData[user.id][indexOfCol][obtainedBlockID] == true ||
+          shadeColor == 'green-700'
+        ) {
           availableUsers.push(user)
         } else {
           unavailableUsers.push(user)
@@ -374,7 +442,7 @@ export default function CalBlock ({
       setChartedUsers({
         users: chartedUsers.users,
         available: availableUsers,
-        unavailable: unavailableUsers
+        unavailable: unavailableUsers,
       })
     }
   }
@@ -382,54 +450,52 @@ export default function CalBlock ({
   const borderTop = is30Minute ? '1px dotted #000' : 'none'
 
   return (
-        <div
-            draggable="true"
-            id={elementId}
-            ref={dragRef}
-            onClick={handleBlockClick}
-            onDragStart={handleDragStart}
-            onDragEnter={handleDesktopAvailabilitySelect}
-            onDragOver={handleDesktopAvailabilitySelect}
-            onMouseOver={handleDesktopHoverChartedUser}
-            onTouchStart={() => {
-              if (!isDraggable) {
-                return
-              }
+    <div
+      draggable="true"
+      id={elementId}
+      ref={dragRef}
+      onClick={handleBlockClick}
+      onDragStart={handleDragStart}
+      onDragEnter={handleDesktopAvailabilitySelect}
+      onDragOver={handleDesktopAvailabilitySelect}
+      onMouseOver={handleDesktopHoverChartedUser}
+      onTouchStart={() => {
+        if (!isDraggable) {
+          return
+        }
 
-              const dragStartEvent = new DragEvent('dragstart', {
-                bubbles: true,
-                cancelable: true,
-                dataTransfer: new DataTransfer()
-              })
+        const dragStartEvent = new DragEvent('dragstart', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: new DataTransfer(),
+        })
 
-              // this will trigger the dragStart handler.
-              if (dragRef.current) {
-                dragRef.current.dispatchEvent(dragStartEvent)
-              }
+        // this will trigger the dragStart handler.
+        if (dragRef.current) {
+          dragRef.current.dispatchEvent(dragStartEvent)
+        }
 
-              handleDesktopHoverChartedUser()
-            }}
-
-            onTouchMove={(e) => {
-              handleMobileAvailabilitySelect(e)
-              handleMobileHoverChartedUser(e)
-            }}
-
-            onMouseLeave={() => { setIsDottedBorder(false) }}
-            className={
-                (!isDraggable || (isDraggable && isAdmin)) === false
-                  ? (calendarState?.[user]?.[columnID]?.[blockID] ? `bg-${shadeColor} flex-1 w-16 p-0 h-3` : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`)
-                  : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
-            }
-
-            style={
-                {
-                  borderRight: '1px solid #000',
-                  borderTop,
-                  transition: 'background-color 0.2s ease'
-                }
-            }
-        >
-        </div>
+        handleDesktopHoverChartedUser()
+      }}
+      onTouchMove={(e) => {
+        handleMobileAvailabilitySelect(e)
+        handleMobileHoverChartedUser(e)
+      }}
+      onMouseLeave={() => {
+        setIsDottedBorder(false)
+      }}
+      className={
+        (!isDraggable || (isDraggable && isAdmin)) === false
+          ? calendarState?.[user]?.[columnID]?.[blockID]
+            ? `bg-${shadeColor} flex-1 w-16 p-0 h-3`
+            : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`
+          : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
+      }
+      style={{
+        borderRight: '1px solid #000',
+        borderTop,
+        transition: 'background-color 0.2s ease',
+      }}
+    ></div>
   )
 }

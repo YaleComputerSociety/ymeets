@@ -91,7 +91,7 @@ async function getEventById (id: EventId): Promise<void> {
           console.log('Issue retrieving participants.')
           reject(err)
         })
-
+        //@ts-ignore
         resolve()
       } else {
         console.log('Document does not exist.')
@@ -174,7 +174,6 @@ async function createEvent (eventDetails: EventDetails): Promise<Event | null> {
     const eventsRef = collection(db, 'events')
     setDoc(doc(eventsRef, id), {
       ...newEvent,
-      // @ts-expect-error
       participants: [eventDetails.adminAccountId]
     }) // addDoc as overwrite-safe alt
       .then((result: void) => {
@@ -495,7 +494,6 @@ function getLocationsVotes (): Record<Location, number> | any {
     const location = workingEvent.details.plausibleLocations[i]
     votes[location] = 0
     for (let i = 0; i < workingEvent.participants.length; i++) {
-      // @ts-expect-error
       const participant = workingEvent.participants[i]
       if (participant.location.includes(location)) {
         votes[location] += 1
@@ -509,7 +507,6 @@ function getLocationsVotes (): Record<Location, number> | any {
 function getLocationVotesByName (name: string): Location[] | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
-      // @ts-expect-error
       return workingEvent.participants[i].location
     }
   }
@@ -520,7 +517,6 @@ function getLocationVotesByName (name: string): Location[] | undefined {
 function getLocationVotesByAccountId (accountId: string): Location[] | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].accountId == accountId) {
-      // @ts-expect-error
       return workingEvent.participants[i].location
     }
   }

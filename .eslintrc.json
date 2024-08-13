@@ -14,8 +14,7 @@
   },
   "plugins": [
     "react",
-    "prettier",
-    "unused-imports"
+    "prettier"
   ],
   "settings": {
     "react": {
@@ -24,7 +23,6 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": ["warn", { "vars": "all", "args": "none" }]
   }
 }
