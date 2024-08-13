@@ -1,2 +1,2 @@
-import { GeneralPopup } from "./general_popup_component";
-export default GeneralPopup;
+import { GeneralPopup } from './general_popup_component'
+export default GeneralPopup

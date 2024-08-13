@@ -1,11 +1,9 @@
-import React from 'react';
+import React from 'react'
 
-//@ts-ignore
+// @ts-expect-error
 export const Popup = ({ isOpen, onClose, children, onCloseAndSubmit }) => {
-
   //
 
-  
   return (
     <>
       {isOpen && (
@@ -32,5 +30,5 @@ export const Popup = ({ isOpen, onClose, children, onCloseAndSubmit }) => {
         </div>
       )}
     </>
-  );
-};
+  )
+}

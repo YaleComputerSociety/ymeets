@@ -1,19 +1,18 @@
-import "./privacyPolicy.css"
+import './privacyPolicy.css'
 
 /**
- * 
- * @returns Page Component 
+ *
+ * @returns Page Component
  */
-export default function PrivacyPage() {
-    
-    return (
+export default function PrivacyPage () {
+  return (
         <div className="bg-sky-100 ml-20 mr-20">
 
           <h2 className="text-4xl">Understanding this Privacy Policy</h2>
 
             <h1 className="text-xl">ymeets is an app designed to make group scheudling more convenient, tailored to the Yale community.
             To accomplish this goal, we collect some data from your Google Account and Calendar if you chose to log in with Google.
-            
+
             </h1>
 
             <br></br>
@@ -28,8 +27,8 @@ export default function PrivacyPage() {
             <br></br>
             <br></br>
 
-            Cookies are used for login purposes. No information is given to other parties, except this site does include google analytics which records anonymized browsing behaviour. 
-            
+            Cookies are used for login purposes. No information is given to other parties, except this site does include google analytics which records anonymized browsing behaviour.
+
             <br></br>
             <br></br>
 
@@ -144,7 +143,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           <p>
-            <strong>Website</strong> refers to ymeets, accessible from{" "}
+            <strong>Website</strong> refers to ymeets, accessible from{' '}
             <a
               href="ymeets.com"
               rel="external nofollow noopener"
@@ -259,13 +258,13 @@ export default function PrivacyPage() {
         Cookies can be &quot;Persistent&quot; or &quot;Session&quot; Cookies.
         Persistent Cookies remain on Your personal computer or mobile device
         when You go offline, while Session Cookies are deleted as soon as You
-        close Your web browser. You can learn more about cookies on{" "}
+        close Your web browser. You can learn more about cookies on{' '}
         <a
           href="https://www.termsfeed.com/blog/cookies/#What_Are_Cookies"
-          target="_blank"
+          target="_blank" rel="noreferrer"
         >
           TermsFeed website
-        </a>{" "}
+        </a>{' '}
         article.
       </p>
       <p>
@@ -315,14 +314,14 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p>
-      We at ymeets.com use Google Analytics to collect data. We use this data 
-      to understand how you use our website so we can improve its design and 
-      functionality. 
+      We at ymeets.com use Google Analytics to collect data. We use this data
+      to understand how you use our website so we can improve its design and
+      functionality.
       </p>
       <p>
-      Google Analytics will process and collect your personal 
-      data (cookies and IP address) to give us information. Google Analytics 
-      will transfer your data to the United States and store it while we offer our service. 
+      Google Analytics will process and collect your personal
+      data (cookies and IP address) to give us information. Google Analytics
+      will transfer your data to the United States and store it while we offer our service.
       To learn more about Google's data transfer policies, <a href="https://policies.google.com/privacy/frameworks?hl=en-US">click here</a>.
       </p>
       <p>
@@ -591,8 +590,7 @@ export default function PrivacyPage() {
         to which we comply.
       </p>
 
-
       </div>
         </div>
-    )
+  )
 }

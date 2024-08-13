@@ -1,239 +1,224 @@
-import { useState, useEffect } from 'react';
-import './day_select_component.css';
-import CalanderComponent from '../calander_component';
-import frontendEventAPI from "../../../firebase/eventAPI";
-import { getAccountId, getAccountName } from "../../../firebase/events";
-import { useNavigate } from "react-router-dom";
-import Select from "react-dropdown-select";
-import Button from '../../utils/components/Button';
-import { useRef } from 'react';
-import InformationPopup from '../../utils/components/InformationPopup';
+import { useState, useEffect, useRef } from 'react'
+import './day_select_component.css'
+import CalanderComponent from '../calander_component'
+import frontendEventAPI from '../../../firebase/eventAPI'
+import { getAccountId, getAccountName } from '../../../firebase/events'
+import { useNavigate } from 'react-router-dom'
+import Select from 'react-dropdown-select'
+import Button from '../../utils/components/Button'
+import InformationPopup from '../../utils/components/InformationPopup'
 
 export const DaySelectComponent = () => {
+  // Default event start/end time values
+  const nineAM = new Date('January 1, 2023')
+  nineAM.setHours(9)
+  const fivePM = new Date('January 1, 2023')
+  fivePM.setHours(17)
 
-    // Default event start/end time values
-    const nineAM = new Date(`January 1, 2023`);
-    nineAM.setHours(9);
-    const fivePM = new Date(`January 1, 2023`);
-    fivePM.setHours(17);
+  const containerRef = useRef(null)
+  const [containerWidth, setContainerWidth] = useState(0)
 
-    const containerRef = useRef(null);
-    const [containerWidth, setContainerWidth] = useState(0);
-  
+  useEffect(() => {
+    if (containerRef.current) {
+      // @ts-expect-error
+      setContainerWidth(containerRef.current.offsetWidth)
+    }
+  }, [])
 
-    useEffect(() => {
-        if (containerRef.current) {
-            //@ts-ignore
-          setContainerWidth(containerRef.current.offsetWidth);
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        // @ts-expect-error
+        setContainerWidth(containerRef.current.offsetWidth)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => { window.removeEventListener('resize', handleResize) }
+  }, [])
+
+  const [eventName, setEventName] = useState('')
+  const [eventDescription, setEventDescription] = useState('')
+  const [startDate, setStartDate] = useState(nineAM)
+  const [endDate, setEndDate] = useState(fivePM)
+  const [selectedDates, setSelectedDates] = useState([])
+  const [popUpMessage, setPopupMessage] = useState('')
+  const [popUpIsOpen, setPopupIsOpen] = useState(false)
+  const [locations, updateLocationsState] = useState<string[]>([])
+  const [locationOptions, setLocationOptions] = useState<any[]>([
+    {
+      label: '17 Hillhouse',
+      value: '17 Hillhouse'
+    },
+    {
+      label: 'Bass',
+      value: 'Bass'
+    },
+    {
+      label: 'HQ',
+      value: 'HQ'
+    },
+    {
+      label: 'LC',
+      value: 'LC'
+    },
+    {
+      label: 'Sterling',
+      value: 'Sterling'
+    },
+    {
+      label: 'TSAI City',
+      value: 'TSAI City'
+    },
+    {
+      label: 'WLH',
+      value: 'WLH'
+    }
+  ])
+
+  const handleUpdateStartTime = (time: Date) => {
+    setStartDate(time)
+  }
+
+  const handleUpdateEndTime = (time: Date) => {
+    setEndDate(time)
+  }
+
+  const [selectedDays, setSelectedDays] = useState({
+    SUN: {
+      dateObj: new Date(2000, 0, 2),
+      selected: false
+    },
+    MON: {
+      dateObj: new Date(2000, 0, 3),
+      selected: false
+    },
+    TUE: {
+      dateObj: new Date(2000, 0, 4),
+      selected: false
+    },
+    WED: {
+      dateObj: new Date(2000, 0, 5),
+      selected: false
+    },
+    THU: {
+      dateObj: new Date(2000, 0, 6),
+      selected: false
+    },
+    FRI: {
+      dateObj: new Date(2000, 0, 7),
+      selected: false
+    },
+    SAT: {
+      dateObj: new Date(2000, 0, 8),
+      selected: false
+    }
+  })
+
+  const [selectGeneralDays, setSelectGeneralDays] = useState(false)
+
+  const showAlert = (message: string) => {
+    setPopupMessage(message)
+    setPopupIsOpen(true)
+  }
+
+  const navigate = useNavigate()
+
+  const updateLocations = (values: any) => {
+    console.log(values)
+    updateLocationsState(values)
+  }
+
+  const removeAndUpdateLocations = (toRemove: any) => {
+    return () => {
+      const tmp_locations: any = []
+      for (let i = 0; i < locations.length; i++) {
+        if (locations[i] != toRemove) {
+          tmp_locations.push(locations[i])
         }
-      }, []);
-    
-      useEffect(() => {
-        const handleResize = () => {
-          if (containerRef.current) {
-            //@ts-ignore
-            setContainerWidth(containerRef.current.offsetWidth);
-          }
-        };
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-      }, []);
-    
-    const [eventName, setEventName] = useState('');
-    const [eventDescription, setEventDescription] = useState('');
-    const [startDate, setStartDate] = useState(nineAM);
-    const [endDate, setEndDate] = useState(fivePM);
-    const [selectedDates, setSelectedDates] = useState([]);
-    const [popUpMessage, setPopupMessage] = useState("");
-    const [popUpIsOpen, setPopupIsOpen] = useState(false);
-    const [locations, updateLocationsState] = useState<string[]>([]);
-    const [locationOptions, setLocationOptions] = useState<any[]>([
-        {
-            label : "17 Hillhouse",
-            value : "17 Hillhouse"
-        },
-        {
-            label : "Bass",
-            value : "Bass",
-        },
-        {
-            label : "HQ",
-            value : "HQ"
-        },
-        {
-            label : "LC",
-            value : "LC"
-        },
-        {
-            label : "Sterling",
-            value : "Sterling"
-        },
-        {
-            label : "TSAI City",
-            value : "TSAI City"
-        },
-        {
-            label : "WLH",
-            value : "WLH"
-        }
-    ]);
-
-    const handleUpdateStartTime = (time: Date) => {
-        setStartDate(time)
+      }
+      updateLocationsState(tmp_locations)
+    }
+  }
+  const verifyNextAndSubmitEvent = () => {
+    if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
+        endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {
+      // alert('Make sure to enter times!');
+      alert('Make sure to enter times!')
+      return
     }
 
-    const handleUpdateEndTime = (time: Date) => {
-        setEndDate(time)
+    if (startDate >= endDate) {
+      // alert('Make sure your end time is after your start time!');
+      alert('Make sure your end time is after your start time!')
+      return
     }
 
-    const [selectedDays, setSelectedDays] = useState({
-        "SUN" : {
-            dateObj : new Date(2000, 0, 2),
-            selected : false
-        },
-        "MON" : {
-            dateObj : new Date(2000, 0, 3),
-            selected : false
-        },
-        "TUE" : {
-            dateObj : new Date(2000, 0, 4),
-            selected : false
-        },
-        "WED" : {
-            dateObj : new Date(2000, 0, 5),
-            selected : false
-        },
-        "THU" : {
-            dateObj : new Date(2000, 0, 6),
-            selected : false
-        },
-        "FRI" : {
-            dateObj : new Date(2000, 0, 7),
-            selected : false
-        },
-        "SAT" : {
-            dateObj : new Date(2000, 0, 8),
-            selected : false
-        },
-    })
-
-    const [selectGeneralDays, setSelectGeneralDays] = useState(false);
-
-    const showAlert = (message: string) => {
-        setPopupMessage(message);
-        setPopupIsOpen(true);
-    };
-
-    const navigate = useNavigate();
-
-    const updateLocations = (values: any) => {
-        console.log(values);
-        updateLocationsState(values);
+    // Optional; backend supports an empty string for name
+    if (eventName.length == 0) {
+      // alert('Make sure to name your event!');
+      alert('Make sure to name your event!')
+      return
     }
 
-    const removeAndUpdateLocations = (toRemove: any) => {
-        return () => {
-            const tmp_locations: any = [];
-            for (let i = 0; i < locations.length; i++) {
-                if (locations[i] != toRemove) {
-                    tmp_locations.push(locations[i]);
-                }
-            }
-            updateLocationsState(tmp_locations);
+    if (selectGeneralDays) {
+      const generallySelectedDates: Date[] = []
+
+      console.log(selectedDays)
+
+      Object.keys(selectedDays).forEach((day) => {
+        // @ts-expect-error
+        if (selectedDays[day].selected === true) {
+          // @ts-expect-error
+          generallySelectedDates.push(selectedDays[day].dateObj)
         }
+      })
+
+      if (generallySelectedDates.length == 0) {
+        alert('You need to pick some days!')
+        return
+      }
+
+      console.log(generallySelectedDates)
+
+      frontendEventAPI.createNewEvent(
+        eventName,
+        eventDescription,
+        getAccountName(), // admin name
+        getAccountId(), // admin ID
+        generallySelectedDates,
+        locations, // plaus locs
+        startDate,
+        endDate
+      ).then((ev) => {
+        navigate('/timeselect/' + ev?.publicId)
+      })
+    } else {
+      if (selectedDates.length == 0) {
+        // alert('Make sure to enter dates!');
+        alert('Make sure to enter dates!')
+        return
+      }
+
+      frontendEventAPI.createNewEvent(
+        eventName,
+        eventDescription,
+        getAccountName(), // admin name
+        getAccountId(), // admin ID
+        selectedDates,
+        locations, // plaus locs
+        startDate,
+        endDate
+      ).then((ev) => {
+        navigate('/timeselect/' + ev?.publicId)
+      })
     }
-    const verifyNextAndSubmitEvent = () => {
+  }
 
-        
-        if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
-        endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {            
-            // alert('Make sure to enter times!');
-            alert('Make sure to enter times!');
-            return;
-        }
+  const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
+    setSelectGeneralDays(tab === 'General Days')
+  }
 
-        if (startDate >= endDate) {
-            // alert('Make sure your end time is after your start time!');
-            alert('Make sure your end time is after your start time!');
-            return;
-        }
-
-        // Optional; backend supports an empty string for name
-        if (eventName.length == 0) {
-            // alert('Make sure to name your event!');
-            alert('Make sure to name your event!');
-            return;
-        }
-
-        if (selectGeneralDays) {
-
-            let generallySelectedDates : Date[] = []
-
-            console.log(selectedDays);
-
-            Object.keys(selectedDays).forEach((day) => {
-                //@ts-ignore
-                if (selectedDays[day].selected === true) {
-                    //@ts-ignore
-                    generallySelectedDates.push(selectedDays[day].dateObj)
-                }
-            });
-
-            if (generallySelectedDates.length == 0) { 
-                alert('You need to pick some days!');
-                return;
-            }
-
-            console.log(generallySelectedDates);
-
-            frontendEventAPI.createNewEvent(
-                eventName,
-                eventDescription,
-                // @ts-ignore 
-                getAccountName(), // admin name
-                getAccountId(), // admin ID
-                //@ts-ignore
-                generallySelectedDates,
-                locations, // plaus locs
-                startDate,
-                endDate
-            ).then((ev) => {
-                navigate("/timeselect/" + ev?.publicId)
-            })
-
-
-
-        } else {
-
-            if (selectedDates.length == 0) {
-                // alert('Make sure to enter dates!');
-                alert('Make sure to enter dates!');
-                return;
-            }
-    
-            frontendEventAPI.createNewEvent(
-                eventName,
-                eventDescription,
-                // @ts-ignore 
-                getAccountName(), // admin name
-                getAccountId(), // admin ID
-                selectedDates,
-                locations, // plaus locs
-                startDate,
-                endDate
-            ).then((ev) => {
-                navigate("/timeselect/" + ev?.publicId)
-            })
-
-        }
-
-    }
-
-    const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
-        setSelectGeneralDays(tab === 'General Days');
-    };
-       
-    return (
+  return (
         <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
             <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6">
                 <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 ">
@@ -244,96 +229,88 @@ export const DaySelectComponent = () => {
                             className="p-3 px-4 text-base w-[80%] border rounded-lg"
                             placeholder="Event Name"
                             value={eventName}
-                            onChange={(e) => setEventName(e.target.value)}
-                        
+                            onChange={(e) => { setEventName(e.target.value) }}
+
                         />
                     </div>
                     <div className="w-[100%] flex flex-row justify-center md:justify-start">
                         <textarea
                             id="event-description"
-                            style={{ resize: "none" }}
+                            style={{ resize: 'none' }}
                             className="p-3 px-4 text-base w-[80%] border rounded-lg"
                             placeholder="Event Description (Optional)"
                             value={eventDescription}
-                            onChange={(e) => setEventDescription(e.target.value)}
+                            onChange={(e) => { setEventDescription(e.target.value) }}
                             rows={1}
                         />
                     </div>
 
                     <div className="mt-0">
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2" ref={containerRef}>
-                               <Select  
-                                    style={{ height: "100%", zIndex:1000}} 
-                                    multi
-                                    create={true}
-                                    onCreateNew={(newItem) => {
-                                        console.log(newItem);
-                                        setLocationOptions((oldOptions: any) => {
-                                            return [...oldOptions, newItem];
-                                        });
-                                    }}
-                                    options={locationOptions} 
-                                    clearOnSelect={false}
-                                    values={[]} 
-                                    onChange={(values) => {                        
-                                        const selectedValues = values.map((val) => val.value);
-                                        updateLocationsState(selectedValues)
-                        
-                                    }}
-                                    dropdownPosition="auto"
-                                    contentRenderer={({ props, state }) => {
-                                        let widthUsed = 0;
-                                        const itemStyles = {
-                                          display: 'inline-block',
+                            <Select
+                                style={{ height: '100%', zIndex: 1000 }}
+                                multi
+                                create={false}
+                                options={locationOptions}
+                                clearOnSelect={false}
+                                values={[]}
+                                onChange={(values) => {
+                                  const selectedValues = values.map((val) => val.value)
+                                  updateLocationsState(selectedValues)
+                                }}
+                                dropdownPosition="auto"
+                                contentRenderer={({ props, state }) => {
+                                  let widthUsed = 0
+                                  const itemStyles = {
+                                    display: 'inline-block',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    marginRight: '5px',
+                                    padding: '2px 5px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px'
+                                  }
+                                  const itemsToRender = state.values.filter((item) => {
+                                    const itemWidth = 100
+                                    if (widthUsed + itemWidth <= containerWidth) {
+                                      widthUsed += itemWidth
+                                      return true
+                                    }
+                                    return false
+                                  })
+
+                                  return (
+                                        <div style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          overflow: 'hidden',
                                           textOverflow: 'ellipsis',
                                           whiteSpace: 'nowrap',
-                                          overflow: 'hidden',
-                                          marginRight: '5px',
-                                          padding: '2px 5px',
-                                          border: '1px solid #ccc',
-                                          borderRadius: '8px',
-                                        };
-                                        const itemsToRender = state.values.filter((item) => {
-                                          const itemWidth = 100; // Adjust this value based on your estimation or measurement
-                                          if (widthUsed + itemWidth <= containerWidth) {
-                                            widthUsed += itemWidth;
-                                            return true;
-                                          }
-                                          return false;
-                                        });
-                              
-                                        return (
-                                            <div style={{
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              overflow: 'hidden',
-                                              textOverflow: 'ellipsis',
-                                              whiteSpace: 'nowrap',
-                                              minHeight: '36px', // Adjust the min-height as needed
-                                              minWidth: "20vw",
-                                              padding: '8px', // Adjust padding to make it look balanced
-                                              fontSize: "16px"
-                                            }}>
-                                              {itemsToRender.length === 0 && <span style={{ color: 'gray', fontStyle: 'italic' }}>Enter Possible Locations (Optional)</span>}
-                                              {itemsToRender.map((item, index) => (
-                                                //@ts-ignore
+                                          minHeight: '36px', // Adjust the min-height as needed
+                                          minWidth: '20vw',
+                                          padding: '8px', // Adjust padding to make it look balanced
+                                          fontSize: '16px'
+                                        }}>
+                                            {itemsToRender.length === 0 && <span style={{ color: 'gray', fontStyle: 'italic' }}>Enter Possible Locations (Optional)</span>}
+                                            {itemsToRender.map((item, index) => (
+                                                // @ts-expect-error
                                                 <div key={index} style={itemStyles}>
-                                                  {item.label}
+                                                    {item.label}
                                                 </div>
-                                              ))}
-                                              {state.values.length > itemsToRender.length && <span style={{ paddingLeft: '5px' }}>...</span>}
-                                            </div>
-                                          );
-                                          
-                                      }}
-                                    // className="w-[80%] border rounded-lg p-3 px-4 text-base"
-                                />
-
-
+                                            ))}
+                                            {state.values.length > itemsToRender.length && <span style={{ paddingLeft: '5px' }}>...</span>}
+                                        </div>
+                                  )
+                                }}
+                                noDataRenderer={() => (
+                                    <div className="p-2 text-center">No location options set :(</div>
+                                )}
+                            />
                         </div>
                         <div className="mb-6">
-                            <InformationPopup 
-                                content='                                    
+                            <InformationPopup
+                                content='
                                     Type and click ENTER to add options not listed.
                                 '
                             />
@@ -352,17 +329,17 @@ export const DaySelectComponent = () => {
                         </div>
                     </div>
                 </div>
-                
+
             </div>
-            
+
             <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-                {/* <Button 
+                {/* <Button
                     bgColor='blue-500'
                     textColor='white'
                     onClick={() => {setSelectGeneralDays((oldState) => {
                         return !oldState
                     })}}
-                >   
+                >
                     {
                         selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
                     }
@@ -370,7 +347,7 @@ export const DaySelectComponent = () => {
 
                 <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
                     <button
-                        onClick={() => handleTabChange('Specific Days')}
+                        onClick={() => { handleTabChange('Specific Days') }}
                         className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
                         selectGeneralDays ? 'text-black' : 'text-white'
                         }`}
@@ -383,7 +360,7 @@ export const DaySelectComponent = () => {
                         />
                     </button>
                     <button
-                        onClick={() => handleTabChange('General Days')}
+                        onClick={() => { handleTabChange('General Days') }}
                         className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
                         selectGeneralDays ? 'text-white' : 'text-black'
                         }`}
@@ -396,36 +373,36 @@ export const DaySelectComponent = () => {
                         />
                     </button>
                 </div>
-             
+
                 <div className="w-full h-2/4 xs:mb-2 md:mb-0">
-            
-                    <CalanderComponent 
+
+                    <CalanderComponent
                         theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
                         theGeneralDays={[selectedDays, setSelectedDays]}
                         theEventName={[eventName, setEventName]}
                         selectedStartDate={[startDate, setStartDate]}
                         selectedEndDate={[endDate, setEndDate]}
-                        // @ts-ignore
+                        // @ts-expect-error
                         theSelectedDates={[selectedDates, setSelectedDates]}
                         popUpOpen={[popUpIsOpen, setPopupIsOpen]}
                         popUpMessage={[popUpMessage, setPopupMessage]}
-    
-                    />  
-                
+
+                    />
+
                 </div>
                 <div className='flex items-center justify-center'>
-                <Button 
+                <Button
                     textColor='white'
                     bgColor='blue-500'
                     onClick={verifyNextAndSubmitEvent}
-                    
+
                 >
                                     Next
                 </Button>
                 </div>
             </div>
-            
+
         </div>
 
-    );
+  )
 }

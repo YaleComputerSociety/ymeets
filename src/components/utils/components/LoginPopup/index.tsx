@@ -1,2 +1,2 @@
-import { LoginPopup } from "./login_guest_popup";
-export default LoginPopup;
+import { LoginPopup } from './login_guest_popup'
+export default LoginPopup

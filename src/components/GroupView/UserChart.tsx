@@ -1,34 +1,34 @@
-import React from "react";
-import ChartRow from "./UserChartRow";
-import { userData } from "../../types";
+import React from 'react'
+import ChartRow from './UserChartRow'
+import { userData } from '../../types'
 
 interface UserChartProps {
-    chartedUsersData: [userData[], React.Dispatch<React.SetStateAction<userData[]>>];
+  chartedUsersData: [userData[], React.Dispatch<React.SetStateAction<userData[]>>]
 }
 
 /**
- * 
+ *
  * Renders who is available during certain time blocks
- * 
+ *
  * @param UserChart
  * @returns Page Support Component - Admin View
  */
 const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
-    const [chartedUsers, setChartedUsers] = chartedUsersData;
+  const [chartedUsers, setChartedUsers] = chartedUsersData
 
-    console.log(chartedUsers);
+  console.log(chartedUsers)
 
-    // @ts-ignore
-    const numRows = Math.max(chartedUsers.available.length, chartedUsers.unavailable.length);
+  // @ts-expect-error
+  const numRows = Math.max(chartedUsers.available.length, chartedUsers.unavailable.length)
 
-    const rows: [string, string][] = Array.from({ length: numRows }, (_, i) => ([
-        //@ts-ignore
-        chartedUsers.available[i]?.name || "",
-        //@ts-ignore
-        chartedUsers.unavailable[i]?.name || ""
-    ]));
+  const rows: Array<[string, string]> = Array.from({ length: numRows }, (_, i) => ([
+    // @ts-expect-error
+    chartedUsers.available[i]?.name || '',
+    // @ts-expect-error
+    chartedUsers.unavailable[i]?.name || ''
+  ]))
 
-    return (
+  return (
         <div className="flex justify-center items-center text-center bg-white rounded-lg">
             <table className="table-fixed border-collapse w-full">
                 <thead>
@@ -44,7 +44,7 @@ const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
                 </tbody>
             </table>
         </div>
-    );
-};
+  )
+}
 
-export default UserChart;
+export default UserChart

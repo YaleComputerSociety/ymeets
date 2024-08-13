@@ -1,2 +1,2 @@
-import { DaySelectComponent } from "./day_select_component";
-export default DaySelectComponent;
+import { DaySelectComponent } from './day_select_component'
+export default DaySelectComponent

@@ -19,7 +19,7 @@
   }
 
 .react-calendar__tile--active:hover {
-    /* background-color: none; */
+    background-color: none;
 }
 
 .react-calendar__month-view__weekdays {

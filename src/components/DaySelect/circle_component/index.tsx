@@ -1,2 +1,2 @@
-import { CircleComponent } from "./circle_component";
-export default CircleComponent;
+import { CircleComponent } from './circle_component'
+export default CircleComponent
