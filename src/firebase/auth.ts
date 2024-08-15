@@ -15,7 +15,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
     // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
     let formerName = ''
     if (auth.currentUser?.isAnonymous) {
-      console.log('User is already signed in anonymously')
       formerName = auth.currentUser.displayName || ''
     }
 
@@ -23,7 +22,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
       if (gapi) {
         const auth2 = gapi.auth2.getAuthInstance()
         auth2.signIn().then((googleUser: any) => {
-          console.log('Signed in as: ' + googleUser)
           if (handleIsSignedIn) { handleIsSignedIn(true) }
 
           if (formerName !== '') {
@@ -42,7 +40,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
         try {
           signInWithRedirect(auth, googleProvider)
             .then((googleUser: any) => {
-              console.log('Signed in as: ' + googleUser)
               if (handleIsSignedIn) { handleIsSignedIn(true) }
 
               if (formerName !== '') {
@@ -97,15 +94,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
 //     }
 // }, [authInstance, user, createCalendarEvent]);
 
-onAuthStateChanged(auth, async (user) => {
-  console.log(user)
-  if (user) {
-    console.log('Logged in ', user)
-  } else {
-    console.log('Logged out')
-  }
-})
-
 // logout
 const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
   if (loadedGAPI === null) {
@@ -122,8 +110,6 @@ const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
   auth2.signOut().then(() => {
     signOut(auth)
   })
-
-  console.log('signed out')
 }
 
 export {

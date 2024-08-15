@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot, deleteDoc, writeBatch, FieldValue, deleteField } from 'firebase/firestore'
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types'
 import { auth, db } from './firebase'
@@ -88,17 +90,15 @@ async function getEventById (id: EventId): Promise<void> {
         await getParticipants(collection(db, 'events', id, 'participants')).then((parts) => {
           workingEvent.participants = parts
         }).catch((err) => {
-          console.log('Issue retrieving participants.')
           reject(err)
         })
         //@ts-ignore
         resolve()
       } else {
-        console.log('Document does not exist.')
         reject('Document not found')
       }
     }).catch((err) => {
-      console.log('Caught ' + err + ' with message ' + err.msg)
+      console.error('Caught ' + err + ' with message ' + err.msg)
       reject(err)
     })
   })
@@ -179,7 +179,6 @@ async function createEvent (eventDetails: EventDetails): Promise<Event | null> {
       .then((result: void) => {
         resolve(newEvent)
       }).catch((err) => {
-        console.log(err.msg)
         reject(err)
       })
   })
@@ -195,7 +194,6 @@ const getParticipantIndex = (name: string, accountId: string = ''): number | und
       index = i
     }
   }
-  // console.log("Found index: ", index);
   return index
 }
 
@@ -214,7 +212,7 @@ const getParticipants = async (reference: CollectionReference<DocumentData>): Pr
 
       resolve(parts)
     }).catch((err) => {
-      console.log('Caught ' + err + ' with message ' + err.msg)
+      console.error('Caught ' + err + ' with message ' + err.msg)
       reject(err)
     })
   })
@@ -235,7 +233,7 @@ async function saveEventDetails (eventDetails: EventDetails) {
     }).then(() => {
       resolve()
     }).catch((err) => {
-      console.log(err.msg)
+      console.error(err.msg)
       reject(err)
     })
   })
@@ -257,7 +255,6 @@ async function saveParticipantDetails (participant: Participant): Promise<void> 
     }
   })
   if (!flag) {
-    console.log('Adding new participant')
     workingEvent.participants.push(participant)
 
     // Update Backend: add user uid to particpants list of event object
@@ -268,7 +265,7 @@ async function saveParticipantDetails (participant: Participant): Promise<void> 
         participants: arrayUnion(accountId)
 
       }).catch((err) => {
-        console.log(err.msg)
+        console.error(err.msg)
       })
     }
   }
@@ -292,7 +289,6 @@ async function saveParticipantDetails (participant: Participant): Promise<void> 
       location: participant.location || ''
 
     }).then(() => {
-      console.log('Saved participant details')
       resolve()
     }).catch((err) => {
       console.error('Failed to save participant details. Error', err.msg)
@@ -304,7 +300,6 @@ async function saveParticipantDetails (participant: Participant): Promise<void> 
 async function updateAnonymousUserToAuthUser (name: string) {
   const accountName = getAccountName()
   const accountId = getAccountId()
-  console.log(accountName)
 
   try {
     if (accountName === '') Promise.reject('User is not signed in')
@@ -349,7 +344,7 @@ async function updateAnonymousUserToAuthUser (name: string) {
 
     await batch.commit(); return
   } catch (err) {
-    console.log(err)
+    console.error(err)
   };
 }
 
@@ -425,7 +420,6 @@ async function getEventOnPageload (id: string): Promise<void> {
 
   // To avoid caching (TODO?)
   if (workingEvent && workingEvent.publicId == id.toUpperCase()) {
-    console.log('Already loaded event, skipping')
     await Promise.resolve(); return
   } else {
     await getEventById(id.toUpperCase()); return
@@ -468,7 +462,6 @@ function getAllAvailabilities (): Availability[] {
   const avails: Availability[] = []
 
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    console.log('exeucted!')
     // @ts-expect-error
     avails.push(JSON.parse(workingEvent.participants[i].availability))
   }
@@ -532,8 +525,8 @@ function getEmails (): string[] {
   return emails
 }
 
-function getZoomLink (): string {
-  return workingEvent.details.zoomLink || ''
+function getZoomLink (): string | undefined {
+  return workingEvent.details.zoomLink || undefined
 }
 
 function getDates (): Date[] {
@@ -545,19 +538,6 @@ function getStartAndEndTimes (): Date[] {
 }
 
 function getEventObjectForGCal () {
-  console.log({
-    summary: workingEvent.details.name,
-    location: workingEvent.details.chosenLocation,
-    description: workingEvent.details.description,
-    start: {
-      dateTime: workingEvent.details.chosenStartDate,
-      timeZone: 'America/New_York'
-    },
-    end: {
-      dateTime: workingEvent.details.chosenEndDate,
-      timeZone: 'America/New_York'
-    }
-  })
   return {
     summary: workingEvent.details.name,
     location: workingEvent.details.chosenLocation,

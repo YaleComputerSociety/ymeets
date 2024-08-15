@@ -9,7 +9,7 @@ import { signInWithGoogle } from '../../firebase/auth'
  *
  * @returns Page Support Component - Admin View
  */
-function AddToGoogleCalendarButton (): JSX.Element {
+function AddToGoogleCalendarButton(): JSX.Element {
   const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext)
   const [loading, setLoading] = useState(false)
 
@@ -25,9 +25,8 @@ function AddToGoogleCalendarButton (): JSX.Element {
         // @ts-expect-error
         const request = await gapi.client.calendar.events.insert({
           calendarId: 'primary',
-          resource: event
+          resource: event,
         })
-        console.log(request)
       } catch (e) {
         console.error('Error creating user event: ', e)
         setLoading(false)
@@ -36,21 +35,35 @@ function AddToGoogleCalendarButton (): JSX.Element {
 
       setLoading(false)
       alert('Exporting to Google Calendar!')
-    }, [gapi])
+    },
+    [gapi]
+  )
 
   if (loading || GAPILoading) {
-    return (
-            <p>Loading...</p>
-    )
+    return <p>Loading...</p>
   }
 
-  return (<>
-        <button className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm w-full
+  return (
+    <>
+      <button
+        className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm w-full
         transform transition-transform hover:scale-90 active:scale-100e"
-            onClick={getAccountId() !== '' ? async () => { await createCalendarEvent(getEventObjectForGCal()) } : () => { signInWithGoogle(undefined, gapi, handleIsSignedIn) }}>
-                {getAccountId() !== '' ? 'Add to Google Calendar' : 'Sign in to Google to Add to GCAL'}
-        </button>
-    </>)
+        onClick={
+          getAccountId() !== ''
+            ? async () => {
+                await createCalendarEvent(getEventObjectForGCal())
+              }
+            : () => {
+                signInWithGoogle(undefined, gapi, handleIsSignedIn)
+              }
+        }
+      >
+        {getAccountId() !== ''
+          ? 'Add to Google Calendar'
+          : 'Sign in to Google to Add to GCAL'}
+      </button>
+    </>
+  )
 }
 
 export default AddToGoogleCalendarButton

@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import { calanderState, userData, calendarDimensions } from '../../types'
 import eventAPI from '../../firebase/eventAPI'
@@ -12,10 +13,10 @@ import {
   getLocationOptions,
   setChosenLocation,
   getChosenDayAndTime,
-  updateAnonymousUserToAuthUser,
   getAccountName,
   setChosenDate,
   getChosenLocation,
+  getZoomLink,
 } from '../../firebase/events'
 import { useParams, useNavigate } from 'react-router-dom'
 import LocationChart from './LocationChart'
@@ -68,7 +69,7 @@ export default function AdminGroupViewPage() {
 
   const [loading, setLoading] = useState(true)
   const [showGeneralPopup, setShowGeneralPopup] = useState(false)
-  const [generalPopupMessage, setGeneralPopupMessage] = useState('')
+  const [generalPopupMessage] = useState('')
 
   const [dragState, setDragState] = useState({
     dragStartedOnID: [], // [columnID, blockID]
@@ -105,7 +106,7 @@ export default function AdminGroupViewPage() {
             // @ts-expect-error
             setSelectedDateTimeObjects(getChosenDayAndTime())
           })
-          .catch((err) => {
+          .catch(() => {
             nav('/notfound')
           })
       } else {
@@ -271,7 +272,6 @@ export default function AdminGroupViewPage() {
                       })
                     : 'not selected'}
                 </h3>
-
                 {locationOptions.length > 0 && (
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Location:</span>{' '}
@@ -280,7 +280,12 @@ export default function AdminGroupViewPage() {
                       : 'not selected'}
                   </h3>
                 )}
-
+                {getZoomLink() && (
+                  <h3 className="text-base text-center md:text-left">
+                    <span className="font-bold">Zoom Link:</span>{' '}
+                    {getZoomLink()}
+                  </h3>
+                )}
                 <button
                   onClick={() => {
                     copy(`${window.location.origin}/timeselect/${code}`)
@@ -302,8 +307,6 @@ export default function AdminGroupViewPage() {
                   {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
                   {copied ? 'Copied' : 'Shareable Link'}
                 </button>
-
-                <br />
                 {selectedLocation && (
                   <Button
                     textColor="white"
@@ -457,7 +460,12 @@ export default function AdminGroupViewPage() {
                       : 'not selected'}
                   </h3>
                 )}
-
+                {getZoomLink() && (
+                  <h3 className="text-base text-center md:text-left">
+                    <span className="font-bold">Zoom Link:</span>{' '}
+                    {getZoomLink()}
+                  </h3>
+                )}
                 <button
                   onClick={() => {
                     copy(`${window.location.origin}/timeselect/${code}`)

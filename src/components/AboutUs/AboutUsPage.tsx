@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from 'react'
 import no_person from './anon.jpeg'
 import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa'
@@ -129,7 +131,6 @@ function ContributorCard({
   github,
   image,
 }: ContributorCardProps) {
-  console.log(name, image)
   return (
     <div
       className="rounded-lg border min-w-fit bg-white mr-6 mb-6 shadow-lg \
@@ -244,7 +245,6 @@ export default function AboutUsPage() {
         <br />
         <div className="grid lg:grid-cols-4 md:grid-cols-2">
           {CONTRIBUTORS.map((c) => {
-            console.log(c)
             return (
               <ContributorCard
                 name={c.name}

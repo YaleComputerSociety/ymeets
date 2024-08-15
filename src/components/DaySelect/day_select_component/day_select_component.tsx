@@ -33,12 +33,14 @@ export const DaySelectComponent = () => {
       }
     }
     window.addEventListener('resize', handleResize)
-    return () => { window.removeEventListener('resize', handleResize) }
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   const [eventName, setEventName] = useState('')
   const [eventDescription, setEventDescription] = useState('')
-  // const [zoomLink, setZoomLink] = useState('')
+  const [zoomLink, setZoomLink] = useState('')
   const [startDate, setStartDate] = useState(nineAM)
   const [endDate, setEndDate] = useState(fivePM)
   const [selectedDates, setSelectedDates] = useState([])
@@ -48,33 +50,42 @@ export const DaySelectComponent = () => {
   const [locationOptions, setLocationOptions] = useState<any[]>([
     {
       label: '17 Hillhouse',
-      value: '17 Hillhouse'
+      value: '17 Hillhouse',
     },
     {
       label: 'Bass',
-      value: 'Bass'
+      value: 'Bass',
     },
     {
       label: 'HQ',
-      value: 'HQ'
+      value: 'HQ',
     },
     {
       label: 'LC',
-      value: 'LC'
+      value: 'LC',
     },
     {
       label: 'Sterling',
-      value: 'Sterling'
+      value: 'Sterling',
     },
     {
       label: 'TSAI City',
-      value: 'TSAI City'
+      value: 'TSAI City',
     },
     {
       label: 'WLH',
-      value: 'WLH'
-    }
+      value: 'WLH',
+    },
   ])
+
+  const handleCreate = (newOption: any) => {
+    // newOption contains the value of the new option created by the user
+    const newOptions = [
+      ...locationOptions,
+      { label: newOption, value: newOption.toLowerCase() },
+    ]
+    setLocationOptions(newOptions)
+  }
 
   const handleUpdateStartTime = (time: Date) => {
     setStartDate(time)
@@ -87,32 +98,32 @@ export const DaySelectComponent = () => {
   const [selectedDays, setSelectedDays] = useState({
     SUN: {
       dateObj: new Date(2000, 0, 2),
-      selected: false
+      selected: false,
     },
     MON: {
       dateObj: new Date(2000, 0, 3),
-      selected: false
+      selected: false,
     },
     TUE: {
       dateObj: new Date(2000, 0, 4),
-      selected: false
+      selected: false,
     },
     WED: {
       dateObj: new Date(2000, 0, 5),
-      selected: false
+      selected: false,
     },
     THU: {
       dateObj: new Date(2000, 0, 6),
-      selected: false
+      selected: false,
     },
     FRI: {
       dateObj: new Date(2000, 0, 7),
-      selected: false
+      selected: false,
     },
     SAT: {
       dateObj: new Date(2000, 0, 8),
-      selected: false
-    }
+      selected: false,
+    },
   })
 
   const [selectGeneralDays, setSelectGeneralDays] = useState(false)
@@ -125,7 +136,6 @@ export const DaySelectComponent = () => {
   const navigate = useNavigate()
 
   const updateLocations = (values: any) => {
-    console.log(values)
     updateLocationsState(values)
   }
 
@@ -141,8 +151,14 @@ export const DaySelectComponent = () => {
     }
   }
   const verifyNextAndSubmitEvent = () => {
-    if (startDate.getHours() === 0 && startDate.getMinutes() === 0 && startDate.getSeconds() === 0 &&
-        endDate.getHours() === 0 && endDate.getMinutes() === 0 && endDate.getSeconds() === 0) {
+    if (
+      startDate.getHours() === 0 &&
+      startDate.getMinutes() === 0 &&
+      startDate.getSeconds() === 0 &&
+      endDate.getHours() === 0 &&
+      endDate.getMinutes() === 0 &&
+      endDate.getSeconds() === 0
+    ) {
       // alert('Make sure to enter times!');
       alert('Make sure to enter times!')
       return
@@ -164,8 +180,6 @@ export const DaySelectComponent = () => {
     if (selectGeneralDays) {
       const generallySelectedDates: Date[] = []
 
-      console.log(selectedDays)
-
       Object.keys(selectedDays).forEach((day) => {
         // @ts-expect-error
         if (selectedDays[day].selected === true) {
@@ -179,21 +193,21 @@ export const DaySelectComponent = () => {
         return
       }
 
-      console.log(generallySelectedDates)
-
-      frontendEventAPI.createNewEvent(
-        eventName,
-        eventDescription,
-        getAccountName(), // admin name
-        getAccountId(), // admin ID
-        generallySelectedDates,
-        locations, // plaus locs
-        startDate,
-        endDate,
-        // zoomLink,
-      ).then((ev) => {
-        navigate('/timeselect/' + ev?.publicId)
-      })
+      frontendEventAPI
+        .createNewEvent(
+          eventName,
+          eventDescription,
+          getAccountName(), // admin name
+          getAccountId(), // admin ID
+          generallySelectedDates,
+          locations, // plaus locs
+          startDate,
+          endDate,
+          zoomLink
+        )
+        .then((ev) => {
+          navigate('/timeselect/' + ev?.publicId)
+        })
     } else {
       if (selectedDates.length == 0) {
         // alert('Make sure to enter dates!');
@@ -201,19 +215,21 @@ export const DaySelectComponent = () => {
         return
       }
 
-      frontendEventAPI.createNewEvent(
-        eventName,
-        eventDescription,
-        getAccountName(), // admin name
-        getAccountId(), // admin ID
-        selectedDates,
-        locations, // plaus locs
-        startDate,
-        endDate,
-        // zoomLink,
-      ).then((ev) => {
-        navigate('/timeselect/' + ev?.publicId)
-      })
+      frontendEventAPI
+        .createNewEvent(
+          eventName,
+          eventDescription,
+          getAccountName(), // admin name
+          getAccountId(), // admin ID
+          selectedDates,
+          locations, // plaus locs
+          startDate,
+          endDate,
+          zoomLink
+        )
+        .then((ev) => {
+          navigate('/timeselect/' + ev?.publicId)
+        })
     }
   }
 
@@ -221,202 +237,168 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days')
   }
 
+  const inputClasses = 'p-3 px-4 text-base border rounded-lg w-full md:w-[80%]'
+
   return (
-        <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-            <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6">
-                <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 ">
-                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                        <input
-                            id="event-name"
-                            type="text"
-                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                            placeholder="Event Name"
-                            value={eventName}
-                            onChange={(e) => { setEventName(e.target.value) }}
-
-                        />
+    <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
+      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6">
+        <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12">
+          <div className="w-[100%] flex flex-row justify-center md:justify-start">
+            <input
+              id="event-name"
+              type="text"
+              className={inputClasses}
+              placeholder="Event Name"
+              value={eventName}
+              onChange={(e) => {
+                setEventName(e.target.value)
+              }}
+            />
+          </div>
+          <div className="w-[100%] flex flex-row justify-center md:justify-start">
+            <textarea
+              id="event-description"
+              style={{ resize: 'none' }}
+              className={inputClasses}
+              placeholder="Event Description (Optional)"
+              value={eventDescription}
+              onChange={(e) => {
+                setEventDescription(e.target.value)
+              }}
+              rows={1}
+            />
+          </div>
+          <div className="w-[100%] flex flex-row justify-center md:justify-start">
+            <textarea
+              id="zoom-link"
+              style={{ resize: 'none' }}
+              className={inputClasses}
+              placeholder="Zoom Link (Optional)"
+              value={zoomLink}
+              onChange={(e) => {
+                setZoomLink(e.target.value)
+              }}
+              rows={1}
+            />
+          </div>
+          <div className="mt-0">
+            <div className="w-[100%] flex flex-row justify-center md:justify-start">
+              <div style={{ width: '80%' }}>
+                {' '}
+                {/* Ensure width matches the textarea */}
+                <Select
+                  style={{ height: '100%', zIndex: 1000, width: '100%' }} // Apply 100% width to match container
+                  multi
+                  create
+                  options={locationOptions}
+                  clearOnSelect={false}
+                  values={[]}
+                  onChange={(values) => {
+                    const selectedValues = values.map((val) => val.value)
+                    updateLocationsState(selectedValues)
+                  }}
+                  dropdownPosition="auto"
+                  placeholder="Select a location! (Optional)"
+                  noDataRenderer={() => (
+                    <div className="p-2 text-center">
+                      No location options set :(
                     </div>
-                    {/* Zoom link
-                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                        <textarea
-                            id="zoom-link"
-                            style={{ resize: 'none' }}
-                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                            placeholder="Zoom Link (Optional)"
-                            value={zoomLink}
-                            onChange={(e) => { setZoomLink(e.target.value) }}
-                            rows={1}
-                        />
-                    </div> */}
-                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
-                        <textarea
-                            id="event-description"
-                            style={{ resize: 'none' }}
-                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
-                            placeholder="Event Description (Optional)"
-                            value={eventDescription}
-                            onChange={(e) => { setEventDescription(e.target.value) }}
-                            rows={1}
-                        />
+                  )}
+                />
+              </div>
+            </div>
+            <div className="mt-1 mb-6">
+              <InformationPopup
+                content="
+                Type and click ENTER to add options not listed.
+              "
+              />
+              {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
+                {locations.map((location, index) => (
+                  <div className="flex w-[100%] justify-center md:justify-start">
+                    <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
+                      <div>{location}</div>
+                      <div>
+                        <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
                       </div>
-
-                    <div className="mt-0">
-                        <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2" ref={containerRef}>
-                            <Select
-                                style={{ height: '100%', zIndex: 1000 }}
-                                multi
-                                create={false}
-                                options={locationOptions}
-                                clearOnSelect={false}
-                                values={[]}
-                                onChange={(values) => {
-                                  const selectedValues = values.map((val) => val.value)
-                                  updateLocationsState(selectedValues)
-                                }}
-                                dropdownPosition="auto"
-                                contentRenderer={({ props, state }) => {
-                                  let widthUsed = 0
-                                  const itemStyles = {
-                                    display: 'inline-block',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    marginRight: '5px',
-                                    padding: '2px 5px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px'
-                                  }
-                                  const itemsToRender = state.values.filter((item) => {
-                                    const itemWidth = 100
-                                    if (widthUsed + itemWidth <= containerWidth) {
-                                      widthUsed += itemWidth
-                                      return true
-                                    }
-                                    return false
-                                  })
-
-                                  return (
-                                        <div style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          overflow: 'hidden',
-                                          textOverflow: 'ellipsis',
-                                          whiteSpace: 'nowrap',
-                                          minHeight: '36px', // Adjust the min-height as needed
-                                          minWidth: '20vw',
-                                          padding: '8px', // Adjust padding to make it look balanced
-                                          fontSize: '16px'
-                                        }}>
-                                            {itemsToRender.length === 0 && <span style={{ color: 'gray', fontStyle: 'italic' }}>Enter Possible Locations (Optional)</span>}
-                                            {itemsToRender.map((item, index) => (
-                                                <div key={index} style={itemStyles}>
-                                                    {item.label}
-                                                </div>
-                                            ))}
-                                            {state.values.length > itemsToRender.length && <span style={{ paddingLeft: '5px' }}>...</span>}
-                                        </div>
-                                  )
-                                }}
-                                noDataRenderer={() => (
-                                    <div className="p-2 text-center">No location options set :(</div>
-                                )}
-                            />
-                        </div>
-                        <div className="mb-6">
-                            <InformationPopup
-                                content='
-                                    Type and click ENTER to add options not listed.
-                                '
-                            />
-                            {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
-                                {locations.map((location, index) => (
-                                    <div className="flex w-[100%] justify-center md:justify-start">
-                                        <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
-                                            <div>{location}</div>
-                                            <div>
-                                                <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div> */}
-                        </div>
                     </div>
-                </div>
-
+                  </div>
+                ))}
+              </div> */}
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-                {/* <Button
-                    bgColor='blue-500'
-                    textColor='white'
-                    onClick={() => {setSelectGeneralDays((oldState) => {
-                        return !oldState
-                    })}}
-                >
-                    {
-                        selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
-                    }
-                </Button> */}
+      <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
+        {/* <Button
+          bgColor='blue-500'
+          textColor='white'
+          onClick={() => {setSelectGeneralDays((oldState) => {
+              return !oldState
+          })}}
+        >
+          {
+            selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
+          }
+        </Button> */}
 
-                <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
-                    <button
-                        onClick={() => { handleTabChange('Specific Days') }}
-                        className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
-                        selectGeneralDays ? 'text-black' : 'text-white'
-                        }`}
-                    >
-                        <span className="relative z-10">Specific Days</span>
-                        <div
-                        className={`absolute rounded-md transition-transform duration-300 ${
-                            selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
-                        } bg-blue-500`}
-                        />
-                    </button>
-                    <button
-                        onClick={() => { handleTabChange('General Days') }}
-                        className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
-                        selectGeneralDays ? 'text-white' : 'text-black'
-                        }`}
-                    >
-                        <span className="relative z-10">General Days</span>
-                        <div
-                        className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
-                            selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
-                        } bg-blue-500`}
-                        />
-                    </button>
-                </div>
-
-                <div className="w-full h-2/4 xs:mb-2 md:mb-0">
-
-                    <CalanderComponent
-                        theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
-                        theGeneralDays={[selectedDays, setSelectedDays]}
-                        theEventName={[eventName, setEventName]}
-                        selectedStartDate={[startDate, setStartDate]}
-                        selectedEndDate={[endDate, setEndDate]}
-                        // @ts-expect-error
-                        theSelectedDates={[selectedDates, setSelectedDates]}
-                        popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-                        popUpMessage={[popUpMessage, setPopupMessage]}
-
-                    />
-
-                </div>
-                <div className='flex items-center justify-center'>
-                <Button
-                    textColor='white'
-                    bgColor='blue-500'
-                    onClick={verifyNextAndSubmitEvent}
-
-                >
-                                    Next
-                </Button>
-                </div>
-            </div>
-
+        <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
+          <button
+            onClick={() => {
+              handleTabChange('Specific Days')
+            }}
+            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+              selectGeneralDays ? 'text-black' : 'text-white'
+            }`}
+          >
+            <span className="relative z-10">Specific Days</span>
+            <div
+              className={`absolute rounded-md transition-transform duration-300 ${
+                selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
+              } bg-blue-500`}
+            />
+          </button>
+          <button
+            onClick={() => {
+              handleTabChange('General Days')
+            }}
+            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+              selectGeneralDays ? 'text-white' : 'text-black'
+            }`}
+          >
+            <span className="relative z-10">General Days</span>
+            <div
+              className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
+                selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
+              } bg-blue-500`}
+            />
+          </button>
         </div>
 
+        <div className="w-full h-2/4 xs:mb-2 md:mb-0">
+          <CalanderComponent
+            theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
+            theGeneralDays={[selectedDays, setSelectedDays]}
+            theEventName={[eventName, setEventName]}
+            selectedStartDate={[startDate, setStartDate]}
+            selectedEndDate={[endDate, setEndDate]}
+            // @ts-expect-error
+            theSelectedDates={[selectedDates, setSelectedDates]}
+            popUpOpen={[popUpIsOpen, setPopupIsOpen]}
+            popUpMessage={[popUpMessage, setPopupMessage]}
+          />
+        </div>
+        <div className="flex items-center justify-center">
+          <Button
+            textColor="white"
+            bgColor="blue-500"
+            onClick={verifyNextAndSubmitEvent}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }

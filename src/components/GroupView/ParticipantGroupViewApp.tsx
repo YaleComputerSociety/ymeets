@@ -14,6 +14,7 @@ import {
   getParticipantIndex,
   getAccountId,
   getChosenDayAndTime,
+  getZoomLink,
 } from '../../firebase/events'
 import { useParams, useNavigate } from 'react-router-dom'
 import Calender from '../selectCalendarComponents/CalendarApp'
@@ -78,7 +79,6 @@ export default function ParticipantGroupViewPage() {
         await getEventOnPageload(code)
           .then(() => {
             const { availabilities, participants } = eventAPI.getCalendar()
-            // console.log("Avails: ", availabilities);
             const dates = eventAPI.getCalendarDimensions()
 
             setChartedUsers(participants)
@@ -97,8 +97,7 @@ export default function ParticipantGroupViewPage() {
             setSelectedLocation(getChosenLocation())
             setLoading(false)
           })
-          .catch((err) => {
-            console.log(err)
+          .catch(() => {
             nav('/notfound')
           })
       } else {
@@ -268,6 +267,12 @@ export default function ParticipantGroupViewPage() {
                     {selectedLocation !== undefined
                       ? selectedLocation
                       : 'not selected!'}
+                  </h3>
+                )}
+                {getZoomLink() && (
+                  <h3 className="text-base text-center md:text-left">
+                    <span className="font-bold">Zoom Link:</span>{' '}
+                    {getZoomLink()}
                   </h3>
                 )}
               </div>

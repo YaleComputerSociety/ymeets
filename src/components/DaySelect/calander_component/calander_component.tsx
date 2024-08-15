@@ -78,13 +78,7 @@ export const CalanderComponent = ({
 
   const [selectedDates, setSelectedDates] = theSelectedDates
 
-  useEffect(() => {
-    console.log(selectedDates)
-  }, [selectedDates])
-
   const addDay = (date: Date) => {
-    console.log('added date ' + date)
-
     const arr = [...selectedDates]
     arr.push(date)
     arr.sort((a: Date, b: Date) => {
@@ -96,8 +90,6 @@ export const CalanderComponent = ({
 
   const removeDay = (date: Date) => {
     const arr = selectedDates.filter((obj) => obj.getTime() != date.getTime())
-    console.log('The filtered arr')
-    console.log(arr)
     setSelectedDates(arr)
   }
 

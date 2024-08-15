@@ -11,24 +11,36 @@ interface GeneralPopupProps {
   isLogin: boolean
 }
 
-export const GeneralPopup: React.FC<GeneralPopupProps> = ({ onClose, message, isLogin }) => {
+export const GeneralPopup: React.FC<GeneralPopupProps> = ({
+  onClose,
+  message,
+  isLogin,
+}) => {
   const navigate = useNavigate()
 
   const gapiContext = useContext(GAPIContext)
 
   // Access properties or functions from the context
-  const { gapi, setGapi, authInstance, setAuthInstance, GAPILoading, setGAPILoading, handleIsSignedIn } = gapiContext
+  const {
+    gapi,
+    setGapi,
+    authInstance,
+    setAuthInstance,
+    GAPILoading,
+    setGAPILoading,
+    handleIsSignedIn,
+  } = gapiContext
 
   const handleSignInWithGoogle = () => {
-    signInWithGoogle(undefined, gapi, handleIsSignedIn).then((loginSuccessful) => {
-      if (loginSuccessful !== false) {
-        navigate('/dayselect')
-        onClose()
-        document.body.classList.remove('popup-open')
-      } else {
-        console.log('log in unsuccessful')
+    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+      (loginSuccessful) => {
+        if (loginSuccessful !== false) {
+          navigate('/dayselect')
+          onClose()
+          document.body.classList.remove('popup-open')
+        }
       }
-    })
+    )
   }
 
   React.useEffect(() => {
@@ -42,24 +54,29 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({ onClose, message, is
   }, [])
 
   return (
-      <div className="popup-overlay active">
-        <div className="popup-content p-10 mx-10 w-100">
-          <div className="flex flex-col items-center mb-1">
-            {!isLogin && (<button onClick={onClose} className="absolute top-1 right-3 h-fit">&times;</button>)}
-            <p className="text-xl">{message}</p>
-            {isLogin && (
-              <div className="mb-1 mt-5 text-center">
-                <button
-                  className='sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
-                              transform transition-transform hover:scale-90 active:scale-100e flex items-center'
-                  onClick={handleSignInWithGoogle}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with Google
-                </button>
-              </div>
-            )}
+    <div className="popup-overlay active">
+      <div className="popup-content p-10 mx-10 w-100">
+        <div className="flex flex-col items-center mb-1">
+          {!isLogin && (
+            <button onClick={onClose} className="absolute top-1 right-3 h-fit">
+              &times;
+            </button>
+          )}
+          <p className="text-xl">{message}</p>
+          {isLogin && (
+            <div className="mb-1 mt-5 text-center">
+              <button
+                className="sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
+                              transform transition-transform hover:scale-90 active:scale-100e flex items-center"
+                onClick={handleSignInWithGoogle}
+              >
+                <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with
+                Google
+              </button>
             </div>
+          )}
         </div>
       </div>
+    </div>
   )
 }

@@ -9,34 +9,33 @@ import { useParams } from 'react-router-dom'
  *
  * @returns Page Component
  */
-export default function GroupViewApp () {
+export default function GroupViewApp() {
   const [isAdmin, setIsAdmin] = useState(checkIfAdmin())
 
   const { code } = useParams()
 
   useEffect(() => {
     // @ts-expect-error
-    getEventOnPageload(code).then(() => {
-      setIsAdmin(checkIfAdmin())
-    }).catch((err) => {
-      console.log('code is wrong')
-    })
+    getEventOnPageload(code)
+      .then(() => {
+        setIsAdmin(checkIfAdmin())
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   }, [])
 
   return (
-        <>
-
-            {isAdmin
-              ? (
-                <div>
-                    <AdminGroupViewPage />
-                </div>
-                )
-              : (
-                <div>
-                    <ParticipantGroupViewPage />
-                </div>
-                )}
-        </>
+    <>
+      {isAdmin ? (
+        <div>
+          <AdminGroupViewPage />
+        </div>
+      ) : (
+        <div>
+          <ParticipantGroupViewPage />
+        </div>
+      )}
+    </>
   )
 }

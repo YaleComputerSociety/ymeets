@@ -8,7 +8,9 @@ interface GAPIContextType {
   gapi: typeof globalThis.gapi | null
   setGapi: React.Dispatch<React.SetStateAction<typeof globalThis.gapi | null>>
   authInstance: gapi.auth2.GoogleAuthBase | null
-  setAuthInstance: React.Dispatch<React.SetStateAction<gapi.auth2.GoogleAuthBase | null>>
+  setAuthInstance: React.Dispatch<
+    React.SetStateAction<gapi.auth2.GoogleAuthBase | null>
+  >
   // user: gapi.auth2.GoogleUser | null,
   // setUser: React.Dispatch<React.SetStateAction<gapi.auth2.GoogleUser | null>>,
   GAPILoading: boolean
@@ -25,14 +27,17 @@ export const GAPIContext = createContext<GAPIContextType>({
   // setUser: () => {},
   GAPILoading: true,
   setGAPILoading: () => {},
-  handleIsSignedIn: () => {}
+  handleIsSignedIn: () => {},
 })
 
 const GAPI_CLIENT_NAME = 'client:auth2'
 
-export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [gapi, setGapi] = useState<typeof globalThis.gapi | null>(null)
-  const [authInstance, setAuthInstance] = useState<gapi.auth2.GoogleAuthBase | null>(null)
+  const [authInstance, setAuthInstance] =
+    useState<gapi.auth2.GoogleAuthBase | null>(null)
   const [user, setUser] = useState<gapi.auth2.GoogleUser | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -42,15 +47,13 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) =>
       try {
         gapiInstance.client.load('calendar', 'v3')
       } catch {
-        gapiInstance.client.init({
-          apiKey: REACT_APP_API_KEY_GAPI,
-          clientId: REACT_APP_CLIENT_ID_GAPI,
-          scope: SCOPES
-        }).then(() => {
-          console.log('inited')
-        }
-
-        )
+        gapiInstance.client
+          .init({
+            apiKey: REACT_APP_API_KEY_GAPI,
+            clientId: REACT_APP_CLIENT_ID_GAPI,
+            scope: SCOPES,
+          })
+          .then(() => {})
         gapiInstance.client.load('calendar', 'v3')
       }
     })
@@ -58,7 +61,7 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) =>
 
   // Load gapi script and client
   useEffect(() => {
-    async function loadGapi () {
+    async function loadGapi() {
       const newGapi = await loadGapiInsideDOM()
       loadGapiClient(newGapi)
       const newAuth2 = await loadAuth2(
@@ -77,29 +80,17 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) =>
   }, [])
 
   const handleIsSignedIn = (isSignedIn: boolean) => {
-    console.log('Handing sign in (', isSignedIn, ') and gapiloaded: ', gapi)
     if (isSignedIn && gapi) {
       const auth2 = gapi.auth2.getAuthInstance()
       const currentUser = auth2.currentUser.get()
       const profile = currentUser.getBasicProfile()
-      console.log('gapi: user signed in!', {
-        name: profile.getName(),
-        imageURL: profile.getImageUrl(),
-        email: profile.getEmail()
-      })
       const authResponse = currentUser.getAuthResponse(true)
       const credential = GoogleAuthProvider.credential(
         authResponse.id_token,
         authResponse.access_token
       )
       signInWithCredential(auth, credential)
-        .then(({ user }) => {
-          console.log('firebase: user signed in!', {
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL
-          })
-        })
+        .then(({ user }) => {})
         .catch((error: any) => {
           console.error('firebase: error signing in!', error)
         })
@@ -107,25 +98,29 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   useEffect(() => {
-    if (!gapi) { return };
+    if (!gapi) {
+      return
+    }
     const auth2 = gapi.auth2.getAuthInstance()
     auth2.isSignedIn.listen(handleIsSignedIn)
     handleIsSignedIn(auth2.isSignedIn.get())
   }, [gapi])
 
   return (
-        <GAPIContext.Provider value={{
-          gapi,
-          setGapi,
-          authInstance,
-          setAuthInstance,
-          // user: user,
-          // setUser: setUser,
-          GAPILoading: loading,
-          setGAPILoading: setLoading,
-          handleIsSignedIn
-        }}>
-            {children}
-        </GAPIContext.Provider>
+    <GAPIContext.Provider
+      value={{
+        gapi,
+        setGapi,
+        authInstance,
+        setAuthInstance,
+        // user: user,
+        // setUser: setUser,
+        GAPILoading: loading,
+        setGAPILoading: setLoading,
+        handleIsSignedIn,
+      }}
+    >
+      {children}
+    </GAPIContext.Provider>
   )
 }

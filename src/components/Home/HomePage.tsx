@@ -38,7 +38,7 @@ export default function HomePage() {
         navigate('/timeselect/' + eventCode)
       })
       .catch((err) => {
-        console.log(err)
+        console.error(err)
         formValidationPopup('Code is invalid.')
       })
   }
