@@ -26,6 +26,7 @@
     "react/react-in-jsx-scope": "off",
     "no-unused-vars":"off",
     "no-undef": "off",
-    "no-unescaped-entities":"off"
+    "no-unescaped-entities": "off",
+    "jsx-key": "off"
   }
 }

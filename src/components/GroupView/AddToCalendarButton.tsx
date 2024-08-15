@@ -2,6 +2,7 @@ import { useState, useCallback, useContext } from 'react'
 import { getAccountId, getEventObjectForGCal } from '../../firebase/events'
 import { GAPIContext } from '../../firebase/gapiContext'
 import { signInWithGoogle } from '../../firebase/auth'
+import { LoadingAnim } from '../utils/components/LoadingAnim'
 
 /**
  *
@@ -40,7 +41,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
   )
 
   if (loading || GAPILoading) {
-    return <p>Loading...</p>
+    return <LoadingAnim />
   }
 
   return (

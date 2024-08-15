@@ -151,7 +151,7 @@ export default function AccountsPage() {
 
         {events === undefined ? (
           <div className="flex items-center justify-center">
-            <p>Loading...</p>
+            <LoadingAnim />
           </div>
         ) : undefined}
         {events && events.length != 0 ? (
