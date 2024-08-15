@@ -38,6 +38,7 @@ export const DaySelectComponent = () => {
 
   const [eventName, setEventName] = useState('')
   const [eventDescription, setEventDescription] = useState('')
+  // const [zoomLink, setZoomLink] = useState('')
   const [startDate, setStartDate] = useState(nineAM)
   const [endDate, setEndDate] = useState(fivePM)
   const [selectedDates, setSelectedDates] = useState([])
@@ -188,7 +189,8 @@ export const DaySelectComponent = () => {
         generallySelectedDates,
         locations, // plaus locs
         startDate,
-        endDate
+        endDate,
+        // zoomLink,
       ).then((ev) => {
         navigate('/timeselect/' + ev?.publicId)
       })
@@ -207,7 +209,8 @@ export const DaySelectComponent = () => {
         selectedDates,
         locations, // plaus locs
         startDate,
-        endDate
+        endDate,
+        // zoomLink,
       ).then((ev) => {
         navigate('/timeselect/' + ev?.publicId)
       })
@@ -233,6 +236,18 @@ export const DaySelectComponent = () => {
 
                         />
                     </div>
+                    {/* Zoom link
+                    <div className="w-[100%] flex flex-row justify-center md:justify-start">
+                        <textarea
+                            id="zoom-link"
+                            style={{ resize: 'none' }}
+                            className="p-3 px-4 text-base w-[80%] border rounded-lg"
+                            placeholder="Zoom Link (Optional)"
+                            value={zoomLink}
+                            onChange={(e) => { setZoomLink(e.target.value) }}
+                            rows={1}
+                        />
+                    </div> */}
                     <div className="w-[100%] flex flex-row justify-center md:justify-start">
                         <textarea
                             id="event-description"
@@ -243,7 +258,7 @@ export const DaySelectComponent = () => {
                             onChange={(e) => { setEventDescription(e.target.value) }}
                             rows={1}
                         />
-                    </div>
+                      </div>
 
                     <div className="mt-0">
                         <div className="w-[100%] flex flex-row justify-center md:justify-start mb-2 space-y-2" ref={containerRef}>
@@ -294,7 +309,6 @@ export const DaySelectComponent = () => {
                                         }}>
                                             {itemsToRender.length === 0 && <span style={{ color: 'gray', fontStyle: 'italic' }}>Enter Possible Locations (Optional)</span>}
                                             {itemsToRender.map((item, index) => (
-                                                // @ts-expect-error
                                                 <div key={index} style={itemStyles}>
                                                     {item.label}
                                                 </div>
