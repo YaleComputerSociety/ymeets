@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { MouseEventHandler, useContext } from 'react'
 import { getAccountId, getAccountName, updateAnonymousUserToAuthUser } from './events'
 

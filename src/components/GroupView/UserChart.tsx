@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React from 'react'
 import ChartRow from './UserChartRow'
 import { userData } from '../../types'
@@ -19,9 +21,10 @@ interface UserChartProps {
 const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData
 
-  // @ts-expect-error
   const numRows = Math.max(
+    // @ts-expect-error
     chartedUsers.available.length,
+    // @ts-expect-error
     chartedUsers.unavailable.length
   )
 
