@@ -54,7 +54,7 @@ export default class FrontendEventAPI {
      */
   static async createNewEvent (
     title: string, description: string, adminName: string, adminAccountId: string,
-    dates: Date[], plausibleLocations: Location[], startTime: Date, endTime: Date
+    dates: Date[], plausibleLocations: Location[], startTime: Date, endTime: Date, zoomLink: string = ''
   ): Promise<Event | null> {
     try {
       const ev: Event | null = await createEvent({
@@ -65,7 +65,8 @@ export default class FrontendEventAPI {
         dates,
         startTime,
         endTime,
-        plausibleLocations // TODO admin creator is not being added; maybe should be done on time select?
+        plausibleLocations, // TODO admin creator is not being added; maybe should be done on time select?
+        zoomLink: zoomLink,
       })
 
       return ev

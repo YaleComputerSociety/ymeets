@@ -532,6 +532,10 @@ function getEmails (): string[] {
   return emails
 }
 
+function getZoomLink (): string {
+  return workingEvent.details.zoomLink || ''
+}
+
 function getDates (): Date[] {
   return workingEvent.details.dates
 }
@@ -604,6 +608,7 @@ export {
   getLocationsVotes,
   getEventObjectForGCal,
   getEmails,
+  getZoomLink,
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
