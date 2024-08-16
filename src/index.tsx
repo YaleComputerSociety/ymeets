@@ -4,9 +4,7 @@ import './index.css'
 import Root from './Root'
 import { Favi } from './components/NavBar/CalendarIcon'
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root')!
-)
+const root = ReactDOM.createRoot(document.getElementById('root')!)
 root.render(
   <>
     <Favi></Favi>

@@ -13,27 +13,27 @@ import PrivacyPage from './components/Privacy/PrivacyPage'
 import { GAPIContextWrapper } from './firebase/gapiContext'
 import Banner from './components/utils/components/Banner'
 
-function Root () {
+function Root() {
   return (
-        <>
-        <Banner title="Now in alpha" text='Please report bugs'/>
+    <>
+      <Banner title="Now in alpha" text="Please report bugs" />
 
-        <GAPIContextWrapper>
-            <Router>
-                <NavBar></NavBar>
-                <Routes>
-                    <Route path='/' element={<HomePage />} />
-                    <Route path='/dayselect' element={<DaySelectComponent />} />
-                    <Route path='/timeselect/:code' element={<TimeSelectPage />} />
-                    <Route path='/groupview/:code' element={<GroupViewApp />} />
-                    <Route path="/useraccount" element={<AccountsPage />} />
-                    <Route path="/about-us" element={<AboutUsPage />} />
-                    <Route path="*" element={<NotFound/>} />
-                    <Route path="/privacy" element={<PrivacyPage/>} />
-                </Routes>
-            </Router>
-            </GAPIContextWrapper>
-        </>
+      <GAPIContextWrapper>
+        <Router>
+          <NavBar></NavBar>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dayselect" element={<DaySelectComponent />} />
+            <Route path="/timeselect/:code" element={<TimeSelectPage />} />
+            <Route path="/groupview/:code" element={<GroupViewApp />} />
+            <Route path="/useraccount" element={<AccountsPage />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+          </Routes>
+        </Router>
+      </GAPIContextWrapper>
+    </>
   )
 }
 
