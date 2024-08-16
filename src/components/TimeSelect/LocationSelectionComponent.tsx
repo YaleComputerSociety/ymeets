@@ -49,7 +49,7 @@ export function LocationSelectionComponent(props: any) {
             props.update(values.map((val: any) => val.value))
           }}
           dropdownPosition="auto"
-          placeholder="Select a location! (Optional)"
+          placeholder=" Select preferred location(s)"
           noDataRenderer={() => (
             <div className="p-2 text-center">No location options set :(</div>
           )}

@@ -275,43 +275,32 @@ function TimeSelectPage() {
   }
 
   return (
-    <div className="bg-sky-100 ml-5 w-[90%] md:w-[100%] items-center">
-      <div className="flex flex-col flex-wrap break-words text-wrap justify-center content-center md:flex-row md:mx-12">
-        {/* There was an mx-9 */}
-        <div className="flex flex-col flex-wrap justify-start sm:pt-12 md:w-[45%] md:pr-10 w-[100%] md:content-center">
-          <div className="mb-2">
-            <h3 className="text-m text-left text-gray-400 w-[100%] mb-0">
-              Event Name
-            </h3>
-            <h3 className="text-xl sm:text-3xl font-bold text-wrap text-left w-[100%] mb-4 mt-0">
-              {eventName}
-            </h3>
+    <div className="bg-sky-100 w-full px-4 md:px-8 lg:px-12">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between align-center justify-center items-center">
+        {/* Event details and location selection */}
+        <div className="w-[90%] md:w-full md:ml-[5%] md:mr-[2%] md:mt-[5%] md:w-[45%] mb-8 md:mb-0">
+          <div className="mb-4">
+            <h3 className="text-sm text-gray-400 mb-0">Event Name</h3>
+            <h3 className="text-2xl font-bold break-words mt-0">{eventName}</h3>
           </div>
 
           {eventDescription && (
-            <div className="mb-6">
-              <h3 className="text-m text-left text-gray-400 w-[100%] mb-0">
-                Description
-              </h3>
-              <h3 className="text-xl sm:text-2xl font-bold text-left text-wrap w-[100%] mb-4 mt-0">
-                {eventDescription}
-              </h3>
-            </div>
-          )}
-          {selectedDateTimeObjects == undefined && (
-            <div>
-              {locationOptions.length > 0 && (
-                <div className="flex-col content-center mt-5 mb-8 w-[100%]">
-                  <LocationSelectionComponent
-                    update={updateSelectedLocations}
-                    locations={locationOptions}
-                  />
-                </div>
-              )}
+            <div className="mb-10">
+              <h3 className="text-sm text-gray-400 mb-0">Description</h3>
+              <h3 className="text-xl font-bold break-words mt-0">{eventDescription}</h3>
             </div>
           )}
 
-          <div className="flex flex-col items-center justify-center">
+          {selectedDateTimeObjects == undefined && locationOptions.length > 0 && (
+            <div className="mb-8">
+              <LocationSelectionComponent
+                update={updateSelectedLocations}
+                locations={locationOptions}
+              />
+            </div>
+          )}
+
+          <div className="md:mt-4 flex flex-col items-center">
             <Button
               bgColor="blue-500"
               textColor="white"
@@ -319,18 +308,17 @@ function TimeSelectPage() {
             >
               Submit Availability
             </Button>
-            <br />
             {selectedDateTimeObjects !== undefined && (
-              <div className="text-gray text-2xl text-bold">
-                Note : You can't edit your availability because the admin has
-                already selected a time and/or location!
-              </div>
+              <p className="mt-4 text-center md:text-left text-gray-600">
+                Note: You can't edit your availability because the admin has already selected a time and/or location!
+              </p>
             )}
           </div>
         </div>
-        <div
-          className={`flex flex-col ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''} justify-center items-center content-center h-1/4 mt-0 md:w-[45%] sm:w-[100%] md:items-start mb-8`}
-        >
+
+        {/* Calendar section */}
+        <div className={`w-full md:w-[45%] ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
+          <div className="overflow-x-auto md:overflow-x-visible pb-4">
           <Calendar
             title={'Enter Your Availability'}
             // @ts-expect-error
@@ -356,6 +344,8 @@ function TimeSelectPage() {
               setGoogleCalendarEvents,
             ]}
           />
+          </div>
+
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
             <Button
               bgColor="blue-500"
@@ -378,62 +368,62 @@ function TimeSelectPage() {
           ) : (
             !areSelectingGeneralDays && (
               <button
-                className="sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-4 sm:px-6 text-md sm:text-lg w-fit \
-                                        transform transition-transform hover:scale-90 active:scale-100e flex items-center"
+                className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                 onClick={() => {
                   signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
                     (loginSuccessful) => {
                       if (loginSuccessful) {
-                        window.location.reload()
+                        window.location.reload();
                       } else {
-                        console.error('login failed')
+                        console.error('login failed');
                       }
                     }
-                  )
+                  );
                 }}
               >
-                <img src={LOGO} alt="Logo" className="mr-3 h-7" />
+                <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
                 Sign in with Google to access GCAL
               </button>
             )
           )}
-          <Popup
-            isOpen={isGcalPopupOpen}
-            onClose={closeGcalPopup}
-            onCloseAndSubmit={onPopupCloseAndSubmit}
-          >
-            <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
-            <FormGroup>
-              {googleCalendars.map((cal: any) => (
-                <FormControlLabel
-                  key={cal.id}
-                  control={
-                    <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
-                  }
-                  label={cal.summary}
-                  onChange={() => {
-                    setSelectedPopupIds((prevState) => {
-                      if (prevState?.includes(cal.id)) {
-                        // If the ID is already in the array, remove it
-                        return prevState.filter((id) => id !== cal.id)
-                      } else {
-                        // If the ID is not in the array, add it
-                        return [...(prevState || []), cal.id]
-                      }
-                    })
-                  }}
-                />
-              ))}
-            </FormGroup>
-          </Popup>
-          {promptUserForLogin && (
-            <LoginPopup
-              onClose={endPromptUserForLogin}
-              enableAnonymousSignIn={true}
-            />
-          )}
         </div>
       </div>
+      <Popup
+        isOpen={isGcalPopupOpen}
+        onClose={closeGcalPopup}
+        onCloseAndSubmit={onPopupCloseAndSubmit}
+      >
+        <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
+        <FormGroup>
+          {googleCalendars.map((cal: any) => (
+            <FormControlLabel
+              key={cal.id}
+              control={
+                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
+              }
+              label={cal.summary}
+              onChange={() => {
+                setSelectedPopupIds((prevState) => {
+                  if (prevState?.includes(cal.id)) {
+                    // If the ID is already in the array, remove it
+                    return prevState.filter((id) => id !== cal.id)
+                  } else {
+                    // If the ID is not in the array, add it
+                    return [...(prevState || []), cal.id]
+                  }
+                })
+              }}
+            />
+          ))}
+        </FormGroup>
+      </Popup>
+      {promptUserForLogin && (
+        <LoginPopup
+          onClose={endPromptUserForLogin}
+          enableAnonymousSignIn={true}
+        />
+      )}
     </div>
   )
 }
