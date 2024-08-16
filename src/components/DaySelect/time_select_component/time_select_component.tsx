@@ -7,11 +7,11 @@ export const TimeSelectComponent = (props: any) => {
     if (i === 0) {
       return '12:00 AM'
     } else if (i < 12) {
-      return i.toString().padStart(2, '0') + ':00 AM'
+      return `${i}:00 AM`
     } else if (i === 12) {
       return '12:00 PM'
     } else {
-      return (i - 12).toString().padStart(2, '0') + ':00 PM'
+      return `${i - 12}:00 PM`
     }
   }
 

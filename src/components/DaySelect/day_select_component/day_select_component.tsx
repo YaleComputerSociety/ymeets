@@ -237,13 +237,13 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days')
   }
 
-  const inputClasses = 'p-3 px-4 text-base border rounded-lg w-full md:w-[80%]'
+  const inputClasses = 'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white'
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
       <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6">
-        <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12">
-          <div className="w-[100%] flex flex-row justify-center md:justify-start">
+        <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
+          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
             <input
               id="event-name"
               type="text"
@@ -255,10 +255,9 @@ export const DaySelectComponent = () => {
               }}
             />
           </div>
-          <div className="w-[100%] flex flex-row justify-center md:justify-start">
+          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
             <textarea
               id="event-description"
-              style={{ resize: 'none' }}
               className={inputClasses}
               placeholder="Event Description (Optional)"
               value={eventDescription}
@@ -268,9 +267,10 @@ export const DaySelectComponent = () => {
               rows={1}
             />
           </div>
-          <div className="w-[100%] flex flex-row justify-center md:justify-start">
-            <textarea
+          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
+            <input
               id="zoom-link"
+              type="text"
               style={{ resize: 'none' }}
               className={inputClasses}
               placeholder="Zoom Link (Optional)"
@@ -278,16 +278,14 @@ export const DaySelectComponent = () => {
               onChange={(e) => {
                 setZoomLink(e.target.value)
               }}
-              rows={1}
+              // rows={1}
             />
           </div>
-          <div className="mt-0">
-            <div className="w-[100%] flex flex-row justify-center md:justify-start">
-              <div style={{ width: '80%' }}>
-                {' '}
-                {/* Ensure width matches the textarea */}
+          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center">
+            <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start">
+              <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper">
                 <Select
-                  style={{ height: '100%', zIndex: 1000, width: '100%' }} // Apply 100% width to match container
+                  className="react-dropdown-select"
                   multi
                   create
                   options={locationOptions}
@@ -297,17 +295,24 @@ export const DaySelectComponent = () => {
                     const selectedValues = values.map((val) => val.value)
                     updateLocationsState(selectedValues)
                   }}
-                  dropdownPosition="auto"
-                  placeholder="Select a location! (Optional)"
+                  placeholder="  Location Options (Optional)"
                   noDataRenderer={() => (
                     <div className="p-2 text-center">
-                      No location options set :(
+                      No matching preset locations :(
                     </div>
                   )}
+                  onDropdownOpen={() => {
+                    const handle = document.querySelector('.react-dropdown-select-dropdown-handle')
+                    if (handle) handle.classList.add('open')
+                  }}
+                  onDropdownClose={() => {
+                    const handle = document.querySelector('.react-dropdown-select-dropdown-handle')
+                    if (handle) handle.classList.remove('open')
+                  }}
                 />
               </div>
             </div>
-            <div className="mt-1 mb-6">
+            <div className="mt-2 mb-6">
               <InformationPopup
                 content="
                 Type and click ENTER to add options not listed.
@@ -363,7 +368,7 @@ export const DaySelectComponent = () => {
             onClick={() => {
               handleTabChange('General Days')
             }}
-            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative general-days-button ${
               selectGeneralDays ? 'text-white' : 'text-black'
             }`}
           >
@@ -388,6 +393,8 @@ export const DaySelectComponent = () => {
             popUpOpen={[popUpIsOpen, setPopupIsOpen]}
             popUpMessage={[popUpMessage, setPopupMessage]}
           />
+        </div>
+        <div className='mt-2'>
         </div>
         <div className="flex items-center justify-center">
           <Button

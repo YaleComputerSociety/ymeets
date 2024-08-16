@@ -1,20 +1,83 @@
+-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, textarea:-webkit-autofill, textarea:-webkit-autofill:hover, textarea:-webkit-autofill:focus, select:-webkit-autofill, select:-webkit-autofill:hover, select:-webkit-autofill:focus {
+  -webkit-text-fill-color: inherit;
+  -webkit-box-shadow: 0 0 0px 1000px white inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .App {
-    margin: auto;
-    margin-top: 3rem;
-    display: grid;
-    justify-items: center;
-    width: 80%;
-  }
-  
-  .react-calendar {
-    width: 100% !important;
+  margin: auto;
+  margin-top: 3rem;
+  display: grid;
+  justify-items: center;
+  width: 80%;
+}
+
+.react-calendar {
+  width: 100% !important;
+}
+
+.location-selection-option {
+  background-color: rgb(81, 148, 249);
+  color: white;
+}
+
+.drop-down-style {
+  width: 100%
+}
+
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-wrapper .react-dropdown-select {
+  width: 100% !important;
+  padding-right: 30px !important;
+  min-height: 20px !important;
+  height: auto !important;
+}
+
+.custom-select-wrapper .react-dropdown-select-content {
+  min-height: 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 5px 0;
+}
+
+.custom-select-wrapper .react-dropdown-select-item {
+  margin: 2px;
+}
+
+.custom-select-wrapper .react-dropdown-select-dropdown {
+  width: 100% !important;
+  top: 100% !important;
+  bottom: auto !important;
+}
+
+.custom-select-wrapper .react-dropdown-select-dropdown-handle {
+  position: absolute !important;
+  right: 10px !important;
+  top: 25px !important;
+  transform: translateY(-50%) !important;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-wrapper .react-dropdown-select-dropdown-handle.open {
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+@media (max-width: 767px) {
+  .custom-select-wrapper {
+    z-index: 10;
   }
 
-  .location-selection-option {
-    background-color: rgb(81, 148, 249);
-    color: white;
+  .custom-select-wrapper .react-dropdown-select-dropdown {
+    z-index: 11;
   }
 
-  .drop-down-style {
-    width : 100%
+  .general-days-button {
+    z-index: 1;
   }
+}

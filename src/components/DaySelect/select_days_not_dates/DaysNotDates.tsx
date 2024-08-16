@@ -39,7 +39,7 @@ export default function DaysNotDates ({ theSelectedDays, selectedStartDate, sele
                   [day]: { ...oldState[day], selected: !oldState[day]?.selected }
                 }))
               }}
-              className={`h-32 sm:h-48 border border-black rounded-md ${selectedDays[day]?.selected ? 'bg-green-500' : 'bg-white'}`}
+              className={`h-32 sm:h-48 border border-black rounded-md ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'bg-white'}`}
             ></div>
           </div>
         ))}
