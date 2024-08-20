@@ -35,7 +35,7 @@ export function LocationSelectionComponent(props: any) {
 
   return (
     <div className="w-[100%] flex flex-row justify-center md:justify-start z-50">
-      <div className='custom-select-wrapper'>
+      <div className='custom-select-wrapper-time'>
         {' '}
         {/* Ensure width matches the textarea */}
         <Select

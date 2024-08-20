@@ -300,7 +300,7 @@ function TimeSelectPage() {
             </div>
           )}
 
-          <div className="md:mt-4 flex flex-col items-center">
+          <div className="md:mt-8 flex flex-col items-center">
             <Button
               bgColor="blue-500"
               textColor="white"
@@ -317,7 +317,7 @@ function TimeSelectPage() {
         </div>
 
         {/* Calendar section */}
-        <div className={`w-[95%] md:w-[45%] ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
+        <div className={`w-[95%] md:w-[45%] right-column ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
           <div className="overflow-x-auto md:overflow-x-visible">
           <Calendar
             title={'Enter Your Availability'}

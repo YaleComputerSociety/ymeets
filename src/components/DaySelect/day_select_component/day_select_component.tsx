@@ -253,6 +253,7 @@ export const DaySelectComponent = () => {
               onChange={(e) => {
                 setEventName(e.target.value)
               }}
+              maxLength={40}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
@@ -265,6 +266,7 @@ export const DaySelectComponent = () => {
                 setEventDescription(e.target.value)
               }}
               rows={1}
+              maxLength={100}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
