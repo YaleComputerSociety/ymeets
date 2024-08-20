@@ -187,7 +187,7 @@ export default function PrivacyPage () {
       <h4>Usage Data</h4>
       <p>Usage Data is collected automatically when using the Service.</p>
       <p>
-        Usage Data may include information such as Your Device's Internet
+        Usage Data may include information such as Your Device&apos;s Internet
         Protocol address (e.g. IP address), browser type, browser version, the
         pages of our Service that You visit, the time and date of Your visit,
         the time spent on those pages, unique device identifiers and other
@@ -217,13 +217,13 @@ export default function PrivacyPage () {
       <p>
         If You decide to register through or otherwise grant us access to a
         Third-Party Social Media Service, We may collect Personal data that is
-        already associated with Your Third-Party Social Media Service's account,
+        already associated with Your Third-Party Social Media Service&apos;s account,
         such as Your name, Your email address, Your activities or Your contact
         list associated with that account.
       </p>
       <p>
         You may also have the option of sharing additional information with the
-        Company through Your Third-Party Social Media Service's account. If You
+        Company through Your Third-Party Social Media Service&apos;s account. If You
         choose to provide such information and Personal Data, during
         registration or otherwise, You are giving the Company permission to use,
         share, and store it in a manner consistent with this Privacy Policy.
@@ -322,7 +322,7 @@ export default function PrivacyPage () {
       Google Analytics will process and collect your personal
       data (cookies and IP address) to give us information. Google Analytics
       will transfer your data to the United States and store it while we offer our service.
-      To learn more about Google's data transfer policies, <a href="https://policies.google.com/privacy/frameworks?hl=en-US">click here</a>.
+      To learn more about Google&apos;s data transfer policies, <a href="https://policies.google.com/privacy/frameworks?hl=en-US">click here</a>.
       </p>
       <p>
         For more information about the cookies we use and your choices regarding
@@ -357,7 +357,7 @@ export default function PrivacyPage () {
           <p>
             <strong>To contact You:</strong> To contact You by email, telephone
             calls, SMS, or other equivalent forms of electronic communication,
-            such as a mobile application's push notifications regarding updates
+            such as a mobile application&apos;s push notifications regarding updates
             or informative communications related to the functionalities,
             products or contracted services, including the security updates,
             when necessary or reasonable for their implementation.
@@ -458,7 +458,7 @@ export default function PrivacyPage () {
       </p>
       <h3>Transfer of Your Personal Data</h3>
       <p>
-        Your information, including Personal Data, is processed at the Company's
+        Your information, including Personal Data, is processed at the Company&apos;s
         operating offices and in any other places where the parties involved in
         the processing are located. It means that this information may be
         transferred to — and maintained on — computers located outside of Your
@@ -535,7 +535,7 @@ export default function PrivacyPage () {
         means to protect Your Personal Data, We cannot guarantee its absolute
         security.
       </p>
-      <h2>Children's Privacy</h2>
+      <h2>Children&apos;s Privacy</h2>
       <p>
         Our Service does not address anyone under the age of 13. We do not
         knowingly collect personally identifiable information from anyone under
@@ -548,14 +548,14 @@ export default function PrivacyPage () {
       <p>
         If We need to rely on consent as a legal basis for processing Your
         information and Your country requires consent from a parent, We may
-        require Your parent's consent before We collect and use that
+        require Your parent&apos;s consent before We collect and use that
         information.
       </p>
       <h2>Links to Other Websites</h2>
       <p>
         Our Service may contain links to other websites that are not operated by
         Us. If You click on a third party link, You will be directed to that
-        third party's site. We strongly advise You to review the Privacy Policy
+        third party&apos;s site. We strongly advise You to review the Privacy Policy
         of every site You visit.
       </p>
       <p>
@@ -586,7 +586,7 @@ export default function PrivacyPage () {
       </ul>
       <h1 className="font-bold">Limited Use Agreeement</h1>
       <p>ymeets complies with the Google API Services User Data Policy, including the Limited Use requirements.
-        Here is a <span className="font-bold text-sky-900"><a className="text-sky-900" href="https://developers.google.com/terms/api-services-user-data-policy">link </a></span>to Google's API Service Data Policy, if you wish to learn more about the constraints
+        Here is a <span className="font-bold text-sky-900"><a className="text-sky-900" href="https://developers.google.com/terms/api-services-user-data-policy">link </a></span>to Google&apos;s API Service Data Policy, if you wish to learn more about the constraints
         to which we comply.
       </p>
 

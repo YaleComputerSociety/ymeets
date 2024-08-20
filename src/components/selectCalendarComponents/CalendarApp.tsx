@@ -68,7 +68,7 @@ export default function Calender({
   return (
     <div className="flex flex-col max-w-full">
       {hasTitle && (
-        <p className="text-3xl sm:text-4xl my-5 mb-4 sm:mb-1 sm:ml-6 font-bold">
+        <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
           {title}
         </p>
       )}

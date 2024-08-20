@@ -87,7 +87,7 @@ export default function HomePage()  {
                                     onClick={signInAndGoToEvent}> 
                                 Join 
                             </button>
-                            <div className={!showFormValidation ? "hidden" : "text-blue-500 absolute -bottom-10 text-center w-full"}>Try Again: {formErrorMessage}</div>
+                            <div className={!showFormValidation ? "hidden" : "text-blue-500 absolute -bottom-10 mb-2 text-center w-full"}>Try Again: {formErrorMessage}</div>
                         </div>
                     </div>
                 </div>

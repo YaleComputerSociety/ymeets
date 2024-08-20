@@ -317,8 +317,8 @@ function TimeSelectPage() {
         </div>
 
         {/* Calendar section */}
-        <div className={`w-full md:w-[45%] ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
-          <div className="overflow-x-auto md:overflow-x-visible pb-4">
+        <div className={`w-[95%] md:w-[45%] ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
+          <div className="overflow-x-auto md:overflow-x-visible">
           <Calendar
             title={'Enter Your Availability'}
             // @ts-expect-error
@@ -347,24 +347,26 @@ function TimeSelectPage() {
           </div>
 
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
-            <Button
-              bgColor="blue-500"
-              textColor="white"
-              onClick={() => {
-                fetchUserCals()
-                  .then((calendars) => {
-                    // @ts-expect-error
-                    setGoogleCalendars(calendars)
+            <div className="md:pl-4 z-60 mb-4 md:mb-0">
+              <Button
+                bgColor="blue-500"
+                textColor="white"
+                onClick={() => {
+                  fetchUserCals()
+                    .then((calendars) => {
+                      // @ts-expect-error
+                      setGoogleCalendars(calendars)
 
-                    setGcalPopupOpen(true)
-                  })
-                  .catch((error) => {
-                    console.error('Error fetching Google Calendars:', error)
-                  })
-              }}
-            >
-              Toggle GCal Availabilities
-            </Button>
+                      setGcalPopupOpen(true)
+                    })
+                    .catch((error) => {
+                      console.error('Error fetching Google Calendars:', error)
+                    })
+                }}
+              >
+                Toggle GCal Availabilities
+              </Button>
+            </div>
           ) : (
             !areSelectingGeneralDays && (
               <button

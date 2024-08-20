@@ -34,12 +34,12 @@ export function LocationSelectionComponent(props: any) {
   }, [])
 
   return (
-    <div className="w-[100%] flex flex-row justify-center md:justify-start">
-      <div style={{ width: '80%' }}>
+    <div className="w-[100%] flex flex-row justify-center md:justify-start z-50">
+      <div className='custom-select-wrapper'>
         {' '}
         {/* Ensure width matches the textarea */}
         <Select
-          style={{ height: '100%', zIndex: 1000, width: '100%' }} // Apply 100% width to match container
+          style={{ height: '100%', width: '100%' }} // Apply 100% width to match container
           multi
           create={false}
           options={options}

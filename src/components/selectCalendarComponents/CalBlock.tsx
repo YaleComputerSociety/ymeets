@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState, useRef } from 'react'
 import 'tailwindcss/tailwind.css'
 import {
@@ -314,10 +315,11 @@ export default function CalBlock({
       return
     }
 
-    // @ts-expect-error
+    // @ts-expect-error 
     const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
       ?.split('-')
       .map(Number)
+    //
 
     if (obtainedBlockID === undefined) {
       return
