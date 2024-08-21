@@ -214,7 +214,7 @@ export default function AdminGroupViewPage() {
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
+        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
           {showGeneralPopup && (
             <GeneralPopup
               onClose={() => {
@@ -224,139 +224,141 @@ export default function AdminGroupViewPage() {
               isLogin={false}
             />
           )}
+          <div className="flex flex-col flex-none md:w-[48%] mb-5 md:mt-0 space-y-5 items-center">
+            <div className="w-[100%] content-start align-start items-start">
+              {/* Edit availability button */}
 
-          <div className="flex flex-col content-center space-y-7 flex-none md:w-[32%] mb-5 md:content-start md:mt-0">
-            {/* Edit availability button */}
-
-            <div className="flex flex-row">
-              <div className="flex-grow">
-                <Button
-                  bgColor="blue-500"
-                  textColor="white"
-                  disabled={selectedDateTimeObjects != undefined}
-                  onClick={() => {
-                    nav('/timeselect/' + code)
-                  }}
-                >
-                  <span className="mr-1">&#8592;</span> Edit Your Availiability
-                </Button>
-              </div>
-            </div>
-
-            {/* Event name, location, and time */}
-
-            <div className="hidden mb-4 flex flex-col space-y-5 md:block">
-              <h3 className="text-3xl font-bold text-center md:text-left">
-                {eventName}
-              </h3>
-              <h3 className="text-xl  text-center md:text-left">
-                {eventDescription}
-              </h3>
-
-              <div className="flex flex-col">
-                <h3 className="text-base text-center md:text-left">
-                  <span className="font-bold">Time:</span>{' '}
-                  {selectedDateTimeObjects !== undefined
-                    ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                      }) +
-                      ' — ' +
-                      selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                      })
-                    : 'not selected'}
-                </h3>
-                {locationOptions.length > 0 && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Location:</span>{' '}
-                    {selectedLocation !== undefined
-                      ? selectedLocation
-                      : 'not selected'}
-                  </h3>
-                )}
-                {getZoomLink() && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Zoom Link:</span>{' '}
-                    {getZoomLink()}
-                  </h3>
-                )}
-                <button
-                  onClick={() => {
-                    copy(`${window.location.origin}/timeselect/${code}`)
-                    setCopied(true)
-                    setTimeout(() => {
-                      setCopied(false)
-                    }, 1000)
-                  }}
-                  className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                    copied ? 'bg-green-700' : 'bg-slate-100'
-                  } ${
-                    copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
-                  }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
-                    copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
-                  }  
-            
-                          transition-colors relative`}
-                >
-                  {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
-                  {copied ? 'Copied' : 'Shareable Link'}
-                </button>
-                {selectedLocation && (
+              <div className="flex flex-row ml-0 md:ml-4">
+                <div className="flex-grow">
                   <Button
-                    textColor="white"
                     bgColor="blue-500"
+                    textColor="white"
+                    disabled={selectedDateTimeObjects != undefined}
                     onClick={() => {
-                      window.open(
-                        'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                        '_blank'
-                      )
+                      nav('/timeselect/' + code)
                     }}
                   >
-                    Book Room
+                    <span className="mr-1">&#8592;</span> Edit Your Availiability
                   </Button>
-                )}
+                </div>
               </div>
             </div>
+            <div className="flex flex-col content-center space-y-7 md:w-[75%] flex-none mb-5 md:mt-0">
+              {/* Event name, location, and time */}
 
-            <div className="flex flex-row space-x-2">
-              {selectedDateTimeObjects ? (
-                <div className="w-full">
-                  <AddToGoogleCalendarButton />
+              <div className="hidden mb-4 flex flex-col space-y-5 md:block">
+                <h3 className="text-3xl font-bold text-center md:text-left">
+                  {eventName}
+                </h3>
+                <h3 className="text-xl  text-center md:text-left">
+                  {eventDescription}
+                </h3>
+
+                <div className="flex flex-col">
+                  <h3 className="text-base text-center md:text-left">
+                    <span className="font-bold">Time:</span>{' '}
+                    {selectedDateTimeObjects !== undefined
+                      ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        }) +
+                        ' — ' +
+                        selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })
+                      : 'not selected'}
+                  </h3>
+                  {locationOptions.length > 0 && (
+                    <h3 className="text-base text-center md:text-left">
+                      <span className="font-bold">Location:</span>{' '}
+                      {selectedLocation !== undefined
+                        ? selectedLocation
+                        : 'not selected'}
+                    </h3>
+                  )}
+                  {getZoomLink() && (
+                    <h3 className="text-base text-center md:text-left overflow-hidden">
+                      <span className="font-bold">Zoom Link:</span>{' '}
+                      {getZoomLink()}
+                    </h3>
+                  )}
+                  <button
+                    onClick={() => {
+                      copy(`${window.location.origin}/timeselect/${code}`)
+                      setCopied(true)
+                      setTimeout(() => {
+                        setCopied(false)
+                      }, 1000)
+                    }}
+                    className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                      copied ? 'bg-green-700' : 'bg-slate-100'
+                    } ${
+                      copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
+                    }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
+                      copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
+                    }  
+              
+                            transition-colors relative`}
+                  >
+                    {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
+                    {copied ? 'Copied' : 'Shareable Link'}
+                  </button>
+                  {selectedLocation && (
+                    <Button
+                      textColor="white"
+                      bgColor="blue-500"
+                      onClick={() => {
+                        window.open(
+                          'https://25live.collegenet.com/pro/yale#!/home/event/form',
+                          '_blank'
+                        )
+                      }}
+                    >
+                      Book Room
+                    </Button>
+                  )}
                 </div>
-              ) : undefined}
+              </div>
+
+              <div className="flex flex-row space-x-2">
+                {selectedDateTimeObjects ? (
+                  <div className="w-full">
+                    <AddToGoogleCalendarButton />
+                  </div>
+                ) : undefined}
+              </div>
+
+              {/* User availability table */}
+
+              {chartedUsers !== undefined && (
+                <UserChart
+                  // @ts-expect-error
+                  chartedUsersData={[chartedUsers, setChartedUsers]}
+                />
+              )}
+
+              {/* Location options table */}
+
+              {locationOptions.length > 0 && (
+                <LocationChart
+                  theSelectedLocation={[
+                    //@ts-expect-error
+                    adminChosenLocation,
+                    //@ts-expect-error
+                    setAdminChosenLocation,
+                  ]}
+                  locationOptions={
+                    locationOptions.length > 0 ? locationOptions : ['']
+                  }
+                  locationVotes={Object.values(locationVotes)}
+                />
+              )}
             </div>
-
-            {/* User availability table */}
-
-            {chartedUsers !== undefined && (
-              <UserChart
-                // @ts-expect-error
-                chartedUsersData={[chartedUsers, setChartedUsers]}
-              />
-            )}
-
-            {/* Location options table */}
-
-            {locationOptions.length > 0 && (
-              <LocationChart
-                theSelectedLocation={[
-                  //@ts-expect-error
-                  adminChosenLocation,
-                  //@ts-expect-error
-                  setAdminChosenLocation,
-                ]}
-                locationOptions={
-                  locationOptions.length > 0 ? locationOptions : ['']
-                }
-                locationVotes={Object.values(locationVotes)}
-              />
-            )}
           </div>
           <div className="max-w-[100%] lg:max-w-[50%] ">
             <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4">
