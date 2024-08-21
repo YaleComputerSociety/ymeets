@@ -213,7 +213,7 @@ export default function AdminGroupViewPage() {
 
   return (
     <>
-      <div className="flex justify-center m-10">
+      <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
         <div className="flex flex-col-reverse justify-center w-[90%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
           {showGeneralPopup && (
             <GeneralPopup

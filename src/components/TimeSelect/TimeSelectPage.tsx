@@ -369,24 +369,26 @@ function TimeSelectPage() {
             </div>
           ) : (
             !areSelectingGeneralDays && (
-              <button
-                className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
-                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                onClick={() => {
-                  signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                    (loginSuccessful) => {
-                      if (loginSuccessful) {
-                        window.location.reload();
-                      } else {
-                        console.error('login failed');
+              <div className='md:pl-4 mb-4 md:mb-0'>
+                <button
+                  className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                  onClick={() => {
+                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+                      (loginSuccessful) => {
+                        if (loginSuccessful) {
+                          window.location.reload();
+                        } else {
+                          console.error('login failed');
+                        }
                       }
-                    }
-                  );
-                }}
-              >
-                <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
-                Sign in with Google to access GCAL
-              </button>
+                    );
+                  }}
+                >
+                  <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
+                  Sign in with Google to access GCal
+                </button>
+              </div>
             )
           )}
         </div>

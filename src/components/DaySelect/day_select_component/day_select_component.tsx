@@ -241,7 +241,7 @@ export const DaySelectComponent = () => {
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-50">
+      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-49">
         <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
             <input
@@ -283,7 +283,7 @@ export const DaySelectComponent = () => {
               // rows={1}
             />
           </div>
-          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-50">
+          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-49">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start">
               <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper">
                 <Select

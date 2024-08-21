@@ -54,7 +54,7 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
   }, [])
 
   return (
-    <div className="popup-overlay active">
+    <div className="popup-overlay active z-100">
       <div className="popup-content p-10 mx-10 w-100">
         <div className="flex flex-col items-center mb-1">
           {!isLogin && (
