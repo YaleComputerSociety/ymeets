@@ -121,23 +121,22 @@ export default function ParticipantGroupViewPage() {
   return (
     <>
     <div className="flex justify-center items-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
+        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
           <div className="flex flex-col flex-none md:w-[48%] mb-5 md:mt-0 space-y-5 items-center">
             <div className="w-[100%] content-start align-start items-start">
               {/* Edit availability button */}
 
               <div className="flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
-                  <Button
-                    bgColor="blue-500"
-                    textColor="white"
-                    disabled={selectedDateTimeObjects != undefined}
-                    onClick={() => {
-                      nav('/timeselect/' + code)
-                    }}
-                  >
+                  <button
+                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                      disabled={selectedDateTimeObjects != undefined}
+                      onClick={() => {
+                        nav('/timeselect/' + code)
+                      }}
+                    >
                     <span className="mr-1">&#8592;</span> Edit Your Availiability
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -184,6 +183,14 @@ export default function ParticipantGroupViewPage() {
                       {selectedLocation !== undefined
                         ? selectedLocation
                         : 'not selected'}
+                    </h3>
+                  )}
+                  {getZoomLink() && (
+                    <h3 className="text-base text-center md:text-left">
+                      <span className="font-bold">Zoom Link:</span>{' '}
+                      <span className="inline-block w-full md:w-auto break-all">
+                        {getZoomLink()}
+                      </span>
                     </h3>
                   )}
                 </div>
@@ -273,12 +280,6 @@ export default function ParticipantGroupViewPage() {
                     {selectedLocation !== undefined
                       ? selectedLocation
                       : 'not selected!'}
-                  </h3>
-                )}
-                {getZoomLink() && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Zoom Link:</span>{' '}
-                    {getZoomLink()}
                   </h3>
                 )}
               </div>

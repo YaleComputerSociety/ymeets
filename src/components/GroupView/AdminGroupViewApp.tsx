@@ -214,7 +214,7 @@ export default function AdminGroupViewPage() {
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-20 xl:space-x-30">
+        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
           {showGeneralPopup && (
             <GeneralPopup
               onClose={() => {
@@ -230,7 +230,16 @@ export default function AdminGroupViewPage() {
 
               <div className="flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
-                  <Button
+                  <button
+                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                      disabled={selectedDateTimeObjects != undefined}
+                      onClick={() => {
+                        nav('/timeselect/' + code)
+                      }}
+                    >
+                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                  </button>
+                  {/* <Button
                     bgColor="blue-500"
                     textColor="white"
                     disabled={selectedDateTimeObjects != undefined}
@@ -239,7 +248,7 @@ export default function AdminGroupViewPage() {
                     }}
                   >
                     <span className="mr-1">&#8592;</span> Edit Your Availiability
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>
@@ -282,9 +291,11 @@ export default function AdminGroupViewPage() {
                     </h3>
                   )}
                   {getZoomLink() && (
-                    <h3 className="text-base text-center md:text-left overflow-hidden">
+                    <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      {getZoomLink()}
+                      <span className="inline-block w-full md:w-auto break-all">
+                        {getZoomLink()}
+                      </span>
                     </h3>
                   )}
                   <button
@@ -293,20 +304,16 @@ export default function AdminGroupViewPage() {
                       setCopied(true)
                       setTimeout(() => {
                         setCopied(false)
-                      }, 1000)
+                      }, 1500)
                     }}
                     className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                      copied ? 'bg-green-700' : 'bg-slate-100'
-                    } ${
-                      copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
-                    }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
-                      copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
-                    }  
-              
-                            transition-colors relative`}
+                      copied
+                        ? 'bg-green-500 hover:bg-green-500 text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
                   >
-                    {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
-                    {copied ? 'Copied' : 'Shareable Link'}
+                    {<IconCopy className="inline-block w-4 lg:w-5" />}
+                    {copied ? 'Copied' : 'Shareable ymeets Link'}
                   </button>
                   {selectedLocation && (
                     <Button
