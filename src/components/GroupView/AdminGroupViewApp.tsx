@@ -214,7 +214,7 @@ export default function AdminGroupViewPage() {
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
+        <div className="flex flex-col-reverse justify-center w-[100%] md:px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
           {showGeneralPopup && (
             <GeneralPopup
               onClose={() => {
@@ -224,11 +224,11 @@ export default function AdminGroupViewPage() {
               isLogin={false}
             />
           )}
-          <div className="flex flex-col flex-none md:w-[48%] mb-5 md:mt-0 space-y-5 items-center">
+          <div className="flex flex-col flex-none md:w-[48%] mb-4 md:mt-0 space-y-5 items-center">
             <div className="w-[100%] content-start align-start items-start">
               {/* Edit availability button */}
 
-              <div className="flex flex-row ml-0 md:ml-4">
+              <div className="hidden md:block flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
                   <button
                       className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
@@ -239,20 +239,10 @@ export default function AdminGroupViewPage() {
                     >
                     <span className="mr-1">&#8592;</span> Edit Your Availiability
                   </button>
-                  {/* <Button
-                    bgColor="blue-500"
-                    textColor="white"
-                    disabled={selectedDateTimeObjects != undefined}
-                    onClick={() => {
-                      nav('/timeselect/' + code)
-                    }}
-                  >
-                    <span className="mr-1">&#8592;</span> Edit Your Availiability
-                  </Button> */}
                 </div>
               </div>
             </div>
-            <div className="flex flex-col content-center space-y-7 md:w-[75%] flex-none mb-5 md:mt-0">
+            <div className="flex flex-col content-center space-y-1 md:w-[75%] flex-none mb-5 md:mt-0">
               {/* Event name, location, and time */}
 
               <div className="hidden mb-4 flex flex-col space-y-5 md:block">
@@ -341,13 +331,14 @@ export default function AdminGroupViewPage() {
               </div>
 
               {/* User availability table */}
-
-              {chartedUsers !== undefined && (
-                <UserChart
-                  // @ts-expect-error
-                  chartedUsersData={[chartedUsers, setChartedUsers]}
-                />
-              )}
+              <div className="mb-2">
+                {chartedUsers !== undefined && (
+                  <UserChart
+                    // @ts-expect-error
+                    chartedUsersData={[chartedUsers, setChartedUsers]}
+                  />
+                )}
+              </div>
 
               {/* Location options table */}
 
@@ -368,7 +359,7 @@ export default function AdminGroupViewPage() {
             </div>
           </div>
           <div className="max-w-[100%] lg:max-w-[50%] ">
-            <div className="flex flex-col content-center grow overflow-x-auto md:content-end pl-4">
+            <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
               <Calendar
                 title={''}
                 // @ts-expect-error
@@ -393,7 +384,7 @@ export default function AdminGroupViewPage() {
               />
             </div>
 
-            <div className="pl-6">
+            <div className="pl-3">
               {!selectedDateTimeObjects && (
                 <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
                   {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
@@ -435,82 +426,96 @@ export default function AdminGroupViewPage() {
             </div>
           </Popup>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
-
-            <div className="mb-4 flex flex-col space-y-5 mt-4">
-              <h3 className="text-3xl font-bold text-center md:text-left">
-                {eventName}
-              </h3>
-              <h3 className="text-md text-center md:text-left">
-                {eventDescription}
-              </h3>
-
-              <div className="flex flex-col">
-                <h3 className="text-base text-center md:text-left">
-                  <span className="font-bold">Time:</span>{' '}
-                  {selectedDateTimeObjects !== undefined
-                    ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : 'not selected'}
+            <div className="w-[100%] content-start align-start items-start">
+              <div className="flex flex-row ml-0 md:ml-4">
+                <div className="flex-grow ml-2">
+                  <button
+                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                      disabled={selectedDateTimeObjects != undefined}
+                      onClick={() => {
+                        nav('/timeselect/' + code)
+                      }}
+                    >
+                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col content-center space-y-1 w-[80%] flex-none mb-5 md:mt-0">
+              <div className="mb-4 flex flex-col space-y-2 mt-4">
+                <h3 className="text-2xl font-bold text-center mb-0">
+                  {eventName}
+                </h3>
+                <h3 className="text-md text-left mt-0">
+                  {eventDescription}
                 </h3>
 
-                {locationOptions.length > 0 && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Location:</span>{' '}
-                    {selectedLocation !== undefined
-                      ? selectedLocation
+                <div className="flex flex-col">
+                  <h3 className="text-base text-center">
+                    <span className="font-bold">Time:</span>{' '}
+                    {selectedDateTimeObjects !== undefined
+                      ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                       : 'not selected'}
                   </h3>
-                )}
-                {getZoomLink() && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Zoom Link:</span>{' '}
-                    {getZoomLink()}
-                  </h3>
-                )}
-                <button
-                  onClick={() => {
-                    copy(`${window.location.origin}/timeselect/${code}`)
-                    setCopied(true)
-                    setTimeout(() => {
-                      setCopied(false)
-                    }, 1000)
-                  }}
-                  className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                    copied ? 'bg-green-700' : 'bg-slate-100'
-                  } ${
-                    copied ? 'hover:text-slate-700' : 'hover:text-slate-700'
-                  }  border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg ${
-                    copied ? 'hover:bg-green-700' : 'hover:bg-slate-200'
-                  }  
-            
-                          transition-colors relative`}
-                >
-                  {copied ? 'Copied' : 'Click to copy shareable link'}
-                  {!copied && <IconCopy className="inline-block w-4 lg:w-5" />}
-                </button>
 
-                <div className="flex justify-center">
-                  {selectedLocation && (
-                    <button
-                      onClick={() => {
-                        window.open(
-                          'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                          '_blank'
-                        )
-                      }}
-                      className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
-                    >
-                      Book Room
-                    </button>
+                  {locationOptions.length > 0 && (
+                    <h3 className="text-base text-center md:text-left">
+                      <span className="font-bold">Location:</span>{' '}
+                      {selectedLocation !== undefined
+                        ? selectedLocation
+                        : 'not selected'}
+                    </h3>
                   )}
+                  {getZoomLink() && (
+                    <h3 className="text-base text-center">
+                      <span className="font-bold">Zoom Link:</span>{' '}
+                      <span className="inline-block w-full break-all text-left">
+                        {getZoomLink()}
+                      </span>
+                    </h3>
+                  )}
+                  <button
+                    onClick={() => {
+                      copy(`${window.location.origin}/timeselect/${code}`)
+                      setCopied(true)
+                      setTimeout(() => {
+                        setCopied(false)
+                      }, 1500)
+                    }}
+                    className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                      copied
+                        ? 'bg-green-500 hover:bg-green-500 text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
+                  >
+                    {<IconCopy className="inline-block w-4 lg:w-5" />}
+                    {copied ? 'Copied' : 'Shareable ymeets Link'}
+                  </button>
+
+                  <div className="flex justify-center">
+                    {selectedLocation && (
+                      <button
+                        onClick={() => {
+                          window.open(
+                            'https://25live.collegenet.com/pro/yale#!/home/event/form',
+                            '_blank'
+                          )
+                        }}
+                        className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+                      >
+                        Book Room
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

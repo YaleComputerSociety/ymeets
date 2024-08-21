@@ -121,12 +121,12 @@ export default function ParticipantGroupViewPage() {
   return (
     <>
     <div className="flex justify-center items-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[100%] px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
-          <div className="flex flex-col flex-none md:w-[48%] mb-5 md:mt-0 space-y-5 items-center">
+        <div className="flex flex-col-reverse justify-center w-[100%] md:px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
+          <div className="flex flex-col flex-none md:w-[48%] mb-4 md:mt-0 space-y-5 items-center">
             <div className="w-[100%] content-start align-start items-start">
               {/* Edit availability button */}
 
-              <div className="flex flex-row ml-0 md:ml-4">
+              <div className="hidden md:block flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
                   <button
                       className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
@@ -140,7 +140,7 @@ export default function ParticipantGroupViewPage() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col content-center space-y-7 md:w-[75%] flex-none mb-5 md:mt-0">
+            <div className="flex flex-col content-center space-y-5 md:w-[75%] flex-none mb-5 md:mt-0">
               {/* Event name, location, and time */}
 
               <div className="hidden mb-4 flex flex-col space-y-5 md:block">
@@ -174,7 +174,7 @@ export default function ParticipantGroupViewPage() {
                           hour: 'numeric',
                           minute: '2-digit',
                         })
-                      : 'not selected'}
+                      : 'not selected by host'}
                   </h3>
 
                   {locationOptions.length > 0 && (
@@ -182,7 +182,7 @@ export default function ParticipantGroupViewPage() {
                       <span className="font-bold">Location:</span>{' '}
                       {selectedLocation !== undefined
                         ? selectedLocation
-                        : 'not selected'}
+                        : 'not selected by host'}
                     </h3>
                   )}
                   {getZoomLink() && (
@@ -195,10 +195,12 @@ export default function ParticipantGroupViewPage() {
                   )}
                 </div>
               </div>
-            <UserChart
-              // @ts-expect-error
-              chartedUsersData={[chartedUsers, setChartedUsers]}
-              />
+            <div className="">
+              <UserChart
+                // @ts-expect-error
+                chartedUsersData={[chartedUsers, setChartedUsers]}
+                />
+            </div>
 
             <LocationChart
               theSelectedLocation={[userChosenLocation, setUserChosenLocation]}
@@ -211,7 +213,7 @@ export default function ParticipantGroupViewPage() {
           </div>
 
           <div className="max-w-[100%] lg:max-w-[50%] ">
-            <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end pl-4">
+            <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end">
               <Calender
                 title={''}
                 isAdmin={false}
@@ -231,7 +233,7 @@ export default function ParticipantGroupViewPage() {
                 theGoogleCalendarEvents={[undefined, undefined]}
               />
             </div>
-            <div className="ml-7">
+            <div className="pl-3">
               {selectedDateTimeObjects != undefined && (
                 <InformationPopup
                   content={
@@ -242,47 +244,72 @@ export default function ParticipantGroupViewPage() {
             </div>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
-
-            <div className="mb-4 flex flex-col space-y-5 mt-4">
-              <h3 className="text-3xl font-bold text-center md:text-left">
-                {eventName}
-              </h3>
-              <h3 className="text-xl text-center md:text-left">
-                {eventDescription}
-              </h3>
-
-              {selectedDateTimeObjects ? (
-                <div className="flex items-center justify-center">
-                  <AddToGoogleCalendarButton />
+            <div className="w-[100%] content-start align-start items-start">
+              <div className="flex flex-row ml-0 md:ml-4">
+                <div className="flex-grow ml-2">
+                  <button
+                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                      disabled={selectedDateTimeObjects != undefined}
+                      onClick={() => {
+                        nav('/timeselect/' + code)
+                      }}
+                    >
+                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                  </button>
                 </div>
-              ) : undefined}
-
-              <div className="flex flex-col">
-                <h3 className="text-base text-center md:text-left">
-                  <span className="font-bold">Time:</span>{' '}
-                  {selectedDateTimeObjects?.[0] !== undefined
-                    ? selectedDateTimeObjects[0].toLocaleDateString('en-us', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : 'not selected'}
+              </div>
+            </div>
+            <div className="flex flex-col content-center space-y-1 w-[80%] flex-none mb-5 md:mt-0">
+              <div className="mb-4 flex flex-col space-y-2 mt-4">
+                <h3 className="text-2xl font-bold text-center mb-0">
+                  {eventName}
+                </h3>
+                <h3 className="text-md text-left mt-0">
+                  {eventDescription}
                 </h3>
 
-                {locationOptions.length > 0 && (
-                  <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Location: </span>{' '}
-                    {selectedLocation !== undefined
-                      ? selectedLocation
-                      : 'not selected!'}
+                {selectedDateTimeObjects ? (
+                  <div className="flex items-center justify-center">
+                    <AddToGoogleCalendarButton />
+                  </div>
+                ) : undefined}
+
+                <div className="flex flex-col">
+                  <h3 className="text-base text-center">
+                    <span className="font-bold">Time:</span>{' '}
+                    {selectedDateTimeObjects?.[0] !== undefined
+                      ? selectedDateTimeObjects[0].toLocaleDateString('en-us', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : 'not yet selected by host'}
                   </h3>
-                )}
+
+                  {locationOptions.length > 0 && (
+                    <h3 className="text-base text-center md:text-left">
+                      <span className="font-bold">Location: </span>{' '}
+                      {selectedLocation !== undefined
+                        ? selectedLocation
+                        : 'not yet selected by host'}
+                    </h3>
+                  )}
+                  {getZoomLink() && (
+                    <h3 className="text-base text-center">
+                      <span className="font-bold">Zoom Link:</span>{' '}
+                      <span className="inline-block w-full break-all text-left">
+                        {getZoomLink()}
+                      </span>
+                    </h3>
+                  )}
+                </div>
               </div>
+
             </div>
           </div>
         </div>

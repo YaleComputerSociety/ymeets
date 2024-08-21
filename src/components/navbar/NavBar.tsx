@@ -120,7 +120,7 @@ export default function NavBar() {
                     </div>
                 </div>
             </div>
-            <div className="h-10"></div>
+            <div className="h-8 md:h-10"></div>
         </>
     )
 }
