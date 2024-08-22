@@ -78,6 +78,21 @@ export default function AdminGroupViewPage() {
     affectedBlocks: new Set(),
   })
 
+  const useMediaQuery = (query: string) => {
+    const [matches, setMatches] = useState(window.matchMedia(query).matches);
+  
+    useEffect(() => {
+      const mediaQueryList = window.matchMedia(query);
+      const handleChange = () => setMatches(mediaQueryList.matches);
+      
+      mediaQueryList.addEventListener('change', handleChange);
+      return () => mediaQueryList.removeEventListener('change', handleChange);
+    }, [query]);
+    
+    return matches;
+  };
+  const isMedScreen = useMediaQuery('(min-width: 768px)')
+
   const [copied, setCopied] = useState(false)
 
   const [selectionConfirmedPopupOpen, setSelectionConfirmedPopupOpen] =
@@ -211,6 +226,7 @@ export default function AdminGroupViewPage() {
     )
   }
 
+
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
@@ -283,9 +299,14 @@ export default function AdminGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <span className="inline-block w-full md:w-auto break-all">
+                      <a 
+                        href={getZoomLink()} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
+                      >
                         {getZoomLink()}
-                      </span>
+                      </a>
                     </h3>
                   )}
                   <button
@@ -384,7 +405,7 @@ export default function AdminGroupViewPage() {
               />
             </div>
 
-            <div className="pl-3">
+            <div className="md:pl-3">
               {!selectedDateTimeObjects && (
                 <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
                   {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
@@ -410,7 +431,6 @@ export default function AdminGroupViewPage() {
               )}
             </div>
           </div>
-
           <Popup
             onCloseAndSubmit={handleSelectionSubmission}
             onClose={() => {
@@ -418,13 +438,20 @@ export default function AdminGroupViewPage() {
             }}
             isOpen={selectionConfirmedPopupOpen}
           >
-            <div className="text-xl">
+            <div
+              className="text-xl"
+              style={{
+                maxWidth: isMedScreen ? '50vw' : '75vw',
+                margin: 'auto',
+              }}
+            >
               <br></br>
               <span className="font-bold">Warning: </span> Submitting this
               selection will lock all other participants from being able to edit
-              their availability. You cannot undo this action! Are you sure?
+              their availability. You cannot undo this action.
             </div>
           </Popup>
+
 
           <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
@@ -476,11 +503,16 @@ export default function AdminGroupViewPage() {
                     </h3>
                   )}
                   {getZoomLink() && (
-                    <h3 className="text-base text-center">
+                    <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <span className="inline-block w-full break-all text-left">
+                      <a 
+                        href={getZoomLink()} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
+                      >
                         {getZoomLink()}
-                      </span>
+                      </a>
                     </h3>
                   )}
                   <button

@@ -78,7 +78,7 @@ export default function Calender({
         className="flex justify-center mb-4 md:m-5 md:justify-start"
       >
         <div
-          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-3 sm:pt-6 sm:pb-0 px-4 sm:px-8 \
+          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-3 sm:pt-6 sm:pb-0 px-3 sm:px-3 \
                                 md:bg-white rounded-lg"
         >
           {calendarFramework?.dates.map(

@@ -151,11 +151,11 @@ export default function ParticipantGroupViewPage() {
                   {eventDescription}
                 </h3>
 
-                {selectedDateTimeObjects ? (
+                {/* {selectedDateTimeObjects ? (
                   <div className="">
                     <AddToGoogleCalendarButton />
                   </div>
-                ) : undefined}
+                ) : undefined} */}
 
                 <div className="flex flex-col">
                   <h3 className="text-base text-center md:text-left">
@@ -188,9 +188,14 @@ export default function ParticipantGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <span className="inline-block w-full md:w-auto break-all">
+                      <a 
+                        href={getZoomLink()} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
+                      >
                         {getZoomLink()}
-                      </span>
+                      </a>
                     </h3>
                   )}
                 </div>
@@ -241,6 +246,13 @@ export default function ParticipantGroupViewPage() {
                   }
                 />
               )}
+            </div>
+            <div className="flex justify-center items-center mt-1">
+              {selectedDateTimeObjects ? (
+                <div className="flex justify-center items-center px-4">
+                  <AddToGoogleCalendarButton />
+                </div>
+                  ) : undefined}
             </div>
           </div>
 
@@ -300,11 +312,16 @@ export default function ParticipantGroupViewPage() {
                     </h3>
                   )}
                   {getZoomLink() && (
-                    <h3 className="text-base text-center">
+                    <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <span className="inline-block w-full break-all text-left">
+                      <a 
+                        href={getZoomLink()} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
+                      >
                         {getZoomLink()}
-                      </span>
+                      </a>
                     </h3>
                   )}
                 </div>

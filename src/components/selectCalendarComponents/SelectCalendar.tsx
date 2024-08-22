@@ -94,7 +94,7 @@ function SelectCalander({
                     <div className="flex flex-row justify-end">
                       {renderTime && time.slice(-2) == '00' && (
                         <div className="w-12 text-xs relative">
-                          <p className="absolute" style={{ top: '-0.5rem' }}>
+                          <p className="absolute" style={{ top: '-0.5rem', right: '0.6rem' }}>
                             {militaryConvert(time)}
                           </p>
                         </div>

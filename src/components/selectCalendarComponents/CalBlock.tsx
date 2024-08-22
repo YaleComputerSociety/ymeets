@@ -124,6 +124,18 @@ export default function CalBlock({
     return ''
   }
 
+  function interpolateColor(color1: string, color2: string, factor: number): string {
+    const result = color1.slice(1).match(/.{2}/g)!.map((hex: string, index: number) => {
+      const c1 = parseInt(hex, 16);
+      const c2 = parseInt(color2.slice(1).match(/.{2}/g)![index], 16);
+      const value = Math.round(c1 + factor * (c2 - c1)).toString(16);
+      return value.padStart(2, '0');
+    });
+  
+    return `#${result.join('')}`;
+  }
+  
+
   function getDefaultShadeColor() {
     let selectedCount = 0
 
@@ -146,17 +158,18 @@ export default function CalBlock({
       // one of the groupviews
 
       const percentageSelected = selectedCount / calendarState.length
+      // green-200
+      // const start_shade = '#A7F3D0'
+      const start_shade = '#A0F4E4'
+      // green-500
+      // const end_shade = '#10B981'
+      const end_shade = '#4D7C0F'
 
       if (selectedCount === 0) {
         return 'white'
-      } else if (percentageSelected <= 0.25) {
-        return 'sky-200'
-      } else if (percentageSelected <= 0.5) {
-        return 'sky-300'
-      } else if (percentageSelected <= 0.75) {
-        return 'teal-400'
-      } else if (percentageSelected == 1) {
-        return 'green-400'
+      } 
+      else {
+        return interpolateColor(start_shade, end_shade, percentageSelected)
       }
     } else {
       // timeselect - shade color is just going to be sky
@@ -268,7 +281,7 @@ export default function CalBlock({
       }
     } else {
       if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
-        setShadeColor('green-700')
+        setShadeColor('#94D22E')
       } else {
         setShadeColor(originalShadeColor)
       }
@@ -496,6 +509,7 @@ export default function CalBlock({
       style={{
         borderRight: '1px solid #000',
         borderTop,
+        backgroundColor: shadeColor,
         transition: 'background-color 0.2s ease',
       }}
     ></div>

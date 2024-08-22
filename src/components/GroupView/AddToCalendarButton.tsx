@@ -3,6 +3,7 @@ import { getAccountId, getEventObjectForGCal } from '../../firebase/events'
 import { GAPIContext } from '../../firebase/gapiContext'
 import { signInWithGoogle } from '../../firebase/auth'
 import { LoadingAnim } from '../utils/components/LoadingAnim'
+import googleLogo from '../utils/components/LoginPopup/googlelogo.png'
 
 /**
  *
@@ -59,9 +60,12 @@ function AddToGoogleCalendarButton(): JSX.Element {
               }
         }
       >
+        {getAccountId() === '' && (
+          <img src={googleLogo} alt="Google Logo" className="mr-2 h-6" />
+        )}
         {getAccountId() !== ''
           ? 'Add to Google Calendar'
-          : 'Sign in to Google to Add to GCAL'}
+          : 'Sign in with Google to add to GCal'}
       </button>
     </>
   )
