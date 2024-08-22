@@ -281,12 +281,12 @@ export default function ParticipantGroupViewPage() {
                 <h3 className="text-md text-left mt-0">
                   {eventDescription}
                 </h3>
-
+                {/* 
                 {selectedDateTimeObjects ? (
                   <div className="flex items-center justify-center">
                     <AddToGoogleCalendarButton />
                   </div>
-                ) : undefined}
+                ) : undefined} */}
 
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">

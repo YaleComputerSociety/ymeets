@@ -4,6 +4,7 @@ import { GAPIContext } from '../../firebase/gapiContext'
 import { signInWithGoogle } from '../../firebase/auth'
 import { LoadingAnim } from '../utils/components/LoadingAnim'
 import googleLogo from '../utils/components/LoginPopup/googlelogo.png'
+import googleCalLogo from './google-calendar-icon.png'
 
 /**
  *
@@ -14,6 +15,7 @@ import googleLogo from '../utils/components/LoginPopup/googlelogo.png'
 function AddToGoogleCalendarButton(): JSX.Element {
   const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext)
   const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState<string>('')
 
   const createCalendarEvent = useCallback(
     async (event: any) => {
@@ -22,52 +24,57 @@ function AddToGoogleCalendarButton(): JSX.Element {
         return
       }
       setLoading(true)
+      setStatus('Adding Event...')
 
       try {
         // @ts-expect-error
-        const request = await gapi.client.calendar.events.insert({
+        await gapi.client.calendar.events.insert({
           calendarId: 'primary',
           resource: event,
         })
+        setStatus('Event Added!')
       } catch (e) {
         console.error('Error creating user event: ', e)
+        setStatus('Event could not be added')
+      } finally {
         setLoading(false)
-        return
       }
-
-      setLoading(false)
-      alert('Exporting to Google Calendar!')
     },
     [gapi]
   )
 
-  if (loading || GAPILoading) {
+  if (GAPILoading) {
     return <LoadingAnim />
   }
 
   return (
-    <>
-      <button
-        className="font-bold rounded-full bg-white text-black py-3 px-5 text-sm w-full
-        transform transition-transform hover:scale-90 active:scale-100e"
-        onClick={
-          getAccountId() !== ''
-            ? async () => {
-                await createCalendarEvent(getEventObjectForGCal())
-              }
-            : () => {
-                signInWithGoogle(undefined, gapi, handleIsSignedIn)
-              }
-        }
-      >
-        {getAccountId() === '' && (
+    <button
+      className={`flex items-center font-bold rounded-full py-3 px-5 text-sm md:text-md w-full
+      transform transition-transform ${loading ? 'bg-gray-200 text-gray-500' : 'bg-white text-black'} 
+      ${!loading ? 'hover:scale-90 active:scale-100e' : ''}`}
+      onClick={
+        getAccountId() !== ''
+          ? async () => {
+              await createCalendarEvent(getEventObjectForGCal())
+            }
+          : () => {
+              signInWithGoogle(undefined, gapi, handleIsSignedIn)
+            }
+      }
+      disabled={loading}
+    >
+      {getAccountId() !== '' ? (
+        <>
+          <img src={googleCalLogo} alt="Google Calendar Logo" className="mr-2 h-6" />
+          {status || 'Add to Google Calendar'}
+        </>
+      ) : (
+        <>
           <img src={googleLogo} alt="Google Logo" className="mr-2 h-6" />
-        )}
-        {getAccountId() !== ''
-          ? 'Add to Google Calendar'
-          : 'Sign in with Google to add to GCal'}
-      </button>
-    </>
+          {status || 'Sign in with Google to add to GCal'}
+        </>
+      )}
+    </button>
   )
 }
 

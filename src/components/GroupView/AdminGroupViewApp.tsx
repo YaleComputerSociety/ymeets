@@ -309,6 +309,21 @@ export default function AdminGroupViewPage() {
                       </a>
                     </h3>
                   )}
+                  <div className="h-3"></div>
+                  {selectedLocation && (
+                    <Button
+                      textColor="white"
+                      bgColor="blue-500"
+                      onClick={() => {
+                        window.open(
+                          'https://25live.collegenet.com/pro/yale#!/home/event/form',
+                          '_blank'
+                        )
+                      }}
+                    >
+                      Book Room
+                    </Button>
+                  )}
                   <button
                     onClick={() => {
                       copy(`${window.location.origin}/timeselect/${code}`)
@@ -326,30 +341,16 @@ export default function AdminGroupViewPage() {
                     {<IconCopy className="inline-block w-4 lg:w-5" />}
                     {copied ? 'Copied' : 'Shareable ymeets Link'}
                   </button>
-                  {selectedLocation && (
-                    <Button
-                      textColor="white"
-                      bgColor="blue-500"
-                      onClick={() => {
-                        window.open(
-                          'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                          '_blank'
-                        )
-                      }}
-                    >
-                      Book Room
-                    </Button>
-                  )}
                 </div>
               </div>
 
-              <div className="flex flex-row space-x-2">
+              {/* <div className="flex flex-row space-x-2">
                 {selectedDateTimeObjects ? (
                   <div className="w-full">
                     <AddToGoogleCalendarButton />
                   </div>
                 ) : undefined}
-              </div>
+              </div> */}
 
               {/* User availability table */}
               <div className="mb-2">
@@ -429,6 +430,13 @@ export default function AdminGroupViewPage() {
                   Submit Selection
                 </button>
               )}
+            </div>
+            <div className="flex justify-center items-center mt-2">
+              {selectedDateTimeObjects ? (
+                <div className="flex justify-center items-center px-4">
+                  <AddToGoogleCalendarButton />
+                </div>
+                  ) : undefined}
             </div>
           </div>
           <Popup
@@ -515,6 +523,21 @@ export default function AdminGroupViewPage() {
                       </a>
                     </h3>
                   )}
+                  <div className="flex justify-center">
+                    {selectedLocation && (
+                      <button
+                        onClick={() => {
+                          window.open(
+                            'https://25live.collegenet.com/pro/yale#!/home/event/form',
+                            '_blank'
+                          )
+                        }}
+                        className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+                      >
+                        Book Room
+                      </button>
+                    )}
+                  </div>
                   <button
                     onClick={() => {
                       copy(`${window.location.origin}/timeselect/${code}`)
@@ -532,22 +555,6 @@ export default function AdminGroupViewPage() {
                     {<IconCopy className="inline-block w-4 lg:w-5" />}
                     {copied ? 'Copied' : 'Shareable ymeets Link'}
                   </button>
-
-                  <div className="flex justify-center">
-                    {selectedLocation && (
-                      <button
-                        onClick={() => {
-                          window.open(
-                            'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                            '_blank'
-                          )
-                        }}
-                        className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
-                      >
-                        Book Room
-                      </button>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
