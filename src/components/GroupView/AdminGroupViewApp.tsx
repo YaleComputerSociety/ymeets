@@ -273,7 +273,8 @@ export default function AdminGroupViewPage() {
                 <div className="flex flex-col">
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects !== undefined
+                    {selectedDateTimeObjects &&
+                    selectedDateTimeObjects[0].getFullYear() != 1970
                       ? selectedDateTimeObjects[0]?.toLocaleDateString(
                           'en-us',
                           {
@@ -430,7 +431,7 @@ export default function AdminGroupViewPage() {
               selectedDateTimeObjects[0].getFullYear() == 1970 ? (
                 <button
                   onClick={() => {
-                    setSelectionConfirmedPopupOpen(true)
+                    handleSelectionSubmission()
                   }}
                   className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
                                         transform transition-transform hover:scale-90 active:scale-100e"
@@ -452,7 +453,8 @@ export default function AdminGroupViewPage() {
               )}
             </div>
             <div className="flex justify-center items-center mt-1">
-              {selectedDateTimeObjects ? (
+              {selectedDateTimeObjects &&
+              selectedDateTimeObjects[0].getFullYear() != 1970 ? (
                 <div className="flex justify-center items-center px-4">
                   <AddToGoogleCalendarButton />
                 </div>
@@ -487,7 +489,8 @@ export default function AdminGroupViewPage() {
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">
                     <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects !== undefined
+                    {selectedDateTimeObjects &&
+                    selectedDateTimeObjects[0].getFullYear() != 1970
                       ? selectedDateTimeObjects[0]?.toLocaleDateString(
                           'en-us',
                           {

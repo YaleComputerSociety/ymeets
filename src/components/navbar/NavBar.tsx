@@ -120,7 +120,7 @@ export default function NavBar() {
                         onClick={() => {
                           logout(gapi)
                           setMenuState('closed')
-                          window.location.reload()
+                          nav('/')
                         }}
                       >
                         <FaSignOutAlt className="mr-2" /> Logout

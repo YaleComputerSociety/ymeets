@@ -151,17 +151,11 @@ export default function ParticipantGroupViewPage() {
                 <h3 className="text-xl text-center md:text-left">
                   {eventDescription}
                 </h3>
-
-                {/* {selectedDateTimeObjects ? (
-                  <div className="">
-                    <AddToGoogleCalendarButton />
-                  </div>
-                ) : undefined} */}
-
                 <div className="flex flex-col">
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects !== undefined
+                    {selectedDateTimeObjects &&
+                    selectedDateTimeObjects[0].getFullYear() != 1970
                       ? selectedDateTimeObjects[0]?.toLocaleDateString(
                           'en-us',
                           {
@@ -293,7 +287,8 @@ export default function ParticipantGroupViewPage() {
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">
                     <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects?.[0] !== undefined
+                    {selectedDateTimeObjects &&
+                    selectedDateTimeObjects[0].getFullYear() != 1970
                       ? selectedDateTimeObjects[0].toLocaleDateString('en-us', {
                           weekday: 'long',
                           year: 'numeric',

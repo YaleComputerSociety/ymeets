@@ -36,6 +36,7 @@ import LOGO from '../DaySelect/general_popup_component/googlelogo.png'
 import { GAPIContext } from '../../firebase/gapiContext'
 import { useContext } from 'react'
 import Button from '../utils/components/Button'
+import InformationPopup from '../utils/components/InformationPopup'
 
 /**
  *
@@ -316,10 +317,10 @@ function TimeSelectPage() {
             </Button>
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
-                <p className="mt-4 text-center md:text-left text-gray-600">
-                  Note: You can't edit your availability because the admin has
-                  already selected a time and/or location!
-                </p>
+                <InformationPopup
+                  content="Note: You can't edit your availability because the admin has
+                already selected a time and/or location!"
+                />
               )}
           </div>
         </div>
