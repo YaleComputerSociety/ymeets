@@ -3,6 +3,7 @@
 import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, DocumentData, getDocs, Timestamp, arrayUnion, query, where, QuerySnapshot, deleteDoc, writeBatch, FieldValue, deleteField } from 'firebase/firestore'
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types'
 import { auth, db } from './firebase'
+import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks'
 
 // ASSUME names are unique within an event
 
@@ -541,17 +542,77 @@ function getEventObjectForGCal () {
   return {
     summary: workingEvent.details.name,
     location: workingEvent.details.chosenLocation,
-    description: workingEvent.details.description,
+    description: workingEvent.details.description + "\n" + "\n" + "Conference Data (if provided):" + workingEvent.details.zoomLink,
     start: {
       dateTime: workingEvent.details.chosenStartDate,
-      timeZone: 'America/New_York'
+      timeZone: 'America/New_York'  
     },
     end: {
       dateTime: workingEvent.details.chosenEndDate,
       timeZone: 'America/New_York'
-    }
+    },
+    attendees: workingEvent.participants.map((participant: Participant) => ({
+      email: participant.email,
+    })),
   }
 }
+
+async function setNewEventName(newName: string | undefined) {
+  if (newName == undefined) {
+    return Promise.resolve()
+  }
+  workingEvent.details.name = newName;
+  await saveEventDetails(workingEvent.details)
+}
+
+async function setNewEventDescription(newDescription: string | undefined) {
+  if (newDescription == undefined) {
+    return Promise.resolve()
+  }
+  workingEvent.details.description = newDescription;
+  await saveEventDetails(workingEvent.details)
+}
+
+async function setNewStartTimes(newStartTime: Date | undefined) {
+  if (newStartTime == undefined) {
+    return Promise.resolve()
+  }
+  workingEvent.details.startTime = newStartTime;
+  await saveEventDetails(workingEvent.details)
+}
+
+async function setNewEndTimes(newEndTime: Date | undefined) {
+  if (newEndTime == undefined) {
+    return Promise.resolve()
+  }
+
+  workingEvent.details.endTime = newEndTime;
+  await saveEventDetails(workingEvent.details)
+}
+
+async function setNewDates(newDates:Date[] | undefined) {
+  if (newDates == undefined) {
+    return Promise.resolve()
+  }
+
+  for (let p = 0; p < workingEvent.participants.length; p++) {
+    let timeBlocks = generateTimeBlocks(workingEvent.details.chosenStartDate, workingEvent.details.chosenEndDate);
+    let availability = [];
+    for (let i = 0; i < timeBlocks.length; i++) {
+        availability.push(new Array(newDates.length).fill(false));
+    }
+    workingEvent.participants[p].availability = availability;
+  }
+  await saveEventDetails(workingEvent.details)
+}
+
+async function undoAdminSelections() {
+  workingEvent.details.chosenLocation = "";
+  workingEvent.details.chosenStartDate = new Date(1970, 1, 1, 10, 15, 30);
+  workingEvent.details.chosenEndDate = new Date(1970, 1, 1, 10, 15, 30);
+  await saveEventDetails(workingEvent.details);
+}
+
 
 export { workingEvent } // For interal use; use getters and setters below
 
@@ -600,6 +661,12 @@ export {
   setChosenLocation,
   setChosenDate,
   deleteEvent,
+  setNewEventName,
+  setNewEventDescription,
+  undoAdminSelections,
+  setNewStartTimes,
+  setNewEndTimes,
+  setNewDates,
 
   getParticipantIndex
 

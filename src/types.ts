@@ -17,10 +17,10 @@ export interface EventDetails {
   startTime: Date
   endTime: Date
   plausibleLocations: Location[]
-  chosenLocation?: Location
-  chosenStartDate?: Date
-  chosenEndDate?: Date // minutes
-  zoomLink?: string,
+  chosenLocation?: Location | undefined
+  chosenStartDate?: Date | undefined
+  chosenEndDate?: Date | undefined // minutes
+  zoomLink?: string | undefined, 
 }
 
 export interface Participant {

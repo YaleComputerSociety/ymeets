@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import Select from 'react-dropdown-select'
 import Button from '../../utils/components/Button'
 import InformationPopup from '../../utils/components/InformationPopup'
+import { Input } from '../../utils/components/Input'
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -237,50 +238,42 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days')
   }
 
-  const inputClasses = 'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white'
+  const inputClasses =
+    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white'
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
       <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-49">
         <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <input
+            <Input
               id="event-name"
-              type="text"
-              className={inputClasses}
               placeholder="Event Name"
               value={eventName}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 setEventName(e.target.value)
               }}
               maxLength={40}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <textarea
+            <Input
               id="event-description"
-              className={inputClasses}
-              placeholder="Event Description (Optional)"
+              placeholder="Event Description"
               value={eventDescription}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 setEventDescription(e.target.value)
               }}
-              rows={1}
-              maxLength={100}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <input
+            <Input
               id="zoom-link"
-              type="text"
-              style={{ resize: 'none' }}
-              className={inputClasses}
               placeholder="Zoom Link (Optional)"
               value={zoomLink}
               onChange={(e) => {
                 setZoomLink(e.target.value)
               }}
-              // rows={1}
             />
           </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-49">
@@ -304,11 +297,15 @@ export const DaySelectComponent = () => {
                     </div>
                   )}
                   onDropdownOpen={() => {
-                    const handle = document.querySelector('.react-dropdown-select-dropdown-handle')
+                    const handle = document.querySelector(
+                      '.react-dropdown-select-dropdown-handle'
+                    )
                     if (handle) handle.classList.add('open')
                   }}
                   onDropdownClose={() => {
-                    const handle = document.querySelector('.react-dropdown-select-dropdown-handle')
+                    const handle = document.querySelector(
+                      '.react-dropdown-select-dropdown-handle'
+                    )
                     if (handle) handle.classList.remove('open')
                   }}
                 />
@@ -396,8 +393,7 @@ export const DaySelectComponent = () => {
             popUpMessage={[popUpMessage, setPopupMessage]}
           />
         </div>
-        <div className='mt-2'>
-        </div>
+        <div className="mt-2"></div>
         <div className="flex items-center justify-center">
           <Button
             textColor="white"

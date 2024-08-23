@@ -1,4 +1,3 @@
-// where the Routing thing goes.
 import './Root.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import HomePage from './components/Home/HomePage'
@@ -16,8 +15,7 @@ import Banner from './components/utils/components/Banner'
 function Root() {
   return (
     <>
-      <Banner title="Now in alpha" text="Please report bugs" />
-
+      <Banner title="1.0 Release is Live" text="Please report bugs" />
       <GAPIContextWrapper>
         <Router>
           <NavBar></NavBar>

@@ -120,7 +120,7 @@ export default function ParticipantGroupViewPage() {
 
   return (
     <>
-    <div className="flex justify-center items-center mx-4 mb-4 md:mx-10 md:mb-10">
+      <div className="flex justify-center items-center mx-4 mb-4 md:mx-10 md:mb-10">
         <div className="flex flex-col-reverse justify-center w-[100%] md:px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
           <div className="flex flex-col flex-none md:w-[48%] mb-4 md:mt-0 space-y-5 items-center">
             <div className="w-[100%] content-start align-start items-start">
@@ -129,13 +129,14 @@ export default function ParticipantGroupViewPage() {
               <div className="hidden md:block flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
                   <button
-                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                      disabled={selectedDateTimeObjects != undefined}
-                      onClick={() => {
-                        nav('/timeselect/' + code)
-                      }}
-                    >
-                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                    className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                    disabled={selectedDateTimeObjects != undefined}
+                    onClick={() => {
+                      nav('/timeselect/' + code)
+                    }}
+                  >
+                    <span className="mr-1">&#8592;</span> Edit Your
+                    Availiability
                   </button>
                 </div>
               </div>
@@ -161,19 +162,25 @@ export default function ParticipantGroupViewPage() {
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
                     {selectedDateTimeObjects !== undefined
-                      ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        }) +
+                      ? selectedDateTimeObjects[0]?.toLocaleDateString(
+                          'en-us',
+                          {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          }
+                        ) +
                         ' — ' +
-                        selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })
+                        selectedDateTimeObjects[1]?.toLocaleTimeString(
+                          'en-us',
+                          {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          }
+                        )
                       : 'not selected by host'}
                   </h3>
 
@@ -188,10 +195,10 @@ export default function ParticipantGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <a 
-                        href={getZoomLink()} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={getZoomLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
                       >
                         {getZoomLink()}
@@ -200,21 +207,24 @@ export default function ParticipantGroupViewPage() {
                   )}
                 </div>
               </div>
-            <div className="">
-              <UserChart
-                // @ts-expect-error
-                chartedUsersData={[chartedUsers, setChartedUsers]}
+              <div className="">
+                <UserChart
+                  // @ts-expect-error
+                  chartedUsersData={[chartedUsers, setChartedUsers]}
                 />
-            </div>
+              </div>
 
-            <LocationChart
-              theSelectedLocation={[userChosenLocation, setUserChosenLocation]}
-              locationOptions={
-                locationOptions.length > 0 ? locationOptions : ['']
-              }
-              locationVotes={Object.values(locationVotes)}
+              <LocationChart
+                theSelectedLocation={[
+                  userChosenLocation,
+                  setUserChosenLocation,
+                ]}
+                locationOptions={
+                  locationOptions.length > 0 ? locationOptions : ['']
+                }
+                locationVotes={Object.values(locationVotes)}
               />
-          </div>
+            </div>
           </div>
 
           <div className="max-w-[100%] lg:max-w-[50%] ">
@@ -247,13 +257,6 @@ export default function ParticipantGroupViewPage() {
                 />
               )}
             </div>
-            <div className="flex justify-center items-center mt-1">
-              {selectedDateTimeObjects ? (
-                <div className="flex justify-center items-center px-4">
-                  <AddToGoogleCalendarButton />
-                </div>
-                  ) : undefined}
-            </div>
           </div>
 
           <div className="md:hidden flex flex-col flex-none mb-5 items-center">
@@ -262,13 +265,14 @@ export default function ParticipantGroupViewPage() {
               <div className="flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow ml-2">
                   <button
-                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                      disabled={selectedDateTimeObjects != undefined}
-                      onClick={() => {
-                        nav('/timeselect/' + code)
-                      }}
-                    >
-                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                    className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                    disabled={selectedDateTimeObjects != undefined}
+                    onClick={() => {
+                      nav('/timeselect/' + code)
+                    }}
+                  >
+                    <span className="mr-1">&#8592;</span> Edit Your
+                    Availiability
                   </button>
                 </div>
               </div>
@@ -278,9 +282,7 @@ export default function ParticipantGroupViewPage() {
                 <h3 className="text-2xl font-bold text-center mb-0">
                   {eventName}
                 </h3>
-                <h3 className="text-md text-left mt-0">
-                  {eventDescription}
-                </h3>
+                <h3 className="text-md text-left mt-0">{eventDescription}</h3>
                 {/* 
                 {selectedDateTimeObjects ? (
                   <div className="flex items-center justify-center">
@@ -314,10 +316,10 @@ export default function ParticipantGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <a 
-                        href={getZoomLink()} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={getZoomLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
                       >
                         {getZoomLink()}
@@ -326,7 +328,6 @@ export default function ParticipantGroupViewPage() {
                   )}
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -344,10 +345,6 @@ export default function ParticipantGroupViewPage() {
             >
               <span className="mr-1">&#8592;</span> Edit Your Availiability
             </Button>
-             {selectedDateTimeObjects != undefined && <div className="p-1 w-[80%] text-gray-500 text-left text-sm md:text-left">
-                            NOTE: Admin has selected a time, so you cannot edit your availability
-                        </div>
-                        } 
 
             <div className="hidden mb-4 flex flex-col space-y-5 md:block">
               <h3 className="text-3xl font-bold text-center md:text-left">

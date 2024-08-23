@@ -70,7 +70,11 @@ export default function CalBlock({
     const chosenDates = getChosenDayAndTime()
     // check if a selection has been made by the admin, locking the users from editing their
     // availability
-    if (chosenDates !== undefined && chosenDates[0] instanceof Date) {
+    if (
+      chosenDates !== undefined &&
+      chosenDates[0] instanceof Date &&
+      chosenDates[0].getFullYear() != 1970
+    ) {
       setIsDraggable(false)
 
       const startTimeHHMM = dateObjectToHHMM(chosenDates[0])
@@ -124,17 +128,23 @@ export default function CalBlock({
     return ''
   }
 
-  function interpolateColor(color1: string, color2: string, factor: number): string {
-    const result = color1.slice(1).match(/.{2}/g)!.map((hex: string, index: number) => {
-      const c1 = parseInt(hex, 16);
-      const c2 = parseInt(color2.slice(1).match(/.{2}/g)![index], 16);
-      const value = Math.round(c1 + factor * (c2 - c1)).toString(16);
-      return value.padStart(2, '0');
-    });
-  
-    return `#${result.join('')}`;
+  function interpolateColor(
+    color1: string,
+    color2: string,
+    factor: number
+  ): string {
+    const result = color1
+      .slice(1)
+      .match(/.{2}/g)!
+      .map((hex: string, index: number) => {
+        const c1 = parseInt(hex, 16)
+        const c2 = parseInt(color2.slice(1).match(/.{2}/g)![index], 16)
+        const value = Math.round(c1 + factor * (c2 - c1)).toString(16)
+        return value.padStart(2, '0')
+      })
+
+    return `#${result.join('')}`
   }
-  
 
   function getDefaultShadeColor() {
     let selectedCount = 0
@@ -167,8 +177,7 @@ export default function CalBlock({
 
       if (selectedCount === 0) {
         return 'white'
-      } 
-      else {
+      } else {
         return interpolateColor(start_shade, end_shade, percentageSelected)
       }
     } else {
@@ -328,7 +337,7 @@ export default function CalBlock({
       return
     }
 
-    // @ts-expect-error 
+    // @ts-expect-error
     const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
       ?.split('-')
       .map(Number)
@@ -360,7 +369,11 @@ export default function CalBlock({
       return
     }
 
-    createNewDrag()
+    try {
+      createNewDrag()
+    } catch {
+      return
+    }
   }
 
   const handleBlockClick = () => {

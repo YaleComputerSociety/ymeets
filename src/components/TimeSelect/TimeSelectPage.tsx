@@ -218,9 +218,12 @@ function TimeSelectPage() {
           )
 
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
-
-          // @ts-expect-error
-          if (theRange != undefined && theRange?.length !== 0) {
+          if (
+            theRange != undefined &&
+            // @ts-expect-error
+            theRange?.length !== 0 &&
+            theRange[0].getFullYear() != 1970
+          ) {
             nav('/groupview/' + code)
           }
         })
@@ -287,18 +290,21 @@ function TimeSelectPage() {
           {eventDescription && (
             <div className="mb-10">
               <h3 className="text-sm text-gray-400 mb-0">Description</h3>
-              <h3 className="text-xl font-bold break-words mt-0">{eventDescription}</h3>
+              <h3 className="text-xl font-bold break-words mt-0">
+                {eventDescription}
+              </h3>
             </div>
           )}
 
-          {selectedDateTimeObjects == undefined && locationOptions.length > 0 && (
-            <div className="mb-8">
-              <LocationSelectionComponent
-                update={updateSelectedLocations}
-                locations={locationOptions}
-              />
-            </div>
-          )}
+          {selectedDateTimeObjects == undefined &&
+            locationOptions.length > 0 && (
+              <div className="mb-8">
+                <LocationSelectionComponent
+                  update={updateSelectedLocations}
+                  locations={locationOptions}
+                />
+              </div>
+            )}
 
           <div className="md:mt-8 flex flex-col items-center">
             <Button
@@ -308,42 +314,46 @@ function TimeSelectPage() {
             >
               Submit Availability
             </Button>
-            {selectedDateTimeObjects !== undefined && (
-              <p className="mt-4 text-center md:text-left text-gray-600">
-                Note: You can't edit your availability because the admin has already selected a time and/or location!
-              </p>
-            )}
+            {selectedDateTimeObjects !== undefined &&
+              (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
+                <p className="mt-4 text-center md:text-left text-gray-600">
+                  Note: You can't edit your availability because the admin has
+                  already selected a time and/or location!
+                </p>
+              )}
           </div>
         </div>
 
         {/* Calendar section */}
-        <div className={`w-[95%] md:w-[45%] right-column ${selectedDateTimeObjects !== undefined ? 'opacity-60' : ''}`}>
+        <div
+          className={`w-[95%] md:w-[45%] right-column ${selectedDateTimeObjects !== undefined && (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 ? 'opacity-60' : ''}`}
+        >
           <div className="overflow-x-auto md:overflow-x-visible">
-          <Calendar
-            title={'Enter Your Availability'}
-            // @ts-expect-error
-            theCalendarState={[calendarState, setCalendarState]}
-            user={getCurrentUserIndex()}
-            // @ts-expect-error
-            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            draggable={true}
-            chartedUsersData={undefined}
-            theSelectedDate={[
-              //@ts-expect-error
-              selectedDateTimeObjects,
-              //@ts-expect-error
-              setSelectedDateTimeObjects,
-            ]}
-            // @ts-expect-error
-            theDragState={[dragState, setDragState]}
-            isAdmin={false}
-            theGoogleCalendarEvents={[
-              //@ts-expect-error
-              googleCalendarEvents,
-              //@ts-expect-error
-              setGoogleCalendarEvents,
-            ]}
-          />
+            <Calendar
+              title={'Enter Your Availability'}
+              // @ts-expect-error
+              theCalendarState={[calendarState, setCalendarState]}
+              user={getCurrentUserIndex()}
+              // @ts-expect-error
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              draggable={true}
+              chartedUsersData={undefined}
+              theSelectedDate={[
+                //@ts-expect-error
+                selectedDateTimeObjects,
+                //@ts-expect-error
+                setSelectedDateTimeObjects,
+              ]}
+              // @ts-expect-error
+              theDragState={[dragState, setDragState]}
+              isAdmin={false}
+              theGoogleCalendarEvents={[
+                //@ts-expect-error
+                googleCalendarEvents,
+                //@ts-expect-error
+                setGoogleCalendarEvents,
+              ]}
+            />
           </div>
 
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
@@ -369,7 +379,7 @@ function TimeSelectPage() {
             </div>
           ) : (
             !areSelectingGeneralDays && (
-              <div className='md:pl-4 mb-4 md:mb-0'>
+              <div className="md:pl-4 mb-4 md:mb-0">
                 <button
                   className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
                             flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
@@ -377,12 +387,12 @@ function TimeSelectPage() {
                     signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
                       (loginSuccessful) => {
                         if (loginSuccessful) {
-                          window.location.reload();
+                          window.location.reload()
                         } else {
-                          console.error('login failed');
+                          console.error('login failed')
                         }
                       }
-                    );
+                    )
                   }}
                 >
                   <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />

@@ -65,8 +65,12 @@ function AddToGoogleCalendarButton(): JSX.Element {
     >
       {getAccountId() !== '' ? (
         <>
-          <img src={googleCalLogo} alt="Google Calendar Logo" className="mr-2 h-6" />
-          {status || 'Add to Google Calendar'}
+          <img
+            src={googleCalLogo}
+            alt="Google Calendar Logo"
+            className="mr-2 h-6"
+          />
+          {status || 'Add to Participant Google Calendars'}
         </>
       ) : (
         <>

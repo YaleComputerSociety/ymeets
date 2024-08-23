@@ -17,6 +17,7 @@ import {
   setChosenDate,
   getChosenLocation,
   getZoomLink,
+  undoAdminSelections,
 } from '../../firebase/events'
 import { useParams, useNavigate } from 'react-router-dom'
 import LocationChart from './LocationChart'
@@ -79,18 +80,18 @@ export default function AdminGroupViewPage() {
   })
 
   const useMediaQuery = (query: string) => {
-    const [matches, setMatches] = useState(window.matchMedia(query).matches);
-  
+    const [matches, setMatches] = useState(window.matchMedia(query).matches)
+
     useEffect(() => {
-      const mediaQueryList = window.matchMedia(query);
-      const handleChange = () => setMatches(mediaQueryList.matches);
-      
-      mediaQueryList.addEventListener('change', handleChange);
-      return () => mediaQueryList.removeEventListener('change', handleChange);
-    }, [query]);
-    
-    return matches;
-  };
+      const mediaQueryList = window.matchMedia(query)
+      const handleChange = () => setMatches(mediaQueryList.matches)
+
+      mediaQueryList.addEventListener('change', handleChange)
+      return () => mediaQueryList.removeEventListener('change', handleChange)
+    }, [query])
+
+    return matches
+  }
   const isMedScreen = useMediaQuery('(min-width: 768px)')
 
   const [copied, setCopied] = useState(false)
@@ -226,7 +227,6 @@ export default function AdminGroupViewPage() {
     )
   }
 
-
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
@@ -247,13 +247,14 @@ export default function AdminGroupViewPage() {
               <div className="hidden md:block flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow">
                   <button
-                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                      disabled={selectedDateTimeObjects != undefined}
-                      onClick={() => {
-                        nav('/timeselect/' + code)
-                      }}
-                    >
-                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                    className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                    disabled={selectedDateTimeObjects != undefined}
+                    onClick={() => {
+                      nav('/timeselect/' + code)
+                    }}
+                  >
+                    <span className="mr-1">&#8592;</span> Edit Your
+                    Availiability
                   </button>
                 </div>
               </div>
@@ -273,19 +274,25 @@ export default function AdminGroupViewPage() {
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
                     {selectedDateTimeObjects !== undefined
-                      ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        }) +
+                      ? selectedDateTimeObjects[0]?.toLocaleDateString(
+                          'en-us',
+                          {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          }
+                        ) +
                         ' — ' +
-                        selectedDateTimeObjects[1]?.toLocaleTimeString('en-us', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })
+                        selectedDateTimeObjects[1]?.toLocaleTimeString(
+                          'en-us',
+                          {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          }
+                        )
                       : 'not selected'}
                   </h3>
                   {locationOptions.length > 0 && (
@@ -299,10 +306,10 @@ export default function AdminGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <a 
-                        href={getZoomLink()} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={getZoomLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
                       >
                         {getZoomLink()}
@@ -419,7 +426,8 @@ export default function AdminGroupViewPage() {
               )}
             </div>
             <div className="flex items-center justify-center">
-              {!selectedDateTimeObjects && (
+              {!selectedDateTimeObjects ||
+              selectedDateTimeObjects[0].getFullYear() == 1970 ? (
                 <button
                   onClick={() => {
                     setSelectionConfirmedPopupOpen(true)
@@ -429,51 +437,42 @@ export default function AdminGroupViewPage() {
                 >
                   Submit Selection
                 </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    undoAdminSelections().then(() => {
+                      window.location.reload()
+                    })
+                  }}
+                  className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
+                                    transform transition-transform hover:scale-90 active:scale-100e"
+                >
+                  Undo Selection
+                </button>
               )}
             </div>
-            <div className="flex justify-center items-center mt-2">
+            <div className="flex justify-center items-center mt-1">
               {selectedDateTimeObjects ? (
                 <div className="flex justify-center items-center px-4">
                   <AddToGoogleCalendarButton />
                 </div>
-                  ) : undefined}
+              ) : undefined}
             </div>
           </div>
-          <Popup
-            onCloseAndSubmit={handleSelectionSubmission}
-            onClose={() => {
-              setSelectionConfirmedPopupOpen(false)
-            }}
-            isOpen={selectionConfirmedPopupOpen}
-          >
-            <div
-              className="text-xl"
-              style={{
-                maxWidth: isMedScreen ? '50vw' : '75vw',
-                margin: 'auto',
-              }}
-            >
-              <br></br>
-              <span className="font-bold">Warning: </span> Submitting this
-              selection will lock all other participants from being able to edit
-              their availability. You cannot undo this action.
-            </div>
-          </Popup>
-
-
           <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
             <div className="w-[100%] content-start align-start items-start">
               <div className="flex flex-row ml-0 md:ml-4">
                 <div className="flex-grow ml-2">
                   <button
-                      className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                      disabled={selectedDateTimeObjects != undefined}
-                      onClick={() => {
-                        nav('/timeselect/' + code)
-                      }}
-                    >
-                    <span className="mr-1">&#8592;</span> Edit Your Availiability
+                    className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                    disabled={selectedDateTimeObjects != undefined}
+                    onClick={() => {
+                      nav('/timeselect/' + code)
+                    }}
+                  >
+                    <span className="mr-1">&#8592;</span> Edit Your
+                    Availiability
                   </button>
                 </div>
               </div>
@@ -483,22 +482,23 @@ export default function AdminGroupViewPage() {
                 <h3 className="text-2xl font-bold text-center mb-0">
                   {eventName}
                 </h3>
-                <h3 className="text-md text-left mt-0">
-                  {eventDescription}
-                </h3>
+                <h3 className="text-md text-left mt-0">{eventDescription}</h3>
 
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">
                     <span className="font-bold">Time:</span>{' '}
                     {selectedDateTimeObjects !== undefined
-                      ? selectedDateTimeObjects[0]?.toLocaleDateString('en-us', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
+                      ? selectedDateTimeObjects[0]?.toLocaleDateString(
+                          'en-us',
+                          {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }
+                        )
                       : 'not selected'}
                   </h3>
 
@@ -513,10 +513,10 @@ export default function AdminGroupViewPage() {
                   {getZoomLink() && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
-                      <a 
-                        href={getZoomLink()} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={getZoomLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
                       >
                         {getZoomLink()}

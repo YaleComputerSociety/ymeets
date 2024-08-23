@@ -7,6 +7,7 @@ interface InputProps {
   value: string
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   rows?: number
+  maxLength?: number
 }
 
 export function Input({
@@ -15,6 +16,7 @@ export function Input({
   value,
   onChange,
   rows = 1,
+  maxLength = 100,
 }: InputProps) {
   return (
     <textarea
@@ -24,6 +26,7 @@ export function Input({
       value={value}
       onChange={onChange}
       rows={rows}
+      maxLength={maxLength}
     />
   )
 }

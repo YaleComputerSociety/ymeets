@@ -159,7 +159,10 @@ export default function AccountsPage() {
             {events
               .filter((e) => e.id.includes(filter) || e.name.includes(filter))
               .map((event) => (
-                <div key={event.id} className="bg-white rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10">
+                <div
+                  key={event.id}
+                  className="bg-white rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
+                >
                   <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
                     <h3 className="md:text-lg lg:text-xl font-medium text-slate-800">
                       {event.name}
