@@ -39,7 +39,7 @@ interface CalRowProps {
   theSelectedDate:
     | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
     | undefined
-  theGoogleCalendarEvents: [Date, React.Dispatch<React.SetStateAction<Date>>]
+  theGoogleCalendarEvents: [any, React.Dispatch<React.SetStateAction<any>>]
   time: string
 }
 
@@ -60,11 +60,8 @@ export default function CalRow({
   theGoogleCalendarEvents,
   time,
 }: CalRowProps) {
-  const border = borderStyle ?? 'solid'
-
   const [googleCalendarEvents, setGoogleCalendarEvents] =
     theGoogleCalendarEvents
-  const [isOnGcal, setIsOnGcal] = useState(false)
 
   return (
     <div
@@ -72,14 +69,33 @@ export default function CalRow({
                        `}
     >
       {bucket.map((d: calandarDate, columnIndex) => {
-        // @ts-expect-error
-        const matchedDates = googleCalendarEvents?.filter(
-          (dates: any) =>
-            dateObjectToComparable(dates[0]) === dateObjectToComparable(d.date)
-        )
+        const matchedDates = googleCalendarEvents
+          .map((gEvent: any) => [
+            new Date(gEvent.start.dateTime),
+            new Date(gEvent.end.dateTime),
+          ])
+          ?.filter(
+            (dates: any) =>
+              dateObjectToComparable(dates[0]) ===
+              dateObjectToComparable(d.date)
+          )
         // @ts-expect-error
         const isOnGcal = matchedDates?.some((dateRange) =>
           isTimeBetweenDates(dateRange[0], dateRange[1], time)
+        )
+
+        const matchedEvents = googleCalendarEvents.filter(
+          (gEvent: any) =>
+            dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
+            dateObjectToComparable(d.date)
+        )
+
+        const surroundingEvents = matchedEvents.filter((gEvent: any) =>
+          isTimeBetweenDates(
+            new Date(gEvent.start.dateTime),
+            new Date(gEvent.end.dateTime),
+            time
+          )
         )
 
         return (
@@ -97,6 +113,7 @@ export default function CalRow({
             chartedUsersData={chartedUsersData}
             theSelectedDate={theSelectedDate}
             isOnGcal={isOnGcal}
+            associatedEvents={surroundingEvents}
           />
         )
       })}

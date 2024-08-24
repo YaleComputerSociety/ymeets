@@ -10,6 +10,7 @@ import {
 } from '../../types'
 import { dragProperties } from './CalendarApp'
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks'
+import { useCallback } from 'react'
 import {
   getChosenDayAndTime,
   getAccountId,
@@ -46,6 +47,7 @@ interface CalBlockProps {
     | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
     | undefined
   isOnGcal: boolean
+  associatedEvents?: any
 }
 
 export default function CalBlock({
@@ -61,11 +63,14 @@ export default function CalBlock({
   theDragState,
   theSelectedDate,
   isOnGcal,
+  associatedEvents = undefined,
 }: CalBlockProps) {
   const dragRef = useRef<HTMLDivElement>(null)
   const elementId = `${columnID}-${blockID}`
 
   const [isDraggable, setIsDraggable] = useState(draggable)
+  const [gCalEventActive, setGcalEventActive] = useState(false)
+
   function checkIfBlockIsAdminSelection() {
     const chosenDates = getChosenDayAndTime()
     // check if a selection has been made by the admin, locking the users from editing their
@@ -120,11 +125,9 @@ export default function CalBlock({
           // for that last one, based on how blocks are coded.
           return ''
         }
-
         return 'green-700'
       }
     }
-
     return ''
   }
 
@@ -307,6 +310,7 @@ export default function CalBlock({
   ])
 
   const createNewDrag = () => {
+    setGcalEventActive(false)
     const oldState = dragState
 
     if (calendarState[user][columnID][blockID] === true) {
@@ -376,7 +380,19 @@ export default function CalBlock({
     }
   }
 
+  function isTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  }
+
   const handleBlockClick = () => {
+    if (isTouchDevice()) {
+      setGcalEventActive(!gCalEventActive)
+      setTimeout(() => {
+        setGcalEventActive(false)
+      }, 3000)
+      return
+    }
+
     if (isDraggable) {
       if (isAdmin === true) {
         return
@@ -478,53 +494,83 @@ export default function CalBlock({
   const borderTop = is30Minute ? '1px dotted #000' : 'none'
 
   return (
-    <div
-      draggable="true"
-      id={elementId}
-      ref={dragRef}
-      onClick={handleBlockClick}
-      onDragStart={handleDragStart}
-      onDragEnter={handleDesktopAvailabilitySelect}
-      onDragOver={handleDesktopAvailabilitySelect}
-      onMouseOver={handleDesktopHoverChartedUser}
-      onTouchStart={() => {
-        if (!isDraggable) {
-          return
-        }
+    <>
+      {/* Container for relative positioning */}
+      <div style={{ position: 'relative' }}>
+        {/* Main draggable content */}
+        <div
+          draggable="true"
+          id={elementId}
+          ref={dragRef}
+          onClick={handleBlockClick}
+          onDragStart={handleDragStart}
+          onDragEnter={handleDesktopAvailabilitySelect}
+          onDragOver={handleDesktopAvailabilitySelect}
+          onMouseOver={handleDesktopHoverChartedUser}
+          onMouseEnter={() => {
+            setGcalEventActive(true)
+          }}
+          onTouchStart={() => {
+            setGcalEventActive(true)
+            if (!isDraggable) {
+              return
+            }
 
-        const dragStartEvent = new DragEvent('dragstart', {
-          bubbles: true,
-          cancelable: true,
-          dataTransfer: new DataTransfer(),
-        })
+            const dragStartEvent = new DragEvent('dragstart', {
+              bubbles: true,
+              cancelable: true,
+              dataTransfer: new DataTransfer(),
+            })
 
-        // this will trigger the dragStart handler.
-        if (dragRef.current) {
-          dragRef.current.dispatchEvent(dragStartEvent)
-        }
+            // This will trigger the dragStart handler.
+            if (dragRef.current) {
+              dragRef.current.dispatchEvent(dragStartEvent)
+            }
 
-        handleDesktopHoverChartedUser()
-      }}
-      onTouchMove={(e) => {
-        handleMobileAvailabilitySelect(e)
-        handleMobileHoverChartedUser(e)
-      }}
-      onMouseLeave={() => {
-        setIsDottedBorder(false)
-      }}
-      className={
-        (!isDraggable || (isDraggable && isAdmin)) === false
-          ? calendarState?.[user]?.[columnID]?.[blockID]
-            ? `bg-${shadeColor} flex-1 w-16 p-0 h-3`
-            : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`
-          : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
-      }
-      style={{
-        borderRight: '1px solid #000',
-        borderTop,
-        backgroundColor: shadeColor,
-        transition: 'background-color 0.2s ease',
-      }}
-    ></div>
+            handleDesktopHoverChartedUser()
+          }}
+          onTouchMove={(e) => {
+            handleMobileAvailabilitySelect(e)
+            handleMobileHoverChartedUser(e)
+          }}
+          onTouchEnd={() => {
+            setGcalEventActive(false)
+          }}
+          onMouseLeave={() => {
+            setGcalEventActive(false)
+            setIsDottedBorder(false)
+          }}
+          className={
+            (!isDraggable || (isDraggable && isAdmin)) === false
+              ? calendarState?.[user]?.[columnID]?.[blockID]
+                ? `bg-${shadeColor} flex-1 w-16 p-0 h-3`
+                : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`
+              : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
+          }
+          style={{
+            borderRight: '1px solid #000',
+            borderTop,
+            backgroundColor: shadeColor,
+            transition: 'background-color 0.2s ease',
+          }}
+        ></div>
+        {gCalEventActive && associatedEvents.length > 0 && (
+          <div
+            className={`absolute top-0 left-0 z-10 bg-black text-white rounded p-2 shadow-md pointer-events-none transition-opacity duration-300 ${
+              gCalEventActive ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ opacity: gCalEventActive ? 1 : 0 }}
+          >
+            {associatedEvents.map((gEvent: any) => {
+              return (
+                <div className="w-fit" key={gEvent.id}>
+                  {gEvent.summary}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </>
   )
 }

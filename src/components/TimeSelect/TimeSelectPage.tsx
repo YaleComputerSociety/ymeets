@@ -92,7 +92,7 @@ function TimeSelectPage() {
   const gapiContext = useContext(GAPIContext)
   const { gapi, handleIsSignedIn } = gapiContext
 
-  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<Date[]>([])
+  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([])
   const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary'])
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([])
   const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>()
@@ -132,11 +132,9 @@ function TimeSelectPage() {
               continue
             }
 
-            parsedEvents.push([startDate, endDate])
+            parsedEvents.push(theEvents[i])
           }
         }
-
-        // @ts-expect-error
         setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents])
       } catch (error) {
         console.error('Error fetching calendar events:', error)
@@ -146,7 +144,7 @@ function TimeSelectPage() {
     if (gapi) {
       getGoogleCalData(googleCalIds)
     } else {
-      console.error('gapi not loaded')
+      return
     }
   }, [gapi, googleCalIds])
 
