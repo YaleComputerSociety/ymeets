@@ -29,5 +29,5 @@ export const Popup = ({ isOpen, onClose, children, onCloseAndSubmit }: any) => {
         </div>
       )}
     </>
-  )
-}
+  );
+};

@@ -1,66 +1,66 @@
 /* eslint-disable */
-import * as React from 'react'
+import * as React from 'react';
 // import background from '../landingpage/landingbackground.jpg'
-import { useNavigate } from 'react-router-dom'
-import { checkIfLoggedIn, getEventById } from '../../firebase/events'
-import graphic from './calendargraphic.png'
-import LoginPopup from '../utils/components/LoginPopup'
-import Footer from '../utils/components/Footer'
-import Button from '../utils/components/Button'
-import { SiGooglecalendar } from 'react-icons/si'
-import { FaLock } from 'react-icons/fa'
-import { CiLocationOn } from 'react-icons/ci'
+import { useNavigate } from 'react-router-dom';
+import { checkIfLoggedIn, getEventById } from '../../firebase/events';
+import graphic from './calendargraphic.png';
+import LoginPopup from '../utils/components/LoginPopup';
+import Footer from '../utils/components/Footer';
+import Button from '../utils/components/Button';
+import { SiGooglecalendar } from 'react-icons/si';
+import { FaLock } from 'react-icons/fa';
+import { CiLocationOn } from 'react-icons/ci';
 
 export default function HomePage() {
-  const navigate = useNavigate()
-  const [showInput, setShowInput] = React.useState(true)
-  const [eventCode, setEventCode] = React.useState('')
-  const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false)
+  const navigate = useNavigate();
+  const [showInput, setShowInput] = React.useState(true);
+  const [eventCode, setEventCode] = React.useState('');
+  const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
   const [showFormValidation, setShowFormValidation] =
-    React.useState<boolean>(false)
-  const [formErrorMessage, setFormErrorMessage] = React.useState('')
+    React.useState<boolean>(false);
+  const [formErrorMessage, setFormErrorMessage] = React.useState('');
 
   function formValidationPopup(message: string) {
-    setShowFormValidation(true)
-    setFormErrorMessage(message)
+    setShowFormValidation(true);
+    setFormErrorMessage(message);
   }
   const showEventInput = () => {
-    setShowInput(!showInput)
-  }
+    setShowInput(!showInput);
+  };
   const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
-    setEventCode(event.target.value)
-  }
+    setEventCode(event.target.value);
+  };
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
-      signInAndGoToEvent()
+      signInAndGoToEvent();
     }
-  }
+  };
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
-        navigate('/timeselect/' + eventCode)
+        navigate('/timeselect/' + eventCode);
       })
       .catch((err) => {
-        console.log(err)
-        formValidationPopup('Code is invalid.')
-      })
-  }
+        console.log(err);
+        formValidationPopup('Code is invalid.');
+      });
+  };
   const signInAndGoToEvent = () => {
     if (eventCode.length != 6) {
-      formValidationPopup('Codes are 6 characters long.')
+      formValidationPopup('Codes are 6 characters long.');
     } else if (checkIfLoggedIn()) {
-      goToEvent()
+      goToEvent();
     } else {
-      setShowLoginPopup(true)
+      setShowLoginPopup(true);
     }
-  }
+  };
   const handleLoginPopupClose = (successFlag?: boolean) => {
-    setShowLoginPopup(false)
+    setShowLoginPopup(false);
     if (successFlag) {
       // instead of checkIfLoggedIn because login is async
-      goToEvent()
+      goToEvent();
     }
-  }
+  };
 
   return (
     <>
@@ -115,7 +115,7 @@ export default function HomePage() {
                     : 'font-bold rounded-full bg-white text-black py-4 px-7 text-md transform transition-transform hover:scale-90 active:scale-100 mb-4'
                 }
                 onClick={() => {
-                  showEventInput()
+                  showEventInput();
                 }}
               >
                 I'm a Participant
@@ -169,5 +169,5 @@ export default function HomePage() {
         <Footer />
       </div>
     </>
-  )
+  );
 }

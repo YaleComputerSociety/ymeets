@@ -1,11 +1,11 @@
-import React from 'react'
-import Favicon from 'react-favicon'
+import React from 'react';
+import Favicon from 'react-favicon';
 
 export default function CalendarIcon() {
-  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const currDate = new Date(Date.now())
-  const currWeekDay = weekdays[currDate.getDay()]
-  const currMonthDay = currDate.getDate().toString().padStart(2, '0')
+  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const currDate = new Date(Date.now());
+  const currWeekDay = weekdays[currDate.getDay()];
+  const currMonthDay = currDate.getDate().toString().padStart(2, '0');
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -75,14 +75,14 @@ export default function CalendarIcon() {
         />
       </svg>
     </div>
-  )
+  );
 }
 
 export function Favi() {
-  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const currDate = new Date(Date.now())
-  const currWeekDay = weekdays[currDate.getDay()]
-  const currMonthDay = currDate.getDate().toString()
+  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const currDate = new Date(Date.now());
+  const currWeekDay = weekdays[currDate.getDay()];
+  const currMonthDay = currDate.getDate().toString();
 
   // SVG content with dynamic values
   const svgContent = `
@@ -98,11 +98,11 @@ export function Favi() {
     <text x="75" y="135" fill="white" font-size="100" text-anchor="middle" dominantBaseline="middle" font-family="arial" className="font-sans font-bold">${currMonthDay}</text>
     </svg>
 
-    `
+    `;
 
   return (
     <div className="flex flex-row items-center">
       <Favicon url={`data:image/svg+xml,${encodeURIComponent(svgContent)}`} />
     </div>
-  )
+  );
 }

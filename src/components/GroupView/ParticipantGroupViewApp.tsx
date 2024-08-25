@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import UserChart from './UserChart'
-import LocationChart from './LocationChart'
-import { calanderState, userData, calendarDimensions } from '../../types'
-import eventAPI from '../../firebase/eventAPI'
+import { useEffect, useState } from 'react';
+import UserChart from './UserChart';
+import LocationChart from './LocationChart';
+import { calanderState, userData, calendarDimensions } from '../../types';
+import eventAPI from '../../firebase/eventAPI';
 import {
   getEventOnPageload,
   getEventName,
@@ -15,107 +15,107 @@ import {
   getAccountId,
   getChosenDayAndTime,
   getZoomLink,
-} from '../../firebase/events'
-import { useParams, useNavigate } from 'react-router-dom'
-import Calender from '../selectCalendarComponents/CalendarApp'
-import AddToGoogleCalendarButton from './AddToCalendarButton'
-import Button from '../utils/components/Button'
-import InformationPopup from '../utils/components/InformationPopup'
-import { LoadingAnim } from '../utils/components/LoadingAnim'
+} from '../../firebase/events';
+import { useParams, useNavigate } from 'react-router-dom';
+import Calender from '../selectCalendarComponents/CalendarApp';
+import AddToGoogleCalendarButton from './AddToCalendarButton';
+import Button from '../utils/components/Button';
+import InformationPopup from '../utils/components/InformationPopup';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
 
 /**
  *
  * @returns Page Component Page
  */
 export default function ParticipantGroupViewPage() {
-  const { code } = useParams()
+  const { code } = useParams();
 
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
-  )
+  );
   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
     undefined
-  )
+  );
   const [calendarFramework, setCalendarFramework] = useState<
     calendarDimensions | undefined
-  >(undefined)
+  >(undefined);
 
-  const [eventName, setEventName] = useState('')
-  const [eventDescription, setEventDescription] = useState('')
-  const [locationVotes, setLocationVotes] = useState(Object)
-  const [locationOptions, setLocationOptions] = useState(Array<string>)
-  const [userChosenLocation, setUserChosenLocation] = useState('')
-  const [selectedLocation, setSelectedLocation] = useState(undefined)
+  const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [locationVotes, setLocationVotes] = useState(Object);
+  const [locationOptions, setLocationOptions] = useState(Array<string>);
+  const [userChosenLocation, setUserChosenLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(undefined);
   // const [chosenTimeRange, setChosenTimeRange] = useState(undefined);
   const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<
     [Date, Date] | undefined
-  >()
+  >();
   // const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<Date[]>([]);
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   const [dragState, setDragState] = useState({
     dragStartedOnID: [], // [columnID, blockID]
     dragEndedOnID: [],
     dragStartedOn: false,
     affectedBlocks: new Set(),
-  })
+  });
 
-  const nav = useNavigate()
+  const nav = useNavigate();
 
   const getCurrentUserIndex = () => {
-    let user = getParticipantIndex(getAccountName(), getAccountId())
+    let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
       // new user => last availability
       user =
-        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0
+        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
-    return user
-  }
+    return user;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length == 6) {
         await getEventOnPageload(code)
           .then(() => {
-            const { availabilities, participants } = eventAPI.getCalendar()
-            const dates = eventAPI.getCalendarDimensions()
+            const { availabilities, participants } = eventAPI.getCalendar();
+            const dates = eventAPI.getCalendarDimensions();
 
-            setChartedUsers(participants)
-            setCalendarState(availabilities)
-            setCalendarFramework(dates)
+            setChartedUsers(participants);
+            setCalendarState(availabilities);
+            setCalendarFramework(dates);
 
-            setEventName(getEventName())
-            setEventDescription(getEventDescription())
-            setLocationVotes(getLocationsVotes())
-            setLocationOptions(getLocationOptions())
+            setEventName(getEventName());
+            setEventDescription(getEventDescription());
+            setLocationVotes(getLocationsVotes());
+            setLocationOptions(getLocationOptions());
 
-            setSelectedDateTimeObjects(getChosenDayAndTime())
+            setSelectedDateTimeObjects(getChosenDayAndTime());
 
             // @ts-expect-error
 
-            setSelectedLocation(getChosenLocation())
-            setLoading(false)
+            setSelectedLocation(getChosenLocation());
+            setLoading(false);
           })
           .catch(() => {
-            nav('/notfound')
-          })
+            nav('/notfound');
+          });
       } else {
         // url is malformed
-        console.error("The event code in the URL doesn't exist")
-        nav('/notfound')
+        console.error("The event code in the URL doesn't exist");
+        nav('/notfound');
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center">
         <LoadingAnim />
       </div>
-    )
+    );
   }
 
   return (
@@ -135,7 +135,7 @@ export default function ParticipantGroupViewPage() {
                       selectedDateTimeObjects[0].getFullYear() != 1970
                     }
                     onClick={() => {
-                      nav('/timeselect/' + code)
+                      nav('/timeselect/' + code);
                     }}
                   >
                     <span className="mr-1">&#8592;</span> Edit Your
@@ -184,7 +184,7 @@ export default function ParticipantGroupViewPage() {
                   {locationOptions.length > 0 && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Location:</span>{' '}
-                      {selectedLocation !== undefined
+                      {selectedLocation !== undefined || selectedLocation === ''
                         ? selectedLocation
                         : 'not selected by host'}
                     </h3>
@@ -220,6 +220,7 @@ export default function ParticipantGroupViewPage() {
                   locationOptions.length > 0 ? locationOptions : ['']
                 }
                 locationVotes={Object.values(locationVotes)}
+                selectionMade={true}
               />
             </div>
           </div>
@@ -246,13 +247,15 @@ export default function ParticipantGroupViewPage() {
               />
             </div>
             <div className="pl-3">
-              {selectedDateTimeObjects != undefined && (
-                <InformationPopup
-                  content={
-                    'NOTE: Admin has selected a time, so you cannot edit your availability'
-                  }
-                />
-              )}
+              {selectedDateTimeObjects !== undefined &&
+                selectedDateTimeObjects.length > 0 &&
+                (selectedDateTimeObjects[0] as Date).getFullYear() !== 1970 && (
+                  <InformationPopup
+                    content={
+                      'NOTE: Admin has selected a time, so you cannot edit your availability'
+                    }
+                  />
+                )}
             </div>
           </div>
 
@@ -268,7 +271,7 @@ export default function ParticipantGroupViewPage() {
                       selectedDateTimeObjects[0].getFullYear() != 1970
                     }
                     onClick={() => {
-                      nav('/timeselect/' + code)
+                      nav('/timeselect/' + code);
                     }}
                   >
                     <span className="mr-1">&#8592;</span> Edit Your
@@ -309,7 +312,7 @@ export default function ParticipantGroupViewPage() {
                   {locationOptions.length > 0 && (
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Location: </span>{' '}
-                      {selectedLocation !== undefined
+                      {selectedLocation !== undefined || selectedLocation == ''
                         ? selectedLocation
                         : 'not yet selected by host'}
                     </h3>
@@ -490,5 +493,5 @@ export default function ParticipantGroupViewPage() {
         </div>
       </div> */}
     </>
-  )
+  );
 }

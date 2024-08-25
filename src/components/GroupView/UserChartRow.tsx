@@ -1,6 +1,6 @@
 interface Props {
-  available: string
-  unavailable: string
+  available: string;
+  unavailable: string;
 }
 
 /**
@@ -12,13 +12,13 @@ interface Props {
  * @param {string} unavailable - Name of the unavailable individual
  * @returns {JSX.Element}
  */
-export default function ChartRow ({ available, unavailable }: Props) {
+export default function ChartRow({ available, unavailable }: Props) {
   return (
-        <>
-            <tr className="w-1/2">
-                    <td className="p-3 text-blue-500">{available}</td>
-                    <td className="p-3 text-gray-500">{unavailable}</td>
-            </tr>
-        </>
-  )
+    <>
+      <tr className="w-1/2">
+        <td className="p-3 text-blue-500">{available}</td>
+        <td className="p-3 text-gray-500">{unavailable}</td>
+      </tr>
+    </>
+  );
 }

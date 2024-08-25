@@ -1,53 +1,53 @@
-import { useState, useEffect, useRef } from 'react'
-import './day_select_component.css'
-import CalanderComponent from '../calander_component'
-import frontendEventAPI from '../../../firebase/eventAPI'
-import { getAccountId, getAccountName } from '../../../firebase/events'
-import { useNavigate } from 'react-router-dom'
-import Select from 'react-dropdown-select'
-import Button from '../../utils/components/Button'
-import InformationPopup from '../../utils/components/InformationPopup'
-import { Input } from '../../utils/components/Input'
+import { useState, useEffect, useRef } from 'react';
+import './day_select_component.css';
+import CalanderComponent from '../calander_component';
+import frontendEventAPI from '../../../firebase/eventAPI';
+import { getAccountId, getAccountName } from '../../../firebase/events';
+import { useNavigate } from 'react-router-dom';
+import Select from 'react-dropdown-select';
+import Button from '../../utils/components/Button';
+import InformationPopup from '../../utils/components/InformationPopup';
+import { Input } from '../../utils/components/Input';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
-  const nineAM = new Date('January 1, 2023')
-  nineAM.setHours(9)
-  const fivePM = new Date('January 1, 2023')
-  fivePM.setHours(17)
+  const nineAM = new Date('January 1, 2023');
+  nineAM.setHours(9);
+  const fivePM = new Date('January 1, 2023');
+  fivePM.setHours(17);
 
-  const containerRef = useRef(null)
-  const [containerWidth, setContainerWidth] = useState(0)
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     if (containerRef.current) {
       // @ts-expect-error
-      setContainerWidth(containerRef.current.offsetWidth)
+      setContainerWidth(containerRef.current.offsetWidth);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
         // @ts-expect-error
-        setContainerWidth(containerRef.current.offsetWidth)
+        setContainerWidth(containerRef.current.offsetWidth);
       }
-    }
-    window.addEventListener('resize', handleResize)
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
-  const [eventName, setEventName] = useState('')
-  const [eventDescription, setEventDescription] = useState('')
-  const [zoomLink, setZoomLink] = useState('')
-  const [startDate, setStartDate] = useState(nineAM)
-  const [endDate, setEndDate] = useState(fivePM)
-  const [selectedDates, setSelectedDates] = useState([])
-  const [popUpMessage, setPopupMessage] = useState('')
-  const [popUpIsOpen, setPopupIsOpen] = useState(false)
-  const [locations, updateLocationsState] = useState<string[]>([])
+  const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [zoomLink, setZoomLink] = useState('');
+  const [startDate, setStartDate] = useState(nineAM);
+  const [endDate, setEndDate] = useState(fivePM);
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [popUpMessage, setPopupMessage] = useState('');
+  const [popUpIsOpen, setPopupIsOpen] = useState(false);
+  const [locations, updateLocationsState] = useState<string[]>([]);
   const [locationOptions, setLocationOptions] = useState<any[]>([
     {
       label: '17 Hillhouse',
@@ -77,24 +77,24 @@ export const DaySelectComponent = () => {
       label: 'WLH',
       value: 'WLH',
     },
-  ])
+  ]);
 
   const handleCreate = (newOption: any) => {
     // newOption contains the value of the new option created by the user
     const newOptions = [
       ...locationOptions,
       { label: newOption, value: newOption.toLowerCase() },
-    ]
-    setLocationOptions(newOptions)
-  }
+    ];
+    setLocationOptions(newOptions);
+  };
 
   const handleUpdateStartTime = (time: Date) => {
-    setStartDate(time)
-  }
+    setStartDate(time);
+  };
 
   const handleUpdateEndTime = (time: Date) => {
-    setEndDate(time)
-  }
+    setEndDate(time);
+  };
 
   const [selectedDays, setSelectedDays] = useState({
     SUN: {
@@ -125,32 +125,32 @@ export const DaySelectComponent = () => {
       dateObj: new Date(2000, 0, 8),
       selected: false,
     },
-  })
+  });
 
-  const [selectGeneralDays, setSelectGeneralDays] = useState(false)
+  const [selectGeneralDays, setSelectGeneralDays] = useState(false);
 
   const showAlert = (message: string) => {
-    setPopupMessage(message)
-    setPopupIsOpen(true)
-  }
+    setPopupMessage(message);
+    setPopupIsOpen(true);
+  };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const updateLocations = (values: any) => {
-    updateLocationsState(values)
-  }
+    updateLocationsState(values);
+  };
 
   const removeAndUpdateLocations = (toRemove: any) => {
     return () => {
-      const tmp_locations: any = []
+      const tmp_locations: any = [];
       for (let i = 0; i < locations.length; i++) {
         if (locations[i] != toRemove) {
-          tmp_locations.push(locations[i])
+          tmp_locations.push(locations[i]);
         }
       }
-      updateLocationsState(tmp_locations)
-    }
-  }
+      updateLocationsState(tmp_locations);
+    };
+  };
   const verifyNextAndSubmitEvent = () => {
     if (
       startDate.getHours() === 0 &&
@@ -161,37 +161,37 @@ export const DaySelectComponent = () => {
       endDate.getSeconds() === 0
     ) {
       // alert('Make sure to enter times!');
-      alert('Make sure to enter times!')
-      return
+      alert('Make sure to enter times!');
+      return;
     }
 
     if (startDate >= endDate) {
       // alert('Make sure your end time is after your start time!');
-      alert('Make sure your end time is after your start time!')
-      return
+      alert('Make sure your end time is after your start time!');
+      return;
     }
 
     // Optional; backend supports an empty string for name
     if (eventName.length == 0) {
       // alert('Make sure to name your event!');
-      alert('Make sure to name your event!')
-      return
+      alert('Make sure to name your event!');
+      return;
     }
 
     if (selectGeneralDays) {
-      const generallySelectedDates: Date[] = []
+      const generallySelectedDates: Date[] = [];
 
       Object.keys(selectedDays).forEach((day) => {
         // @ts-expect-error
         if (selectedDays[day].selected === true) {
           // @ts-expect-error
-          generallySelectedDates.push(selectedDays[day].dateObj)
+          generallySelectedDates.push(selectedDays[day].dateObj);
         }
-      })
+      });
 
       if (generallySelectedDates.length == 0) {
-        alert('You need to pick some days!')
-        return
+        alert('You need to pick some days!');
+        return;
       }
 
       frontendEventAPI
@@ -207,13 +207,13 @@ export const DaySelectComponent = () => {
           zoomLink
         )
         .then((ev) => {
-          navigate('/timeselect/' + ev?.publicId)
-        })
+          navigate('/timeselect/' + ev?.publicId);
+        });
     } else {
       if (selectedDates.length == 0) {
         // alert('Make sure to enter dates!');
-        alert('Make sure to enter dates!')
-        return
+        alert('Make sure to enter dates!');
+        return;
       }
 
       frontendEventAPI
@@ -229,17 +229,17 @@ export const DaySelectComponent = () => {
           zoomLink
         )
         .then((ev) => {
-          navigate('/timeselect/' + ev?.publicId)
-        })
+          navigate('/timeselect/' + ev?.publicId);
+        });
     }
-  }
+  };
 
   const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
-    setSelectGeneralDays(tab === 'General Days')
-  }
+    setSelectGeneralDays(tab === 'General Days');
+  };
 
   const inputClasses =
-    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white'
+    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white';
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
@@ -251,7 +251,7 @@ export const DaySelectComponent = () => {
               placeholder="Event Name"
               value={eventName}
               onChange={(e: any) => {
-                setEventName(e.target.value)
+                setEventName(e.target.value);
               }}
               maxLength={40}
             />
@@ -262,7 +262,7 @@ export const DaySelectComponent = () => {
               placeholder="Event Description"
               value={eventDescription}
               onChange={(e: any) => {
-                setEventDescription(e.target.value)
+                setEventDescription(e.target.value);
               }}
             />
           </div>
@@ -272,7 +272,7 @@ export const DaySelectComponent = () => {
               placeholder="Zoom Link (Optional)"
               value={zoomLink}
               onChange={(e) => {
-                setZoomLink(e.target.value)
+                setZoomLink(e.target.value);
               }}
             />
           </div>
@@ -287,8 +287,8 @@ export const DaySelectComponent = () => {
                   clearOnSelect={false}
                   values={[]}
                   onChange={(values) => {
-                    const selectedValues = values.map((val) => val.value)
-                    updateLocationsState(selectedValues)
+                    const selectedValues = values.map((val) => val.value);
+                    updateLocationsState(selectedValues);
                   }}
                   placeholder="Location Options (Optional)"
                   noDataRenderer={() => (
@@ -299,14 +299,14 @@ export const DaySelectComponent = () => {
                   onDropdownOpen={() => {
                     const handle = document.querySelector(
                       '.react-dropdown-select-dropdown-handle'
-                    )
-                    if (handle) handle.classList.add('open')
+                    );
+                    if (handle) handle.classList.add('open');
                   }}
                   onDropdownClose={() => {
                     const handle = document.querySelector(
                       '.react-dropdown-select-dropdown-handle'
-                    )
-                    if (handle) handle.classList.remove('open')
+                    );
+                    if (handle) handle.classList.remove('open');
                   }}
                 />
               </div>
@@ -350,7 +350,7 @@ export const DaySelectComponent = () => {
         <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
           <button
             onClick={() => {
-              handleTabChange('Specific Days')
+              handleTabChange('Specific Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
               selectGeneralDays ? 'text-black' : 'text-white'
@@ -365,7 +365,7 @@ export const DaySelectComponent = () => {
           </button>
           <button
             onClick={() => {
-              handleTabChange('General Days')
+              handleTabChange('General Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative general-days-button ${
               selectGeneralDays ? 'text-white' : 'text-black'
@@ -405,5 +405,5 @@ export const DaySelectComponent = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

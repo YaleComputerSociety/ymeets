@@ -1,63 +1,63 @@
-import React from 'react'
-import NavLogo from './NavLogo'
-import { checkIfLoggedIn, getAccountName } from '../../firebase/events'
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IconUser } from '@tabler/icons-react'
-import { signInWithGoogle } from '../../firebase/auth'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../../firebase/firebase'
-import { GAPIContext } from '../../firebase/gapiContext'
-import { useContext } from 'react'
-import { FaCog } from 'react-icons/fa'
-import { logout } from '../../firebase/auth'
+import React from 'react';
+import NavLogo from './NavLogo';
+import { checkIfLoggedIn, getAccountName } from '../../firebase/events';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IconUser } from '@tabler/icons-react';
+import { signInWithGoogle } from '../../firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../firebase/firebase';
+import { GAPIContext } from '../../firebase/gapiContext';
+import { useContext } from 'react';
+import { FaCog } from 'react-icons/fa';
+import { logout } from '../../firebase/auth';
 import {
   FaInfoCircle,
   FaCalendarAlt,
   FaSignInAlt,
   FaSignOutAlt,
-} from 'react-icons/fa'
-import { MdFeedback } from 'react-icons/md'
+} from 'react-icons/fa';
+import { MdFeedback } from 'react-icons/md';
 
 export default function NavBar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [menuState, setMenuState] = useState('closed')
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [menuState, setMenuState] = useState('closed');
 
-  const nav = useNavigate()
+  const nav = useNavigate();
 
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext)
+  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
 
   // const handleGearClick = () => {
   //     setIsOpen(!isOpen)
   // };
 
   const handleMouseLeave = () => {
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
   const handleGearClick = () => {
     if (menuState === 'closed') {
-      setMenuState('opening')
-      setTimeout(() => setMenuState('open'), 10)
+      setMenuState('opening');
+      setTimeout(() => setMenuState('open'), 10);
     } else {
-      setMenuState('closed')
+      setMenuState('closed');
     }
-  }
+  };
 
   useEffect(() => {
     return onAuthStateChanged(auth, () => {
-      let obtainedName = getAccountName().split(' ')[0]
+      let obtainedName = getAccountName().split(' ')[0];
 
       // console.log(obtainedName)
 
       if (obtainedName.length >= 11) {
-        setName(obtainedName.slice(0, 10) + '...')
+        setName(obtainedName.slice(0, 10) + '...');
       } else {
-        setName(obtainedName)
+        setName(obtainedName);
       }
-    })
-  })
+    });
+  });
 
   return (
     <>
@@ -96,8 +96,8 @@ export default function NavBar() {
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
                       onClick={() => {
-                        nav('/about-us')
-                        setMenuState('closed')
+                        nav('/about-us');
+                        setMenuState('closed');
                       }}
                     >
                       <FaInfoCircle className="mr-2" /> About Us
@@ -107,8 +107,8 @@ export default function NavBar() {
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
                       onClick={() => {
-                        nav('/useraccount')
-                        setMenuState('closed')
+                        nav('/useraccount');
+                        setMenuState('closed');
                       }}
                     >
                       <FaCalendarAlt className="mr-2" /> Events
@@ -120,7 +120,7 @@ export default function NavBar() {
                       target="_blank"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
                       onClick={() => {
-                        setMenuState('closed')
+                        setMenuState('closed');
                       }}
                     >
                       <MdFeedback className="mr-2" /> Feedback
@@ -131,9 +131,9 @@ export default function NavBar() {
                         href="#"
                         className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
                         onClick={() => {
-                          logout(gapi)
-                          setMenuState('closed')
-                          nav('/')
+                          logout(gapi);
+                          setMenuState('closed');
+                          nav('/');
                         }}
                       >
                         <FaSignOutAlt className="mr-2" /> Logout
@@ -149,10 +149,10 @@ export default function NavBar() {
                             handleIsSignedIn
                           ).then((loginSuccessful) => {
                             if (loginSuccessful) {
-                              window.location.reload()
+                              window.location.reload();
                             }
-                          })
-                          setMenuState('closed')
+                          });
+                          setMenuState('closed');
                         }}
                       >
                         <FaSignInAlt className="mr-2" /> Login
@@ -174,5 +174,5 @@ export default function NavBar() {
       </div>
       <div className="h-8 md:h-10"></div>
     </>
-  )
+  );
 }

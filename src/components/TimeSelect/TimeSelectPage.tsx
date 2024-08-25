@@ -1,15 +1,15 @@
 /* eslint-disable */
 
-import { LocationSelectionComponent } from './LocationSelectionComponent'
-import { useState, useEffect } from 'react'
+import { LocationSelectionComponent } from './LocationSelectionComponent';
+import { useState, useEffect } from 'react';
 import {
   calanderState,
   userData,
   calendarDimensions,
   Availability,
-} from '../../types'
-import eventAPI from '../../firebase/eventAPI'
-import { useNavigate, useParams } from 'react-router-dom'
+} from '../../types';
+import eventAPI from '../../firebase/eventAPI';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   getAccountId,
   getAccountName,
@@ -23,91 +23,91 @@ import {
   getParticipantIndex,
   checkIfLoggedIn,
   getChosenDayAndTime,
-} from '../../firebase/events'
-import Calendar from '../selectCalendarComponents/CalendarApp'
-import { Popup } from '../utils/components/Popup'
-import FormGroup from '@mui/material/FormGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup'
-import { LoadingAnim } from '../utils/components/LoadingAnim'
-import { signInWithGoogle } from '../../firebase/auth'
-import LOGO from '../DaySelect/general_popup_component/googlelogo.png'
-import { GAPIContext } from '../../firebase/gapiContext'
-import { useContext } from 'react'
-import Button from '../utils/components/Button'
-import InformationPopup from '../utils/components/InformationPopup'
+} from '../../firebase/events';
+import Calendar from '../selectCalendarComponents/CalendarApp';
+import { Popup } from '../utils/components/Popup';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
+import { signInWithGoogle } from '../../firebase/auth';
+import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
+import { GAPIContext } from '../../firebase/gapiContext';
+import { useContext } from 'react';
+import Button from '../utils/components/Button';
+import InformationPopup from '../utils/components/InformationPopup';
 
 /**
  *
  * @returns Page Component
  */
 function TimeSelectPage() {
-  const { code } = useParams()
-  const [isGcalPopupOpen, setGcalPopupOpen] = useState(false)
+  const { code } = useParams();
+  const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
-  const nav = useNavigate()
+  const nav = useNavigate();
 
   const closeGcalPopup = () => {
-    setGcalPopupOpen(false)
-  }
+    setGcalPopupOpen(false);
+  };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
-  )
+  );
   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
     undefined
-  )
+  );
   const [calendarFramework, setCalendarFramework] = useState<
     calendarDimensions | undefined
-  >(undefined)
+  >(undefined);
 
-  const [selectedLocations, updateSelectedLocations] = useState([])
+  const [selectedLocations, updateSelectedLocations] = useState([]);
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
-  const [eventName, setEventName] = useState('')
-  const [eventDescription, setEventDescription] = useState('')
-  const [locationOptions, setLocationOptions] = useState(Array<string>)
+  const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [locationOptions, setLocationOptions] = useState(Array<string>);
 
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([])
-  const [promptUserForLogin, setPromptUserForLogin] = useState(false)
+  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([]);
+  const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   // hook that handles whether or not we are working with dates, or just selecting days of the week
-  const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false)
+  const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false);
 
   const endPromptUserForLogin = () => {
-    setPromptUserForLogin(false)
-    window.location.reload()
-  }
+    setPromptUserForLogin(false);
+    window.location.reload();
+  };
 
   const [dragState, setDragState] = useState({
     dragStartedOnID: [], // [columnID, blockID]
     dragEndedOnID: [],
     dragStartedOn: false,
     affectedBlocks: new Set(),
-  })
+  });
 
-  const gapiContext = useContext(GAPIContext)
-  const { gapi, handleIsSignedIn } = gapiContext
+  const gapiContext = useContext(GAPIContext);
+  const { gapi, handleIsSignedIn } = gapiContext;
 
-  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([])
-  const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary'])
-  const [googleCalendars, setGoogleCalendars] = useState<any[]>([])
-  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>()
+  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([]);
+  const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
+  const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
+  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>();
 
   useEffect(() => {
     const getGoogleCalData = async (calIds: string[]) => {
       try {
         // @ts-expect-error
-        const theDates = [].concat(...(calendarFramework?.dates || []))
+        const theDates = [].concat(...(calendarFramework?.dates || []));
 
-        const parsedEvents = []
+        const parsedEvents = [];
 
         if (calIds.length == 0) {
-          setGoogleCalendarEvents([])
-          return
+          setGoogleCalendarEvents([]);
+          return;
         }
 
         for (let i = 0; i < calIds.length; i++) {
@@ -120,33 +120,33 @@ function TimeSelectPage() {
             timeMax: theDates[theDates.length - 1].date.toISOString(),
             singleEvents: true,
             orderBy: 'startTime',
-          })
+          });
 
-          const theEvents = eventList.result.items
+          const theEvents = eventList.result.items;
 
           for (let i = 0; i < theEvents.length; i++) {
-            const startDate = new Date(theEvents[i].start.dateTime)
-            const endDate = new Date(theEvents[i].end.dateTime)
+            const startDate = new Date(theEvents[i].start.dateTime);
+            const endDate = new Date(theEvents[i].end.dateTime);
 
             if (startDate.getDay() != endDate.getDay()) {
-              continue
+              continue;
             }
 
-            parsedEvents.push(theEvents[i])
+            parsedEvents.push(theEvents[i]);
           }
         }
-        setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents])
+        setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
       } catch (error) {
-        console.error('Error fetching calendar events:', error)
+        console.error('Error fetching calendar events:', error);
       }
-    }
+    };
 
     if (gapi) {
-      getGoogleCalData(googleCalIds)
+      getGoogleCalData(googleCalIds);
     } else {
-      return
+      return;
     }
-  }, [gapi, googleCalIds])
+  }, [gapi, googleCalIds]);
 
   const fetchUserCals = async () => {
     return await new Promise((resolve, reject) => {
@@ -155,66 +155,66 @@ function TimeSelectPage() {
         .list()
         // @ts-expect-error
         .then((response) => {
-          const calendars = response.result.items
-          resolve(calendars)
+          const calendars = response.result.items;
+          resolve(calendars);
         })
         // @ts-expect-error
         .catch((error) => {
-          reject(error)
-        })
-    })
-  }
+          reject(error);
+        });
+    });
+  };
 
   const onPopupCloseAndSubmit = () => {
     // @ts-expect-error
-    setGoogleCalIds(selectedPopupIds)
-    setGcalPopupOpen(false)
-  }
+    setGoogleCalIds(selectedPopupIds);
+    setGcalPopupOpen(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length === 6) {
         await getEventOnPageload(code).then(() => {
-          const { availabilities, participants } = eventAPI.getCalendar()
-          const dim = eventAPI.getCalendarDimensions()
+          const { availabilities, participants } = eventAPI.getCalendar();
+          const dim = eventAPI.getCalendarDimensions();
 
           if (dim == undefined) {
-            nav('/notfound')
+            nav('/notfound');
           }
 
-          const accountName = getAccountName()
+          const accountName = getAccountName();
           if (accountName === null) {
-            return
+            return;
           }
           // @ts-expect-error
-          setSelectedDateTimeObjects(getChosenDayAndTime())
+          setSelectedDateTimeObjects(getChosenDayAndTime());
 
           let avail: Availability | undefined =
             getAccountId() === ''
               ? getAvailabilityByAccountId(getAccountId())
-              : getAvailabilityByName(accountName)
+              : getAvailabilityByName(accountName);
 
           if (avail === undefined) {
-            avail = eventAPI.getEmptyAvailability(dim)
+            avail = eventAPI.getEmptyAvailability(dim);
           }
 
-          setChartedUsers(participants)
+          setChartedUsers(participants);
 
-          setEventName(getEventName())
-          setEventDescription(getEventDescription())
-          setLocationOptions(getLocationOptions())
+          setEventName(getEventName());
+          setEventDescription(getEventDescription());
+          setLocationOptions(getLocationOptions());
 
-          const theRange = getChosenDayAndTime()
+          const theRange = getChosenDayAndTime();
           //@ts-expect-error
-          setSelectedDateTimeObjects(theRange)
-          setCalendarState([...availabilities, avail])
-          setCalendarFramework(dim)
+          setSelectedDateTimeObjects(theRange);
+          setCalendarState([...availabilities, avail]);
+          setCalendarFramework(dim);
 
           /* The first date having a year be 2000 means that it was a general days selection */
           setAreSelectingGeneralDays(
             dim?.dates[0][0].date?.getFullYear() == 2000 &&
               theRange === undefined
-          )
+          );
 
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
           if (
@@ -223,27 +223,27 @@ function TimeSelectPage() {
             theRange?.length !== 0 &&
             theRange[0].getFullYear() != 1970
           ) {
-            nav('/groupview/' + code)
+            nav('/groupview/' + code);
           }
-        })
+        });
       } else {
-        console.error("The event code in the URL doesn't exist")
-        nav('/notfound')
+        console.error("The event code in the URL doesn't exist");
+        nav('/notfound');
       }
-    }
+    };
 
     fetchData()
       .then(() => {
         if (getAccountName() == '' || getAccountName() == undefined) {
-          setPromptUserForLogin(true)
+          setPromptUserForLogin(true);
         }
 
-        setLoading(false)
+        setLoading(false);
       })
       .catch((err) => {
-        console.error(err)
-      })
-  }, [])
+        console.error(err);
+      });
+  }, []);
 
   if (loading) {
     return (
@@ -251,30 +251,30 @@ function TimeSelectPage() {
         <LoadingAnim />
         <p className="text-gray-500">Loading...</p>
       </div>
-    )
+    );
   }
 
   const getCurrentUserIndex = () => {
-    let user = getParticipantIndex(getAccountName(), getAccountId())
+    let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
       // new user => last availability
       user =
-        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0
+        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
-    return user
-  }
+    return user;
+  };
 
   const saveAvailAndLocationChanges = () => {
-    const user = getCurrentUserIndex()
+    const user = getCurrentUserIndex();
     // @ts-expect-error
-    const avail = calendarState[user]
-    wrappedSaveParticipantDetails(avail, selectedLocations)
-    navigate(`/groupview/${code}`)
-  }
+    const avail = calendarState[user];
+    wrappedSaveParticipantDetails(avail, selectedLocations);
+    navigate(`/groupview/${code}`);
+  };
 
   const handleSubmitAvailability = () => {
-    saveAvailAndLocationChanges()
-  }
+    saveAvailAndLocationChanges();
+  };
 
   return (
     <div className="bg-sky-100 w-full px-4 md:px-8 lg:px-12">
@@ -364,13 +364,13 @@ function TimeSelectPage() {
                   fetchUserCals()
                     .then((calendars) => {
                       // @ts-expect-error
-                      setGoogleCalendars(calendars)
+                      setGoogleCalendars(calendars);
 
-                      setGcalPopupOpen(true)
+                      setGcalPopupOpen(true);
                     })
                     .catch((error) => {
-                      console.error('Error fetching Google Calendars:', error)
-                    })
+                      console.error('Error fetching Google Calendars:', error);
+                    });
                 }}
               >
                 Toggle GCal Availabilities
@@ -386,12 +386,12 @@ function TimeSelectPage() {
                     signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
                       (loginSuccessful) => {
                         if (loginSuccessful) {
-                          window.location.reload()
+                          window.location.reload();
                         } else {
-                          console.error('login failed')
+                          console.error('login failed');
                         }
                       }
-                    )
+                    );
                   }}
                 >
                   <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
@@ -420,12 +420,12 @@ function TimeSelectPage() {
                 setSelectedPopupIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     // If the ID is already in the array, remove it
-                    return prevState.filter((id) => id !== cal.id)
+                    return prevState.filter((id) => id !== cal.id);
                   } else {
                     // If the ID is not in the array, add it
-                    return [...(prevState || []), cal.id]
+                    return [...(prevState || []), cal.id];
                   }
-                })
+                });
               }}
             />
           ))}
@@ -438,7 +438,7 @@ function TimeSelectPage() {
         />
       )}
     </div>
-  )
+  );
 }
 
-export default TimeSelectPage
+export default TimeSelectPage;

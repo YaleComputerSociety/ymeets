@@ -1,14 +1,14 @@
-import React, { useContext } from 'react'
-import { signInWithGoogle } from '../../../firebase/auth'
-import { useNavigate } from 'react-router-dom'
-import './general_popup_component.css'
-import LOGO from './googlelogo.png'
-import { GAPIContext } from '../../../firebase/gapiContext'
+import React, { useContext } from 'react';
+import { signInWithGoogle } from '../../../firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import './general_popup_component.css';
+import LOGO from './googlelogo.png';
+import { GAPIContext } from '../../../firebase/gapiContext';
 
 interface GeneralPopupProps {
-  onClose: () => void
-  message: string
-  isLogin: boolean
+  onClose: () => void;
+  message: string;
+  isLogin: boolean;
 }
 
 export const GeneralPopup: React.FC<GeneralPopupProps> = ({
@@ -16,9 +16,9 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
   message,
   isLogin,
 }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const gapiContext = useContext(GAPIContext)
+  const gapiContext = useContext(GAPIContext);
 
   // Access properties or functions from the context
   const {
@@ -29,29 +29,29 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
     GAPILoading,
     setGAPILoading,
     handleIsSignedIn,
-  } = gapiContext
+  } = gapiContext;
 
   const handleSignInWithGoogle = () => {
     signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
       (loginSuccessful) => {
         if (loginSuccessful !== false) {
-          navigate('/dayselect')
-          onClose()
-          document.body.classList.remove('popup-open')
+          navigate('/dayselect');
+          onClose();
+          document.body.classList.remove('popup-open');
         }
       }
-    )
-  }
+    );
+  };
 
   React.useEffect(() => {
     // Add the class when the component mounts
-    document.body.classList.add('popup-open')
+    document.body.classList.add('popup-open');
 
     // Remove the class when the component unmounts
     return () => {
-      document.body.classList.remove('popup-open')
-    }
-  }, [])
+      document.body.classList.remove('popup-open');
+    };
+  }, []);
 
   return (
     <div className="popup-overlay active z-100">
@@ -78,5 +78,5 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

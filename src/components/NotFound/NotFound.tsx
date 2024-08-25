@@ -1,20 +1,20 @@
-import React from 'react'
-import Button from '../utils/components/Button'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import Button from '../utils/components/Button';
+import { useNavigate } from 'react-router-dom';
 
 export default function NotFound() {
-  const [changeIcon, setChangeIcon] = React.useState(false)
-  const nav = useNavigate()
+  const [changeIcon, setChangeIcon] = React.useState(false);
+  const nav = useNavigate();
   return (
     <div className="flex items-start justify-center h-[80%] bg-sky-100">
       <div className="flex md:flex-row flex-col text-center justify-center items-center">
         <div
           className="flex w-fit"
           onMouseOver={() => {
-            setChangeIcon(true)
+            setChangeIcon(true);
           }}
           onMouseOut={() => {
-            setChangeIcon(false)
+            setChangeIcon(false);
           }}
         >
           <div className={changeIcon ? '' : 'hidden'}>
@@ -244,5 +244,5 @@ export default function NotFound() {
         </div>
       </div>
     </div>
-  )
+  );
 }

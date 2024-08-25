@@ -1,18 +1,18 @@
 /* eslint-disable */
 
-import React from 'react'
-import no_person from './anon.jpeg'
-import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa'
-import group from './ymeetsgroupimage.png'
-import ETHAN from './EthanMathieu.jpeg'
-import NICK from './NicholasRibeiero.jpg'
-import RON from './RonCheng.png'
-import ROME from './Rome Thorstenson.png'
-import LILY from './LilyLin.jpeg'
-import LAILAH from './lailah.jpeg'
-import JIAKANG from './Jiakang.png'
-import ALAN from './AlanXie.jpg'
-import SHANKARA from './Shankara_Headshot.jpeg'
+import React from 'react';
+import no_person from './anon.jpeg';
+import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+import group from './ymeetsgroupimage.png';
+import ETHAN from './EthanMathieu.jpeg';
+import NICK from './NicholasRibeiero.jpg';
+import RON from './RonCheng.png';
+import ROME from './Rome Thorstenson.png';
+import LILY from './LilyLin.jpeg';
+import LAILAH from './lailah.jpeg';
+import JIAKANG from './Jiakang.png';
+import ALAN from './AlanXie.jpg';
+import SHANKARA from './Shankara_Headshot.jpeg';
 
 const CONTRIBUTORS = [
   {
@@ -104,16 +104,16 @@ const CONTRIBUTORS = [
     portfolio: undefined,
     image: SHANKARA,
   },
-]
+];
 
 interface ContributorCardProps {
-  name: string | undefined
-  title: string[] | undefined
-  founding: boolean | undefined
-  linkedin: string | undefined
-  portfolio: string | undefined
-  github: string | undefined
-  image: string | undefined
+  name: string | undefined;
+  title: string[] | undefined;
+  founding: boolean | undefined;
+  linkedin: string | undefined;
+  portfolio: string | undefined;
+  github: string | undefined;
+  image: string | undefined;
 }
 
 /**
@@ -149,7 +149,7 @@ function ContributorCard({
               'Software Engineer': 'text-blue-500 border-blue-500',
               'UI/UX Designer': 'text-pink-500 border-pink-500',
               'Product Lead': 'text-amber-500 border-amber-500',
-            }
+            };
             return (
               <h3
                 className={
@@ -159,7 +159,7 @@ function ContributorCard({
               >
                 {subtitle}
               </h3>
-            )
+            );
           })}
           <p className="text-gray-500 border-gray-500 text-md rounded-full border px-4 py-1 w-fit">
             {founding === true ? 'Founding Member' : ''}
@@ -190,7 +190,7 @@ function ContributorCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -207,26 +207,20 @@ export default function AboutUsPage() {
                             lg:flex-row"
         >
           <p className="text-xl text-gray-700">
-            Our app ymeets has been in development since late 2022, starting
-            intially as the app "Study Buddy" by Rome Thortensen (Yale '25) and
-            Ethan Mathieu (Yale '25). Since then, this project has undergone
-            several transformations as we hopped from different codebases and
-            different ideas (we almost named it Beluga!).
-            <br />
-            <br />
-            By 2024, our goal is to create a platform for making the scheduling
-            of group events easier. We took inspiration from sites like
-            when2meet, reverse engineering the features we liked, and integrated
-            our own ideas, features, and designs. As of right now, this app is
-            built and maintained by a small team of passionate{' '}
+            Frusturated with unaesthetic group schedulers that lacked modern
+            integrations and were not tailored to the college student's needs,
+            we set out to provide our own solution. <br /> <br />
+            ymeets is a platform designed to make it easier to schedule group
+            events @ Yale by leveraging Google Calendar and allowing the
+            physical location for meetings to also be decided on. The app is
+            built and maintained by a small team of{' '}
             <a
               className="text-blue-500 "
               href="https://yalecomputersociety.org/"
             >
               y/cs (Yale Computer Society){' '}
             </a>
-            developers hoping to make scheduling more user friendly and
-            convenient. If you have concerns about our app uses your
+            developers. If you have concerns about our app uses your
             information, please go to the following{' '}
             <a className="text-blue-500" href="/privacy">
               page
@@ -236,8 +230,8 @@ export default function AboutUsPage() {
           <img
             className="inline-block mb-6 md:ml-6"
             src={group}
-            height={350}
-            width={350}
+            height={300}
+            width={300}
           ></img>
         </div>
         <br />
@@ -255,10 +249,10 @@ export default function AboutUsPage() {
                 github={c.github}
                 image={c.image}
               />
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import './privacyPolicy.css'
+import './privacyPolicy.css';
 
 /**
  *
@@ -623,5 +623,5 @@ export default function PrivacyPage() {
         </p>
       </div>
     </div>
-  )
+  );
 }

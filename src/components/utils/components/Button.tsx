@@ -1,13 +1,13 @@
 interface Props {
-  bgColor: string
-  textColor: string
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
-  children: React.ReactNode
-  disabled?: boolean
-  rounded?: 'full' | 'lg' // Border radius
-  textSize?: 'sm' | 'md' | 'lg' // Text size
-  px?: string // Padding-left and padding-right
-  py?: string // Padding-top and padding-bottom
+  bgColor: string;
+  textColor: string;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  children: React.ReactNode;
+  disabled?: boolean;
+  rounded?: 'full' | 'lg'; // Border radius
+  textSize?: 'sm' | 'md' | 'lg'; // Text size
+  px?: string; // Padding-left and padding-right
+  py?: string; // Padding-top and padding-bottom
 }
 
 export default function Button({
@@ -21,9 +21,9 @@ export default function Button({
   px = '7', // Default padding
   py = '4', // Default padding
 }: Props) {
-  const borderRadius = rounded === 'full' ? 'rounded-full' : 'rounded-lg'
+  const borderRadius = rounded === 'full' ? 'rounded-full' : 'rounded-lg';
   const textSizeClass =
-    textSize === 'sm' ? 'text-sm' : textSize === 'md' ? 'text-base' : 'text-lg'
+    textSize === 'sm' ? 'text-sm' : textSize === 'md' ? 'text-base' : 'text-lg';
 
   return (
     <button
@@ -33,5 +33,5 @@ export default function Button({
     >
       {children}
     </button>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-import { useState, useCallback, useContext } from 'react'
-import { getAccountId, getEventObjectForGCal } from '../../firebase/events'
-import { GAPIContext } from '../../firebase/gapiContext'
-import { signInWithGoogle } from '../../firebase/auth'
-import { LoadingAnim } from '../utils/components/LoadingAnim'
-import googleLogo from '../utils/components/LoginPopup/googlelogo.png'
-import googleCalLogo from './google-calendar-icon.png'
+import { useState, useCallback, useContext } from 'react';
+import { getAccountId, getEventObjectForGCal } from '../../firebase/events';
+import { GAPIContext } from '../../firebase/gapiContext';
+import { signInWithGoogle } from '../../firebase/auth';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
+import googleLogo from '../utils/components/LoginPopup/googlelogo.png';
+import googleCalLogo from './google-calendar-icon.png';
 
 /**
  *
@@ -13,38 +13,39 @@ import googleCalLogo from './google-calendar-icon.png'
  * @returns Page Support Component - Admin View
  */
 function AddToGoogleCalendarButton(): JSX.Element {
-  const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext)
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<string>('')
+  const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<string>('');
 
   const createCalendarEvent = useCallback(
     async (event: any) => {
       if (!gapi) {
-        alert('gapi not loaded')
-        return
+        alert('gapi not loaded');
+        return;
       }
-      setLoading(true)
-      setStatus('Adding Event...')
+      setLoading(true);
+      setStatus('Adding Event...');
 
       try {
         // @ts-expect-error
         await gapi.client.calendar.events.insert({
           calendarId: 'primary',
           resource: event,
-        })
-        setStatus('Event Added!')
+          sendUpdates: 'all',
+        });
+        setStatus('Event Added!');
       } catch (e) {
-        console.error('Error creating user event: ', e)
-        setStatus('Event could not be added')
+        console.error('Error creating user event: ', e);
+        setStatus('Event could not be added');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     [gapi]
-  )
+  );
 
   if (GAPILoading) {
-    return <LoadingAnim />
+    return <LoadingAnim />;
   }
 
   return (
@@ -55,10 +56,10 @@ function AddToGoogleCalendarButton(): JSX.Element {
       onClick={
         getAccountId() !== ''
           ? async () => {
-              await createCalendarEvent(getEventObjectForGCal())
+              await createCalendarEvent(getEventObjectForGCal());
             }
           : () => {
-              signInWithGoogle(undefined, gapi, handleIsSignedIn)
+              signInWithGoogle(undefined, gapi, handleIsSignedIn);
             }
       }
       disabled={loading}
@@ -79,7 +80,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
         </>
       )}
     </button>
-  )
+  );
 }
 
-export default AddToGoogleCalendarButton
+export default AddToGoogleCalendarButton;

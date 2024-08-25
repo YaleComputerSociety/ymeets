@@ -1,13 +1,13 @@
-import React from 'react'
+import React from 'react';
 
 interface InputProps {
-  id?: string
-  className?: string
-  placeholder?: string
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  rows?: number
-  maxLength?: number
+  id?: string;
+  className?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+  maxLength?: number;
 }
 
 export function Input({
@@ -28,7 +28,7 @@ export function Input({
       rows={rows}
       maxLength={maxLength}
     />
-  )
+  );
 }
 
 // export function Input() {

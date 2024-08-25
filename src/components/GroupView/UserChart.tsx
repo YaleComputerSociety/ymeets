@@ -1,14 +1,14 @@
 /* eslint-disable */
 
-import React from 'react'
-import ChartRow from './UserChartRow'
-import { userData } from '../../types'
+import React from 'react';
+import ChartRow from './UserChartRow';
+import { userData } from '../../types';
 
 interface UserChartProps {
   chartedUsersData: [
     userData[],
     React.Dispatch<React.SetStateAction<userData[]>>,
-  ]
+  ];
 }
 
 /**
@@ -19,14 +19,14 @@ interface UserChartProps {
  * @returns Page Support Component - Admin View
  */
 const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
-  const [chartedUsers, setChartedUsers] = chartedUsersData
+  const [chartedUsers, setChartedUsers] = chartedUsersData;
 
   const numRows = Math.max(
     // @ts-expect-error
     chartedUsers.available.length,
     // @ts-expect-error
     chartedUsers.unavailable.length
-  )
+  );
 
   const rows: Array<[string, string]> = Array.from(
     { length: numRows },
@@ -36,7 +36,7 @@ const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
       // @ts-expect-error
       chartedUsers.unavailable[i]?.name || '',
     ]
-  )
+  );
 
   return (
     <div className="flex justify-center items-center text-center bg-white rounded-lg mb-3 md:mb-4">
@@ -58,7 +58,7 @@ const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
-export default UserChart
+export default UserChart;

@@ -3,44 +3,44 @@ import {
   calendarDimensions,
   calanderState,
   userData,
-} from '../../types'
-import CalBlock from './CalBlock'
-import { dragProperties } from './CalendarApp'
-import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable'
-import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM'
-import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates'
-import { useState } from 'react'
+} from '../../types';
+import CalBlock from './CalBlock';
+import { dragProperties } from './CalendarApp';
+import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
+import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM';
+import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
+import { useState } from 'react';
 
 interface CalRowProps {
-  bucket: calandarDate[]
+  bucket: calandarDate[];
   theCalendarState:
     | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined
-  draggable: boolean
-  isAdmin?: boolean
+    | undefined;
+  draggable: boolean;
+  isAdmin?: boolean;
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined
-  user: number
-  columnIndexOffSet: number
-  blockID: number
-  is30Minute: boolean
+    | undefined;
+  user: number;
+  columnIndexOffSet: number;
+  blockID: number;
+  is30Minute: boolean;
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
-  ]
+  ];
   theCalendarFramework:
     | [
         calendarDimensions,
         React.Dispatch<React.SetStateAction<calendarDimensions>>,
       ]
-    | undefined
-  borderStyle?: string // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
+    | undefined;
+  borderStyle?: string; // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
   theSelectedDate:
     | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined
-  theGoogleCalendarEvents: [any, React.Dispatch<React.SetStateAction<any>>]
-  time: string
+    | undefined;
+  theGoogleCalendarEvents: [any, React.Dispatch<React.SetStateAction<any>>];
+  time: string;
 }
 
 export default function CalRow({
@@ -61,7 +61,7 @@ export default function CalRow({
   time,
 }: CalRowProps) {
   const [googleCalendarEvents, setGoogleCalendarEvents] =
-    theGoogleCalendarEvents
+    theGoogleCalendarEvents;
 
   return (
     <div
@@ -78,17 +78,17 @@ export default function CalRow({
             (dates: any) =>
               dateObjectToComparable(dates[0]) ===
               dateObjectToComparable(d.date)
-          )
+          );
         // @ts-expect-error
         const isOnGcal = matchedDates?.some((dateRange) =>
           isTimeBetweenDates(dateRange[0], dateRange[1], time)
-        )
+        );
 
         const matchedEvents = googleCalendarEvents?.filter(
           (gEvent: any) =>
             dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
             dateObjectToComparable(d.date)
-        )
+        );
 
         const surroundingEvents = matchedEvents?.filter((gEvent: any) =>
           isTimeBetweenDates(
@@ -96,7 +96,7 @@ export default function CalRow({
             new Date(gEvent.end.dateTime),
             time
           )
-        )
+        );
 
         return (
           <CalBlock
@@ -115,8 +115,8 @@ export default function CalRow({
             isOnGcal={isOnGcal}
             associatedEvents={surroundingEvents}
           />
-        )
+        );
       })}
     </div>
-  )
+  );
 }

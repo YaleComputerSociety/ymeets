@@ -1,2 +1,2 @@
-import { TimeSelectComponent } from './time_select_component'
-export default TimeSelectComponent
+import { TimeSelectComponent } from './time_select_component';
+export default TimeSelectComponent;

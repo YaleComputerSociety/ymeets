@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react';
 import {
   IconPlus,
   IconCopy,
@@ -10,34 +10,34 @@ import {
   IconEdit,
   IconInfoCircle,
   IconTrash,
-} from '@tabler/icons-react'
+} from '@tabler/icons-react';
 
-import { FaCog } from 'react-icons/fa'
+import { FaCog } from 'react-icons/fa';
 import {
   checkIfLoggedIn,
   getAccountId,
   getAllEventsForUser,
   deleteEvent,
-} from '../../firebase/events'
-import { signInWithGoogle, logout } from '../../firebase/auth'
+} from '../../firebase/events';
+import { signInWithGoogle, logout } from '../../firebase/auth';
 
-import { useNavigate } from 'react-router-dom'
-import copy from 'clipboard-copy'
-import { Event, EventDetails } from '../../types'
-import { auth } from '../../firebase/firebase'
-import { GAPIContext } from '../../firebase/gapiContext'
-import Button from '../utils/components/Button'
-import { LoadingAnim } from '../utils/components/LoadingAnim'
-import LoginButton from '../utils/components/LoginButton'
+import { useNavigate } from 'react-router-dom';
+import copy from 'clipboard-copy';
+import { Event, EventDetails } from '../../types';
+import { auth } from '../../firebase/firebase';
+import { GAPIContext } from '../../firebase/gapiContext';
+import Button from '../utils/components/Button';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
+import LoginButton from '../utils/components/LoginButton';
 
 interface AccountsPageEvent {
-  name: string
-  id: string
-  dates: string
-  startTime: string
-  endTime: string
-  location: string
-  iAmCreator: boolean
+  name: string;
+  id: string;
+  dates: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  iAmCreator: boolean;
 }
 
 /**
@@ -48,7 +48,7 @@ interface AccountsPageEvent {
 const parseEventObjectForAccountsPage = (
   events: Event[]
 ): AccountsPageEvent[] => {
-  const accountPageEvents: AccountsPageEvent[] = []
+  const accountPageEvents: AccountsPageEvent[] = [];
   events.forEach((event) => {
     accountPageEvents.push({
       name: event.details.name,
@@ -75,11 +75,11 @@ const parseEventObjectForAccountsPage = (
       iAmCreator:
         event.details.adminAccountId &&
         event.details.adminAccountId == getAccountId(),
-    })
-  })
+    });
+  });
 
-  return accountPageEvents
-}
+  return accountPageEvents;
+};
 
 /**
  * Page Component. Renders the events associated with a logged in Google account.
@@ -88,34 +88,34 @@ const parseEventObjectForAccountsPage = (
  * @returns Page Component Render
  */
 export default function AccountsPage() {
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext)
+  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
 
   useEffect(() => {
     const retrieveAndSetEvents = async () => {
-      const accountID = getAccountId()
+      const accountID = getAccountId();
 
       if (accountID && accountID !== '') {
         await getAllEventsForUser(getAccountId()).then((eventsUnparsed) => {
-          setEvents(parseEventObjectForAccountsPage(eventsUnparsed) || [])
-        })
+          setEvents(parseEventObjectForAccountsPage(eventsUnparsed) || []);
+        });
       } else {
-        setEvents([])
+        setEvents([]);
       }
-    }
+    };
 
     return auth.onAuthStateChanged(() => {
-      retrieveAndSetEvents()
-    })
-  }, [])
+      retrieveAndSetEvents();
+    });
+  }, []);
 
-  const nav = useNavigate()
-  const [filter, setFilter] = useState('')
+  const nav = useNavigate();
+  const [filter, setFilter] = useState('');
 
-  const [events, setEvents] = useState<AccountsPageEvent[] | undefined>()
+  const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
 
   const handleInputChange = (e: any) => {
-    setFilter(e.target.value)
-  }
+    setFilter(e.target.value);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -140,7 +140,7 @@ export default function AccountsPage() {
               bgColor="blue-500"
               textColor="white"
               onClick={() => {
-                nav('/dayselect')
+                nav('/dayselect');
               }}
             >
               <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
@@ -191,7 +191,7 @@ export default function AccountsPage() {
                     <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
                       <button
                         onClick={() => {
-                          copy(event.id)
+                          copy(event.id);
                         }}
                         className="text-sm lg:text-base flex items-center gap-2 justify-center bg-slate-100 text-slate-700 border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-slate-200 active:bg-slate-300 acttransition-colors"
                       >
@@ -200,7 +200,7 @@ export default function AccountsPage() {
                       </button>
                       <button
                         onClick={() => {
-                          nav('/groupview/' + event.id)
+                          nav('/groupview/' + event.id);
                         }}
                         className="text-sm lg:text-base bg-blue-500 flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                       >
@@ -214,9 +214,9 @@ export default function AccountsPage() {
                         deleteEvent(event.id)
                           .then(() => {
                             // delete it locally
-                            setEvents(events.filter((e) => e.id != event.id))
+                            setEvents(events.filter((e) => e.id != event.id));
                           })
-                          .catch((err) => {})
+                          .catch((err) => {});
                       }}
                       className="text-sm lg:text-base flex items-center gap-2 justify-center border border-red-400 text-red-500 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 hover:text-white active:bg-red-500 transition-colors"
                     >
@@ -239,8 +239,8 @@ export default function AccountsPage() {
           {checkIfLoggedIn() ? (
             <button
               onClick={() => {
-                logout(gapi)
-                nav('/')
+                logout(gapi);
+                nav('/');
               }}
               className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
             >
@@ -252,5 +252,5 @@ export default function AccountsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

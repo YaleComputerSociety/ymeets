@@ -1,8 +1,8 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
-import { calanderState, userData, calendarDimensions } from '../../types'
-import eventAPI from '../../firebase/eventAPI'
-import Calendar from '../selectCalendarComponents/CalendarApp'
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { calanderState, userData, calendarDimensions } from '../../types';
+import eventAPI from '../../firebase/eventAPI';
+import Calendar from '../selectCalendarComponents/CalendarApp';
 import {
   getEventOnPageload,
   getEventName,
@@ -18,19 +18,19 @@ import {
   getChosenLocation,
   getZoomLink,
   undoAdminSelections,
-} from '../../firebase/events'
-import { useParams, useNavigate } from 'react-router-dom'
-import LocationChart from './LocationChart'
-import UserChart from './UserChart'
-import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks'
-import GeneralPopup from '../DaySelect/general_popup_component'
-import AddToGoogleCalendarButton from './AddToCalendarButton'
-import copy from 'clipboard-copy'
-import { IconCopy } from '@tabler/icons-react'
-import Button from '../utils/components/Button'
-import { Popup } from '../utils/components/Popup'
-import { LoadingAnim } from '../utils/components/LoadingAnim'
-import InformationPopup from '../utils/components/InformationPopup'
+} from '../../firebase/events';
+import { useParams, useNavigate } from 'react-router-dom';
+import LocationChart from './LocationChart';
+import UserChart from './UserChart';
+import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import GeneralPopup from '../DaySelect/general_popup_component';
+import AddToGoogleCalendarButton from './AddToCalendarButton';
+import copy from 'clipboard-copy';
+import { IconCopy } from '@tabler/icons-react';
+import Button from '../utils/components/Button';
+import { Popup } from '../utils/components/Popup';
+import { LoadingAnim } from '../utils/components/LoadingAnim';
+import InformationPopup from '../utils/components/InformationPopup';
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -39,192 +39,196 @@ import InformationPopup from '../utils/components/InformationPopup'
 export default function AdminGroupViewPage() {
   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
     undefined
-  )
+  );
   const [calendarFramework, setCalendarFramework] = useState<
     calendarDimensions | undefined
-  >(undefined)
-  const { code } = useParams()
+  >(undefined);
+  const { code } = useParams();
 
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
-  )
-  const [eventName, setEventName] = useState('')
-  const [eventDescription, setEventDescription] = useState('')
+  );
+  const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
 
-  const [locationVotes, setLocationVotes] = useState(Object)
-  const [locationOptions, setLocationOptions] = useState(Array<string>)
+  const [locationVotes, setLocationVotes] = useState(Object);
+  const [locationOptions, setLocationOptions] = useState(Array<string>);
 
   // this is the location that admin selected on the CLIENT side
   const [adminChosenLocation, setAdminChosenLocation] = useState<
     string | undefined
-  >(undefined)
+  >(undefined);
 
   // this is the location the admin previously submitted / submitted to the backend, which is pulled and set
   // or updated to be the admin location
   const [selectedLocation, setSelectedLocation] = useState<string | undefined>(
     undefined
-  )
+  );
   const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<
     Date[]
-  >([])
+  >([]);
 
-  const [loading, setLoading] = useState(true)
-  const [showGeneralPopup, setShowGeneralPopup] = useState(false)
-  const [generalPopupMessage] = useState('')
+  const [loading, setLoading] = useState(true);
+  const [showGeneralPopup, setShowGeneralPopup] = useState(false);
+  const [generalPopupMessage] = useState('');
 
   const [dragState, setDragState] = useState({
     dragStartedOnID: [], // [columnID, blockID]
     dragEndedOnID: [],
     dragStartedOn: false,
     affectedBlocks: new Set(),
-  })
+  });
+
+  console.log(getChosenLocation() != '');
+  console.log(getChosenLocation() != undefined);
 
   const useMediaQuery = (query: string) => {
-    const [matches, setMatches] = useState(window.matchMedia(query).matches)
+    const [matches, setMatches] = useState(window.matchMedia(query).matches);
 
     useEffect(() => {
-      const mediaQueryList = window.matchMedia(query)
-      const handleChange = () => setMatches(mediaQueryList.matches)
+      const mediaQueryList = window.matchMedia(query);
+      const handleChange = () => setMatches(mediaQueryList.matches);
 
-      mediaQueryList.addEventListener('change', handleChange)
-      return () => mediaQueryList.removeEventListener('change', handleChange)
-    }, [query])
+      mediaQueryList.addEventListener('change', handleChange);
+      return () => mediaQueryList.removeEventListener('change', handleChange);
+    }, [query]);
 
-    return matches
-  }
-  const isMedScreen = useMediaQuery('(min-width: 768px)')
+    return matches;
+  };
+  const isMedScreen = useMediaQuery('(min-width: 768px)');
 
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   const [selectionConfirmedPopupOpen, setSelectionConfirmedPopupOpen] =
-    useState(false)
+    useState(false);
 
-  const nav = useNavigate()
+  const nav = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length == 6) {
         await getEventOnPageload(code)
           .then(() => {
-            const { availabilities, participants } = eventAPI.getCalendar()
-            const dates = eventAPI.getCalendarDimensions()
+            const { availabilities, participants } = eventAPI.getCalendar();
+            const dates = eventAPI.getCalendarDimensions();
 
-            setChartedUsers(participants)
-            setCalendarState(availabilities)
-            setCalendarFramework(dates)
+            setChartedUsers(participants);
+            setCalendarState(availabilities);
+            setCalendarFramework(dates);
 
-            setEventName(getEventName())
-            setEventDescription(getEventDescription())
-            setLocationVotes(getLocationsVotes())
-            setLocationOptions(getLocationOptions())
-            setSelectedLocation(getChosenLocation())
-            setLoading(false)
+            setEventName(getEventName());
+            setEventDescription(getEventDescription());
+            setLocationVotes(getLocationsVotes());
+            setLocationOptions(getLocationOptions());
+            setSelectedLocation(getChosenLocation());
+            setAdminChosenLocation(getChosenLocation());
+            setLoading(false);
             // @ts-expect-error
-            setSelectedDateTimeObjects(getChosenDayAndTime())
+            setSelectedDateTimeObjects(getChosenDayAndTime());
           })
           .catch(() => {
-            nav('/notfound')
-          })
+            nav('/notfound');
+          });
       } else {
         // url is malformed
-        nav('notfound')
+        nav('notfound');
       }
-    }
-    fetchData()
-  }, [])
+    };
+    fetchData();
+  }, []);
 
   function handleSelectionSubmission() {
     if (dragState.dragEndedOnID.length == 0) {
-      alert('No new time selection made!')
-      return
+      alert('No new time selection made!');
+      return;
     }
 
     if (dragState.dragEndedOnID[0] != dragState.dragStartedOnID[0]) {
-      alert('You must select times that occur on the same day!')
-      return
+      alert('You must select times that occur on the same day!');
+      return;
     }
 
     // @ts-expect-error
     const calDate = [].concat(...calendarFramework.dates)[
       dragState.dragStartedOnID[0]
-    ]
+    ];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
-    )
+    );
     // @ts-expect-error
-    const times = [].concat(...timeBlocks)
+    const times = [].concat(...timeBlocks);
 
     if (
       dragState.dragStartedOnID.length > 0 &&
       dragState.dragEndedOnID.length > 0
     ) {
-      const selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]]
-      const selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]]
+      const selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
+      const selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
       const [startHour, startMinute] = selectedStartTimeHHMM
         //@ts-ignore
         .split(':')
-        .map(Number)
+        .map(Number);
       // @ts-expect-error
-      let [endHour, endMinute] = selectedEndTimeHHMM.split(':').map(Number)
+      let [endHour, endMinute] = selectedEndTimeHHMM.split(':').map(Number);
 
       // @ts-expect-error
-      const selectedStartTimeDateObject = new Date(calDate.date)
-      selectedStartTimeDateObject.setHours(startHour)
-      selectedStartTimeDateObject.setMinutes(startMinute)
+      const selectedStartTimeDateObject = new Date(calDate.date);
+      selectedStartTimeDateObject.setHours(startHour);
+      selectedStartTimeDateObject.setMinutes(startMinute);
 
       // @ts-expect-error
-      const selectedEndTimeDateObject = new Date(calDate.date)
+      const selectedEndTimeDateObject = new Date(calDate.date);
 
-      endMinute += 15
+      endMinute += 15;
       if (endMinute == 60) {
-        endMinute = 0
-        endHour += 1
+        endMinute = 0;
+        endHour += 1;
         if (endHour == 25) {
-          endHour = 0
+          endHour = 0;
         }
       }
 
-      selectedEndTimeDateObject.setHours(endHour)
-      selectedEndTimeDateObject.setMinutes(endMinute)
+      selectedEndTimeDateObject.setHours(endHour);
+      selectedEndTimeDateObject.setMinutes(endMinute);
 
       // update on client side (set SelectedDateTimeObjects) + backend (setChosenDate)
       setSelectedDateTimeObjects([
         selectedStartTimeDateObject,
         selectedEndTimeDateObject,
-      ])
+      ]);
 
       setChosenDate(
         selectedStartTimeDateObject,
         selectedEndTimeDateObject
       ).then(() => {
-        setSelectedLocation(adminChosenLocation)
+        setSelectedLocation(adminChosenLocation);
 
         if (adminChosenLocation != undefined) {
-          setChosenLocation(adminChosenLocation)
+          setChosenLocation(adminChosenLocation);
         }
 
-        setSelectionConfirmedPopupOpen(false)
-      })
+        setSelectionConfirmedPopupOpen(false);
+      });
     }
   }
 
   const getCurrentUserIndex = () => {
-    let user = getParticipantIndex(getAccountName(), getAccountId())
+    let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
       // new user => last availability
       user =
-        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0
+        calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
-    return user
-  }
+    return user;
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center">
         <LoadingAnim />
       </div>
-    )
+    );
   }
 
   return (
@@ -234,7 +238,7 @@ export default function AdminGroupViewPage() {
           {showGeneralPopup && (
             <GeneralPopup
               onClose={() => {
-                setShowGeneralPopup(false)
+                setShowGeneralPopup(false);
               }}
               message={generalPopupMessage}
               isLogin={false}
@@ -253,7 +257,7 @@ export default function AdminGroupViewPage() {
                       selectedDateTimeObjects[0].getFullYear() != 1970
                     }
                     onClick={() => {
-                      nav('/timeselect/' + code)
+                      nav('/timeselect/' + code);
                     }}
                   >
                     <span className="mr-1">&#8592;</span> Edit Your
@@ -269,7 +273,7 @@ export default function AdminGroupViewPage() {
                 <h3 className="text-3xl font-bold text-center md:text-left">
                   {eventName}
                 </h3>
-                <h3 className="text-xl  text-center md:text-left">
+                <h3 className="text-xl text-center md:text-left">
                   {eventDescription}
                 </h3>
 
@@ -321,27 +325,13 @@ export default function AdminGroupViewPage() {
                     </h3>
                   )}
                   <div className="h-3"></div>
-                  {selectedLocation && (
-                    <Button
-                      textColor="white"
-                      bgColor="blue-500"
-                      onClick={() => {
-                        window.open(
-                          'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                          '_blank'
-                        )
-                      }}
-                    >
-                      Book Room
-                    </Button>
-                  )}
                   <button
                     onClick={() => {
-                      copy(`${window.location.origin}/timeselect/${code}`)
-                      setCopied(true)
+                      copy(`${window.location.origin}/timeselect/${code}`);
+                      setCopied(true);
                       setTimeout(() => {
-                        setCopied(false)
-                      }, 1500)
+                        setCopied(false);
+                      }, 1500);
                     }}
                     className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
                       copied
@@ -389,6 +379,13 @@ export default function AdminGroupViewPage() {
                     locationOptions.length > 0 ? locationOptions : ['']
                   }
                   locationVotes={Object.values(locationVotes)}
+                  selectionMade={
+                    getChosenLocation() == ''
+                      ? false
+                      : getChosenLocation() == undefined
+                        ? false
+                        : true
+                  }
                 />
               )}
             </div>
@@ -420,23 +417,24 @@ export default function AdminGroupViewPage() {
             </div>
 
             <div className="md:pl-3">
-              {!selectedDateTimeObjects && (
-                <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
-                  {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
-                  {locationOptions.length == 0 ? (
-                    <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection" />
-                  ) : (
-                    <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
-                  )}
-                </div>
-              )}
+              {!selectedDateTimeObjects ||
+                (selectedDateTimeObjects[0].getFullYear() == 1970 && (
+                  <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
+                    {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
+                    {locationOptions.length == 0 ? (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection" />
+                    ) : (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
+                    )}
+                  </div>
+                ))}
             </div>
             <div className="flex items-center justify-center">
               {!selectedDateTimeObjects ||
               selectedDateTimeObjects[0].getFullYear() == 1970 ? (
                 <button
                   onClick={() => {
-                    handleSelectionSubmission()
+                    handleSelectionSubmission();
                   }}
                   className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
                                         transform transition-transform hover:scale-90 active:scale-100e"
@@ -447,8 +445,8 @@ export default function AdminGroupViewPage() {
                 <button
                   onClick={() => {
                     undoAdminSelections().then(() => {
-                      window.location.reload()
-                    })
+                      window.location.reload();
+                    });
                   }}
                   className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
                                     transform transition-transform hover:scale-90 active:scale-100e"
@@ -479,7 +477,7 @@ export default function AdminGroupViewPage() {
                       selectedDateTimeObjects[0].getFullYear() != 1970
                     }
                     onClick={() => {
-                      nav('/timeselect/' + code)
+                      nav('/timeselect/' + code);
                     }}
                   >
                     <span className="mr-1">&#8592;</span> Edit Your
@@ -493,7 +491,9 @@ export default function AdminGroupViewPage() {
                 <h3 className="text-2xl font-bold text-center mb-0">
                   {eventName}
                 </h3>
-                <h3 className="text-md text-left mt-0">{eventDescription}</h3>
+                <h3 className="text-md text-center lg:text-left mt-0">
+                  {eventDescription}
+                </h3>
 
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">
@@ -523,7 +523,7 @@ export default function AdminGroupViewPage() {
                     </h3>
                   )}
                   {getZoomLink() && (
-                    <h3 className="text-base text-center md:text-left">
+                    <h3 className="text-base text-center lg:text-left">
                       <span className="font-bold">Zoom Link:</span>{' '}
                       <a
                         href={getZoomLink()}
@@ -535,28 +535,14 @@ export default function AdminGroupViewPage() {
                       </a>
                     </h3>
                   )}
-                  <div className="flex justify-center">
-                    {selectedLocation && (
-                      <button
-                        onClick={() => {
-                          window.open(
-                            'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                            '_blank'
-                          )
-                        }}
-                        className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
-                      >
-                        Book Room
-                      </button>
-                    )}
-                  </div>
+
                   <button
                     onClick={() => {
-                      copy(`${window.location.origin}/timeselect/${code}`)
-                      setCopied(true)
+                      copy(`${window.location.origin}/timeselect/${code}`);
+                      setCopied(true);
                       setTimeout(() => {
-                        setCopied(false)
-                      }, 1500)
+                        setCopied(false);
+                      }, 1500);
                     }}
                     className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
                       copied
@@ -576,5 +562,5 @@ export default function AdminGroupViewPage() {
         </div>
       </div>
     </>
-  )
+  );
 }

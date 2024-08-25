@@ -1,11 +1,11 @@
-import SelectCalander from './SelectCalendar'
+import SelectCalander from './SelectCalendar';
 import {
   calendarDimensions,
   calanderState,
   userData,
   calandarDate,
-} from '../../types'
-import { useState } from 'react'
+} from '../../types';
+import { useState } from 'react';
 
 interface CalendarProps {
   theCalendarFramework:
@@ -13,32 +13,32 @@ interface CalendarProps {
         calendarDimensions,
         React.Dispatch<React.SetStateAction<calendarDimensions>>,
       ]
-    | undefined
+    | undefined;
   theCalendarState:
     | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined
+    | undefined;
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined
-  draggable: boolean
-  user: number
-  isAdmin: boolean
-  title: string
+    | undefined;
+  draggable: boolean;
+  user: number;
+  isAdmin: boolean;
+  title: string;
   theSelectedDate:
     | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined
+    | undefined;
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
-  ]
-  theGoogleCalendarEvents: [Date, React.Dispatch<React.SetStateAction<Date>>]
+  ];
+  theGoogleCalendarEvents: [Date, React.Dispatch<React.SetStateAction<Date>>];
 }
 
 export interface dragProperties {
-  dragStartedOnID: number[]
-  dragEndedOnID: number[]
-  dragStartedOn: boolean
-  blocksAffectedDuringDrag: Set<any>
+  dragStartedOnID: number[];
+  dragEndedOnID: number[];
+  dragStartedOn: boolean;
+  blocksAffectedDuringDrag: Set<any>;
 }
 
 export default function Calender({
@@ -54,16 +54,16 @@ export default function Calender({
   theGoogleCalendarEvents,
 }: CalendarProps) {
   // @ts-expect-error
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework
+  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
   // @ts-expect-error
-  const [calendarState, setCalendarState] = theCalendarState
+  const [calendarState, setCalendarState] = theCalendarState;
 
-  let columnIndexOffset = 0
+  let columnIndexOffset = 0;
 
-  const [dragState, setDragState] = theDragState
+  const [dragState, setDragState] = theDragState;
 
-  const hasTitle = title !== ''
+  const hasTitle = title !== '';
 
   return (
     <div className="flex flex-col max-w-full">
@@ -84,8 +84,8 @@ export default function Calender({
           {calendarFramework?.dates.map(
             (bucket: calandarDate[], index: number) => {
               if (index !== 0) {
-                const prev_bucket = calendarFramework.dates[index - 1]
-                columnIndexOffset += prev_bucket.length
+                const prev_bucket = calendarFramework.dates[index - 1];
+                columnIndexOffset += prev_bucket.length;
               }
 
               return (
@@ -108,11 +108,11 @@ export default function Calender({
                     theGoogleCalendarEvents={theGoogleCalendarEvents}
                   />
                 </div>
-              )
+              );
             }
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

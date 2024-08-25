@@ -1,47 +1,47 @@
-import React, { useState, useEffect } from 'react'
-import 'tailwindcss/tailwind.css'
+import React, { useState, useEffect } from 'react';
+import 'tailwindcss/tailwind.css';
 import {
   calandarDate,
   calendarDimensions,
   calanderState,
   userData,
-} from '../../types'
-import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks'
-import CalRow from './CalRow'
-import DateBar from './DateBar'
-import { dragProperties } from './CalendarApp'
+} from '../../types';
+import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import CalRow from './CalRow';
+import DateBar from './DateBar';
+import { dragProperties } from './CalendarApp';
 
 interface SelectCalanderProps {
   theCalendarState:
     | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined
+    | undefined;
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined
-  draggable: boolean
-  isAdmin?: boolean
-  bucket: calandarDate[]
-  columnIndexOffset: number
-  user: number
-  startDate: Date
-  endDate: Date
-  renderTime: boolean
+    | undefined;
+  draggable: boolean;
+  isAdmin?: boolean;
+  bucket: calandarDate[];
+  columnIndexOffset: number;
+  user: number;
+  startDate: Date;
+  endDate: Date;
+  renderTime: boolean;
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
-  ]
+  ];
   theCalendarFramework:
     | [
         calendarDimensions,
         React.Dispatch<React.SetStateAction<calendarDimensions>>,
       ]
-    | undefined
+    | undefined;
   theSelectedDate:
     | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined
+    | undefined;
   theGoogleCalendarEvents:
     | [Date, React.Dispatch<React.SetStateAction<Date>>]
-    | undefined
+    | undefined;
 }
 
 function SelectCalander({
@@ -60,21 +60,21 @@ function SelectCalander({
   theSelectedDate,
   theGoogleCalendarEvents,
 }: SelectCalanderProps) {
-  const timeBlocks = generateTimeBlocks(startDate, endDate)
+  const timeBlocks = generateTimeBlocks(startDate, endDate);
 
   const militaryConvert = (time: string) => {
     // expects hh:mm
-    let hours = Number.parseInt(time.slice(0, 2)) // gives the value in 24 hours format
-    const AmOrPm = hours >= 12 ? 'PM' : 'AM'
-    hours = hours % 12 || 12
-    const minutes = Number.parseInt(time.slice(-2))
+    let hours = Number.parseInt(time.slice(0, 2)); // gives the value in 24 hours format
+    const AmOrPm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const minutes = Number.parseInt(time.slice(-2));
     return (
       hours +
       (minutes == 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
       ' ' +
       AmOrPm
-    )
-  }
+    );
+  };
 
   return (
     <div className="max-h-120 m-2" style={{ touchAction: 'none' }}>
@@ -94,7 +94,10 @@ function SelectCalander({
                     <div className="flex flex-row justify-end">
                       {renderTime && time.slice(-2) == '00' && (
                         <div className="w-12 text-xs relative">
-                          <p className="absolute" style={{ top: '-0.5rem', right: '0.6rem' }}>
+                          <p
+                            className="absolute"
+                            style={{ top: '-0.5rem', right: '0.6rem' }}
+                          >
                             {militaryConvert(time)}
                           </p>
                         </div>
@@ -130,10 +133,10 @@ function SelectCalander({
               </div>
             </div>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export default SelectCalander
+export default SelectCalander;
