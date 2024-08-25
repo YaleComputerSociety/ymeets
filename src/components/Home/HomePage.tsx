@@ -82,16 +82,16 @@ export default function HomePage() {
                 <div className="flex flex-col gap-1">
                   <div className="flex flex-row text-md gap-2 items-center">
                     <SiGooglecalendar />
-                    <p>Load Your Google Calendar</p>
+                    <p>GCal Integration</p>
                   </div>
                   <div className="flex flex-row text-md gap-2 items-center">
                     <CiLocationOn />
-                    <p>Vote on Your Preferred Meeting Place</p>
+                    <p>Vote On Preferred Campus Meeting Place</p>
                   </div>
                   <div className="flex flex-row text-md gap-2 items-center">
                     <FaLock />
                     <p>
-                      Lock in the best time and place to gather with a selection
+                      Lock in the Best Time and Place to Gather with a Selection
                     </p>
                   </div>
                 </div>

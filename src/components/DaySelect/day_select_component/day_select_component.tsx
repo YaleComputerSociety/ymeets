@@ -290,7 +290,7 @@ export const DaySelectComponent = () => {
                     const selectedValues = values.map((val) => val.value)
                     updateLocationsState(selectedValues)
                   }}
-                  placeholder="  Location Options (Optional)"
+                  placeholder="Location Options (Optional)"
                   noDataRenderer={() => (
                     <div className="p-2 text-center">
                       No matching preset locations :(
@@ -314,7 +314,7 @@ export const DaySelectComponent = () => {
             <div className="mt-2 mb-6 z-50">
               <InformationPopup
                 content="
-                Type and click ENTER to add options not listed.
+                Type and click ENTER to add locations for your group to vote on for the meeting
               "
               />
               {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">

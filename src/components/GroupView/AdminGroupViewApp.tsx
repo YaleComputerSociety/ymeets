@@ -454,7 +454,8 @@ export default function AdminGroupViewPage() {
             </div>
             <div className="flex justify-center items-center mt-1">
               {selectedDateTimeObjects &&
-              selectedDateTimeObjects[0].getFullYear() != 1970 ? (
+              selectedDateTimeObjects[0].getFullYear() != 1970 && // makes sure we didn't undo, since to undo we set selected date to epoch year
+              calendarFramework?.dates[0][0].date?.getFullYear() != 2000 ? ( // makes sure its not a general day (can't add to cal)
                 <div className="flex justify-center items-center px-4">
                   <AddToGoogleCalendarButton />
                 </div>
