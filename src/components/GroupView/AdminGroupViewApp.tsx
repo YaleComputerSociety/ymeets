@@ -350,7 +350,9 @@ export default function AdminGroupViewPage() {
                     } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
                   >
                     {<IconCopy className="inline-block w-4 lg:w-5" />}
-                    {copied ? 'Copied' : 'Shareable ymeets Link'}
+                    {copied
+                      ? 'Copied'
+                      : `Shareable ymeets Link (Event Code: ${code})`}
                   </button>
                 </div>
               </div>
@@ -563,7 +565,9 @@ export default function AdminGroupViewPage() {
                     } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
                   >
                     {<IconCopy className="inline-block w-4 lg:w-5" />}
-                    {copied ? 'Copied' : 'Shareable ymeets Link'}
+                    {copied
+                      ? 'Copied'
+                      : `Shareable ymeets Link (Event Code: ${code})`}
                   </button>
                 </div>
               </div>
