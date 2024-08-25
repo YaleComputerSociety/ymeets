@@ -64,7 +64,7 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="h-2 md:h-8"></div>
+      <div className="h-1 md:h-8"></div>
       <div
         className="h-fit w-full overflow-auto bg-sky-100 p-8 sm:p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60"
@@ -73,7 +73,7 @@ export default function HomePage() {
           className="flex-col-reverse justify-center \ 
                             md:flex-row flex md:h-1/2 mb-8"
         >
-          <div className="justify-center self-center space-y-8 md:space-y-12 mt-3 max-w-full mb-4 min-w-[70%] md:w-[90%]">
+          <div className="justify-center self-center space-y-8 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
               <h1 className="font-bold text-center text-4xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8">
                 A cleaner, faster way to schedule meetings on Yale's Campus.
@@ -86,7 +86,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex flex-row text-md gap-2 items-center">
                     <CiLocationOn />
-                    <p>Vote On Preferred Campus Meeting Place</p>
+                    <p>Vote on a Preferred Campus Meeting Place</p>
                   </div>
                   <div className="flex flex-row text-md gap-2 items-center">
                     <FaLock />

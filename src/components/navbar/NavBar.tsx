@@ -17,6 +17,7 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
 } from 'react-icons/fa'
+import { MdFeedback } from 'react-icons/md'
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -113,6 +114,18 @@ export default function NavBar() {
                       <FaCalendarAlt className="mr-2" /> Events
                     </a>
                     <div className="border-t border-gray-200"></div>
+                    <a
+                      href="https://ymeets.canny.io"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                      onClick={() => {
+                        setMenuState('closed')
+                      }}
+                    >
+                      <MdFeedback className="mr-2" /> Feedback
+                    </a>
+                    <div className="border-t border-gray-200"></div>
                     {checkIfLoggedIn() ? (
                       <a
                         href="#"
@@ -151,11 +164,13 @@ export default function NavBar() {
             </div>
           </div>
         </div>
-        <div className="sm:hidden w-[90%] flex justify-center">
-          <div className="inline-block bg-blue-500 text-white rounded-b-lg px-4 py-1 text-center text-xs whitespace-nowrap">
-            Welcome, {name}
+        {name.length > 0 && (
+          <div className="sm:hidden w-[90%] flex justify-center">
+            <div className="inline-block bg-blue-500 text-white rounded-b-lg px-4 py-1 text-center text-xs whitespace-nowrap">
+              Welcome, {name}
+            </div>
           </div>
-        </div>
+        )}
       </div>
       <div className="h-8 md:h-10"></div>
     </>
