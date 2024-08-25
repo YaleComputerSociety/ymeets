@@ -248,7 +248,10 @@ export default function AdminGroupViewPage() {
                 <div className="flex-grow">
                   <button
                     className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                    disabled={selectedDateTimeObjects != undefined}
+                    disabled={
+                      selectedDateTimeObjects != undefined &&
+                      selectedDateTimeObjects[0].getFullYear() != 1970
+                    }
                     onClick={() => {
                       nav('/timeselect/' + code)
                     }}
@@ -469,7 +472,10 @@ export default function AdminGroupViewPage() {
                 <div className="flex-grow ml-2">
                   <button
                     className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                    disabled={selectedDateTimeObjects != undefined}
+                    disabled={
+                      selectedDateTimeObjects != undefined &&
+                      selectedDateTimeObjects[0].getFullYear() != 1970
+                    }
                     onClick={() => {
                       nav('/timeselect/' + code)
                     }}
