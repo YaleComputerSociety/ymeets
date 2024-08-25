@@ -11,12 +11,7 @@ import {
 import { dragProperties } from './CalendarApp'
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks'
 import { useCallback } from 'react'
-import {
-  getChosenDayAndTime,
-  getAccountId,
-  getParticipantIndex,
-  getAccountName,
-} from '../../firebase/events'
+import { getChosenDayAndTime } from '../../firebase/events'
 import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM'
 
 interface CalBlockProps {
@@ -104,7 +99,7 @@ export default function CalBlock({
 
       let endColumnID = -1
 
-      for (let i = 0; i < dates.length; i++) {
+      for (let i = 0; i < dates?.length; i++) {
         // @ts-expect-error
         if (dates[i].calanderDay == chosenDates[0].getDate()) {
           startColumnID = i
@@ -554,7 +549,7 @@ export default function CalBlock({
             transition: 'background-color 0.2s ease',
           }}
         ></div>
-        {gCalEventActive && associatedEvents.length > 0 && (
+        {gCalEventActive && associatedEvents?.length > 0 && (
           <div
             className={`absolute top-0 left-0 z-10 bg-black text-white rounded p-2 shadow-md pointer-events-none transition-opacity duration-300 ${
               gCalEventActive ? 'opacity-100' : 'opacity-0'

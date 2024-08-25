@@ -70,7 +70,7 @@ export default function CalRow({
     >
       {bucket.map((d: calandarDate, columnIndex) => {
         const matchedDates = googleCalendarEvents
-          .map((gEvent: any) => [
+          ?.map((gEvent: any) => [
             new Date(gEvent.start.dateTime),
             new Date(gEvent.end.dateTime),
           ])
@@ -84,13 +84,13 @@ export default function CalRow({
           isTimeBetweenDates(dateRange[0], dateRange[1], time)
         )
 
-        const matchedEvents = googleCalendarEvents.filter(
+        const matchedEvents = googleCalendarEvents?.filter(
           (gEvent: any) =>
             dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
             dateObjectToComparable(d.date)
         )
 
-        const surroundingEvents = matchedEvents.filter((gEvent: any) =>
+        const surroundingEvents = matchedEvents?.filter((gEvent: any) =>
           isTimeBetweenDates(
             new Date(gEvent.start.dateTime),
             new Date(gEvent.end.dateTime),
