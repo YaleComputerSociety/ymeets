@@ -105,7 +105,7 @@ export default function LocationChart({
                       ? 'hover:scale-102 transition-transform duration-200'
                       : ''
                   } ${
-                    isClicked && selectedLocation.includes(loc)
+                    isClicked && selectedLocation?.includes(loc)
                       ? 'bg-ymeets-light-blue'
                       : 'bg-white'
                   } transition-colors duration-300`}

@@ -500,6 +500,14 @@ export default function CalBlock({
           onClick={handleBlockClick}
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
+          onDragEnd={() => {
+            setDragState({
+              dragStartedOnID: [], // [columnID, blockID]
+              dragEndedOnID: [],
+              dragStartedOn: false,
+              blocksAffectedDuringDrag: new Set(),
+            });
+          }}
           onDragOver={handleDesktopAvailabilitySelect}
           onMouseOver={handleDesktopHoverChartedUser}
           onMouseEnter={() => {
