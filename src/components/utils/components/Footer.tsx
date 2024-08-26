@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="items-center justify-center px-2 m-1">
             <p className="px-2 text-center hover:text-blue-700 font-bold">
               <a href="https://yalecomputersociety.org/">
-                &copy; 2024 &ndash; &nbsp;A y/cs product
+                &copy; 2024 &ndash; A y/cs product
               </a>
             </p>
           </div>

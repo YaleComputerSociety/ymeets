@@ -76,22 +76,22 @@ export default function HomePage() {
           <div className="justify-center self-center space-y-8 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
               <h1 className="font-bold text-center text-4xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8">
-                A cleaner, faster way to schedule meetings on Yale's Campus.
+                A cleaner, faster way to schedule meetings on Yale's campus.
               </h1>
               <h3 className="hidden md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
-                <div className="flex flex-col gap-1">
-                  <div className="flex flex-row text-md gap-2 items-center">
+                <div className="flex flex-col gap-1 text-[90%]">
+                  <div className="flex flex-row text-md gap-3 items-center">
                     <SiGooglecalendar />
                     <p>GCal Integration</p>
                   </div>
-                  <div className="flex flex-row text-md gap-2 items-center">
+                  <div className="flex flex-row text-md gap-3 items-center">
                     <CiLocationOn />
-                    <p>Vote on a Preferred Campus Meeting Place</p>
+                    <p>Vote on a preferred campus meeting place</p>
                   </div>
-                  <div className="flex flex-row text-md gap-2 items-center">
+                  <div className="flex flex-row text-md gap-3 items-center">
                     <FaLock />
                     <p>
-                      Lock in the Best Time and Place to Gather with a Selection
+                      Lock in the best time and place to gather with a selection
                     </p>
                   </div>
                 </div>
