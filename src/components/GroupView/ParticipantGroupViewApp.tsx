@@ -156,29 +156,40 @@ export default function ParticipantGroupViewPage() {
                 </h3>
                 <div className="flex flex-col">
                   <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects &&
-                    selectedDateTimeObjects[0].getFullYear() != 1970
-                      ? selectedDateTimeObjects[0]?.toLocaleDateString(
-                          'en-us',
-                          {
+                  <span className="font-bold">Time:</span>{' '}
+                      {selectedDateTimeObjects &&
+                      selectedDateTimeObjects[0].getFullYear() != 1970 ? (
+                        selectedDateTimeObjects[0].getFullYear() === 2000 ? (
+                          // For general days (year 2000)
+                          selectedDateTimeObjects[0].toLocaleString('en-us', {
+                            weekday: 'long',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }) +
+                          ' — ' +
+                          selectedDateTimeObjects[1].toLocaleString('en-us', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        ) : (
+                          // For specific dates
+                          selectedDateTimeObjects[0].toLocaleDateString('en-us', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
-                            hour: 'numeric',
+                            hour: '2-digit',
                             minute: '2-digit',
-                          }
-                        ) +
-                        ' — ' +
-                        selectedDateTimeObjects[1]?.toLocaleTimeString(
-                          'en-us',
-                          {
-                            hour: 'numeric',
+                          }) +
+                          ' — ' +
+                          selectedDateTimeObjects[1].toLocaleTimeString('en-us', {
+                            hour: '2-digit',
                             minute: '2-digit',
-                          }
+                          })
                         )
-                      : 'not selected by host'}
+                      ) : (
+                        'not selected by host'
+                      )}
                   </h3>
 
                   {locationOptions.length > 0 && (
@@ -210,18 +221,20 @@ export default function ParticipantGroupViewPage() {
                   chartedUsersData={[chartedUsers, setChartedUsers]}
                 />
               </div>
-
-              <LocationChart
-                theSelectedLocation={[
-                  userChosenLocation,
-                  setUserChosenLocation,
-                ]}
-                locationOptions={
-                  locationOptions.length > 0 ? locationOptions : ['']
-                }
-                locationVotes={Object.values(locationVotes)}
-                selectionMade={true}
-              />
+              
+              {locationOptions.length > 0 && (
+                <LocationChart
+                  theSelectedLocation={[
+                    userChosenLocation,
+                    setUserChosenLocation,
+                  ]}
+                  locationOptions={
+                    locationOptions.length > 0 ? locationOptions : ['']
+                  }
+                  locationVotes={Object.values(locationVotes)}
+                  selectionMade={true}
+                />
+              )}
             </div>
           </div>
 
@@ -295,18 +308,40 @@ export default function ParticipantGroupViewPage() {
 
                 <div className="flex flex-col">
                   <h3 className="text-base text-center">
-                    <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects &&
-                    selectedDateTimeObjects[0].getFullYear() != 1970
-                      ? selectedDateTimeObjects[0].toLocaleDateString('en-us', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : 'not yet selected by host'}
+                  <span className="font-bold">Time:</span>{' '}
+                      {selectedDateTimeObjects &&
+                      selectedDateTimeObjects[0].getFullYear() != 1970 ? (
+                        selectedDateTimeObjects[0].getFullYear() === 2000 ? (
+                          // For general days (year 2000)
+                          selectedDateTimeObjects[0].toLocaleString('en-us', {
+                            weekday: 'long',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }) +
+                          ' — ' +
+                          selectedDateTimeObjects[1].toLocaleString('en-us', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        ) : (
+                          // For specific dates
+                          selectedDateTimeObjects[0].toLocaleDateString('en-us', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }) +
+                          ' — ' +
+                          selectedDateTimeObjects[1].toLocaleTimeString('en-us', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        )
+                      ) : (
+                        'not selected by host'
+                      )}
                   </h3>
 
                   {locationOptions.length > 0 && (

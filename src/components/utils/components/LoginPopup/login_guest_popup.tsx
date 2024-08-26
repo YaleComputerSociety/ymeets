@@ -34,9 +34,14 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   };
 
   const handleSignInWithoutGoogle = () => {
+    const trimmedName = inputName.trim();
+    if (!validateInput(trimmedName)) {
+      alert("Please enter a valid name (letters, numbers, and spaces only).");
+      return;
+    }
     signInAnonymously(auth).then((userCred: UserCredential) => {
       updateProfile(userCred.user, {
-        displayName: inputName,
+        displayName: trimmedName,
       })
         .then(() => {
           onClose(true);
@@ -53,6 +58,16 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     if (e.key == 'Enter') {
       handleSignInWithoutGoogle();
     }
+  };
+
+  const [isValidInput, setIsValidInput] = useState(true);
+
+  const validateInput = (input: string): boolean => {
+    const trimmedInput = input.trim();
+    const validNameRegex = /^[a-zA-Z0-9\s]+$/;
+    return trimmedInput.length > 0 && 
+           trimmedInput.length <= 25 && 
+           validNameRegex.test(trimmedInput);
   };
 
   React.useEffect(() => {
@@ -90,20 +105,30 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           {enableAnonymousSignIn && (
             <div className="flex items-center mt-3">
               <input
-                className="rounded-l-md py-2 px-4 text-md bg-white text-left border-gray-300 border-2"
+                className={`rounded-l-md py-2 px-4 text-md bg-white text-left border-2 ${
+                  isValidInput ? 'border-gray-300' : 'border-red-500'
+                }`}
                 placeholder="Your Name"
                 name="name"
                 type="text"
                 onChange={(event) => {
-                  setInputName(event.target.value);
+                  const newValue = event.target.value.slice(0, 25); // Cap at 25 characters
+                  setInputName(newValue);
+                  setIsValidInput(validateInput(newValue));
                 }}
                 onKeyDown={handleKeyPress}
                 value={inputName}
                 autoComplete="off"
+                maxLength={25}
               />
               <button
-                className="rounded-r-md font-bold bg-gray-300 text-white disabled:text-opacity-60 py-2 px-4 text-lg hover:outline-blue-500 hover:outline-3"
+                className={`rounded-r-md font-bold ${
+                  isValidInput && inputName.trim().length > 0
+                    ? 'bg-gray-300 text-white'
+                    : 'bg-gray-100 text-gray-400'
+                } py-2 px-4 text-lg hover:outline-blue-500 hover:outline-3`}
                 onClick={handleSignInWithoutGoogle}
+                disabled={!isValidInput || inputName.trim().length === 0}
               >
                 <span className="text-l">&rarr;</span>
               </button>
