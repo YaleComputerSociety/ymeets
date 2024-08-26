@@ -339,7 +339,7 @@ export default function AdminGroupViewPage() {
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                     } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
                   >
-                    {<IconCopy className="inline-block w-4 lg:w-5" />}
+                    {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
                     {copied
                       ? 'Copied'
                       : `Shareable ymeets Link (Event Code: ${code})`}

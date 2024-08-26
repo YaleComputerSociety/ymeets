@@ -92,4 +92,8 @@ textarea:-webkit-autofill:active {
   .general-days-button {
     z-index: 1;
   }
+
+  .specific-days-button {
+    z-index: 2;
+  }
 }

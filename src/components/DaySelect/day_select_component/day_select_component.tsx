@@ -357,18 +357,18 @@ export const DaySelectComponent = () => {
           }
         </Button> */}
 
-        <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative z-1">
+        <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
           <button
             onClick={() => {
               handleTabChange('Specific Days');
             }}
-            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 z-1 relative ${
+            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative specific-days-button ${
               selectGeneralDays ? 'text-black' : 'text-white'
             }`}
           >
             <span className="relative z-10">Specific Days</span>
             <div
-              className={`absolute rounded-md transition-transform duration-300 z-1 ${
+              className={`absolute rounded-md transition-transform duration-300 ${
                 selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
               } bg-blue-500`}
             />
@@ -390,7 +390,7 @@ export const DaySelectComponent = () => {
           </button>
         </div>
 
-        <div className="w-full h-2/4 xs:mb-2 md:mb-0 z-30">
+        <div className="w-full h-2/4 xs:mb-2 md:mb-0">
           <CalanderComponent
             theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
             theGeneralDays={[selectedDays, setSelectedDays]}
