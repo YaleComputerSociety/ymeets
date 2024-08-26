@@ -36,6 +36,7 @@ import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import Button from '../utils/components/Button';
+import ButtonSmall from '../utils/components/ButtonSmall';
 import InformationPopup from '../utils/components/InformationPopup';
 
 /**
@@ -305,7 +306,7 @@ function TimeSelectPage() {
               </div>
             )}
 
-          <div className="md:mt-8 flex flex-col items-center">
+          <div className="hidden md:flex md:mt-12 flex flex-col items-center">
             <Button
               bgColor="blue-500"
               textColor="white"
@@ -313,6 +314,22 @@ function TimeSelectPage() {
             >
               Submit Availability
             </Button>
+            {selectedDateTimeObjects !== undefined &&
+              (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
+                <InformationPopup
+                  content="Note: You can't edit your availability because the admin has
+                already selected a time and/or location!"
+                />
+              )}
+          </div>
+          <div className="mt-6 md:hidden md:mt-12 flex flex-col items-center">
+            <ButtonSmall
+              bgColor="blue-500"
+              textColor="white"
+              onClick={handleSubmitAvailability}
+            >
+              Submit Availability
+            </ButtonSmall>
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
@@ -357,24 +374,47 @@ function TimeSelectPage() {
 
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
             <div className="md:pl-4 z-60 mb-4 md:mb-0">
-              <Button
-                bgColor="blue-500"
-                textColor="white"
-                onClick={() => {
-                  fetchUserCals()
-                    .then((calendars) => {
-                      // @ts-expect-error
-                      setGoogleCalendars(calendars);
+              <div className="hidden md:flex">
+                <Button
+                  bgColor="blue-500"
+                  textColor="white"
+                  onClick={() => {
+                    fetchUserCals()
+                      .then((calendars) => {
+                        // @ts-expect-error
+                        setGoogleCalendars(calendars);
 
-                      setGcalPopupOpen(true);
-                    })
-                    .catch((error) => {
-                      console.error('Error fetching Google Calendars:', error);
-                    });
-                }}
-              >
-                Toggle GCal Availabilities
-              </Button>
+                        setGcalPopupOpen(true);
+                      })
+                      .catch((error) => {
+                        console.error('Error fetching Google Calendars:', error);
+                      });
+                  }}
+                >
+                  Toggle GCal Availabilities
+                </Button>
+              </div>
+              <div className="md:hidden flex">
+                <ButtonSmall
+                  bgColor="blue-500"
+                  textColor="white"
+                  onClick={() => {
+                    fetchUserCals()
+                      .then((calendars) => {
+                        // @ts-expect-error
+                        setGoogleCalendars(calendars);
+
+                        setGcalPopupOpen(true);
+                      })
+                      .catch((error) => {
+                        console.error('Error fetching Google Calendars:', error);
+                      });
+                  }}
+                >
+                  Toggle GCal Availabilities
+                </ButtonSmall>
+              </div>
+              
             </div>
           ) : (
             !areSelectingGeneralDays && (
