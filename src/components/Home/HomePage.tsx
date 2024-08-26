@@ -73,22 +73,23 @@ export default function HomePage() {
           className="flex-col-reverse justify-center \ 
                             md:flex-row flex md:h-1/2 mb-8"
         >
-          <div className="justify-center self-center space-y-8 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
+          <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
-              <h1 className="font-bold text-center text-4xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8">
+              <h1 className="font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0">
                 A cleaner, faster way to schedule meetings on Yale's campus.
               </h1>
-              <h3 className="hidden md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
+              <h3 className="md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
                 <div className="flex flex-col gap-1 text-[90%]">
                   <div className="flex flex-row text-md gap-3 items-center">
                     <SiGooglecalendar />
-                    <p>GCal Integration</p>
+                    <p>GCal integration</p>
                   </div>
                   <div className="flex flex-row text-md gap-3 items-center">
                     <CiLocationOn />
-                    <p>Vote on a preferred campus meeting place</p>
+                    <p className="hidden md:block">Vote on a preferred campus meeting place</p>
+                    <p className="md:hidden">Vote on a preferred meeting place</p>
                   </div>
-                  <div className="flex flex-row text-md gap-3 items-center">
+                  <div className="hidden md:flex flex flex-row text-md gap-3 items-center">
                     <FaLock />
                     <p>
                       Lock in the best time and place to gather with a selection

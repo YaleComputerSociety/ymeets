@@ -114,12 +114,12 @@ export default function AccountsPage() {
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
 
   const handleInputChange = (e: any) => {
-    setFilter(e.target.value);
+    setFilter(e.target.value.toLowerCase());
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <div className="pt-6 sm:pt-9 md:pt-12 lg:pt-16 xl:pt-20 pb-12 sm:pb-16 md:pb-20 lg:pb-24 xl:pb-28 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
+      <div className="w-full max-w-full pt-2 sm:pt-4 md:pt-6 lg:pt-8 xl:pt-10 pb-10 sm:pb-14 md:pb-17 lg:pb-20 xl:pb-24 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between lg:items-center gap-6 sm:gap-8">
           <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700">
             Your Events
@@ -136,7 +136,7 @@ export default function AccountsPage() {
                 <IconSearch className="inline-block w-4 md:w-5" />
               </div>
             </div>
-            <Button
+            {/* <Button
               bgColor="blue-500"
               textColor="white"
               onClick={() => {
@@ -145,7 +145,16 @@ export default function AccountsPage() {
             >
               <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
               Create Event
-            </Button>
+            </Button> */}
+            <button
+              className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+              onClick={() => {
+                nav('/dayselect');
+              }}
+            >
+              <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
+              Create Event
+            </button>
           </div>
         </div>
 
@@ -155,9 +164,12 @@ export default function AccountsPage() {
           </div>
         ) : undefined}
         {events && events.length != 0 ? (
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
+          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
             {events
-              .filter((e) => e.id.includes(filter) || e.name.includes(filter))
+              .filter((e) => 
+                e.id.toLowerCase().includes(filter) || 
+                e.name.toLowerCase().includes(filter)
+              )
               .map((event) => (
                 <div
                   key={event.id}
