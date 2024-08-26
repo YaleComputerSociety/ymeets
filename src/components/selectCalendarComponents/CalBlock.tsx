@@ -310,12 +310,14 @@ export default function CalBlock({
 
     if (calendarState[user][columnID][blockID] === true) {
       oldState.dragStartedOnID = [columnID, blockID];
+      oldState.dragEndedOnID = [columnID, blockID];
       oldState.dragStartedOn = true;
       oldState.blocksAffectedDuringDrag = new Set();
     } else {
       const oldState = dragState;
 
       oldState.dragStartedOnID = [columnID, blockID];
+      oldState.dragEndedOnID = [columnID, blockID];
       oldState.dragStartedOn = false;
       oldState.blocksAffectedDuringDrag = new Set();
     }
@@ -500,14 +502,6 @@ export default function CalBlock({
           onClick={handleBlockClick}
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
-          onDragEnd={() => {
-            setDragState({
-              dragStartedOnID: [], // [columnID, blockID]
-              dragEndedOnID: [],
-              dragStartedOn: false,
-              blocksAffectedDuringDrag: new Set(),
-            });
-          }}
           onDragOver={handleDesktopAvailabilitySelect}
           onMouseOver={handleDesktopHoverChartedUser}
           onMouseEnter={() => {
