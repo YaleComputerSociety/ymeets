@@ -325,7 +325,7 @@ function TimeSelectPage() {
 
         {/* Calendar section */}
         <div
-          className={`w-[95%] md:w-[45%] right-column ${selectedDateTimeObjects !== undefined && (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 ? 'opacity-60' : ''}`}
+          className={`w-[95%] mb-4 md:w-[45%] right-column ${selectedDateTimeObjects !== undefined && (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 ? 'opacity-60' : ''}`}
         >
           <div className="overflow-x-auto md:overflow-x-visible">
             <Calendar

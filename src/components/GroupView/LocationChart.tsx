@@ -61,7 +61,7 @@ export default function LocationChart({
   function handleInputSubmit(event: React.FormEvent) {
     event.preventDefault();
     setRoomNumber(roomNumber);
-    setSelectedLocation(building + ':' + roomNumber);
+    setSelectedLocation(building + ' ' + roomNumber);
     setShowInput(false);
     setIsClicked(true);
   }

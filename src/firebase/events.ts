@@ -542,7 +542,7 @@ function getEventObjectForGCal () {
   return {
     summary: workingEvent.details.name,
     location: workingEvent.details.chosenLocation,
-    description: workingEvent.details.description + "\n" + "\n" + "Conference Data (if provided):" + workingEvent.details.zoomLink,
+    description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
     start: {
       dateTime: workingEvent.details.chosenStartDate,
       timeZone: 'America/New_York'  
