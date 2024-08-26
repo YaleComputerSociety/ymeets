@@ -243,44 +243,54 @@ export const DaySelectComponent = () => {
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-49">
-        <div className="space-y-3 mb-8 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
+      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-69">
+        <div className="space-y-3 mb-2 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <Input
+            {/* Intentionally made these not Input components since I dont want the expand feature on all */}
+            <input
               id="event-name"
+              type="text"
+              className={inputClasses}
               placeholder="Event Name"
               value={eventName}
-              onChange={(e: any) => {
-                setEventName(e.target.value);
+              onChange={(e) => {
+                setEventName(e.target.value)
               }}
               maxLength={40}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <Input
+            {/* Intentionally made these not Input components since I dont want the expand feature on all */}
+            <textarea
               id="event-description"
-              placeholder="Event Description"
+              className={inputClasses}
+              placeholder="Event Description (Optional)"
               value={eventDescription}
-              onChange={(e: any) => {
-                setEventDescription(e.target.value);
+              onChange={(e) => {
+                setEventDescription(e.target.value)
               }}
+              rows={1}
+              maxLength={100}
             />
           </div>
           <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <Input
+            <input
               id="zoom-link"
+              type="text"
+              style={{ resize: 'none' }}
+              className={inputClasses}
               placeholder="Zoom Link (Optional)"
               value={zoomLink}
               onChange={(e) => {
-                setZoomLink(e.target.value);
+                setZoomLink(e.target.value)
               }}
             />
           </div>
-          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-49">
-            <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start">
-              <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper">
+          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
+            <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
+              <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
                 <Select
-                  className="react-dropdown-select"
+                  className="react-dropdown-select z-69"
                   multi
                   create
                   options={locationOptions}
@@ -352,7 +362,7 @@ export const DaySelectComponent = () => {
             onClick={() => {
               handleTabChange('Specific Days');
             }}
-            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative ${
+            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative specific-days-button ${
               selectGeneralDays ? 'text-black' : 'text-white'
             }`}
           >
@@ -380,7 +390,7 @@ export const DaySelectComponent = () => {
           </button>
         </div>
 
-        <div className="w-full h-2/4 xs:mb-2 md:mb-0 z-30">
+        <div className="w-full h-2/4 xs:mb-2 md:mb-0">
           <CalanderComponent
             theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
             theGeneralDays={[selectedDays, setSelectedDays]}
