@@ -69,6 +69,25 @@ const generateUniqueId = (): string => {
   return id
 }
 
+// Wraps generateUniqueId, checks Firebase to confirm key does not exist
+// otherwise will regenerate until unique key is found
+async function generateUniqueEventKey(): Promise<string> {
+  let uniqueKeyFound = false;
+  let newKey = generateUniqueId(); // doubled-up first time to avoid newKey undefined
+
+  while (!uniqueKeyFound) {
+      newKey = generateUniqueId();
+      const docRef = doc(db, 'events', newKey);
+      const possibleConflict = await getDoc(docRef);
+
+      if (!possibleConflict.exists()) {
+          uniqueKeyFound = true;
+      }
+  }
+
+  return newKey;
+}
+
 // PURPOSE: Internal use and to check if event of id exists.
 // Retreives an event from the backend given the id
 // Will throw an error if the document cannot be found
@@ -155,7 +174,7 @@ async function getAllEventsForUser (accountID: string): Promise<Event[]> {
 
 // Stores a new event passed in as a parameter to the backend
 async function createEvent (eventDetails: EventDetails): Promise<Event | null> {
-  const id = generateUniqueId()
+  const id = await generateUniqueEventKey()
   const newEvent: Event = {
     details: {
       ...eventDetails,
