@@ -79,17 +79,21 @@ export default function HomePage() {
                 A cleaner, faster way to schedule meetings on Yale's campus.
               </h1>
               <h3 className="md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
-                <div className="flex flex-col gap-1 text-[90%]">
+                <div className="hidden lg:flex flex-col gap-1 text-[90%]">
                   <div className="flex flex-row text-md gap-3 items-center">
                     <SiGooglecalendar />
                     <p>GCal integration</p>
                   </div>
                   <div className="flex flex-row text-md gap-3 items-center">
                     <CiLocationOn />
-                    <p className="hidden md:block">Vote on a preferred campus meeting place</p>
-                    <p className="md:hidden">Vote on a preferred meeting place</p>
+                    <p className="hidden md:block">
+                      Vote on a preferred campus meeting place
+                    </p>
+                    <p className="md:hidden">
+                      Vote on a preferred meeting place
+                    </p>
                   </div>
-                  <div className="hidden md:flex flex flex-row text-md gap-3 items-center">
+                  <div className="flex flex-row text-md gap-3 items-center">
                     <FaLock />
                     <p>
                       Lock in the best time and place to gather with a selection
