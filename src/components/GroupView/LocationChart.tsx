@@ -133,7 +133,7 @@ export default function LocationChart({
               type="text"
               value={roomNumber}
               onChange={handleInputChange}
-              placeholder={`Enter ${building} number`}
+              placeholder={`Enter ${building} room number`}
               className="border p-2 rounded mb-2"
             />
             <div className="flex flex-row gap-2">

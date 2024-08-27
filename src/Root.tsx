@@ -1,16 +1,16 @@
-import './Root.css'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import HomePage from './components/Home/HomePage'
-import DaySelectComponent from './components/DaySelect/day_select_component'
-import TimeSelectPage from './components/TimeSelect/TimeSelectPage'
-import NavBar from './components/navbar/NavBar'
-import AccountsPage from './components/Accounts/AccountsPage'
-import GroupViewApp from './components/GroupView/GroupViewPage'
-import AboutUsPage from './components/AboutUs/AboutUsPage'
-import NotFound from './components/NotFound/NotFound'
-import PrivacyPage from './components/Privacy/PrivacyPage'
-import { GAPIContextWrapper } from './firebase/gapiContext'
-import Banner from './components/utils/components/Banner'
+import './Root.css';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomePage from './components/Home/HomePage';
+import DaySelectComponent from './components/DaySelect/day_select_component';
+import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
+import NavBar from './components/NavBar/NavBar';
+import AccountsPage from './components/Accounts/AccountsPage';
+import GroupViewApp from './components/GroupView/GroupViewPage';
+import AboutUsPage from './components/AboutUs/AboutUsPage';
+import NotFound from './components/NotFound/NotFound';
+import PrivacyPage from './components/Privacy/PrivacyPage';
+import { GAPIContextWrapper } from './firebase/gapiContext';
+import Banner from './components/utils/components/Banner';
 
 function Root() {
   return (
@@ -32,7 +32,7 @@ function Root() {
         </Router>
       </GAPIContextWrapper>
     </>
-  )
+  );
 }
 
-export default Root
+export default Root;

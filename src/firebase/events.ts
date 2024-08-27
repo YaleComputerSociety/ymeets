@@ -558,6 +558,7 @@ function getStartAndEndTimes (): Date[] {
 }
 
 function getEventObjectForGCal () {
+  
   return {
     summary: workingEvent.details.name,
     location: workingEvent.details.chosenLocation,
@@ -570,9 +571,13 @@ function getEventObjectForGCal () {
       dateTime: workingEvent.details.chosenEndDate,
       timeZone: 'America/New_York'
     },
-    attendees: workingEvent.participants.map((participant: Participant) => ({
-      email: participant.email,
-    })),
+    attendees: workingEvent.participants
+      .filter((participant: Participant) => 
+        participant.email === undefined || participant.email !== ''
+      )
+      .map((participant: Participant) => ({
+        email: participant.email,
+      })),
   }
 }
 
