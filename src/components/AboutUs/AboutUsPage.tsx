@@ -4,11 +4,11 @@ import React from 'react';
 import no_person from './anon.jpeg';
 import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
 import group from './ymeetsgroupimage.png';
-import ETHAN from './EthanMathieu.jpeg';
+import ETHAN from './EthanMathieu.png';
 import NICK from './NicholasRibeiero.jpg';
 import RON from './RonCheng.png';
 import ROME from './Rome Thorstenson.png';
-import LILY from './LilyLin.jpeg';
+import LILY from './LilyLin.png';
 import LAILAH from './lailah.jpeg';
 import JIAKANG from './Jiakang.png';
 import ALAN from './AlanXie.jpg';
@@ -26,16 +26,6 @@ const CONTRIBUTORS = [
   },
 
   {
-    name: 'Rome Thortensen',
-    title: ['Software Engineer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/romethorstenson/',
-    portfolio: undefined,
-    github: 'https://github.com/Rome-1',
-    image: ROME,
-  },
-
-  {
     name: 'Nicholas Ribeiro',
     title: ['Product Lead', 'Software Engineer'],
     founding: true,
@@ -45,6 +35,15 @@ const CONTRIBUTORS = [
     image: NICK,
   },
 
+  {
+    name: 'Rome Thortensen',
+    title: ['Software Engineer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/romethorstenson/',
+    portfolio: undefined,
+    github: 'https://github.com/Rome-1',
+    image: ROME,
+  },
   {
     name: 'Ron Cheng',
     title: ['Software Engineer', 'UI/UX Designer'],
@@ -161,9 +160,9 @@ function ContributorCard({
               </h3>
             );
           })}
-          <p className="text-gray-500 border-gray-500 text-md rounded-full border px-4 py-1 w-fit">
+          {/* <p className="text-gray-500 border-gray-500 text-md rounded-full border px-4 py-1 w-fit">
             {founding === true ? 'Founding Member' : ''}
-          </p>
+          </p> */}
         </div>
         <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500">
           <div className="pr-1 hover:text-blue-500">
