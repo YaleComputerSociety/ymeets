@@ -553,14 +553,14 @@ export default function CalBlock({
         ></div>
         {gCalEventActive && associatedEvents?.length > 0 && (
           <div
-            className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-20 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
+            className={`absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-1 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
               gCalEventActive ? 'opacity-100' : 'opacity-0'
             }`}
             style={{ minWidth: '150px', opacity: gCalEventActive ? 1 : 0 }}
           >
             {associatedEvents.map((gEvent: any) => {
               return (
-                <div className="w-full mb-1 last:mb-0" key={gEvent.id}>
+                <div className="w-full mb-1 z-1 last:mb-0" key={gEvent.id}>
                   {gEvent.summary}
                 </div>
               );

@@ -110,24 +110,27 @@ function TimeSelectPage() {
           setGoogleCalendarEvents([]);
           return;
         }
-
+        // @ts-expect-error
+        const timeMaxDate = new Date(theDates[theDates.length - 1]?.date);
+        const timeMax = new Date(
+          timeMaxDate.setUTCHours(23, 59, 59, 999) // time max is exclusive, so set 1 millisecond after the actual time max we want so we can fetch cal events on last date.
+        ).toISOString();
         for (let i = 0; i < calIds.length; i++) {
           // @ts-expect-error
-          const eventList = await gapi.client.calendar.events.list({
+          const eventList = await gapi?.client?.calendar?.events?.list({
             calendarId: calIds[i],
             // @ts-expect-error
-            timeMin: theDates[0].date.toISOString(),
-            // @ts-expect-error
-            timeMax: theDates[theDates.length - 1].date.toISOString(),
+            timeMin: theDates[0]?.date?.toISOString(),
+            timeMax: timeMax,
             singleEvents: true,
             orderBy: 'startTime',
           });
 
-          const theEvents = eventList.result.items;
+          const theEvents = eventList?.result?.items;
 
-          for (let i = 0; i < theEvents.length; i++) {
-            const startDate = new Date(theEvents[i].start.dateTime);
-            const endDate = new Date(theEvents[i].end.dateTime);
+          for (let i = 0; i < theEvents?.length; i++) {
+            const startDate = new Date(theEvents[i]?.start?.dateTime);
+            const endDate = new Date(theEvents[i]?.end?.dateTime);
 
             if (startDate.getDay() != endDate.getDay()) {
               continue;
@@ -136,6 +139,7 @@ function TimeSelectPage() {
             parsedEvents.push(theEvents[i]);
           }
         }
+
         setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
       } catch (error) {
         console.error('Error fetching calendar events:', error);
@@ -152,7 +156,7 @@ function TimeSelectPage() {
   const fetchUserCals = async () => {
     return await new Promise((resolve, reject) => {
       // @ts-expect-error
-      gapi.client.calendar.calendarList
+      gapi?.client?.calendar?.calendarList
         .list()
         // @ts-expect-error
         .then((response) => {
@@ -387,7 +391,10 @@ function TimeSelectPage() {
                         setGcalPopupOpen(true);
                       })
                       .catch((error) => {
-                        console.error('Error fetching Google Calendars:', error);
+                        console.error(
+                          'Error fetching Google Calendars:',
+                          error
+                        );
                       });
                   }}
                 >
@@ -407,14 +414,16 @@ function TimeSelectPage() {
                         setGcalPopupOpen(true);
                       })
                       .catch((error) => {
-                        console.error('Error fetching Google Calendars:', error);
+                        console.error(
+                          'Error fetching Google Calendars:',
+                          error
+                        );
                       });
                   }}
                 >
                   Toggle GCal Availabilities
                 </ButtonSmall>
               </div>
-              
             </div>
           ) : (
             !areSelectingGeneralDays && (

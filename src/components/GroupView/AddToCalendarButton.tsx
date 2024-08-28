@@ -28,7 +28,7 @@ function AddToGoogleCalendarButton(): JSX.Element {
 
       try {
         // @ts-expect-error
-        await gapi.client.calendar.events.insert({
+        await gapi?.client?.calendar?.events.insert({
           calendarId: 'primary',
           resource: event,
           sendUpdates: 'all',
