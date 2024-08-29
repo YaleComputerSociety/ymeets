@@ -180,7 +180,7 @@ export default function CalBlock({
       }
     } else {
       // timeselect - shade color is just going to be sky
-      return 'sky-300';
+      return 'sky-200';
     }
   }
 

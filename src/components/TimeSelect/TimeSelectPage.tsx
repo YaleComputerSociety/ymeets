@@ -311,13 +311,13 @@ function TimeSelectPage() {
             )}
 
           <div className="hidden md:flex md:mt-12 flex flex-col items-center">
-            <Button
+            <ButtonSmall
               bgColor="blue-500"
               textColor="white"
               onClick={handleSubmitAvailability}
             >
               Submit Availability
-            </Button>
+            </ButtonSmall>
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
@@ -379,7 +379,7 @@ function TimeSelectPage() {
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
             <div className="md:pl-4 z-60 mb-4 md:mb-0">
               <div className="hidden md:flex">
-                <Button
+                <ButtonSmall
                   bgColor="blue-500"
                   textColor="white"
                   onClick={() => {
@@ -399,7 +399,7 @@ function TimeSelectPage() {
                   }}
                 >
                   Toggle GCal Availabilities
-                </Button>
+                </ButtonSmall>
               </div>
               <div className="md:hidden flex">
                 <ButtonSmall
