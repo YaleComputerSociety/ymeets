@@ -32,7 +32,7 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
   } = gapiContext;
 
   const handleSignInWithGoogle = () => {
-    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+    signInWithGoogle(undefined, undefined, handleIsSignedIn).then(
       (loginSuccessful) => {
         if (loginSuccessful !== false) {
           navigate('/dayselect');

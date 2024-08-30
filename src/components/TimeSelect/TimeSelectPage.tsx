@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+import ToggleGoogleCalendarButton from './ToggleGCalButton';
 import { LocationSelectionComponent } from './LocationSelectionComponent';
 import { useState, useEffect } from 'react';
 import {
@@ -378,51 +378,8 @@ function TimeSelectPage() {
 
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
             <div className="md:pl-4 z-60 mb-4 md:mb-0">
-              <div className="hidden md:flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={() => {
-                    fetchUserCals()
-                      .then((calendars) => {
-                        // @ts-expect-error
-                        setGoogleCalendars(calendars);
-
-                        setGcalPopupOpen(true);
-                      })
-                      .catch((error) => {
-                        console.error(
-                          'Error fetching Google Calendars:',
-                          error
-                        );
-                      });
-                  }}
-                >
-                  Toggle GCal Availabilities
-                </ButtonSmall>
-              </div>
-              <div className="md:hidden flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={() => {
-                    fetchUserCals()
-                      .then((calendars) => {
-                        // @ts-expect-error
-                        setGoogleCalendars(calendars);
-
-                        setGcalPopupOpen(true);
-                      })
-                      .catch((error) => {
-                        console.error(
-                          'Error fetching Google Calendars:',
-                          error
-                        );
-                      });
-                  }}
-                >
-                  Toggle GCal Availabilities
-                </ButtonSmall>
+              <div className="md:flex">
+                <ToggleGoogleCalendarButton />
               </div>
             </div>
           ) : (

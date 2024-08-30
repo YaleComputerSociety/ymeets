@@ -16,7 +16,7 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
     // Check if user is already signed in (anonymously)
     // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
     let formerName = ''
-    if (auth.currentUser?.isAnonymous) {
+    if (auth?.currentUser?.isAnonymous) {
       formerName = auth.currentUser.displayName || ''
     }
 
@@ -40,8 +40,9 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
       } else {
         // try signing in with firebase (gapi not working...such as mobile???)
         try {
-          signInWithRedirect(auth, googleProvider)
+          signInWithPopup(auth, googleProvider)
             .then((googleUser: any) => {
+              console.log("hello")
               if (handleIsSignedIn) { handleIsSignedIn(true) }
 
               if (formerName !== '') {

@@ -145,7 +145,7 @@ export default function NavBar() {
                         onClick={() => {
                           signInWithGoogle(
                             undefined,
-                            gapi,
+                            undefined,
                             handleIsSignedIn
                           ).then((loginSuccessful) => {
                             if (loginSuccessful) {

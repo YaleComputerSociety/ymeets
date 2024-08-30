@@ -36,7 +36,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   const handleSignInWithoutGoogle = () => {
     const trimmedName = inputName.trim();
     if (!validateInput(trimmedName)) {
-      alert("Please enter a valid name (letters, numbers, and spaces only).");
+      alert('Please enter a valid name (letters, numbers, and spaces only).');
       return;
     }
     signInAnonymously(auth).then((userCred: UserCredential) => {
@@ -65,9 +65,11 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   const validateInput = (input: string): boolean => {
     const trimmedInput = input.trim();
     const validNameRegex = /^[a-zA-Z0-9\s]+$/;
-    return trimmedInput.length > 0 && 
-           trimmedInput.length <= 25 && 
-           validNameRegex.test(trimmedInput);
+    return (
+      trimmedInput.length > 0 &&
+      trimmedInput.length <= 25 &&
+      validNameRegex.test(trimmedInput)
+    );
   };
 
   React.useEffect(() => {
