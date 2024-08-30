@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react';
 import { calanderState, userData, calendarDimensions } from '../../types';
 import eventAPI from '../../firebase/eventAPI';
@@ -357,14 +356,6 @@ export default function AdminGroupViewPage() {
                 </div>
               </div>
 
-              {/* <div className="flex flex-row space-x-2">
-                {selectedDateTimeObjects ? (
-                  <div className="w-full">
-                    <AddToGoogleCalendarButton />
-                  </div>
-                ) : undefined}
-              </div> */}
-
               {/* User availability table */}
               <div className="mb-2">
                 {chartedUsers !== undefined && (
@@ -376,13 +367,12 @@ export default function AdminGroupViewPage() {
               </div>
 
               {/* Location options table */}
-
               {locationOptions.length > 0 && (
                 <LocationChart
                   theSelectedLocation={[
-                    //@ts-expect-error
+                    // @ts-expect-error
                     adminChosenLocation,
-                    //@ts-expect-error
+                    // @ts-expect-error
                     setAdminChosenLocation,
                   ]}
                   locationOptions={

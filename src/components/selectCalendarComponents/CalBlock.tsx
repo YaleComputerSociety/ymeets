@@ -11,7 +11,7 @@ import {
 import { dragProperties } from './CalendarApp';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { useCallback } from 'react';
-import { getChosenDayAndTime } from '../../firebase/events';
+import { checkIfLoggedIn, getChosenDayAndTime } from '../../firebase/events';
 import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM';
 
 interface CalBlockProps {
@@ -387,7 +387,6 @@ export default function CalBlock({
       setTimeout(() => {
         setGcalEventActive(false);
       }, 3000);
-      return;
     }
 
     if (isDraggable) {

@@ -20,9 +20,9 @@ const auth = getAuth(app)
 const analytics = getAnalytics(app)
 const db = getFirestore(app)
 
-export const SCOPES = 'https://www.googleapis.com/auth/calendar'
-const googleProvider = new GoogleAuthProvider()
-googleProvider.addScope(SCOPES)
+export const SCOPES = 'https://www.googleapis.com/auth/calendar';
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope(SCOPES);
 
 export {
   auth,
