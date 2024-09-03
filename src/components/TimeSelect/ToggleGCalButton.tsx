@@ -12,7 +12,7 @@ const ToggleGoogleCalendarButton = () => {
     const provider = new GoogleAuthProvider();
 
     // Add the default 'email' scope and the Google Calendar scope
-    provider.addScope('https://www.googleapis.com/auth/calendar');
+    provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
 
     try {
       // Sign in with a popup
@@ -27,10 +27,14 @@ const ToggleGoogleCalendarButton = () => {
         const grantedScopes = result.user?.providerData[0]?.providerId;
 
         if (
-          !grantedScopes?.includes('https://www.googleapis.com/auth/calendar')
+          !grantedScopes?.includes(
+            'https://www.googleapis.com/auth/calendar.readonly'
+          )
         ) {
           // Request additional scopes if not granted
-          provider.addScope('https://www.googleapis.com/auth/calendar');
+          provider.addScope(
+            'https://www.googleapis.com/auth/calendar.readonly'
+          );
 
           await signInWithPopup(auth, provider);
 

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import ToggleGoogleCalendarButton from './ToggleGCalButton';
+
 import { LocationSelectionComponent } from './LocationSelectionComponent';
 import { useState, useEffect } from 'react';
 import {
@@ -259,6 +259,61 @@ function TimeSelectPage() {
     );
   }
 
+  // Check if the user has the required Google Calendar scope
+  const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
+    const currentScopes =
+      gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getGrantedScopes() ||
+      '';
+    return currentScopes.includes(
+      'https://www.googleapis.com/auth/calendar.readonly'
+    );
+  };
+
+  // Request additional scopes if necessary
+  const requestAdditionalScopes = async () => {
+    try {
+      await gapi?.auth2
+        .getAuthInstance()
+        .grantOfflineAccess({
+          scope: 'https://www.googleapis.com/auth/calendar.readonly',
+          prompt: 'consent',
+        })
+        .then(async (response) => {
+          if (response.code) {
+            await signInWithGoogle(response.code, gapi, handleIsSignedIn);
+            fetchUserCalendars();
+          } else {
+            console.error('Failed to grant additional permissions.');
+          }
+        });
+    } catch (error) {
+      console.error('Error during scope request:', error);
+    }
+  };
+
+  // Fetch the user's Google Calendars
+  const fetchUserCalendars = async () => {
+    try {
+      // @ts-expect-error
+      const response = await gapi?.client?.calendar?.calendarList.list();
+      const calendars = response.result.items;
+      setGoogleCalendars(calendars);
+      setGcalPopupOpen(true);
+    } catch (error) {
+      console.error('Error fetching Google Calendars:', error);
+    }
+  };
+
+  const handleToggleGCalAvailabilitiesClick = async () => {
+    if (await checkIfUserHasCalendarScope()) {
+      fetchUserCalendars();
+    } else {
+      requestAdditionalScopes().then(() => {
+        fetchUserCalendars();
+      });
+    }
+  };
+
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
@@ -378,8 +433,37 @@ function TimeSelectPage() {
 
           {!areSelectingGeneralDays && getAccountId() !== '' ? (
             <div className="md:pl-4 z-60 mb-4 md:mb-0">
-              <div className="md:flex">
-                <ToggleGoogleCalendarButton />
+              <div className="hidden md:flex">
+                <ButtonSmall
+                  bgColor="blue-500"
+                  textColor="white"
+                  onClick={handleToggleGCalAvailabilitiesClick}
+                >
+                  Toggle GCal Availabilities
+                </ButtonSmall>
+              </div>
+              <div className="md:hidden flex">
+                <ButtonSmall
+                  bgColor="blue-500"
+                  textColor="white"
+                  onClick={() => {
+                    fetchUserCals()
+                      .then((calendars) => {
+                        // @ts-expect-error
+                        setGoogleCalendars(calendars);
+
+                        setGcalPopupOpen(true);
+                      })
+                      .catch((error) => {
+                        console.error(
+                          'Error fetching Google Calendars:',
+                          error
+                        );
+                      });
+                  }}
+                >
+                  Toggle GCal Availabilities
+                </ButtonSmall>
               </div>
             </div>
           ) : (

@@ -80,21 +80,23 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
   }, []);
 
   const handleIsSignedIn = (isSignedIn: boolean) => {
-    if (isSignedIn && gapi) {
-      const auth2 = gapi.auth2.getAuthInstance();
-      const currentUser = auth2.currentUser.get();
-      const profile = currentUser.getBasicProfile();
-      const authResponse = currentUser.getAuthResponse(true);
-      const credential = GoogleAuthProvider.credential(
-        authResponse.id_token,
-        authResponse.access_token
-      );
-      signInWithCredential(auth, credential)
-        .then(({ user }) => {})
-        .catch((error: any) => {
-          console.error('firebase: error signing in!', error);
-        });
-    }
+    return isSignedIn;
+
+    // if (isSignedIn && gapi) {
+    //   const auth2 = gapi.auth2.getAuthInstance();
+    //   const currentUser = auth2.currentUser.get();
+    //   const profile = currentUser.getBasicProfile();
+    //   const authResponse = currentUser.getAuthResponse(true);
+    //   const credential = GoogleAuthProvider.credential(
+    //     authResponse.id_token,
+    //     authResponse.access_token
+    //   );
+    //   signInWithCredential(auth, credential)
+    //     .then(({ user }) => {})
+    //     .catch((error: any) => {
+    //       console.error('firebase: error signing in!', error);
+    //     });
+    // }
   };
 
   useEffect(() => {
