@@ -1,3 +1,4 @@
+import React from 'react';
 import SelectCalander from './SelectCalendar';
 import {
   calendarDimensions,
@@ -5,7 +6,6 @@ import {
   userData,
   calandarDate,
 } from '../../types';
-import { useState } from 'react';
 
 interface CalendarProps {
   theCalendarFramework:
@@ -41,7 +41,7 @@ export interface dragProperties {
   blocksAffectedDuringDrag: Set<any>;
 }
 
-export default function Calender({
+export default function Calendar({
   theCalendarFramework,
   theCalendarState,
   chartedUsersData,
@@ -78,7 +78,7 @@ export default function Calender({
         className="flex justify-center mb-4 md:m-5 md:justify-start"
       >
         <div
-          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 \
+          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 
                                 md:bg-white rounded-lg"
         >
           {calendarFramework?.dates.map(
@@ -106,6 +106,7 @@ export default function Calender({
                     chartedUsersData={chartedUsersData}
                     theSelectedDate={theSelectedDate}
                     theGoogleCalendarEvents={theGoogleCalendarEvents}
+                    calendarIndex={index} // Pass the index as calendarIndex
                   />
                 </div>
               );
