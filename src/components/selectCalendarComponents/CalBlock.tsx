@@ -61,10 +61,28 @@ export default function CalBlock({
   associatedEvents = undefined,
 }: CalBlockProps) {
   const dragRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const elementId = `${columnID}-${blockID}`;
 
   const [isDraggable, setIsDraggable] = useState(draggable);
   const [gCalEventActive, setGcalEventActive] = useState(false);
+  const [popupPosition, setPopupPosition] = useState({ left: 0, top: 0 });
+
+  useEffect(() => {
+    if (gCalEventActive && dragRef.current && popupRef.current) {
+      const rect = dragRef.current.getBoundingClientRect();
+      const popupRect = popupRef.current.getBoundingClientRect();
+      const timesColumnWidth = document.querySelector('.sticky.left-0')?.getBoundingClientRect().width || 0;
+
+      let left = rect.left + rect.width / 2 - popupRect.width / 2;
+      const top = rect.bottom + window.scrollY;
+
+      // Ensure the popup doesn't overlap with the times column
+      left = Math.max(left, timesColumnWidth);
+
+      setPopupPosition({ left, top });
+    }
+  }, [gCalEventActive]);
 
   function checkIfBlockIsAdminSelection() {
     const chosenDates = getChosenDayAndTime();
@@ -552,10 +570,17 @@ export default function CalBlock({
         ></div>
         {gCalEventActive && associatedEvents?.length > 0 && (
           <div
-            className={`absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-1 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
+            ref={popupRef}
+            className={`fixed z-50 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
               gCalEventActive ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{ minWidth: '150px', opacity: gCalEventActive ? 1 : 0 }}
+            style={{
+              minWidth: '150px',
+              opacity: gCalEventActive ? 1 : 0,
+              left: `${popupPosition.left}px`,
+              top: `${popupPosition.top}px`,
+            }}
+            // style={{ minWidth: '150px', opacity: gCalEventActive ? 1 : 0 }}
           >
             {associatedEvents.map((gEvent: any) => {
               return (

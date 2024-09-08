@@ -63,8 +63,7 @@ function SelectCalander({
   const timeBlocks = generateTimeBlocks(startDate, endDate);
 
   const militaryConvert = (time: string) => {
-    // expects hh:mm
-    let hours = Number.parseInt(time.slice(0, 2)); // gives the value in 24 hours format
+    let hours = Number.parseInt(time.slice(0, 2));
     const AmOrPm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
     const minutes = Number.parseInt(time.slice(-2));
@@ -77,64 +76,70 @@ function SelectCalander({
   };
 
   return (
-    <div className="max-h-120 m-2" style={{ touchAction: 'none' }}>
-      {timeBlocks.map((hour: string[], blockIDOffset: number) => {
-        return (
-          <div key={blockIDOffset} className="flex flex-row ">
-            <div>
-              {blockIDOffset == 0 && (
-                <div className="flex flex-row justify-end">
-                  <DateBar dates={bucket} />
-                </div>
-              )}
-
-              <div className="flex flex-col">
-                {hour.map((time: string, blockID) => (
-                  <>
-                    <div className="flex flex-row justify-end">
-                      {renderTime && time.slice(-2) == '00' && (
-                        <div className="w-12 text-xs relative">
-                          <p
-                            className="absolute"
-                            style={{ top: '-0.5rem', right: '0.6rem' }}
-                          >
-                            {militaryConvert(time)}
-                          </p>
-                        </div>
-                      )}
-                      {renderTime && time.slice(-2) != '00' && (
-                        <div className="w-12"></div>
-                      )}
-                      <div
-                        className={`border-black border-l ${hour.length - 1 == blockID ? 'border-b' : ''}`}
-                      >
-                        <CalRow
-                          is30Minute={time.slice(3) === '30'}
-                          key={time}
-                          time={time}
-                          bucket={bucket}
-                          theCalendarState={theCalendarState}
-                          draggable={draggable}
-                          columnIndexOffSet={columnIndexOffset}
-                          blockID={blockIDOffset * 4 + blockID}
-                          user={user}
-                          isAdmin={isAdmin}
-                          theDragState={theDragState}
-                          theCalendarFramework={theCalendarFramework}
-                          chartedUsersData={chartedUsersData}
-                          theSelectedDate={theSelectedDate}
-                          // @ts-expect-error
-                          theGoogleCalendarEvents={theGoogleCalendarEvents}
-                        />
-                      </div>
-                    </div>
-                  </>
-                ))}
-              </div>
+    <div className="relative max-h-120 mr-2" style={{ touchAction: 'none' }}>
+      <div className="flex flex-col">
+        <div className="sticky top-0 flex flex-row z-30">
+          <div className="w-11 ml-4 z-40 bg-white"></div>
+          <div className="bg-white">
+            <div className="bg-white z-50 h-6 w-full"></div>
+            <div className="flex">
+              <DateBar dates={bucket} />
             </div>
           </div>
-        );
-      })}
+        </div>
+        <div className="flex">
+          <div className="sticky left-0 z-30 bg-white flex flex-row">
+            <div className="w-4 h-full bg-white z-50"></div>
+            <div className="relative">
+              <div className="absolute top-0 left-0 right-0 h-6 bg-white z-10"></div>
+              {timeBlocks.map((hour: string[], blockIDOffset: number) => (
+                <div key={blockIDOffset} className="flex flex-col" style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}>
+                  {hour.map((time: string, blockID) => (
+                    <div key={blockID} className="h-3 flex items-center justify-end pr-2">
+                      {renderTime && time.slice(-2) == '00' && (
+                        <span className="text-xs relative z-20">
+                          {militaryConvert(time)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <div className="h-px bg-black"></div>
+            {timeBlocks.map((hour: string[], blockIDOffset: number) => (
+              <div key={blockIDOffset} className="flex flex-row">
+                <div className="flex flex-col">
+                  {hour.map((time: string, blockID) => (
+                    <div key={time} className={`border-black border-l ${hour.length - 1 == blockID ? 'border-b' : ''}`}>
+                      <CalRow
+                        is30Minute={time.slice(3) === '30'}
+                        time={time}
+                        bucket={bucket}
+                        theCalendarState={theCalendarState}
+                        draggable={draggable}
+                        columnIndexOffSet={columnIndexOffset}
+                        blockID={blockIDOffset * 4 + blockID}
+                        user={user}
+                        isAdmin={isAdmin}
+                        theDragState={theDragState}
+                        theCalendarFramework={theCalendarFramework}
+                        chartedUsersData={chartedUsersData}
+                        theSelectedDate={theSelectedDate}
+                        // @ts-expect-error
+                        theGoogleCalendarEvents={theGoogleCalendarEvents}
+                        borderStyle={time.slice(3) === '30' ? 'dotted' : 'solid'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

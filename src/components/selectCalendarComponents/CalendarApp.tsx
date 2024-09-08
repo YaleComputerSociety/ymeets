@@ -78,7 +78,7 @@ export default function Calender({
         className="flex justify-center mb-4 md:m-5 md:justify-start"
       >
         <div
-          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll py-3 sm:pt-6 sm:pb-0 px-3 sm:px-3 \
+          className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 \
                                 md:bg-white rounded-lg"
         >
           {calendarFramework?.dates.map(
@@ -89,7 +89,7 @@ export default function Calender({
               }
 
               return (
-                <div className="ml-2 mr-2 mb-2" key={index}>
+                <div className="ml-0 mr-2 mb-4" key={index}>
                   <SelectCalander
                     renderTime={index == 0}
                     theCalendarState={[calendarState, setCalendarState]}
