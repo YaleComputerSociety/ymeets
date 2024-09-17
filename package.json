@@ -22,8 +22,6 @@
     "@types/gapi.calendar": "^3.0.10",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.3",
-    "@types/react": "^18.0.24",
-    "@types/react-dom": "^18.0.8",
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/parser": "^6.4.0",
     "autoprefixer": "^10.4.15",
@@ -86,7 +84,9 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@types/body-scroll-lock": "^3.1.2",
+    "@types/react": "^18.3.7",
     "@types/react-calendar": "^3.9.0",
+    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

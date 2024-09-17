@@ -80,7 +80,7 @@ function SelectCalander({
   return (
     <div className="relative max-h-120 mr-2" style={{ touchAction: 'none' }}>
       <div className="flex flex-col">
-        <div className="sticky top-0 flex flex-row z-30">
+        <div className="sticky top-0 mb-2 flex flex-row z-30">
           {calendarIndex === 0 && ( // Only render this div for the first calendar
             <div className="w-11 ml-4 z-40 bg-white"></div>
           )}

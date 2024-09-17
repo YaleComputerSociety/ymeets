@@ -75,8 +75,9 @@ export default function Calendar({
 
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 md:justify-start"
+        className="flex justify-center mb-4 md:m-5 md:justify-start relative"
       >
+        <div style={{ width: '3.75rem', height: '3.75rem' }} className="absolute mt-0 ml-0 bg-white rounded-tl-lg z-50"></div>
         <div
           className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 
                                 md:bg-white rounded-lg"
