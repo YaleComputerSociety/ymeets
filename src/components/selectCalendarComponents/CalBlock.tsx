@@ -72,7 +72,9 @@ export default function CalBlock({
     if (gCalEventActive && dragRef.current && popupRef.current) {
       const rect = dragRef.current.getBoundingClientRect();
       const popupRect = popupRef.current.getBoundingClientRect();
-      const timesColumnWidth = document.querySelector('.sticky.left-0')?.getBoundingClientRect().width || 0;
+      const timesColumnWidth =
+        document.querySelector('.sticky.left-0')?.getBoundingClientRect()
+          .width || 0;
 
       let left = rect.left + rect.width / 2 - popupRect.width / 2;
       const top = rect.bottom + window.scrollY;
@@ -557,9 +559,9 @@ export default function CalBlock({
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} flex-1 w-16 p-0 h-3`
-                : `bg-${unShadeColor} flex-1 w-16 p-0 h-3`
-              : `bg-${shadeColor} flex-1 w-16 p-0 h-3`
+                ? `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
+                : `bg-${unShadeColor} flex-1 w-16 p-0 h-3 touch-none`
+              : `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
           }
           style={{
             borderRight: '1px solid #000',
