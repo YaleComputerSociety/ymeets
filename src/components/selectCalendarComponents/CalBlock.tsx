@@ -61,6 +61,7 @@ export default function CalBlock({
   associatedEvents = undefined,
 }: CalBlockProps) {
   const [isMultiTouch, setIsMultiTouch] = useState(false);
+  const touchStartY = useRef<number | null>(null);
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const elementId = `${columnID}-${blockID}`;
@@ -345,8 +346,9 @@ export default function CalBlock({
   };
 
   const handleTouchStart = (event: React.TouchEvent) => {
-    if (event.touches.length > 1) {
+    if (event.touches.length === 2) {
       setIsMultiTouch(true);
+      touchStartY.current = event.touches[0].clientY;
       return;
     }
 
@@ -369,19 +371,40 @@ export default function CalBlock({
   };
 
   const handleTouchMove = (event: React.TouchEvent) => {
-    if (isMultiTouch) {
-      // Allow page navigation when using two fingers
+    if (isMultiTouch && event.touches.length === 2) {
+      event.preventDefault(); // Prevent default to allow custom scrolling
+      const currentY = event.touches[0].clientY;
+      const deltaY = touchStartY.current! - currentY;
+      window.scrollBy(0, deltaY);
+      touchStartY.current = currentY;
       return;
     }
 
-    handleMobileAvailabilitySelect(event);
-    handleMobileHoverChartedUser(event);
+    if (!isMultiTouch) {
+      handleMobileAvailabilitySelect(event);
+      handleMobileHoverChartedUser(event);
+    }
   };
 
   const handleTouchEnd = () => {
     setGcalEventActive(false);
     setIsMultiTouch(false);
+    touchStartY.current = null;
   };
+
+  useEffect(() => {
+    const preventDefaultForScrolling = (e: TouchEvent) => {
+      if (isMultiTouch) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchmove', preventDefaultForScrolling, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchmove', preventDefaultForScrolling);
+    };
+  }, [isMultiTouch]);
 
   const handleMobileAvailabilitySelect = (event: any) => {
     const touch = event.touches[0];
