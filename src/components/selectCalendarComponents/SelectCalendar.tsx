@@ -81,9 +81,6 @@ function SelectCalander({
     <div className="relative max-h-120 mr-2" style={{ touchAction: 'none' }}>
       <div className="flex flex-col">
         <div className="sticky top-0 mb-2 flex flex-row z-30">
-          {calendarIndex === 0 && ( // Only render this div for the first calendar
-            <div className="w-11 ml-4 z-40 bg-white"></div>
-          )}
           <div className="bg-white">
             <div className="bg-white z-50 h-6 w-full"></div>
             <div className="flex">
@@ -92,27 +89,6 @@ function SelectCalander({
           </div>
         </div>
         <div className="flex">
-          {calendarIndex === 0 && ( // Only render the time column for the first calendar
-            <div className="sticky left-0 z-30 bg-white flex flex-row">
-              <div className="w-4 h-full bg-white z-50"></div>
-              <div className="relative">
-                <div className="absolute top-0 left-0 right-0 h-6 bg-white z-10"></div>
-                {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-                  <div key={blockIDOffset} className="flex flex-col" style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}>
-                    {hour.map((time: string, blockID) => (
-                      <div key={blockID} className="h-3 flex items-center justify-end pr-2">
-                        {renderTime && time.slice(-2) == '00' && (
-                          <span className="text-xs relative z-20">
-                            {militaryConvert(time)}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           <div className="overflow-x-auto">
             <div className="h-px bg-black"></div>
             {timeBlocks.map((hour: string[], blockIDOffset: number) => (
