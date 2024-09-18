@@ -28,7 +28,11 @@ module.exports = {
         29: '120px'
       },
       maxHeight: {
-        120: '28rem'
+        120: '28rem',
+        125: '30rem',
+        130: '32rem',
+        135: '34rem',
+        140: '36rem'
       },
       scale: {
         102: '1.02'

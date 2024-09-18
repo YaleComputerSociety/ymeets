@@ -93,8 +93,8 @@ export default function Calendar({
         id="cal"
         className="flex justify-center mb-4 md:m-5 md:justify-start relative"
       >
-        <div style={{ width: '3.75rem', height: '3.75rem' }} className="absolute mt-0 ml-0 bg-white rounded-tl-lg z-50"></div>
-        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-120">
+        <div style={{ width: '3.75rem', height: '3.75rem' }} className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"></div>
+        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
           {/* Time Column */}
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
@@ -115,6 +115,7 @@ export default function Calendar({
                   ))}
                 </div>
               ))}
+              <div style={{ width: '3.75rem', height: '0.50rem' }} className="bg-white"></div>
             </div>
           </div>
 

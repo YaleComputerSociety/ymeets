@@ -78,11 +78,11 @@ function SelectCalander({
   };
 
   return (
-    <div className="relative max-h-120 mr-2" style={{ touchAction: 'none' }}>
+    <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
       <div className="flex flex-col">
         <div className="sticky top-0 mb-2 flex flex-row z-30">
-          <div className="bg-white">
-            <div className="bg-white z-50 h-6 w-full"></div>
+          <div className="bg-white w-[105%]">
+            <div className="bg-white z-50 h-6"></div>
             <div className="flex">
               <DateBar dates={bucket} />
             </div>

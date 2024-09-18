@@ -228,9 +228,9 @@ export default function NotFound() {
             </svg>
           </div>
         </div>
-        <div className="px-8 md:text-left md:w-[60%]">
+        <div className="px-8 md:text-left md:w-[60%] mb-10">
           <p className="text-6xl font-bold mb-3">404 Error: Not Found</p>
-          <p className="text-2xl mb-4 text-gray-600">
+          <p className="text-2xl mb-10 text-gray-600">
             Unfortunately, this page does not exist. Please check your code or
             URL and make sure it is valid.
           </p>

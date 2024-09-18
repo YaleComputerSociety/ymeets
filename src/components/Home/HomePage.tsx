@@ -71,7 +71,7 @@ export default function HomePage() {
       >
         <div
           className="flex-col-reverse justify-center \ 
-                            md:flex-row flex md:h-1/2 mb-8"
+                            md:flex-row flex md:h-1/2 mb-10"
         >
           <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">

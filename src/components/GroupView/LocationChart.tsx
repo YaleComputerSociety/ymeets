@@ -77,6 +77,21 @@ export default function LocationChart({
     }
   }
 
+  function getBookingLink(building: string): string {
+    const roomNumberInt = parseInt(roomNumber, 10);
+    if (building === "TSAI City") {
+      return "https://city.yale.edu/tsai-city-rooms";
+    } else if (building === "Bass") {
+      return "https://schedule.yale.edu/reserve/spaces/basslibrary";
+    } else if (building === "Sterling") {
+      return "https://schedule.yale.edu/spaces?lid=9060";
+    } else if (building === '17 Hillhouse' && roomNumberInt === 7) {
+      return "https://schedule.yale.edu/spaces?lid=14618";
+    } else {
+      return "https://25live.collegenet.com/pro/yale#!/home/event/form";
+    }
+  }
+
   // Set up and clean up the keydown event listener
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
@@ -135,16 +150,14 @@ export default function LocationChart({
               onChange={handleInputChange}
               placeholder={`Enter ${building} room number`}
               className="border p-2 rounded mb-2"
+              maxLength={10}
             />
             <div className="flex flex-row gap-2">
               <button
                 className="bg-blue-500 gp text-white p-2 rounded"
                 type="button"
                 onClick={() => {
-                  window.open(
-                    'https://25live.collegenet.com/pro/yale#!/home/event/form',
-                    '_blank'
-                  );
+                  window.open(getBookingLink(building), '_blank');
                 }}
               >
                 Book Room
