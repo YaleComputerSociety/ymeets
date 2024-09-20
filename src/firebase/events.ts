@@ -558,11 +558,18 @@ function getStartAndEndTimes (): Date[] {
 }
 
 function getEventObjectForGCal () {
+  let description = workingEvent.details.description || '';
+  if (workingEvent.details.zoomLink) {
+    if (description) {
+      description += "\n\n";
+    }
+    description += "Video Conference Link:\n" + workingEvent.details.zoomLink;
+  }
   
   return {
     summary: workingEvent.details.name,
     location: workingEvent.details.chosenLocation,
-    description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
+    description: description,
     start: {
       dateTime: workingEvent.details.chosenStartDate,
       timeZone: 'America/New_York'  
