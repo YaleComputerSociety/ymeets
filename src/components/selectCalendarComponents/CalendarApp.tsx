@@ -88,7 +88,7 @@ export default function Calendar({
   );
 
   return (
-    <div className="flex flex-col max-w-full">
+    <div className="flex flex-col">
       {hasTitle && (
         <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
           {title}
@@ -97,16 +97,13 @@ export default function Calendar({
 
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 md:justify-start relative"
+        className="flex justify-center mb-4 md:m-5 md:justify-start max-h-130  overflow-auto"
       >
-        <div
-          style={{ width: '3.75rem', height: '3.75rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
-        ></div>
-        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
+        <div className="bg-white h-full flex flex-row max-w-full sm:pb rounded-lg">
           {/* Time Column */}
-          <div className="sticky left-0 z-20 bg-white"></div>
-          <div className="sticky left-0 z-30 bg-white">
+          <div className="sticky left-0 z-20 "></div>
+          <div className="sticky left-0 z-30 ">
+            {/* <div className="h-16 bg-white"></div> */}
             <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
             <div className="bg-white">
               <div
@@ -141,7 +138,7 @@ export default function Calendar({
           </div>
 
           {/* Calendar Content */}
-          <div className="flex">
+          <div className="flex bg-white">
             {calendarFramework?.dates.map(
               (bucket: calandarDate[], index: number) => {
                 if (index !== 0) {
@@ -149,8 +146,12 @@ export default function Calendar({
                   columnIndexOffset += prev_bucket.length;
                 }
 
+                //   <div className="sticky top-0 z-30 bg-white">
+                //   <DateBar dates={bucket} />
+                // </div>
+
                 return (
-                  <div className="mb-4" key={index}>
+                  <div className="ml-0 mr-2 mb-4" key={index}>
                     <div className="mt-4 mr-5 sticky top-0 mb-2 z-30">
                       <div className="bg-white w-full">
                         <DateBar dates={bucket} />
