@@ -80,14 +80,6 @@ function SelectCalander({
   return (
     <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
       <div className="flex flex-col">
-        <div className="sticky top-0 mb-2 flex flex-row z-30">
-          <div className="bg-white w-[105%]">
-            <div className="bg-white z-50 h-6"></div>
-            <div className="flex">
-              <DateBar dates={bucket} />
-            </div>
-          </div>
-        </div>
         <div className="flex">
           <div className="overflow-x-auto">
             <div className="h-px bg-black"></div>
@@ -95,7 +87,10 @@ function SelectCalander({
               <div key={blockIDOffset} className="flex flex-row">
                 <div className="flex flex-col">
                   {hour.map((time: string, blockID) => (
-                    <div key={time} className={`border-black border-l ${hour.length - 1 == blockID ? 'border-b' : ''}`}>
+                    <div
+                      key={time}
+                      className={`border-black border-l ${hour.length - 1 == blockID ? 'border-b' : ''}`}
+                    >
                       <CalRow
                         is30Minute={time.slice(3) === '30'}
                         time={time}
@@ -112,7 +107,9 @@ function SelectCalander({
                         theSelectedDate={theSelectedDate}
                         // @ts-expect-error
                         theGoogleCalendarEvents={theGoogleCalendarEvents}
-                        borderStyle={time.slice(3) === '30' ? 'dotted' : 'solid'}
+                        borderStyle={
+                          time.slice(3) === '30' ? 'dotted' : 'solid'
+                        }
                       />
                     </div>
                   ))}

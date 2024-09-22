@@ -7,6 +7,8 @@ import {
   calandarDate,
 } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { useRef } from 'react';
+import DateBar from './DateBar';
 
 interface CalendarProps {
   theCalendarFramework:
@@ -63,6 +65,7 @@ export default function Calendar({
   let columnIndexOffset = 0;
 
   const [dragState, setDragState] = theDragState;
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const hasTitle = title !== '';
 
@@ -79,7 +82,10 @@ export default function Calendar({
     );
   };
 
-  const timeBlocks = generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime);
+  const timeBlocks = generateTimeBlocks(
+    calendarFramework.startTime,
+    calendarFramework.endTime
+  );
 
   return (
     <div className="flex flex-col max-w-full">
@@ -93,7 +99,10 @@ export default function Calendar({
         id="cal"
         className="flex justify-center mb-4 md:m-5 md:justify-start relative"
       >
-        <div style={{ width: '3.75rem', height: '3.75rem' }} className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"></div>
+        <div
+          style={{ width: '3.75rem', height: '3.75rem' }}
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
+        ></div>
         <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
           {/* Time Column */}
           <div className="sticky left-0 z-20 bg-white"></div>
@@ -101,11 +110,21 @@ export default function Calendar({
             {/* <div className="h-16 bg-white"></div> */}
             <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
             <div className="bg-white">
-              <div style={{ width: '3.75rem', height: '0.50rem' }} className="bg-white"></div>
+              <div
+                style={{ width: '3.75rem', height: '0.50rem' }}
+                className="bg-white"
+              ></div>
               {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-                <div key={blockIDOffset} className="flex flex-col" style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}>
+                <div
+                  key={blockIDOffset}
+                  className="flex flex-col"
+                  style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}
+                >
                   {hour.map((time: string, blockID) => (
-                    <div key={blockID} className="h-3 flex items-center justify-end pr-2 bg-white">
+                    <div
+                      key={blockID}
+                      className="h-3 flex items-center justify-end pr-2 bg-white"
+                    >
                       {time.slice(-2) == '00' && (
                         <span className="text-xs relative z-20">
                           {militaryConvert(time)}
@@ -115,7 +134,10 @@ export default function Calendar({
                   ))}
                 </div>
               ))}
-              <div style={{ width: '3.75rem', height: '0.50rem' }} className="bg-white"></div>
+              <div
+                style={{ width: '3.75rem', height: '0.50rem' }}
+                className="bg-white"
+              ></div>
             </div>
           </div>
 
@@ -128,8 +150,18 @@ export default function Calendar({
                   columnIndexOffset += prev_bucket.length;
                 }
 
+                //   <div className="sticky top-0 z-30 bg-white">
+                //   <DateBar dates={bucket} />
+                // </div>
+
                 return (
                   <div className="ml-0 mr-2 mb-4" key={index}>
+                    <div className="sticky top-0 mb-2 flex flex-row z-30">
+                      <div className="bg-white w-[100%]">
+                        <div className="bg-white z-10 h-6"></div>
+                        <DateBar dates={bucket} />
+                      </div>
+                    </div>
                     <SelectCalander
                       renderTime={false}
                       theCalendarState={[calendarState, setCalendarState]}
@@ -250,7 +282,6 @@ export default function Calendar({
 //         </p>
 //       )}
 
-
 //         {/* Calendar Content */}
 //         <div
 //           id="cal"
@@ -275,7 +306,7 @@ export default function Calendar({
 //                 </div>
 //               ))}
 //             </div>
-//           <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 
+//           <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4
 //                                 md:bg-white rounded-lg">
 //           {/* <div className="flex"> */}
 //             {calendarFramework?.dates.map(
@@ -399,7 +430,7 @@ export default function Calendar({
 //       >
 //         <div style={{ width: '3.75rem', height: '3.75rem' }} className="absolute mt-0 ml-0 bg-white rounded-tl-lg z-50"></div>
 //         <div
-//           className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4 
+//           className="bg-white flex flex-row w-fit max-w-full h-full overflow-scroll sm:pb-4
 //                                 md:bg-white rounded-lg"
 //         >
 //           {calendarFramework?.dates.map(
