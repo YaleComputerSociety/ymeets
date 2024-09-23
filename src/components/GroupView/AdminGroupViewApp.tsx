@@ -273,6 +273,26 @@ export default function AdminGroupViewPage() {
                   {eventDescription}
                 </h3>
 
+                {/* <button
+                  onClick={() => {
+                    copy(`${window.location.origin}/timeselect/${code}`);
+                    setCopied(true);
+                    setTimeout(() => {
+                      setCopied(false);
+                    }, 1500);
+                  }}
+                  className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                    copied
+                      ? 'bg-green-500 hover:bg-green-500 text-white'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
+                >
+                  {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
+                  {copied
+                    ? 'Copied to Clipboard'
+                    : `Shareable ymeets Link (Event Code: ${code})`}
+                </button> */}
+
                 <div className="flex flex-col">
                   <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
@@ -350,7 +370,7 @@ export default function AdminGroupViewPage() {
                   >
                     {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
                     {copied
-                      ? 'Copied'
+                      ? 'Copied to Clipboard'
                       : `Shareable ymeets Link (Event Code: ${code})`}
                   </button>
                 </div>
@@ -565,16 +585,37 @@ export default function AdminGroupViewPage() {
                         setCopied(false);
                       }, 1500);
                     }}
-                    className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                      copied
-                        ? 'bg-green-500 hover:bg-green-500 text-white'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
+                    className={`
+                      text-sm mt-4 lg:text-base
+                      flex flex-col items-center justify-center
+                      ${
+                        copied
+                          ? 'bg-green-600 hover:bg-green-600 text-white'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      }
+                      border border-slate-300 font-medium
+                      py-2 px-5 rounded-lg transition-colors
+                      relative h-[3.5rem]
+                    `}
                   >
-                    {<IconCopy className="inline-block w-4 lg:w-5" />}
-                    {copied
-                      ? 'Copied'
-                      : `Shareable ymeets Link (Event Code: ${code})`}
+                    {copied ? (
+                      <span className="flex items-center gap-2">
+                        <IconCopy className="inline-block w-4" />
+                        Copied to Clipboard
+                      </span>
+                    ) : (
+                      <>
+                        <div className="items-center justify-center align-center">
+                          <span className="flex items-center justify-center align-center">
+                            <IconCopy className="inline-block w-4 mr-2" />
+                            Shareable ymeets Link
+                          </span>
+                          <span className="text-xs align-top">
+                            (Event Code: {code})
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
