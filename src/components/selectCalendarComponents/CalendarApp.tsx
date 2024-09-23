@@ -152,11 +152,18 @@ export default function Calendar({
 
                 return (
                   <div className="ml-0 mr-2 mb-4" key={index}>
-                    <div className="mt-4 mr-5 sticky top-0 mb-2 z-30">
-                      <div className="bg-white w-full">
-                        <DateBar dates={bucket} />
+                    {/* <div className="sticky">
+                      <div className="absolute top-0 mb-2 flex flex-row z-30">
+                        <div className="bg-white w-[105%]">
+                          <div className="bg-white z-50 h-6"></div>
+                        </div>
                       </div>
-                    </div>
+                    </div> */}
+                    {/* <div className="sticky top-0 mb-2 flex flex-row z-30">
+                      <div className="bg-white w-[105%]">
+                        <div className="bg-white z-50 h-6"></div>
+                      </div>
+                    </div> */}
                     <SelectCalander
                       renderTime={false}
                       theCalendarState={[calendarState, setCalendarState]}
