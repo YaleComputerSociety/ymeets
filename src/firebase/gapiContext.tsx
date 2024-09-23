@@ -1,5 +1,5 @@
 import { FC, ReactNode, createContext, useEffect, useState } from 'react';
-import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from './gapi_keys';
+// import { REACT_APP_API_KEY_GAPI, REACT_APP_CLIENT_ID_GAPI } from './gapi_keys';
 import { SCOPES, auth, googleProvider } from './firebase';
 import { loadAuth2, loadGapiInsideDOM } from 'gapi-script';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
@@ -49,8 +49,8 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
       } catch {
         gapiInstance.client
           .init({
-            apiKey: REACT_APP_API_KEY_GAPI,
-            clientId: REACT_APP_CLIENT_ID_GAPI,
+            apiKey: process.env.REACT_APP_API_KEY_GAPI,
+            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
             scope: SCOPES,
           })
           .then(() => {});
@@ -66,7 +66,7 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
       loadGapiClient(newGapi);
       const newAuth2 = await loadAuth2(
         newGapi,
-        REACT_APP_CLIENT_ID_GAPI || '',
+        process.env.REACT_APP_CLIENT_ID_GAPI || '',
         SCOPES
       );
       setGapi(newGapi);
