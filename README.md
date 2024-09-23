@@ -1,3 +1,31 @@
+# NICK TODO
+1. Delete all ENV vars from the frontend
+2. Make firebase functions—which run in the cloud in a privileged environment—for ALL operations that touch Firebase database, or get data from Google Cloud Calendar API
+    - see example Eric coded up; basically move all frontend database logic to the backend
+        - But, remember that backend admin SDK is still on old dot syntax, not new tree-shakeable syntax
+    - At the end of this step, you should be able to delete the "firebase/firestore" import from your frontend with no issues
+3. Obviously, you'll need the env vars to do operations from your backend, so move the env vars to the backend
+4. GITIGNORE this env var file on the backend so its not in your public repo
+5. once you're done with all the firebase functions, let eric check over it, and then, change your security rules to:
+```
+allow read: if false;
+allow write: if false;
+```
+This is okay because the functions run in a privileged environment and bypass all security rules
+6. deploy
+
+see: https://firebase.google.com/docs/functions/callable?gen=2nd
+
+DEPLOYMENT NOTES
+- Deploy firebase to hosting as usual
+- But also, deploy functions by `cd functions` and `npm run deploy --only functions`
+- your local dev webpage is connected to emulator, but your deployed webpage *should* connect to the real functions endpoint because of the process.env check I put in
+
+BACKUP PLAN:
+- deploy as it is now
+- hope no one wipes your whole database before the time you can deploy these fixes
+- deploy the fixes
+
 # ymeets - Yale Group Meetings Made Easy
 ymeets provides a clean interface for scheduling meetings with other people. We aim to make the platform the go-to place for Yalies to plan their organized gatherings, with features ranging from GAPI integration to Yale Academic Calandar support. 
 
@@ -8,6 +36,10 @@ Society](https://github.com/YaleComputerSociety), a tech organization at Yale Un
 `git clone` the repository.
 
 Run `npm install`
+
+**Add secrets**
+- `cd frontend && cp .env.template .env` and paste your API keys into the file
+- download your firebase admin key into `functions/src/admin-key.json`
 
 Run `npm start` in the top level directory.
 

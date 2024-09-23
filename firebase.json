@@ -15,11 +15,13 @@
     "singleProjectMode": true
   },
   "hosting": {
-    "public": "build",
-    "rewrites": [{
-      "source": "**",
-      "destination": "/index.html"
-     }],
+    "public": "frontend/build",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -34,6 +36,25 @@
           "key": "Cross-Origin-Opener-Policy",
           "value": "same-origin"
         }
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ]
