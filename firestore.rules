@@ -1,0 +1,50 @@
+rules_version = '2';
+
+// LIVE
+// Currently
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read: if true; // anyone (even guest user) can read (we should be able to move this under request.auth != null, because even anonymous users have auth)
+      allow write: if request.auth != null; // logged-in users can write
+    }
+  }
+}
+
+// UNTESTED
+// Secure-er
+// https://cloud.google.com/firestore/docs/security/rules-fields
+// to make handling nested objects easier
+// https://stackoverflow.com/questions/61978239/limit-fields-written-on-nested-object-with-firestore-security-rules
+service cloud.firestore {
+    match /events/{eventID}/{documents=**} {
+            allow read: if true; // anyone (ie users before they log in) can read
+            allow create: if request.auth != null && // logged-in users can create
+                if // allowlist on create
+                    (request.resource.data.keys().hasOnly( ['details'])) // optional
+                    && (request.resource.data.keys().hasAll(['name', 'location', 'city'])); // required
+
+            allow update: if request.auth != null 
+                && request.auth.uid == resource.data.details.adminAccountId // must be creator
+                && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['field1'])) // list protected fields (for creator)
+                && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['field1'])); // list protected fields (for creator) within details object
+
+            allow update: if request.auth != null // any user can update
+                && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['field1'])) // list protected fields (for non-creators) at root
+                && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['field1'])); // list protected fields (for non-creator) within details object
+
+
+        // participants subcollection
+        match /participants/{userId}/{document=**} {
+            allow read: if true; // anyone (ie users before they log in) can read
+            allow create: if request.auth != null; // logged-in users can create
+
+            allow update: if request.auth != null 
+                && request.auth.uid == resource.data.details.adminAccountId // must be creator
+                && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['field1'])); // list protected fields (for non-creator)
+
+            allow update: if request.auth != null 
+                && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['field1'])); // list protected fields (for non-creator)
+        }
+    }
+}
