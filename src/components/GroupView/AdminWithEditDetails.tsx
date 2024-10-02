@@ -344,40 +344,42 @@ export default function AdminGroupViewPage() {
 
                   <div className="flex flex-col">
                     <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Time:</span>{' '}
+                      <span className="font-bold">Time:</span>{' '}
                       {selectedDateTimeObjects &&
-                      selectedDateTimeObjects[0].getFullYear() != 1970 ? (
-                        selectedDateTimeObjects[0].getFullYear() === 2000 ? (
-                          // For general days (year 2000)
-                          selectedDateTimeObjects[0].toLocaleString('en-us', {
-                            weekday: 'long',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        ) : (
-                          // For specific dates
-                          selectedDateTimeObjects[0].toLocaleDateString('en-us', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleTimeString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        )
-                      ) : (
-                        'not selected'
-                      )}
+                      selectedDateTimeObjects[0].getFullYear() != 1970
+                        ? selectedDateTimeObjects[0].getFullYear() === 2000
+                          ? // For general days (year 2000)
+                            selectedDateTimeObjects[0].toLocaleString('en-us', {
+                              weekday: 'long',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }) +
+                            ' — ' +
+                            selectedDateTimeObjects[1].toLocaleString('en-us', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : // For specific dates
+                            selectedDateTimeObjects[0].toLocaleDateString(
+                              'en-us',
+                              {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            ) +
+                            ' — ' +
+                            selectedDateTimeObjects[1].toLocaleTimeString(
+                              'en-us',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            )
+                        : 'not selected'}
                     </h3>
                     {locationOptions.length > 0 && (
                       <h3 className="text-base text-center md:text-left">
@@ -541,7 +543,7 @@ export default function AdminGroupViewPage() {
               <div className="flex justify-center items-center mt-2">
                 {selectedDateTimeObjects ? (
                   <div className="flex justify-center items-center px-4">
-                    <AddToGoogleCalendarButton />
+                    {/* <AddToGoogleCalendarButton /> */}
                   </div>
                 ) : undefined}
               </div>
@@ -599,38 +601,40 @@ export default function AdminGroupViewPage() {
                     <h3 className="text-base text-center md:text-left">
                       <span className="font-bold">Time:</span>{' '}
                       {selectedDateTimeObjects &&
-                      selectedDateTimeObjects[0].getFullYear() != 1970 ? (
-                        selectedDateTimeObjects[0].getFullYear() === 2000 ? (
-                          // For general days (year 2000)
-                          selectedDateTimeObjects[0].toLocaleString('en-us', {
-                            weekday: 'long',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        ) : (
-                          // For specific dates
-                          selectedDateTimeObjects[0].toLocaleDateString('en-us', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleTimeString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        )
-                      ) : (
-                        'not selected'
-                      )}
+                      selectedDateTimeObjects[0].getFullYear() != 1970
+                        ? selectedDateTimeObjects[0].getFullYear() === 2000
+                          ? // For general days (year 2000)
+                            selectedDateTimeObjects[0].toLocaleString('en-us', {
+                              weekday: 'long',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }) +
+                            ' — ' +
+                            selectedDateTimeObjects[1].toLocaleString('en-us', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : // For specific dates
+                            selectedDateTimeObjects[0].toLocaleDateString(
+                              'en-us',
+                              {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            ) +
+                            ' — ' +
+                            selectedDateTimeObjects[1].toLocaleTimeString(
+                              'en-us',
+                              {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }
+                            )
+                        : 'not selected'}
                     </h3>
 
                     {locationOptions.length > 0 && (

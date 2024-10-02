@@ -155,7 +155,7 @@ export default function ParticipantGroupViewPage() {
                   {eventDescription}
                 </h3>
                 <div className="flex flex-col">
-                  <h3 className="text-base text-center md:text-left">
+                  {/* <h3 className="text-base text-center md:text-left">
                   <span className="font-bold">Time:</span>{' '}
                       {selectedDateTimeObjects &&
                       selectedDateTimeObjects[0].getFullYear() != 1970 ? (
@@ -212,7 +212,7 @@ export default function ParticipantGroupViewPage() {
                         {getZoomLink()}
                       </a>
                     </h3>
-                  )}
+                  )} */}
                 </div>
               </div>
               <div className="">
@@ -221,7 +221,7 @@ export default function ParticipantGroupViewPage() {
                   chartedUsersData={[chartedUsers, setChartedUsers]}
                 />
               </div>
-              
+
               {locationOptions.length > 0 && (
                 <LocationChart
                   theSelectedLocation={[
@@ -307,12 +307,12 @@ export default function ParticipantGroupViewPage() {
                 ) : undefined} */}
 
                 <div className="flex flex-col">
-                  <h3 className="text-base text-center">
-                  <span className="font-bold">Time:</span>{' '}
-                      {selectedDateTimeObjects &&
-                      selectedDateTimeObjects[0].getFullYear() != 1970 ? (
-                        selectedDateTimeObjects[0].getFullYear() === 2000 ? (
-                          // For general days (year 2000)
+                  {/* <h3 className="text-base text-center">
+                    <span className="font-bold">Time:</span>{' '}
+                    {selectedDateTimeObjects &&
+                    selectedDateTimeObjects[0].getFullYear() != 1970
+                      ? selectedDateTimeObjects[0].getFullYear() === 2000
+                        ? // For general days (year 2000)
                           selectedDateTimeObjects[0].toLocaleString('en-us', {
                             weekday: 'long',
                             hour: '2-digit',
@@ -323,25 +323,27 @@ export default function ParticipantGroupViewPage() {
                             hour: '2-digit',
                             minute: '2-digit',
                           })
-                        ) : (
-                          // For specific dates
-                          selectedDateTimeObjects[0].toLocaleDateString('en-us', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
+                        : // For specific dates
+                          selectedDateTimeObjects[0].toLocaleDateString(
+                            'en-us',
+                            {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          ) +
                           ' — ' +
-                          selectedDateTimeObjects[1].toLocaleTimeString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        )
-                      ) : (
-                        'not selected by host'
-                      )}
+                          selectedDateTimeObjects[1].toLocaleTimeString(
+                            'en-us',
+                            {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )
+                      : 'not selected by host'}
                   </h3>
 
                   {locationOptions.length > 0 && (
@@ -364,7 +366,7 @@ export default function ParticipantGroupViewPage() {
                         {getZoomLink()}
                       </a>
                     </h3>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { calanderState, userData, calendarDimensions } from '../../types';
 import eventAPI from '../../firebase/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
+import { signInWithGoogle } from '../../firebase/auth';
+import { useCallback } from 'react';
 import {
   getEventOnPageload,
   getEventName,
+  getEventObjectForGCal,
   getParticipantIndex,
   getAccountId,
   getEventDescription,
@@ -30,12 +33,17 @@ import Button from '../utils/components/Button';
 import { Popup } from '../utils/components/Popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
+import { GAPIContext } from '../../firebase/gapiContext';
+import { useContext } from 'react';
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
 export default function AdminGroupViewPage() {
+  const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext);
+  const [status, setStatus] = useState<string>('');
+
   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
     undefined
   );
@@ -100,6 +108,40 @@ export default function AdminGroupViewPage() {
 
   const nav = useNavigate();
 
+  const createCalendarEventUrl = useCallback((event: any) => {
+    const startDateTime = new Date(event.start.dateTime)
+      .toISOString()
+      .replace(/-|:|\.\d\d\d/g, '');
+    const endDateTime = new Date(event.end.dateTime)
+      .toISOString()
+      .replace(/-|:|\.\d\d\d/g, '');
+
+    // Construct the Google Calendar event URL
+    const baseUrl = 'https://calendar.google.com/calendar/render';
+    const queryParams = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: event.summary,
+      dates: `${startDateTime}/${endDateTime}`,
+      details: event.description,
+      location: event.location,
+      sprop: 'website:https://example.com', // You can set your website or leave it empty
+      spropname: 'Add Event',
+    });
+
+    return `${baseUrl}?${queryParams.toString()}`;
+  }, []);
+
+  const handleAddToCalendar = useCallback(
+    async (startDate: Date, endDate: Date, location: string) => {
+      const event = getEventObjectForGCal(startDate, endDate, location);
+      const calendarEventUrl = createCalendarEventUrl(event);
+
+      // Open the event in a new tab
+      window.open(calendarEventUrl, '_blank');
+    },
+    [createCalendarEventUrl]
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length == 6) {
@@ -133,7 +175,7 @@ export default function AdminGroupViewPage() {
     fetchData();
   }, []);
 
-  function handleSelectionSubmission() {
+  async function handleSelectionSubmission() {
     if (dragState.dragEndedOnID.length == 0) {
       alert('No new time selection made!');
       return;
@@ -188,24 +230,33 @@ export default function AdminGroupViewPage() {
       selectedEndTimeDateObject.setHours(endHour);
       selectedEndTimeDateObject.setMinutes(endMinute);
 
-      // update on client side (set SelectedDateTimeObjects) + backend (setChosenDate)
       setSelectedDateTimeObjects([
         selectedStartTimeDateObject,
         selectedEndTimeDateObject,
       ]);
 
-      setChosenDate(
-        selectedStartTimeDateObject,
-        selectedEndTimeDateObject
-      ).then(() => {
-        setSelectedLocation(adminChosenLocation);
+      if (getAccountId() !== '') {
+        await handleAddToCalendar(
+          selectedStartTimeDateObject,
+          selectedEndTimeDateObject,
+          adminChosenLocation === undefined ? '' : adminChosenLocation
+        ); // Ensure handleAddToCalendar is awaited
+      } else {
+        signInWithGoogle(undefined, gapi, handleIsSignedIn);
+      }
 
-        if (adminChosenLocation != undefined) {
-          setChosenLocation(adminChosenLocation);
-        }
+      // setChosenDate(
+      //   selectedStartTimeDateObject,
+      //   selectedEndTimeDateObject
+      // ).then(() => {
+      //   setSelectedLocation(adminChosenLocation);
 
-        setSelectionConfirmedPopupOpen(false);
-      });
+      //   if (adminChosenLocation != undefined) {
+      //     setChosenLocation(adminChosenLocation);
+      //   }
+
+      //   setSelectionConfirmedPopupOpen(false);
+      // });
     }
   }
 
@@ -294,7 +345,7 @@ export default function AdminGroupViewPage() {
                 </button> */}
 
                 <div className="flex flex-col">
-                  <h3 className="text-base text-center md:text-left">
+                  {/* <h3 className="text-base text-center md:text-left">
                     <span className="font-bold">Time:</span>{' '}
                     {selectedDateTimeObjects &&
                     selectedDateTimeObjects[0].getFullYear() != 1970
@@ -352,7 +403,7 @@ export default function AdminGroupViewPage() {
                         {getZoomLink()}
                       </a>
                     </h3>
-                  )}
+                  )} */}
                   <div className="h-3"></div>
                   <button
                     onClick={() => {
@@ -435,21 +486,18 @@ export default function AdminGroupViewPage() {
                 theGoogleCalendarEvents={[undefined, undefined]}
               />
             </div>
-
+            <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
             <div className="md:pl-3">
-              {!selectedDateTimeObjects ||
-                (selectedDateTimeObjects[0].getFullYear() == 1970 && (
-                  <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
-                    {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
-                    {locationOptions.length == 0 ? (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection" />
-                    ) : (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
-                    )}
-                  </div>
-                ))}
+              <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
+                {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
+                {locationOptions.length == 0 ? (
+                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
+                ) : (
+                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
+                )}
+              </div>
             </div>
-            <div className="flex items-center justify-center">
+            {/* <div className="flex items-center justify-center">
               {!selectedDateTimeObjects ||
               selectedDateTimeObjects[0].getFullYear() == 1970 ? (
                 <button
@@ -474,8 +522,8 @@ export default function AdminGroupViewPage() {
                   Undo Selection
                 </button>
               )}
-            </div>
-            <div className="flex justify-center items-center mt-1">
+            </div> */}
+            {/* <div className="flex justify-center items-center mt-1">
               {selectedDateTimeObjects &&
               selectedDateTimeObjects[0].getFullYear() != 1970 && // makes sure we didn't undo, since to undo we set selected date to epoch year
               calendarFramework?.dates[0][0].date?.getFullYear() != 2000 ? ( // makes sure its not a general day (can't add to cal)
@@ -483,7 +531,7 @@ export default function AdminGroupViewPage() {
                   <AddToGoogleCalendarButton />
                 </div>
               ) : undefined}
-            </div>
+            </div> */}
           </div>
           <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
@@ -516,7 +564,7 @@ export default function AdminGroupViewPage() {
                 </h3>
 
                 <div className="flex flex-col">
-                  <h3 className="text-base text-center">
+                  {/* <h3 className="text-base text-center">
                     <span className="font-bold">Time:</span>{' '}
                     {selectedDateTimeObjects &&
                     selectedDateTimeObjects[0].getFullYear() != 1970
@@ -575,7 +623,7 @@ export default function AdminGroupViewPage() {
                         {getZoomLink()}
                       </a>
                     </h3>
-                  )}
+                  )} */}
 
                   <button
                     onClick={() => {

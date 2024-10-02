@@ -439,7 +439,7 @@ function TimeSelectPage() {
                   textColor="white"
                   onClick={handleToggleGCalAvailabilitiesClick}
                 >
-                  Toggle GCal Availabilities
+                  Show GCal Events
                 </ButtonSmall>
               </div>
               <div className="md:hidden flex">
@@ -462,7 +462,7 @@ function TimeSelectPage() {
                       });
                   }}
                 >
-                  Toggle GCal Availabilities
+                  Show GCal Events
                 </ButtonSmall>
               </div>
             </div>

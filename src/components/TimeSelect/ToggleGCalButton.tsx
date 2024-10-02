@@ -68,7 +68,7 @@ const ToggleGoogleCalendarButton = () => {
       textColor="white"
       onClick={handleGoogleSignIn}
     >
-      Toggle GCal Availabilities
+      Show GCal Events
     </ButtonSmall>
   );
 };

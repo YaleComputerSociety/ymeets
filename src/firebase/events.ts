@@ -557,18 +557,18 @@ function getStartAndEndTimes (): Date[] {
   return [workingEvent.details.startTime, workingEvent.details.endTime]
 }
 
-function getEventObjectForGCal () {
+function getEventObjectForGCal (startDate: Date, endDate: Date, location?: string) {
   
   return {
     summary: workingEvent.details.name,
-    location: workingEvent.details.chosenLocation,
+    location: location == undefined ? "" : location,
     description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
     start: {
-      dateTime: workingEvent.details.chosenStartDate,
+      dateTime: startDate,
       timeZone: 'America/New_York'  
     },
     end: {
-      dateTime: workingEvent.details.chosenEndDate,
+      dateTime: endDate,
       timeZone: 'America/New_York'
     },
     attendees: workingEvent.participants
