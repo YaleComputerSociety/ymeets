@@ -446,21 +446,21 @@ function TimeSelectPage() {
                 <ButtonSmall
                   bgColor="blue-500"
                   textColor="white"
-                  onClick={() => {
-                    fetchUserCals()
-                      .then((calendars) => {
-                        // @ts-expect-error
-                        setGoogleCalendars(calendars);
+                  onClick={handleToggleGCalAvailabilitiesClick}
+                  //   fetchUserCals()
+                  //     .then((calendars) => {
+                  //       // @ts-expect-error
+                  //       setGoogleCalendars(calendars);
 
-                        setGcalPopupOpen(true);
-                      })
-                      .catch((error) => {
-                        console.error(
-                          'Error fetching Google Calendars:',
-                          error
-                        );
-                      });
-                  }}
+                  //       setGcalPopupOpen(true);
+                  //     })
+                  //     .catch((error) => {
+                  //       console.error(
+                  //         'Error fetching Google Calendars:',
+                  //         error
+                  //       );
+                  //     });
+                  // }}
                 >
                   Show GCal Events
                 </ButtonSmall>

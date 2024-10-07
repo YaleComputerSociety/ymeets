@@ -3,12 +3,9 @@ import {
   IconPlus,
   IconCopy,
   IconSearch,
-  IconUser,
   IconCalendarEvent,
   IconClock,
   IconMapPin,
-  IconEdit,
-  IconInfoCircle,
   IconTrash,
 } from '@tabler/icons-react';
 
@@ -18,6 +15,7 @@ import {
   getAccountId,
   getAllEventsForUser,
   deleteEvent,
+  checkIfAdmin,
 } from '../../firebase/events';
 import { signInWithGoogle, logout } from '../../firebase/auth';
 
@@ -74,7 +72,7 @@ const parseEventObjectForAccountsPage = (
       // @ts-expect-error
       iAmCreator:
         event.details.adminAccountId &&
-        event.details.adminAccountId == getAccountId(),
+        event.details.adminAccountId === getAccountId(),
     });
   });
 
@@ -166,9 +164,10 @@ export default function AccountsPage() {
         {events && events.length != 0 ? (
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
             {events
-              .filter((e) => 
-                e.id.toLowerCase().includes(filter) || 
-                e.name.toLowerCase().includes(filter)
+              .filter(
+                (e) =>
+                  e.id.toLowerCase().includes(filter) ||
+                  e.name.toLowerCase().includes(filter)
               )
               .map((event) => (
                 <div
