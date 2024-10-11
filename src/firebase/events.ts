@@ -130,8 +130,6 @@ async function deleteEvent (id: EventId): Promise<void> {
     throw Error('Only creator can delete event')
   }
 
-  console.log(getAccountId());
-
   // Get a new write batch
   const batch = writeBatch(db)
 
@@ -147,7 +145,6 @@ async function deleteEvent (id: EventId): Promise<void> {
 
   // Commit the batch
   await batch.commit().catch((err) => {
-    console.log(getAccountId());
     console.log('Error: ', err)
   })
 }

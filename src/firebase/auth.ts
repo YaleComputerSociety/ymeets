@@ -42,7 +42,7 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
         try {
           signInWithPopup(auth, googleProvider)
             .then((googleUser: any) => {
-              console.log("hello")
+        
               if (handleIsSignedIn) { handleIsSignedIn(true) }
 
               if (formerName !== '') {

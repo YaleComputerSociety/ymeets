@@ -130,7 +130,6 @@ export default function AdminGroupViewPage() {
         return new Date(time);
       });
 
-    console.log(uniqueArray);
     setDates(uniqueArray.map((d) => [d]));
   };
 
@@ -303,10 +302,6 @@ export default function AdminGroupViewPage() {
                     <Button
                       bgColor="blue-500"
                       textColor="white"
-                      disabled={
-                        selectedDateTimeObjects &&
-                        selectedDateTimeObjects[0].getFullYear() != 1970
-                      }
                       onClick={() => {
                         nav('/timeselect/' + code);
                       }}

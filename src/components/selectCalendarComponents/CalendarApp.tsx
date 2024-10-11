@@ -97,12 +97,16 @@ export default function Calendar({
 
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 md:justify-start max-h-130  overflow-auto"
+        className="flex justify-center mb-4 md:m-5 md:justify-start relative"
       >
-        <div className="bg-white h-full flex flex-row max-w-full sm:pb rounded-lg">
+        <div
+          style={{ width: '3.75rem', height: '3.75rem' }}
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
+        ></div>
+        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
           {/* Time Column */}
-          <div className="sticky left-0 z-20 "></div>
-          <div className="sticky left-0 z-30 ">
+          <div className="sticky left-0 z-20 bg-white"></div>
+          <div className="sticky left-0 z-30 bg-white">
             {/* <div className="h-16 bg-white"></div> */}
             <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
             <div className="bg-white">
@@ -138,17 +142,13 @@ export default function Calendar({
           </div>
 
           {/* Calendar Content */}
-          <div className="flex bg-white">
+          <div className="flex">
             {calendarFramework?.dates.map(
               (bucket: calandarDate[], index: number) => {
                 if (index !== 0) {
                   const prev_bucket = calendarFramework.dates[index - 1];
                   columnIndexOffset += prev_bucket.length;
                 }
-
-                //   <div className="sticky top-0 z-30 bg-white">
-                //   <DateBar dates={bucket} />
-                // </div>
 
                 return (
                   <div className="ml-0 mr-2 mb-4" key={index}>
