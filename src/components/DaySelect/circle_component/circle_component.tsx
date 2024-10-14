@@ -67,21 +67,29 @@ export const CircleComponent = (props: any) => {
 
   const holidayMetadata = isHoliday(props.date);
 
-  const [isSelected, setIsSelected] = useState(false);
+  const [active, toggleActive] = useState('not-active-circle');
 
-  const [active, toggleActive] = useState(
-    props.isActive ? 'active-circle' : 'not-active-circle'
-  );
+  useEffect(() => {
+    const isDateSelected = props.selectedDates.some(
+      (selectedDate: Date) =>
+        selectedDate.getFullYear() === props.date.getFullYear() &&
+        selectedDate.getMonth() === props.date.getMonth() &&
+        selectedDate.getDate() === props.date.getDate()
+    );
+    toggleActive(isDateSelected ? 'active-circle' : 'not-active-circle');
+  }, [props.selectedDates, props.date]);
 
-  const handleToggleActive = () => {
-    if (active.localeCompare('not-active-circle') === 0) {
-      toggleActive('active-circle');
-      props.add(props.date);
-      setIsSelected(true);
+  const handleToggleActive = (event: React.MouseEvent) => {
+    if (event.shiftKey) {
+      props.handleRange(props.date);
     } else {
-      toggleActive('not-active-circle');
-      props.remove(props.date);
-      setIsSelected(false);
+      if (active==='not-active-circle') {
+        toggleActive('active-circle');
+        props.add(props.date);
+      } else {
+        toggleActive('not-active-circle');
+        props.remove(props.date);
+      }
     }
   };
 
@@ -106,7 +114,7 @@ export const CircleComponent = (props: any) => {
       )}
       {holidayMetadata.isHoliday ? (
         <div
-          className={`holiday-indicator ${isSelected ? 'selected' : ''}`}
+          className={`holiday-indicator ${active==='active-circle' ? 'selected' : ''}`}
         ></div>
       ) : null}
     </div>
