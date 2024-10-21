@@ -80,6 +80,7 @@ export const CalanderComponent = ({
   const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
   const [selectedDates, setSelectedDates] = theSelectedDates;
+  const [lastSelectedDate, setLastSelectedDate] = useState<Date|null>(null);
 
   const addDay = (date: Date) => {
     const arr = [...selectedDates];
@@ -88,13 +89,57 @@ export const CalanderComponent = ({
       return a.getTime() - b.getTime();
     });
 
+    setLastSelectedDate(date);
     setSelectedDates(arr);
   };
 
   const removeDay = (date: Date) => {
     const arr = selectedDates.filter((obj) => obj.getTime() != date.getTime());
+    setLastSelectedDate(date);
     setSelectedDates(arr);
   };
+
+  const handleRange = (date: Date) => {
+    if (lastSelectedDate) {
+      const range = getRange(lastSelectedDate, date);
+      let arr = [...selectedDates];
+      range.forEach((day) => {
+        const index = arr.findIndex((selected) => selected.getTime() === day.getTime());
+        if (index === -1) {
+          arr.push(day);
+        } else {
+          arr = arr.filter((_, i) => i !== index);
+        }
+      })
+      arr.sort((a, b) => a.getTime() - b.getTime());
+      setSelectedDates([...arr]);
+    } else {
+      addDay(date);
+    }
+    setLastSelectedDate(date);
+  }
+
+  const getRange = (start: Date, end: Date): Date[] => {
+    const range = [];
+
+    if (start<end) {
+      let curr = new Date(start);
+      curr.setDate(curr.getDate()+1);
+      while (curr <= end) {
+        range.push(new Date(curr));
+        curr.setDate(curr.getDate()+1);
+      }
+    } else {
+      let curr = new Date(start);
+      curr.setDate(curr.getDate()-1);
+      while (end <= curr) {
+        range.push(new Date(curr));
+        curr.setDate(curr.getDate()-1);
+      }
+    }
+
+    return range;
+  }
 
   const [startDate, setStartDate] = selectedStartDate;
   const [popupIsOpen, setPopupIsOpen] = useState(false);
@@ -144,15 +189,8 @@ export const CalanderComponent = ({
                   date={date}
                   add={addDay}
                   remove={removeDay}
-                  isActive={
-                    selectedDates.filter((obj: any) => {
-                      return (
-                        obj.getFullYear() == date.getFullYear() &&
-                        obj.getMonth() == date.getMonth() &&
-                        obj.getDate() == date.getDate()
-                      );
-                    }).length !== 0
-                  }
+                  selectedDates={selectedDates}
+                  handleRange={handleRange}
                 />
               </div>
             );
