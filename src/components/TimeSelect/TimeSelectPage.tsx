@@ -371,7 +371,7 @@ function TimeSelectPage() {
               textColor="white"
               onClick={handleSubmitAvailability}
             >
-              Submit Availability + View Others'
+              Submit Availability
             </ButtonSmall>
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
@@ -387,7 +387,7 @@ function TimeSelectPage() {
               textColor="white"
               onClick={handleSubmitAvailability}
             >
-              Submit Availability + View Others'
+              Submit Availability
             </ButtonSmall>
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (

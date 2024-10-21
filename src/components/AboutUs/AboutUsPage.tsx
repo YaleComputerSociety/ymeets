@@ -4,7 +4,7 @@ import React from 'react';
 import no_person from './anon.jpeg';
 import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
 import group from './ymeetsgroupimage.png';
-import ETHAN from './EthanMathieu.png';
+import ETHAN from './ethan.png';
 import NICK from './NicholasRibeiero.jpg';
 import RON from './RonCheng.png';
 import ROME from './Rome Thorstenson.png';
@@ -16,16 +16,6 @@ import SHANKARA from './Shankara_Headshot.jpeg';
 
 const CONTRIBUTORS = [
   {
-    name: 'Ethan Mathieu',
-    title: ['Product Lead', 'Software Engineer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
-    portfolio: 'https://ethanmathieu.com/',
-    github: 'https://github.com/emath12',
-    image: ETHAN,
-  },
-
-  {
     name: 'Nicholas Ribeiro',
     title: ['Product Lead', 'Software Engineer'],
     founding: true,
@@ -33,6 +23,15 @@ const CONTRIBUTORS = [
     portfolio: 'http://www.nicholasjribeiro.com/',
     github: 'https://github.com/nickribs1',
     image: NICK,
+  },
+
+  {
+    name: 'Ethan Mathieu',
+    title: ['Product Lead', 'Software Engineer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
+    github: 'https://github.com/emath12',
+    image: ETHAN,
   },
 
   {

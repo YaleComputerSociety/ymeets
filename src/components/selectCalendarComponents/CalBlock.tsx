@@ -402,12 +402,12 @@ export default function CalBlock({
   }
 
   const handleBlockClick = () => {
-    if (isTouchDevice()) {
-      setGcalEventActive(!gCalEventActive);
-      setTimeout(() => {
-        setGcalEventActive(false);
-      }, 3000);
-    }
+    // if (isTouchDevice()) {
+    //   setGcalEventActive(!gCalEventActive);
+    //   setTimeout(() => {
+    //     setGcalEventActive(false);
+    //   }, 3000);
+    // }
 
     if (isDraggable) {
       if (isAdmin === true) {
@@ -527,7 +527,7 @@ export default function CalBlock({
             setGcalEventActive(true);
           }}
           onTouchStart={() => {
-            setGcalEventActive(true);
+            // setGcalEventActive(true);
             if (!isDraggable) {
               return;
             }
@@ -544,13 +544,14 @@ export default function CalBlock({
             }
 
             handleDesktopHoverChartedUser();
+            handleBlockClick();
           }}
           onTouchMove={(e) => {
             handleMobileAvailabilitySelect(e);
             handleMobileHoverChartedUser(e);
           }}
           onTouchEnd={() => {
-            setGcalEventActive(false);
+            // setGcalEventActive(false);
           }}
           onMouseLeave={() => {
             setGcalEventActive(false);
