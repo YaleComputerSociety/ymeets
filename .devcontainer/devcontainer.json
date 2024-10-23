@@ -1,0 +1,19 @@
+{
+  "name": "ymeets Dev Container",
+  "build": {
+    "dockerfile": "../Dockerfile",        // Reference to the Dockerfile
+    "context": ".."                     // Context is the root directory
+  },
+  "workspaceFolder": "/app",           // Ensure the workspace is set correctly
+  "forwardPorts": [3000],              // Forward port 3000 for the app
+  "extensions": [
+    "dbaeumer.vscode-eslint",          // ESLint extension for linting
+    "esbenp.prettier-vscode",          // Prettier extension for code formatting
+    "eamodio.gitlens"                  // GitLens extension for Git insights
+  ],
+  "postCreateCommand": "npm install",  // Runs `npm install` after the container is created
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+  ],
+  "remoteUser": "node"                 // Set the user to 'node' (if specified in the Dockerfile)
+}
