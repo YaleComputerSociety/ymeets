@@ -206,6 +206,18 @@ export default function CalBlock({
 
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
 
+
+  // Set all users as unavailable on initial render
+  useEffect(() => {
+    if (chartedUsers && setChartedUsers) {
+      setChartedUsers({
+        users: chartedUsers.users,
+        available: [],
+        unavailable: [...chartedUsers.users],
+      });
+    }
+  }, []);
+
   // @ts-expect-error
   const [calendarState, setCalanderState] = theCalendarState;
   const [isDottedBorder, setIsDottedBorder] = useState(false);
@@ -462,6 +474,17 @@ export default function CalBlock({
     }
   };
 
+    // New logic for resetting availability on mouse leave
+    const handleMouseOrTouchLeaveBlock = () => {
+      if (chartedUsers && setChartedUsers) {
+        setChartedUsers({
+          users: chartedUsers.users,
+          available: [],
+          unavailable: [...chartedUsers.users],
+        });
+      }
+    };
+
   const handleMobileHoverChartedUser = (event: any) => {
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
@@ -556,6 +579,7 @@ export default function CalBlock({
           onMouseLeave={() => {
             setGcalEventActive(false);
             setIsDottedBorder(false);
+            handleMouseOrTouchLeaveBlock();
           }}
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
