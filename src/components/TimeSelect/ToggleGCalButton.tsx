@@ -56,7 +56,6 @@ const ToggleGoogleCalendarButton = () => {
   const fetchUserCalendars = async () => {
     try {
       // Your logic to fetch user calendars goes here
-      console.log('Fetching user calendars...');
     } catch (error) {
       console.error('Error fetching Google Calendars:', error);
     }

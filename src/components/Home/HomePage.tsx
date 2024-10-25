@@ -41,7 +41,6 @@ export default function HomePage() {
         navigate('/timeselect/' + eventCode);
       })
       .catch((err) => {
-        console.log(err);
         formValidationPopup('Code is invalid.');
       });
   };
