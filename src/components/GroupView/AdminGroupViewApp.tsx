@@ -278,6 +278,8 @@ export default function AdminGroupViewPage() {
     );
   }
 
+  console.log(calendarFramework?.dates[0][0].date);
+
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
@@ -482,7 +484,13 @@ export default function AdminGroupViewPage() {
                 theGoogleCalendarEvents={[undefined, undefined]}
               />
             </div>
-            <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+            {calendarFramework?.dates?.[0][0].date instanceof Date &&
+              (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                2000 && (
+                <AddToGoogleCalendarButton
+                  onClick={handleSelectionSubmission}
+                />
+              )}
             <div className="md:pl-3">
               <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
                 {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
