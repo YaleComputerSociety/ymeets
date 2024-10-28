@@ -126,8 +126,7 @@ export default class FrontendEventAPI {
               shortenedWeekDay: getShortDay[theDates[i].getDay()],
               // @ts-expect-error
               calanderDay: undefined,
-              // @ts-expect-error
-              month: undefined,
+              month: '\u00A0',  // Unicode non-breaking space
               date: theDates[i]
             }
           )
@@ -141,8 +140,7 @@ export default class FrontendEventAPI {
                 shortenedWeekDay: getShortDay[theDates[i].getDay()],
                 // @ts-expect-error
                 calanderDay: undefined,
-                // @ts-expect-error
-                month: undefined,
+                month: '\u00A0',  // Unicode non-breaking space
                 date: theDates[i]
               }
             ]

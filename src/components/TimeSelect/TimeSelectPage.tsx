@@ -191,6 +191,7 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
+
           // @ts-expect-error
           setSelectedDateTimeObjects(getChosenDayAndTime());
 

@@ -206,7 +206,6 @@ export default function CalBlock({
 
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
 
-
   // Set all users as unavailable on initial render
   useEffect(() => {
     if (chartedUsers && setChartedUsers) {
@@ -474,16 +473,16 @@ export default function CalBlock({
     }
   };
 
-    // New logic for resetting availability on mouse leave
-    const handleMouseOrTouchLeaveBlock = () => {
-      if (chartedUsers && setChartedUsers) {
-        setChartedUsers({
-          users: chartedUsers.users,
-          available: [],
-          unavailable: [...chartedUsers.users],
-        });
-      }
-    };
+  // New logic for resetting availability on mouse leave
+  const handleMouseOrTouchLeaveBlock = () => {
+    if (chartedUsers && setChartedUsers) {
+      setChartedUsers({
+        users: chartedUsers.users,
+        available: [],
+        unavailable: [...chartedUsers.users],
+      });
+    }
+  };
 
   const handleMobileHoverChartedUser = (event: any) => {
     const availableUsers: user[] = [];
