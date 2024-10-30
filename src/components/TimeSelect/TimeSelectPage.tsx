@@ -143,7 +143,8 @@ function TimeSelectPage() {
           }
         }
 
-        setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
+        console.log(parsedEvents);
+        setGoogleCalendarEvents(parsedEvents);
       } catch (error) {
         console.error('Error fetching calendar events:', error);
       }
@@ -174,6 +175,8 @@ function TimeSelectPage() {
   };
 
   const onPopupCloseAndSubmit = () => {
+    setGoogleCalIds([]);
+    console.log(selectedPopupIds);
     // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
