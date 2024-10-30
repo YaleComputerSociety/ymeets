@@ -608,13 +608,18 @@ export default function CalBlock({
             }}
             // style={{ minWidth: '150px', opacity: gCalEventActive ? 1 : 0 }}
           >
-            {associatedEvents.map((gEvent: any) => {
-              return (
-                <div className="w-full mb-1 z-1 last:mb-0" key={gEvent.id}>
-                  {gEvent.summary}
-                </div>
-              );
-            })}
+            {associatedEvents
+              .filter(
+                (gEvent: any, index: number, self: any[]) =>
+                  index === self.findIndex((e) => e.summary === gEvent.summary)
+              )
+              .map((gEvent: any) => {
+                return (
+                  <div className="w-full mb-1 z-1 last:mb-0" key={gEvent.id}>
+                    {gEvent.summary}
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>

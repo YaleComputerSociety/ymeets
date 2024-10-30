@@ -110,6 +110,9 @@ function TimeSelectPage() {
           setGoogleCalendarEvents([]);
           return;
         }
+
+        setGoogleCalendarEvents([]);
+
         // @ts-expect-error
         const timeMaxDate = new Date(theDates[theDates.length - 1]?.date);
         const timeMax = new Date(

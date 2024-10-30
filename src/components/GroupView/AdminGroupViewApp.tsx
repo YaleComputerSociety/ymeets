@@ -42,6 +42,7 @@ import { useContext } from 'react';
  */
 export default function AdminGroupViewPage() {
   const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext);
+
   const [status, setStatus] = useState<string>('');
 
   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
@@ -50,6 +51,12 @@ export default function AdminGroupViewPage() {
   const [calendarFramework, setCalendarFramework] = useState<
     calendarDimensions | undefined
   >(undefined);
+
+  const [isGeneralDays, setIsGeneralDays] = useState(
+    calendarFramework?.dates?.[0][0].date instanceof Date &&
+      (calendarFramework.dates[0][0].date as Date).getFullYear() !== 2000
+  );
+
   const { code } = useParams();
 
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
@@ -469,7 +476,11 @@ export default function AdminGroupViewPage() {
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 // @ts-expect-error
                 chartedUsersData={[chartedUsers, setChartedUsers]}
-                draggable={true}
+                draggable={
+                  calendarFramework?.dates?.[0][0].date instanceof Date &&
+                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                    2000
+                }
                 user={getCurrentUserIndex()}
                 isAdmin={true}
                 theSelectedDate={[
