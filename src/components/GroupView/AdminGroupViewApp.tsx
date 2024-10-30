@@ -285,8 +285,6 @@ export default function AdminGroupViewPage() {
     );
   }
 
-  console.log(calendarFramework?.dates[0][0].date);
-
   return (
     <>
       <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
