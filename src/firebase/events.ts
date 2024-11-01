@@ -16,7 +16,8 @@ let workingEvent: Event = {
     dates: [],
     startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
     endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
-    plausibleLocations: ['HH17', 'Sterling']
+    plausibleLocations: ['HH17', 'Sterling'],
+    showLocationChart: true
   },
   participants: []
 }
@@ -529,6 +530,11 @@ function getZoomLink (): string | undefined {
   return workingEvent.details.zoomLink || undefined
 }
 
+function getShowLocationChart (): boolean {
+  return workingEvent.details.showLocationChart
+}
+
+
 function getDates (): Date[] {
   return workingEvent.details.dates
 }
@@ -589,6 +595,7 @@ export {
   getEventObjectForGCal,
   getEmails,
   getZoomLink,
+  getShowLocationChart,
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
