@@ -20,6 +20,7 @@ import {
   getChosenLocation,
   getZoomLink,
   undoAdminSelections,
+  getShowLocationChart,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -441,7 +442,7 @@ export default function AdminGroupViewPage() {
               </div>
 
               {/* Location options table */}
-              {locationOptions.length > 0 && (
+              {locationOptions.length > 0 && getShowLocationChart() && (
                 <LocationChart
                   theSelectedLocation={[
                     // @ts-expect-error
