@@ -14,6 +14,8 @@ import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import DaysNotDates from '../select_days_not_dates/DaysNotDates';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { getDatesFromRange } from '../../utils/functions/getDatesFromRange';
+import { DateRange } from '../../../types';
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -99,46 +101,36 @@ export const CalanderComponent = ({
     setSelectedDates(arr);
   };
 
+  const toggleDate = (arr: Date[], date: Date) => {
+    const index = arr.findIndex((selected) => selected.getTime() === date.getTime());
+    if (index === -1) {
+      return [...arr, date];
+    } else {
+      return arr.filter((_, i) => i !== index);
+    }
+  }
+
   const handleRange = (date: Date) => {
     if (lastSelectedDate) {
-      const range = getRange(lastSelectedDate, date);
+      const dates: DateRange = {
+        startDate: lastSelectedDate,
+        endDate: date
+      }
+      if (dates.startDate>dates.endDate) {
+        [dates.startDate,dates.endDate]=[dates.endDate,dates.startDate];
+      }
+      const range = getDatesFromRange(dates);
       let arr = [...selectedDates];
-      range.forEach((day) => {
-        const index = arr.findIndex((selected) => selected.getTime() === day.getTime());
-        if (index === -1) {
-          arr.push(day);
-        } else {
-          arr = arr.filter((_, i) => i !== index);
-        }
+      range.forEach(({date, dayOfWeek}) => {
+        arr = toggleDate(arr, date);
       })
+      arr = toggleDate(arr, lastSelectedDate);
       arr.sort((a, b) => a.getTime() - b.getTime());
       setSelectedDates([...arr]);
     } else {
       addDay(date);
     }
     setLastSelectedDate(date);
-  }
-
-  const getRange = (start: Date, end: Date): Date[] => {
-    const range = [];
-
-    if (start<end) {
-      let curr = new Date(start);
-      curr.setDate(curr.getDate()+1);
-      while (curr <= end) {
-        range.push(new Date(curr));
-        curr.setDate(curr.getDate()+1);
-      }
-    } else {
-      let curr = new Date(start);
-      curr.setDate(curr.getDate()-1);
-      while (end <= curr) {
-        range.push(new Date(curr));
-        curr.setDate(curr.getDate()-1);
-      }
-    }
-
-    return range;
   }
 
   const [startDate, setStartDate] = selectedStartDate;
