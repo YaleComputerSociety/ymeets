@@ -33,6 +33,11 @@ export interface Participant {
 
 export type calanderState = Availability[] // length = num of people
 
+export type DateRange = {
+  startDate: Date,
+  endDate: Date
+};
+
 export interface calandarDate {
   id: number
   shortenedWeekDay: string

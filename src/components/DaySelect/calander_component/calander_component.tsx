@@ -14,6 +14,8 @@ import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import DaysNotDates from '../select_days_not_dates/DaysNotDates';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { getDatesFromRange } from '../../utils/functions/getDatesFromRange';
+import { DateRange } from '../../../types';
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -80,6 +82,7 @@ export const CalanderComponent = ({
   const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
   const [selectedDates, setSelectedDates] = theSelectedDates;
+  const [lastSelectedDate, setLastSelectedDate] = useState<Date|null>(null);
 
   const addDay = (date: Date) => {
     const arr = [...selectedDates];
@@ -88,13 +91,47 @@ export const CalanderComponent = ({
       return a.getTime() - b.getTime();
     });
 
+    setLastSelectedDate(date);
     setSelectedDates(arr);
   };
 
   const removeDay = (date: Date) => {
     const arr = selectedDates.filter((obj) => obj.getTime() != date.getTime());
+    setLastSelectedDate(date);
     setSelectedDates(arr);
   };
+
+  const toggleDate = (arr: Date[], date: Date) => {
+    const index = arr.findIndex((selected) => selected.getTime() === date.getTime());
+    if (index === -1) {
+      return [...arr, date];
+    } else {
+      return arr.filter((_, i) => i !== index);
+    }
+  }
+
+  const handleRange = (date: Date) => {
+    if (lastSelectedDate) {
+      const dates: DateRange = {
+        startDate: lastSelectedDate,
+        endDate: date
+      }
+      if (dates.startDate>dates.endDate) {
+        [dates.startDate,dates.endDate]=[dates.endDate,dates.startDate];
+      }
+      const range = getDatesFromRange(dates);
+      let arr = [...selectedDates];
+      range.forEach(({date, dayOfWeek}) => {
+        arr = toggleDate(arr, date);
+      })
+      arr = toggleDate(arr, lastSelectedDate);
+      arr.sort((a, b) => a.getTime() - b.getTime());
+      setSelectedDates([...arr]);
+    } else {
+      addDay(date);
+    }
+    setLastSelectedDate(date);
+  }
 
   const [startDate, setStartDate] = selectedStartDate;
   const [popupIsOpen, setPopupIsOpen] = useState(false);
@@ -144,15 +181,8 @@ export const CalanderComponent = ({
                   date={date}
                   add={addDay}
                   remove={removeDay}
-                  isActive={
-                    selectedDates.filter((obj: any) => {
-                      return (
-                        obj.getFullYear() == date.getFullYear() &&
-                        obj.getMonth() == date.getMonth() &&
-                        obj.getDate() == date.getDate()
-                      );
-                    }).length !== 0
-                  }
+                  selectedDates={selectedDates}
+                  handleRange={handleRange}
                 />
               </div>
             );
