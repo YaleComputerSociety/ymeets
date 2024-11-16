@@ -96,9 +96,10 @@ function TimeSelectPage() {
   const { gapi, handleIsSignedIn } = gapiContext;
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([]);
-  const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
+  // const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
+  const [googleCalIds, setGoogleCalIds] = useState<string[]>([]); // still easy for user to specify primary cal?
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
-  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>();
+  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>([]);
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
@@ -113,6 +114,9 @@ function TimeSelectPage() {
   
         if (calIds.length === 0) {
           setGoogleCalendarEvents([]);
+          // autofill option if used
+          if (shouldFillAvailability)
+            fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
           return;
         }
   
@@ -147,7 +151,8 @@ function TimeSelectPage() {
           }
         }
   
-        setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
+        //setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
+        setGoogleCalendarEvents([...parsedEvents]);
   
         // Now, fill availability not in GCal events
         if (shouldFillAvailability)
@@ -183,18 +188,20 @@ function TimeSelectPage() {
   };
 
   const onPopupCloseAndSubmit = () => {
-    // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
   };
 
-  const handleSelectAllAndFillAvailability = () => {
-    // Select all Google Calendar IDs
-    const allCalIds = googleCalendars.map((cal) => cal.id);
-    setGoogleCalIds(allCalIds);
-    console.log('hi');
+  const onPopupCloseAutofillAndSubmit = () => {
+    if (selectedPopupIds === googleCalIds) {
+      // no need to make changes if selected calendars didn't change
+      setGcalPopupOpen(false);
+      return;
+    }
+
     setShouldFillAvailability(true);
     setIsFillingAvailability(true);
+    setGoogleCalIds(selectedPopupIds);
   };
 
   const fillAvailabilityNotInGCalEvents = (
@@ -250,6 +257,8 @@ function TimeSelectPage() {
   
         if (!overlapsGCalEvent) {
           userAvailability[columnID][blockID] = true;
+        } else {
+          userAvailability[columnID][blockID] = false;
         }
       }
     }
@@ -582,7 +591,7 @@ function TimeSelectPage() {
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
         onCloseAndSubmit={onPopupCloseAndSubmit}
-        onSelectAllAndFill={handleSelectAllAndFillAvailability}
+        onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
       >
         <h2 className="text-2xl font-bold mb-4">Select GCals</h2>

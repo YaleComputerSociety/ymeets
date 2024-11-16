@@ -1,4 +1,5 @@
 /* eslint-disable */
+import React, { useState } from 'react';
 import GEMINI_ICON from '../../../static/gemini-icon.png'; // Replace with the actual path to your Gemini icon
 
 export const Popup = ({
@@ -6,9 +7,17 @@ export const Popup = ({
   onClose,
   children,
   onCloseAndSubmit,
-  onSelectAllAndFill,
+  onCloseAndAutofillAndSubmit,
   isFillingAvailability,
 }: any) => {
+  // State to track if autofill has been clicked
+  const [isAutofillSubmitted, setIsAutofillSubmitted] = useState(false);
+
+  const handleAutofillAndSubmit = () => {
+    setIsAutofillSubmitted(true);
+    onCloseAndAutofillAndSubmit();
+  };
+
   return (
     <>
       {isOpen && (
@@ -28,34 +37,33 @@ export const Popup = ({
               {children}
               <br />
               {/* Container for buttons */}
-              <div className="relative mt-6">
-                {/* Centered Submit Button */}
+              <div className="relative mt-6 space-y-3">
+                {/* "Submit & Autofill Availabilities" Button */}
                 <div className="flex justify-center">
                   <button
-                    className="text-lg bg-blue-500 w-fit text-white font-medium py-2 px-5 rounded-lg mt-4 hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+                    className="text-sm bg-gray-100 text-gray-700 font-medium py-1 px-4 rounded shadow-md hover:bg-gray-200 transition-colors"
+                    onClick={handleAutofillAndSubmit}
+                    disabled={isFillingAvailability}
+                    title={
+                      isAutofillSubmitted
+                        ? 'Submit and Update Autofill Availabilities'
+                        : 'Submit and Autofill Availabilities'
+                    }
+                  >
+                    {isAutofillSubmitted
+                      ? 'Submit and Update Autofill Availabilities'
+                      : 'Submit and Autofill Availabilities'}
+                  </button>
+                </div>
+
+                {/* Centered Submit Button with Spinner */}
+                <div className="flex justify-center items-center space-x-4 mt-4">
+                  <button
+                    className="text-lg bg-blue-500 w-fit text-white font-medium py-2 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                     onClick={onCloseAndSubmit}
                   >
                     Submit
                   </button>
-                </div>
-
-                {/* "Select All & Fill" Button and Spinner */}
-                <div className="absolute top-0 right-0 flex items-center mt-4">
-                  {/* "Select All & Fill" Button */}
-                  <button
-                    className="rounded-full bg-white p-2 shadow-md mr-2"
-                    onClick={onSelectAllAndFill}
-                    disabled={isFillingAvailability}
-                    title="Select All and Fill Availability"
-                  >
-                    <img
-                      src={GEMINI_ICON}
-                      alt="Select All and Fill"
-                      className="h-6 w-6"
-                    />
-                  </button>
-
-                  {/* Loading Spinner */}
                   {isFillingAvailability && (
                     <div className="w-6 h-6 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
                   )}
