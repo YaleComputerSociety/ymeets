@@ -104,6 +104,8 @@ function TimeSelectPage() {
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
 
+  const [hasAvailability, setHasAvailability] = useState(false);
+
   useEffect(() => {
     const getGoogleCalData = async (calIds: string[]) => {
       try {
@@ -296,7 +298,9 @@ function TimeSelectPage() {
 
           if (avail === undefined) {
             avail = eventAPI.getEmptyAvailability(dim);
-          } 
+          } else {
+            setHasAvailability(true);
+          }
           
           setChartedUsers(participants);
 
@@ -468,6 +472,15 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
+            {hasAvailability && (
+              <ButtonSmall
+                bgColor="green-500"
+                textColor="white"
+                onClick={() => navigate(`/groupview/${code}`)}
+              >
+                Go to GroupView
+              </ButtonSmall>
+            )}
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
@@ -484,6 +497,15 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
+            {hasAvailability && (
+              <ButtonSmall
+                bgColor="green-500"
+                textColor="white"
+                onClick={() => navigate(`/groupview/${code}`)}
+              >
+                Go to GroupView
+              </ButtonSmall>
+            )}
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
