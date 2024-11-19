@@ -26,7 +26,7 @@ import {
   getChosenDayAndTime,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
-import { Popup } from '../utils/components/Popup';
+import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -74,7 +74,7 @@ function TimeSelectPage() {
   const [eventDescription, setEventDescription] = useState('');
   const [locationOptions, setLocationOptions] = useState(Array<string>);
 
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([]);
+  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<[Date, Date] | undefined>(undefined);
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   // hook that handles whether or not we are working with dates, or just selecting days of the week
@@ -106,70 +106,66 @@ function TimeSelectPage() {
 
   const [hasAvailability, setHasAvailability] = useState(false);
 
-  useEffect(() => {
-    const getGoogleCalData = async (calIds: string[]) => {
-      try {
-        // @ts-expect-error
-        const theDates = [].concat(...(calendarFramework?.dates || []));
+  const getGoogleCalData = async (calIds: string[], fillAvailability = false) => {
+    try {
+      const theDates: calandarDate[] = ([] as calandarDate[]).concat(...(calendarFramework?.dates || []));
+      const parsedEvents: any[] = [];
   
-        const parsedEvents: any[] = [];
-  
-        if (calIds.length === 0) {
-          setGoogleCalendarEvents([]);
-          // autofill option if used
-          if (shouldFillAvailability)
-            fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
-          return;
-        }
-  
-        // @ts-expect-error
-        const timeMaxDate = new Date(theDates[theDates.length - 1]?.date);
-        const timeMax = new Date(
-          timeMaxDate.setUTCHours(23, 59, 59, 999)
-        ).toISOString();
-  
-        for (let i = 0; i < calIds.length; i++) {
-          // @ts-expect-error
-          const eventList = await gapi?.client?.calendar?.events?.list({
-            calendarId: calIds[i],
-            // @ts-expect-error
-            timeMin: theDates[0]?.date?.toISOString(),
-            timeMax: timeMax,
-            singleEvents: true,
-            orderBy: 'startTime',
-          });
-  
-          const theEvents = eventList?.result?.items || [];
-  
-          for (let event of theEvents) {
-            const startDate = new Date(event?.start?.dateTime || event?.start?.date);
-            const endDate = new Date(event?.end?.dateTime || event?.end?.date);
-  
-            if (startDate.getDay() !== endDate.getDay()) {
-              continue; // Skip events that span multiple days
-            }
-  
-            parsedEvents.push(event);
-          }
-        }
-  
-        //setGoogleCalendarEvents([...googleCalendarEvents, ...parsedEvents]);
-        setGoogleCalendarEvents([...parsedEvents]);
-  
-        // Now, fill availability not in GCal events
-        if (shouldFillAvailability)
+      if (calIds.length === 0) {
+        setGoogleCalendarEvents([]);
+        if (fillAvailability) 
           fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
+        return;
+      }
   
-      } catch (error) {
-        console.error('Error fetching calendar events:', error);
+      const timeMaxDate = new Date(theDates[theDates.length - 1].date as Date);
+      const timeMax = new Date(
+        timeMaxDate.setUTCHours(23, 59, 59, 999)
+      ).toISOString();
+  
+      for (let i = 0; i < calIds.length; i++) {
+        // @ts-expect-error
+        const eventList = await gapi?.client?.calendar?.events?.list({
+          calendarId: calIds[i],
+          timeMin: theDates[0]?.date?.toISOString(),
+          timeMax: timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+        });
+  
+        const theEvents = eventList?.result?.items || [];
+  
+        for (let event of theEvents) {
+          const startDate = new Date(event?.start?.dateTime || event?.start?.date);
+          const endDate = new Date(event?.end?.dateTime || event?.end?.date);
+  
+          if (startDate.getDay() !== endDate.getDay()) {
+            continue; // Skip events that span multiple days
+          }
+  
+          parsedEvents.push(event);
+        }
+      }
+      
+      setGoogleCalendarEvents([...parsedEvents]);
+
+      if (fillAvailability) {
+        fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
+      }
+    } catch (error) {
+      console.error('Error fetching calendar events:', error);
+    }
+  };
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      if (gapi) {
+        await getGoogleCalData(googleCalIds, shouldFillAvailability);
+      } else {
+        return;
       }
     };
-  
-    if (gapi) {
-      getGoogleCalData(googleCalIds);
-    } else {
-      return;
-    }
+    fetchData();
   }, [gapi, googleCalIds]);
 
   const fetchUserCals = async () => {
@@ -189,21 +185,23 @@ function TimeSelectPage() {
     });
   };
 
-  const onPopupCloseAndSubmit = () => {
+  const onPopupCloseAndSubmit = async () => {
+    if (selectedPopupIds === googleCalIds) {
+      setGcalPopupOpen(false);
+      return;
+    }
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
   };
 
-  const onPopupCloseAutofillAndSubmit = () => {
-    if (selectedPopupIds === googleCalIds) {
-      // no need to make changes if selected calendars didn't change
-      setGcalPopupOpen(false);
-      return;
-    }
-
+  const onPopupCloseAutofillAndSubmit = async () => {
     setShouldFillAvailability(true);
     setIsFillingAvailability(true);
-    setGoogleCalIds(selectedPopupIds);
+    if (selectedPopupIds === googleCalIds) {
+      await getGoogleCalData(selectedPopupIds, true);
+    } else {
+      setGoogleCalIds(selectedPopupIds);
+    }
   };
 
   const fillAvailabilityNotInGCalEvents = (
@@ -214,25 +212,21 @@ function TimeSelectPage() {
     const oldCalendarState = {...calendarState};
     const userAvailability = oldCalendarState[userIndex];
 
-    // @ts-expect-error
-    const startHour = calendarFramework.startTime.getHours();
-     // @ts-expect-error
-    const startMinute = calendarFramework.startTime.getMinutes();
+    const startHour = calendarFramework?.startTime.getHours();
+    const startMinute = calendarFramework?.startTime.getMinutes();
   
-     // @ts-expect-error
-    const endHour = calendarFramework.endTime.getHours();
-     // @ts-expect-error
-    const endMinute = calendarFramework.endTime.getMinutes();
+    const endHour = calendarFramework?.endTime.getHours();
+    const endMinute = calendarFramework?.endTime.getMinutes();
   
-    const totalMinutes =
-      (endHour - startHour) * 60 + (endMinute - startMinute);
+    const totalMinutes = 
+      (endHour !== undefined && startHour !== undefined && endMinute !== undefined && startMinute !== undefined) 
+      ? (endHour - startHour) * 60 + (endMinute - startMinute)
+      : 0;
     const totalBlocks = totalMinutes / 15; // Assuming 15-minute intervals
   
     const timeBlocks = generateTimeBlocks(
-       // @ts-expect-error
-      calendarFramework.startTime,
-       // @ts-expect-error
-      calendarFramework.endTime
+      calendarFramework?.startTime,
+      calendarFramework?.endTime
     );
     const times: string[] = ([] as string[]).concat(...timeBlocks);
   
@@ -242,8 +236,7 @@ function TimeSelectPage() {
         const timeString = times[blockID];
         const [hours, minutes] = timeString.split(':').map(Number);
   
-        // @ts-expect-error
-        const startDateTime = new Date(dateObj.date);
+        const startDateTime = new Date(dateObj.date as Date);
         startDateTime.setHours(hours, minutes, 0, 0);
   
         const endDateTime = new Date(startDateTime.getTime() + 15 * 60 * 1000);
@@ -266,8 +259,7 @@ function TimeSelectPage() {
     }
   
     oldCalendarState[userIndex] = userAvailability;
-     // @ts-expect-error
-    setCalendarState(oldCalendarState);
+    setCalendarState(oldCalendarState as typeof calendarState);
     setShouldFillAvailability(false);
     setIsFillingAvailability(false);
     setGcalPopupOpen(false);
@@ -288,8 +280,7 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
-          // @ts-expect-error
-          setSelectedDateTimeObjects(getChosenDayAndTime());
+          setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
 
           let avail: Availability | undefined =
             getAccountId() !== ''
@@ -309,7 +300,6 @@ function TimeSelectPage() {
           setLocationOptions(getLocationOptions());
 
           const theRange = getChosenDayAndTime();
-          //@ts-expect-error
           setSelectedDateTimeObjects(theRange);
           setCalendarState([...availabilities, avail]);
           setCalendarFramework(dim);
@@ -323,8 +313,6 @@ function TimeSelectPage() {
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
           if (
             theRange != undefined &&
-            // @ts-expect-error
-            theRange?.length !== 0 &&
             theRange[0].getFullYear() != 1970
           ) {
             nav('/groupview/' + code);
@@ -425,8 +413,7 @@ function TimeSelectPage() {
 
   const saveAvailAndLocationChanges = () => {
     const user = getCurrentUserIndex();
-    // @ts-expect-error
-    const avail = calendarState[user];
+    const avail: Availability = calendarState ? calendarState[user] ?? [] : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
     navigate(`/groupview/${code}`);
   };
@@ -609,29 +596,25 @@ function TimeSelectPage() {
           )}
         </div>
       </div>
-      <Popup
+      <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
         onCloseAndSubmit={onPopupCloseAndSubmit}
         onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
-      >
+        >
         <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
         <FormGroup>
           {googleCalendars.map((cal: any) => (
             <FormControlLabel
               key={cal.id}
-              control={
-                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
-              }
+              control={<Checkbox checked={selectedPopupIds?.includes(cal.id)} />}
               label={cal.summary}
               onChange={() => {
                 setSelectedPopupIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
-                    // If the ID is already in the array, remove it
                     return prevState.filter((id) => id !== cal.id);
                   } else {
-                    // If the ID is not in the array, add it
                     return [...(prevState || []), cal.id];
                   }
                 });
@@ -639,7 +622,7 @@ function TimeSelectPage() {
             />
           ))}
         </FormGroup>
-      </Popup>
+      </AddGoogleCalendarPopup>
       {promptUserForLogin && (
         <LoginPopup
           onClose={endPromptUserForLogin}
