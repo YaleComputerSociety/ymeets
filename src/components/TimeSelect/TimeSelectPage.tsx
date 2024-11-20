@@ -202,7 +202,7 @@ function TimeSelectPage() {
           setSelectedDateTimeObjects(getChosenDayAndTime());
 
           let avail: Availability | undefined =
-            getAccountId() === ''
+            getAccountId() !== ''
               ? getAvailabilityByAccountId(getAccountId())
               : getAvailabilityByName(accountName);
 
