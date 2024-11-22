@@ -15,6 +15,7 @@ import {
   getAccountId,
   getChosenDayAndTime,
   getZoomLink,
+  getShowLocationChart,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import Calender from '../selectCalendarComponents/CalendarApp';
@@ -217,8 +218,7 @@ export default function ParticipantGroupViewPage() {
                   chartedUsersData={[chartedUsers, setChartedUsers]}
                 />
               </div>
-
-              {locationOptions.length > 0 && (
+              {locationOptions.length > 0 && getShowLocationChart() && (
                 <LocationChart
                   theSelectedLocation={[
                     userChosenLocation,

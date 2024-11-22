@@ -20,7 +20,8 @@ export interface EventDetails {
   chosenLocation?: Location | undefined
   chosenStartDate?: Date | undefined
   chosenEndDate?: Date | undefined // minutes
-  zoomLink?: string | undefined, 
+  zoomLink?: string | undefined
+  showLocationChart: boolean,
 }
 
 export interface Participant {
