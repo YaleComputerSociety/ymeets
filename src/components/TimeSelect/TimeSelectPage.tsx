@@ -108,8 +108,6 @@ function TimeSelectPage() {
 
   const [hasAvailability, setHasAvailability] = useState(false);
 
-  const [hasAvailability, setHasAvailability] = useState(false);
-
   const getGoogleCalData = async (
     calIds: string[],
     fillAvailability = false
@@ -301,8 +299,6 @@ function TimeSelectPage() {
 
           if (avail === undefined) {
             avail = eventAPI.getEmptyAvailability(dim);
-          } else {
-            setHasAvailability(true);
           } else {
             setHasAvailability(true);
           }
