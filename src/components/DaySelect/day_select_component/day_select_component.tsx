@@ -254,7 +254,7 @@ export const DaySelectComponent = () => {
               placeholder="Event Name"
               value={eventName}
               onChange={(e) => {
-                setEventName(e.target.value)
+                setEventName(e.target.value);
               }}
               maxLength={40}
             />
@@ -267,23 +267,10 @@ export const DaySelectComponent = () => {
               placeholder="Event Description (Optional)"
               value={eventDescription}
               onChange={(e) => {
-                setEventDescription(e.target.value)
+                setEventDescription(e.target.value);
               }}
               rows={1}
               maxLength={100}
-            />
-          </div>
-          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            <input
-              id="zoom-link"
-              type="text"
-              style={{ resize: 'none' }}
-              className={inputClasses}
-              placeholder="Zoom Link (Optional)"
-              value={zoomLink}
-              onChange={(e) => {
-                setZoomLink(e.target.value)
-              }}
             />
           </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">

@@ -143,6 +143,11 @@ function TimeSelectPage() {
   
           parsedEvents.push(event);
         }
+
+        console.log(parsedEvents);
+        setGoogleCalendarEvents(parsedEvents);
+      } catch (error) {
+        console.error('Error fetching calendar events:', error);
       }
       
       setGoogleCalendarEvents([...parsedEvents]);
@@ -188,6 +193,10 @@ function TimeSelectPage() {
       setGcalPopupOpen(false);
       return;
     }
+  const onPopupCloseAndSubmit = () => {
+    setGoogleCalIds([]);
+    console.log(selectedPopupIds);
+    // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
   };
@@ -278,7 +287,11 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
+
           setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
+
+          // @ts-expect-error
+          setSelectedDateTimeObjects(getChosenDayAndTime());
 
           let avail: Availability | undefined =
             getAccountId() !== ''

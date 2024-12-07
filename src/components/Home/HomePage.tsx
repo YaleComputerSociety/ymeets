@@ -29,7 +29,7 @@ export default function HomePage() {
   };
   const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
     setEventCode(event.target.value);
-  };
+  };  
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
       signInAndGoToEvent();

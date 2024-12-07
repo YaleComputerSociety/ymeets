@@ -9,6 +9,7 @@ import {
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { useRef } from 'react';
 import DateBar from './DateBar';
+import { GrPowerReset } from 'react-icons/gr';
 
 interface CalendarProps {
   theCalendarFramework:
@@ -90,9 +91,21 @@ export default function Calendar({
   return (
     <div className="flex flex-col">
       {hasTitle && (
-        <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
-          {title}
-        </p>
+        <div className="flex flex-row">
+          <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
+            {title}
+          </p>
+          {/* <a
+            className="ml-auto mr-4"
+            onClick={() => {
+              setCalendarState(
+                calendarState.map((row: any) => row.map(() => false))
+              );
+            }}
+          >
+            <GrPowerReset size={38} />
+          </a> */}
+        </div>
       )}
 
       <div

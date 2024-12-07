@@ -9,8 +9,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
-import { FaCog } from 'react-icons/fa';
+import { FaBars, FaCog } from 'react-icons/fa';
 import { logout } from '../../firebase/auth';
+import { VscThreeBars } from 'react-icons/vsc';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 import {
   FaInfoCircle,
   FaCalendarAlt,
@@ -79,7 +81,7 @@ export default function NavBar() {
             </div>
             <div className="relative">
               <button className="menu-button" onClick={handleGearClick}>
-                <FaCog className="text-gray-500 mt-1" size={25} />
+                <FaBars className="text-gray-500 mt-1" size={25} />
               </button>
               {menuState !== 'closed' && (
                 <div
