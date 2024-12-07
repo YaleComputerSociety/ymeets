@@ -104,6 +104,8 @@ function TimeSelectPage() {
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
 
+  const [hasAvailability, setHasAvailability] = useState(false);
+
   const getGoogleCalData = async (calIds: string[], fillAvailability = false) => {
     try {
       const theDates: calandarDate[] = ([] as calandarDate[]).concat(...(calendarFramework?.dates || []));
@@ -143,11 +145,6 @@ function TimeSelectPage() {
   
           parsedEvents.push(event);
         }
-
-        console.log(parsedEvents);
-        setGoogleCalendarEvents(parsedEvents);
-      } catch (error) {
-        console.error('Error fetching calendar events:', error);
       }
       
       setGoogleCalendarEvents([...parsedEvents]);
@@ -193,10 +190,6 @@ function TimeSelectPage() {
       setGcalPopupOpen(false);
       return;
     }
-  const onPopupCloseAndSubmit = () => {
-    setGoogleCalIds([]);
-    console.log(selectedPopupIds);
-    // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
   };
@@ -287,11 +280,7 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
-
           setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
-
-          // @ts-expect-error
-          setSelectedDateTimeObjects(getChosenDayAndTime());
 
           let avail: Availability | undefined =
             getAccountId() !== ''
@@ -300,6 +289,8 @@ function TimeSelectPage() {
 
           if (avail === undefined) {
             avail = eventAPI.getEmptyAvailability(dim);
+          } else {
+            setHasAvailability(true);
           }
           
           setChartedUsers(participants);
@@ -523,6 +514,8 @@ function TimeSelectPage() {
                 //@ts-expect-error
                 setGoogleCalendarEvents,
               ]}
+              hasAvailability={hasAvailability}
+              code={code}
             />
           </div>
 

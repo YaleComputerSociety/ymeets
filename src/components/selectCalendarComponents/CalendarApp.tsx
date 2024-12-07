@@ -7,7 +7,10 @@ import {
   calandarDate,
 } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
+import ButtonSmall from '../utils/components/ButtonSmall';
+import { FaArrowRight } from 'react-icons/fa'; 
 import DateBar from './DateBar';
 import { GrPowerReset } from 'react-icons/gr';
 
@@ -36,6 +39,8 @@ interface CalendarProps {
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
   theGoogleCalendarEvents: [Date, React.Dispatch<React.SetStateAction<Date>>];
+  hasAvailability?: boolean;
+  code?: string;
 }
 
 export interface dragProperties {
@@ -56,6 +61,8 @@ export default function Calendar({
   theSelectedDate,
   theDragState,
   theGoogleCalendarEvents,
+  hasAvailability,
+  code,
 }: CalendarProps) {
   // @ts-expect-error
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
@@ -69,6 +76,8 @@ export default function Calendar({
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const hasTitle = title !== '';
+
+  const navigate = useNavigate();
 
   const militaryConvert = (time: string) => {
     let hours = Number.parseInt(time.slice(0, 2));
@@ -95,6 +104,18 @@ export default function Calendar({
           <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
             {title}
           </p>
+          {hasAvailability && code && (
+            <ButtonSmall
+            bgColor="blue-500"
+            textColor="white"
+            onClick={() => navigate(`/groupview/${code}`)}
+            className="ml-4"
+          >
+            <span className="flex items-center">
+              Go to Group View <FaArrowRight className="ml-2" />
+            </span>
+          </ButtonSmall>
+          )}
           {/* <a
             className="ml-auto mr-4"
             onClick={() => {
