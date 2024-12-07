@@ -74,7 +74,9 @@ function TimeSelectPage() {
   const [eventDescription, setEventDescription] = useState('');
   const [locationOptions, setLocationOptions] = useState(Array<string>);
 
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<[Date, Date] | undefined>(undefined);
+  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<
+    [Date, Date] | undefined
+  >(undefined);
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   // hook that handles whether or not we are working with dates, or just selecting days of the week
@@ -104,23 +106,30 @@ function TimeSelectPage() {
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
 
-  const getGoogleCalData = async (calIds: string[], fillAvailability = false) => {
+  const [hasAvailability, setHasAvailability] = useState(false);
+
+  const getGoogleCalData = async (
+    calIds: string[],
+    fillAvailability = false
+  ) => {
     try {
-      const theDates: calandarDate[] = ([] as calandarDate[]).concat(...(calendarFramework?.dates || []));
+      const theDates: calandarDate[] = ([] as calandarDate[]).concat(
+        ...(calendarFramework?.dates || [])
+      );
       const parsedEvents: any[] = [];
-  
+
       if (calIds.length === 0) {
         setGoogleCalendarEvents([]);
-        if (fillAvailability) 
+        if (fillAvailability)
           fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
         return;
       }
-  
+
       const timeMaxDate = new Date(theDates[theDates.length - 1].date as Date);
       const timeMax = new Date(
         timeMaxDate.setUTCHours(23, 59, 59, 999)
       ).toISOString();
-  
+
       for (let i = 0; i < calIds.length; i++) {
         // @ts-expect-error
         const eventList = await gapi?.client?.calendar?.events?.list({
@@ -130,26 +139,23 @@ function TimeSelectPage() {
           singleEvents: true,
           orderBy: 'startTime',
         });
-  
+
         const theEvents = eventList?.result?.items || [];
-  
+
         for (let event of theEvents) {
-          const startDate = new Date(event?.start?.dateTime || event?.start?.date);
+          const startDate = new Date(
+            event?.start?.dateTime || event?.start?.date
+          );
           const endDate = new Date(event?.end?.dateTime || event?.end?.date);
-  
+
           if (startDate.getDay() !== endDate.getDay()) {
             continue; // Skip events that span multiple days
           }
-  
+
           parsedEvents.push(event);
         }
-
-        console.log(parsedEvents);
-        setGoogleCalendarEvents(parsedEvents);
-      } catch (error) {
-        console.error('Error fetching calendar events:', error);
       }
-      
+
       setGoogleCalendarEvents([...parsedEvents]);
 
       if (fillAvailability) {
@@ -159,7 +165,7 @@ function TimeSelectPage() {
       console.error('Error fetching calendar events:', error);
     }
   };
-  
+
   useEffect(() => {
     const fetchData = async () => {
       if (gapi) {
@@ -193,10 +199,6 @@ function TimeSelectPage() {
       setGcalPopupOpen(false);
       return;
     }
-  const onPopupCloseAndSubmit = () => {
-    setGoogleCalIds([]);
-    console.log(selectedPopupIds);
-    // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
     setGcalPopupOpen(false);
   };
@@ -216,47 +218,48 @@ function TimeSelectPage() {
     dates: calandarDate[]
   ) => {
     const userIndex = getCurrentUserIndex();
-    const oldCalendarState = {...calendarState};
+    const oldCalendarState = { ...calendarState };
     const userAvailability = oldCalendarState[userIndex];
 
     const startHour = calendarFramework?.startTime.getHours();
     const startMinute = calendarFramework?.startTime.getMinutes();
-  
+
     const endHour = calendarFramework?.endTime.getHours();
     const endMinute = calendarFramework?.endTime.getMinutes();
-  
-    const totalMinutes = 
-      (endHour !== undefined && startHour !== undefined && endMinute !== undefined && startMinute !== undefined) 
-      ? (endHour - startHour) * 60 + (endMinute - startMinute)
-      : 0;
+
+    const totalMinutes =
+      endHour !== undefined &&
+      startHour !== undefined &&
+      endMinute !== undefined &&
+      startMinute !== undefined
+        ? (endHour - startHour) * 60 + (endMinute - startMinute)
+        : 0;
     const totalBlocks = totalMinutes / 15; // Assuming 15-minute intervals
-  
+
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
     );
     const times: string[] = ([] as string[]).concat(...timeBlocks);
-  
+
     for (let columnID = 0; columnID < dates.length; columnID++) {
       const dateObj = dates[columnID];
       for (let blockID = 0; blockID < totalBlocks; blockID++) {
         const timeString = times[blockID];
         const [hours, minutes] = timeString.split(':').map(Number);
-  
+
         const startDateTime = new Date(dateObj.date as Date);
         startDateTime.setHours(hours, minutes, 0, 0);
-  
+
         const endDateTime = new Date(startDateTime.getTime() + 15 * 60 * 1000);
-  
+
         const overlapsGCalEvent = parsedEvents.some((event) => {
-          const eventStart = new Date(
-            event.start.dateTime || event.start.date
-          );
+          const eventStart = new Date(event.start.dateTime || event.start.date);
           const eventEnd = new Date(event.end.dateTime || event.end.date);
-  
+
           return startDateTime < eventEnd && endDateTime > eventStart;
         });
-  
+
         if (!overlapsGCalEvent) {
           userAvailability[columnID][blockID] = true;
         } else {
@@ -264,7 +267,7 @@ function TimeSelectPage() {
         }
       }
     }
-  
+
     oldCalendarState[userIndex] = userAvailability;
     setCalendarState(oldCalendarState as typeof calendarState);
     setShouldFillAvailability(false);
@@ -287,11 +290,7 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
-
           setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
-
-          // @ts-expect-error
-          setSelectedDateTimeObjects(getChosenDayAndTime());
 
           let avail: Availability | undefined =
             getAccountId() !== ''
@@ -300,8 +299,10 @@ function TimeSelectPage() {
 
           if (avail === undefined) {
             avail = eventAPI.getEmptyAvailability(dim);
+          } else {
+            setHasAvailability(true);
           }
-          
+
           setChartedUsers(participants);
 
           setEventName(getEventName());
@@ -320,10 +321,7 @@ function TimeSelectPage() {
           );
 
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
-          if (
-            theRange != undefined &&
-            theRange[0].getFullYear() != 1970
-          ) {
+          if (theRange != undefined && theRange[0].getFullYear() != 1970) {
             nav('/groupview/' + code);
           }
         });
@@ -409,7 +407,7 @@ function TimeSelectPage() {
       });
     }
   };
-  
+
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
@@ -422,7 +420,9 @@ function TimeSelectPage() {
 
   const saveAvailAndLocationChanges = () => {
     const user = getCurrentUserIndex();
-    const avail: Availability = calendarState ? calendarState[user] ?? [] : [];
+    const avail: Availability = calendarState
+      ? (calendarState[user] ?? [])
+      : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
     navigate(`/groupview/${code}`);
   };
@@ -468,6 +468,15 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
+            {/* {hasAvailability && (
+              <ButtonSmall
+                bgColor="green-500"
+                textColor="white"
+                onClick={() => navigate(`/groupview/${code}`)}
+              >
+                Go to GroupView
+              </ButtonSmall>
+            )} */}
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
@@ -484,6 +493,15 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
+            {/* {hasAvailability && (
+              <ButtonSmall
+                bgColor="green-500"
+                textColor="white"
+                onClick={() => navigate(`/groupview/${code}`)}
+              >
+                Go to GroupView
+              </ButtonSmall>
+            )} */}
             {selectedDateTimeObjects !== undefined &&
               (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
                 <InformationPopup
@@ -593,13 +611,15 @@ function TimeSelectPage() {
         onCloseAndSubmit={onPopupCloseAndSubmit}
         onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
-        >
+      >
         <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
         <FormGroup>
           {googleCalendars.map((cal: any) => (
             <FormControlLabel
               key={cal.id}
-              control={<Checkbox checked={selectedPopupIds?.includes(cal.id)} />}
+              control={
+                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
+              }
               label={cal.summary}
               onChange={() => {
                 setSelectedPopupIds((prevState) => {
