@@ -7,6 +7,7 @@ import {
   userData,
   calendarDimensions,
   Availability,
+  calandarDate,
 } from '../../types';
 import eventAPI from '../../firebase/eventAPI';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -25,7 +26,7 @@ import {
   getChosenDayAndTime,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
-import { Popup } from '../utils/components/Popup';
+import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -38,6 +39,7 @@ import { useContext } from 'react';
 import Button from '../utils/components/Button';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InformationPopup from '../utils/components/InformationPopup';
+import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
 /**
  *
@@ -72,7 +74,7 @@ function TimeSelectPage() {
   const [eventDescription, setEventDescription] = useState('');
   const [locationOptions, setLocationOptions] = useState(Array<string>);
 
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState([]);
+  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<[Date, Date] | undefined>(undefined);
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   // hook that handles whether or not we are working with dates, or just selecting days of the week
@@ -94,53 +96,52 @@ function TimeSelectPage() {
   const { gapi, handleIsSignedIn } = gapiContext;
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([]);
-  const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
+  // const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
+  const [googleCalIds, setGoogleCalIds] = useState<string[]>([]); // still easy for user to specify primary cal?
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
-  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>();
+  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    const getGoogleCalData = async (calIds: string[]) => {
-      try {
-        // @ts-expect-error
-        const theDates = [].concat(...(calendarFramework?.dates || []));
+  const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
+  const [isFillingAvailability, setIsFillingAvailability] = useState(false);
 
-        const parsedEvents = [];
-
-        if (calIds.length == 0) {
-          setGoogleCalendarEvents([]);
-          return;
-        }
-
+  const getGoogleCalData = async (calIds: string[], fillAvailability = false) => {
+    try {
+      const theDates: calandarDate[] = ([] as calandarDate[]).concat(...(calendarFramework?.dates || []));
+      const parsedEvents: any[] = [];
+  
+      if (calIds.length === 0) {
         setGoogleCalendarEvents([]);
-
+        if (fillAvailability) 
+          fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
+        return;
+      }
+  
+      const timeMaxDate = new Date(theDates[theDates.length - 1].date as Date);
+      const timeMax = new Date(
+        timeMaxDate.setUTCHours(23, 59, 59, 999)
+      ).toISOString();
+  
+      for (let i = 0; i < calIds.length; i++) {
         // @ts-expect-error
-        const timeMaxDate = new Date(theDates[theDates.length - 1]?.date);
-        const timeMax = new Date(
-          timeMaxDate.setUTCHours(23, 59, 59, 999) // time max is exclusive, so set 1 millisecond after the actual time max we want so we can fetch cal events on last date.
-        ).toISOString();
-        for (let i = 0; i < calIds.length; i++) {
-          // @ts-expect-error
-          const eventList = await gapi?.client?.calendar?.events?.list({
-            calendarId: calIds[i],
-            // @ts-expect-error
-            timeMin: theDates[0]?.date?.toISOString(),
-            timeMax: timeMax,
-            singleEvents: true,
-            orderBy: 'startTime',
-          });
-
-          const theEvents = eventList?.result?.items;
-
-          for (let i = 0; i < theEvents?.length; i++) {
-            const startDate = new Date(theEvents[i]?.start?.dateTime);
-            const endDate = new Date(theEvents[i]?.end?.dateTime);
-
-            if (startDate.getDay() != endDate.getDay()) {
-              continue;
-            }
-
-            parsedEvents.push(theEvents[i]);
+        const eventList = await gapi?.client?.calendar?.events?.list({
+          calendarId: calIds[i],
+          timeMin: theDates[0]?.date?.toISOString(),
+          timeMax: timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+        });
+  
+        const theEvents = eventList?.result?.items || [];
+  
+        for (let event of theEvents) {
+          const startDate = new Date(event?.start?.dateTime || event?.start?.date);
+          const endDate = new Date(event?.end?.dateTime || event?.end?.date);
+  
+          if (startDate.getDay() !== endDate.getDay()) {
+            continue; // Skip events that span multiple days
           }
+  
+          parsedEvents.push(event);
         }
 
         console.log(parsedEvents);
@@ -148,13 +149,26 @@ function TimeSelectPage() {
       } catch (error) {
         console.error('Error fetching calendar events:', error);
       }
-    };
+      
+      setGoogleCalendarEvents([...parsedEvents]);
 
-    if (gapi) {
-      getGoogleCalData(googleCalIds);
-    } else {
-      return;
+      if (fillAvailability) {
+        fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
+      }
+    } catch (error) {
+      console.error('Error fetching calendar events:', error);
     }
+  };
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      if (gapi) {
+        await getGoogleCalData(googleCalIds, shouldFillAvailability);
+      } else {
+        return;
+      }
+    };
+    fetchData();
   }, [gapi, googleCalIds]);
 
   const fetchUserCals = async () => {
@@ -174,11 +188,87 @@ function TimeSelectPage() {
     });
   };
 
+  const onPopupCloseAndSubmit = async () => {
+    if (selectedPopupIds === googleCalIds) {
+      setGcalPopupOpen(false);
+      return;
+    }
   const onPopupCloseAndSubmit = () => {
     setGoogleCalIds([]);
     console.log(selectedPopupIds);
     // @ts-expect-error
     setGoogleCalIds(selectedPopupIds);
+    setGcalPopupOpen(false);
+  };
+
+  const onPopupCloseAutofillAndSubmit = async () => {
+    setShouldFillAvailability(true);
+    setIsFillingAvailability(true);
+    if (selectedPopupIds === googleCalIds) {
+      await getGoogleCalData(selectedPopupIds, true);
+    } else {
+      setGoogleCalIds(selectedPopupIds);
+    }
+  };
+
+  const fillAvailabilityNotInGCalEvents = (
+    parsedEvents: any[],
+    dates: calandarDate[]
+  ) => {
+    const userIndex = getCurrentUserIndex();
+    const oldCalendarState = {...calendarState};
+    const userAvailability = oldCalendarState[userIndex];
+
+    const startHour = calendarFramework?.startTime.getHours();
+    const startMinute = calendarFramework?.startTime.getMinutes();
+  
+    const endHour = calendarFramework?.endTime.getHours();
+    const endMinute = calendarFramework?.endTime.getMinutes();
+  
+    const totalMinutes = 
+      (endHour !== undefined && startHour !== undefined && endMinute !== undefined && startMinute !== undefined) 
+      ? (endHour - startHour) * 60 + (endMinute - startMinute)
+      : 0;
+    const totalBlocks = totalMinutes / 15; // Assuming 15-minute intervals
+  
+    const timeBlocks = generateTimeBlocks(
+      calendarFramework?.startTime,
+      calendarFramework?.endTime
+    );
+    const times: string[] = ([] as string[]).concat(...timeBlocks);
+  
+    for (let columnID = 0; columnID < dates.length; columnID++) {
+      const dateObj = dates[columnID];
+      for (let blockID = 0; blockID < totalBlocks; blockID++) {
+        const timeString = times[blockID];
+        const [hours, minutes] = timeString.split(':').map(Number);
+  
+        const startDateTime = new Date(dateObj.date as Date);
+        startDateTime.setHours(hours, minutes, 0, 0);
+  
+        const endDateTime = new Date(startDateTime.getTime() + 15 * 60 * 1000);
+  
+        const overlapsGCalEvent = parsedEvents.some((event) => {
+          const eventStart = new Date(
+            event.start.dateTime || event.start.date
+          );
+          const eventEnd = new Date(event.end.dateTime || event.end.date);
+  
+          return startDateTime < eventEnd && endDateTime > eventStart;
+        });
+  
+        if (!overlapsGCalEvent) {
+          userAvailability[columnID][blockID] = true;
+        } else {
+          userAvailability[columnID][blockID] = false;
+        }
+      }
+    }
+  
+    oldCalendarState[userIndex] = userAvailability;
+    setCalendarState(oldCalendarState as typeof calendarState);
+    setShouldFillAvailability(false);
+    setIsFillingAvailability(false);
     setGcalPopupOpen(false);
   };
 
@@ -198,6 +288,8 @@ function TimeSelectPage() {
             return;
           }
 
+          setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
+
           // @ts-expect-error
           setSelectedDateTimeObjects(getChosenDayAndTime());
 
@@ -209,7 +301,7 @@ function TimeSelectPage() {
           if (avail === undefined) {
             avail = eventAPI.getEmptyAvailability(dim);
           }
-
+          
           setChartedUsers(participants);
 
           setEventName(getEventName());
@@ -217,7 +309,6 @@ function TimeSelectPage() {
           setLocationOptions(getLocationOptions());
 
           const theRange = getChosenDayAndTime();
-          //@ts-expect-error
           setSelectedDateTimeObjects(theRange);
           setCalendarState([...availabilities, avail]);
           setCalendarFramework(dim);
@@ -231,8 +322,6 @@ function TimeSelectPage() {
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
           if (
             theRange != undefined &&
-            // @ts-expect-error
-            theRange?.length !== 0 &&
             theRange[0].getFullYear() != 1970
           ) {
             nav('/groupview/' + code);
@@ -320,7 +409,7 @@ function TimeSelectPage() {
       });
     }
   };
-
+  
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
@@ -333,8 +422,7 @@ function TimeSelectPage() {
 
   const saveAvailAndLocationChanges = () => {
     const user = getCurrentUserIndex();
-    // @ts-expect-error
-    const avail = calendarState[user];
+    const avail: Availability = calendarState ? calendarState[user] ?? [] : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
     navigate(`/groupview/${code}`);
   };
@@ -499,27 +587,25 @@ function TimeSelectPage() {
           )}
         </div>
       </div>
-      <Popup
+      <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
         onCloseAndSubmit={onPopupCloseAndSubmit}
-      >
+        onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
+        isFillingAvailability={isFillingAvailability}
+        >
         <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
         <FormGroup>
           {googleCalendars.map((cal: any) => (
             <FormControlLabel
               key={cal.id}
-              control={
-                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
-              }
+              control={<Checkbox checked={selectedPopupIds?.includes(cal.id)} />}
               label={cal.summary}
               onChange={() => {
                 setSelectedPopupIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
-                    // If the ID is already in the array, remove it
                     return prevState.filter((id) => id !== cal.id);
                   } else {
-                    // If the ID is not in the array, add it
                     return [...(prevState || []), cal.id];
                   }
                 });
@@ -527,7 +613,7 @@ function TimeSelectPage() {
             />
           ))}
         </FormGroup>
-      </Popup>
+      </AddGoogleCalendarPopup>
       {promptUserForLogin && (
         <LoginPopup
           onClose={endPromptUserForLogin}
