@@ -9,22 +9,19 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 
-import { FaCog } from 'react-icons/fa';
 import {
   checkIfLoggedIn,
   getAccountId,
   getAllEventsForUser,
   deleteEvent,
-  checkIfAdmin,
 } from '../../firebase/events';
-import { signInWithGoogle, logout } from '../../firebase/auth';
+import { logout } from '../../firebase/auth';
 
 import { useNavigate } from 'react-router-dom';
 import copy from 'clipboard-copy';
-import { Event, EventDetails } from '../../types';
+import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
-import Button from '../utils/components/Button';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 
@@ -69,10 +66,7 @@ const parseEventObjectForAccountsPage = (
           })
         : 'TBD',
       location: event.details.chosenLocation || 'TBD',
-      // @ts-expect-error
-      iAmCreator:
-        event.details.adminAccountId &&
-        event.details.adminAccountId === getAccountId(),
+      iAmCreator: event.details.adminAccountId === getAccountId(),
     });
   });
 
@@ -86,7 +80,7 @@ const parseEventObjectForAccountsPage = (
  * @returns Page Component Render
  */
 export default function AccountsPage() {
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
+  const { gapi } = useContext(GAPIContext);
 
   useEffect(() => {
     const retrieveAndSetEvents = async () => {
@@ -134,16 +128,6 @@ export default function AccountsPage() {
                 <IconSearch className="inline-block w-4 md:w-5" />
               </div>
             </div>
-            {/* <Button
-              bgColor="blue-500"
-              textColor="white"
-              onClick={() => {
-                nav('/dayselect');
-              }}
-            >
-              <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
-              Create Event
-            </Button> */}
             <button
               className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
               onClick={() => {

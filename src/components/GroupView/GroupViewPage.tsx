@@ -15,14 +15,17 @@ export default function GroupViewApp() {
   const { code } = useParams();
 
   useEffect(() => {
-    // @ts-expect-error
-    getEventOnPageload(code)
-      .then(() => {
-        setIsAdmin(checkIfAdmin());
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    if (code !== undefined) {
+      getEventOnPageload(code)
+        .then(() => {
+          setIsAdmin(checkIfAdmin());
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      alert('code is missing');
+    }
   }, []);
 
   return (

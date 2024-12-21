@@ -3,36 +3,22 @@ import TimeSelectComponent from '../time_select_component';
 import './DaysNotDates.css';
 
 interface DaysNotDatesProps {
-  theSelectedDays: [any, React.Dispatch<React.SetStateAction<any>>] | undefined;
-  selectedStartDate:
-    | [Date, React.Dispatch<React.SetStateAction<Date>>]
-    | undefined;
-  selectedEndDate:
-    | [Date, React.Dispatch<React.SetStateAction<Date>>]
+  theSelectedDays:
+    | [
+        Record<string, { dateObj: Date; selected: boolean }>,
+        React.Dispatch<
+          React.SetStateAction<
+            Record<string, { dateObj: Date; selected: boolean }>
+          >
+        >,
+      ]
     | undefined;
 }
 
-export default function DaysNotDates({
-  theSelectedDays,
-  selectedStartDate,
-  selectedEndDate,
-}: DaysNotDatesProps) {
+export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
   const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-  // @ts-expect-error
-  const [selectedDays, setSelectedDays] = theSelectedDays;
-  // @ts-expect-error
-  const [startDate, setStartDate] = selectedStartDate;
-  // @ts-expect-error
-  const [endDate, setEndDate] = selectedEndDate;
-
-  const handleUpdateStartTime = (time: Date) => {
-    setStartDate(time);
-  };
-
-  const handleUpdateEndTime = (time: Date) => {
-    setEndDate(time);
-  };
+  const [selectedDays, setSelectedDays] = theSelectedDays || [{}, () => {}];
 
   return (
     <div className="days-calendar-wrapper">

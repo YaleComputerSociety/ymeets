@@ -4,18 +4,18 @@ import {
   calanderState,
   userData,
 } from '../../types';
+import { calendar_v3 } from 'googleapis';
 import CalBlock from './CalBlock';
 import { dragProperties } from './CalendarApp';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
-import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
-import { useState } from 'react';
 
 interface CalRowProps {
   bucket: calandarDate[];
-  theCalendarState:
-    | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined;
+  theCalendarState: [
+    calanderState,
+    React.Dispatch<React.SetStateAction<calanderState>>,
+  ];
   draggable: boolean;
   isAdmin?: boolean;
   chartedUsersData:
@@ -29,17 +29,18 @@ interface CalRowProps {
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
-  theCalendarFramework:
+  theCalendarFramework: [
+    calendarDimensions,
+    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+  ];
+
+  borderStyle?: string;
+  theGoogleCalendarEvents:
     | [
-        calendarDimensions,
-        React.Dispatch<React.SetStateAction<calendarDimensions>>,
+        calendar_v3.Schema$Event[],
+        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
       ]
     | undefined;
-  borderStyle?: string; // can be "dotted", "solid", "double", "none" ; default is "solid", affects border bottom
-  theSelectedDate:
-    | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined;
-  theGoogleCalendarEvents: [any, React.Dispatch<React.SetStateAction<any>>];
   time: string;
 }
 
@@ -55,47 +56,58 @@ export default function CalRow({
   is30Minute,
   theDragState,
   chartedUsersData,
-  borderStyle,
-  theSelectedDate,
   theGoogleCalendarEvents,
   time,
 }: CalRowProps) {
   const [googleCalendarEvents, setGoogleCalendarEvents] =
-    theGoogleCalendarEvents;
+    theGoogleCalendarEvents || [];
 
   return (
-    <div
-      className={`flex flex-row 
-                       `}
-    >
+    <div className={`flex flex-row `}>
       {bucket.map((d: calandarDate, columnIndex) => {
         const matchedDates = googleCalendarEvents
-          ?.map((gEvent: any) => [
-            new Date(gEvent.start.dateTime),
-            new Date(gEvent.end.dateTime),
-          ])
+          ?.map((gEvent: calendar_v3.Schema$Event) => {
+            if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
+              return [
+                new Date(gEvent.start.dateTime),
+                new Date(gEvent.end.dateTime),
+              ];
+            }
+            return null;
+          })
           ?.filter(
-            (dates: any) =>
+            (dates: Date[] | null) =>
+              dates !== null &&
               dateObjectToComparable(dates[0]) ===
-              dateObjectToComparable(d.date)
+                dateObjectToComparable(d.date)
+          )
+          ?.filter(
+            (dates: Date[] | null) =>
+              dates !== null &&
+              dateObjectToComparable(dates[0]) ===
+                dateObjectToComparable(d.date)
           );
-        // @ts-expect-error
+
         const isOnGcal = matchedDates?.some((dateRange) =>
-          isTimeBetweenDates(dateRange[0], dateRange[1], time)
+          isTimeBetweenDates(dateRange?.[0], dateRange?.[1], time)
         );
 
         const matchedEvents = googleCalendarEvents?.filter(
-          (gEvent: any) =>
+          (gEvent: calendar_v3.Schema$Event) =>
+            gEvent?.start?.dateTime &&
             dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
-            dateObjectToComparable(d.date)
+              dateObjectToComparable(d.date)
         );
 
-        const surroundingEvents = matchedEvents?.filter((gEvent: any) =>
-          isTimeBetweenDates(
-            new Date(gEvent.start.dateTime),
-            new Date(gEvent.end.dateTime),
-            time
-          )
+        const surroundingEvents = matchedEvents?.filter(
+          (gEvent: calendar_v3.Schema$Event) =>
+            gEvent?.start?.dateTime &&
+            gEvent?.end?.dateTime &&
+            isTimeBetweenDates(
+              new Date(gEvent?.start?.dateTime),
+              new Date(gEvent?.end?.dateTime),
+              time
+            )
         );
 
         return (
@@ -111,8 +123,7 @@ export default function CalRow({
             theDragState={theDragState}
             key={columnIndex}
             chartedUsersData={chartedUsersData}
-            theSelectedDate={theSelectedDate}
-            isOnGcal={isOnGcal}
+            isOnGcal={isOnGcal === undefined ? false : isOnGcal}
             associatedEvents={surroundingEvents}
           />
         );

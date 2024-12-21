@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-dropdown-select';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
-import { Input } from '../../utils/components/Input';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -16,12 +15,11 @@ export const DaySelectComponent = () => {
   const fivePM = new Date('January 1, 2023');
   fivePM.setHours(17);
 
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     if (containerRef.current) {
-      // @ts-expect-error
       setContainerWidth(containerRef.current.offsetWidth);
     }
   }, []);
@@ -29,7 +27,6 @@ export const DaySelectComponent = () => {
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
-        // @ts-expect-error
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };
@@ -44,7 +41,7 @@ export const DaySelectComponent = () => {
   const [zoomLink, setZoomLink] = useState('');
   const [startDate, setStartDate] = useState(nineAM);
   const [endDate, setEndDate] = useState(fivePM);
-  const [selectedDates, setSelectedDates] = useState([]);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [popUpMessage, setPopupMessage] = useState('');
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
@@ -79,24 +76,9 @@ export const DaySelectComponent = () => {
     },
   ]);
 
-  const handleCreate = (newOption: any) => {
-    // newOption contains the value of the new option created by the user
-    const newOptions = [
-      ...locationOptions,
-      { label: newOption, value: newOption.toLowerCase() },
-    ];
-    setLocationOptions(newOptions);
-  };
-
-  const handleUpdateStartTime = (time: Date) => {
-    setStartDate(time);
-  };
-
-  const handleUpdateEndTime = (time: Date) => {
-    setEndDate(time);
-  };
-
-  const [selectedDays, setSelectedDays] = useState({
+  const [selectedDays, setSelectedDays] = useState<
+    Record<string, { dateObj: Date; selected: boolean }>
+  >({
     SUN: {
       dateObj: new Date(2000, 0, 2),
       selected: false,
@@ -129,28 +111,8 @@ export const DaySelectComponent = () => {
 
   const [selectGeneralDays, setSelectGeneralDays] = useState(false);
 
-  const showAlert = (message: string) => {
-    setPopupMessage(message);
-    setPopupIsOpen(true);
-  };
-
   const navigate = useNavigate();
 
-  const updateLocations = (values: any) => {
-    updateLocationsState(values);
-  };
-
-  const removeAndUpdateLocations = (toRemove: any) => {
-    return () => {
-      const tmp_locations: any = [];
-      for (let i = 0; i < locations.length; i++) {
-        if (locations[i] != toRemove) {
-          tmp_locations.push(locations[i]);
-        }
-      }
-      updateLocationsState(tmp_locations);
-    };
-  };
   const verifyNextAndSubmitEvent = () => {
     if (
       startDate.getHours() === 0 &&
@@ -182,9 +144,7 @@ export const DaySelectComponent = () => {
       const generallySelectedDates: Date[] = [];
 
       Object.keys(selectedDays).forEach((day) => {
-        // @ts-expect-error
         if (selectedDays[day].selected === true) {
-          // @ts-expect-error
           generallySelectedDates.push(selectedDays[day].dateObj);
         }
       });
@@ -314,36 +274,12 @@ export const DaySelectComponent = () => {
                 Type and click ENTER to add locations for your group to vote on for the meeting
               "
               />
-              {/* <div className="flex flex-col justify-left items-center w-[100%] space-y-3 max-h-32 overflow-y-scroll">
-                {locations.map((location, index) => (
-                  <div className="flex w-[100%] justify-center md:justify-start">
-                    <div className="location-selection-option flex justify-between items-center w-[80%] px-3 h-10">
-                      <div>{location}</div>
-                      <div>
-                        <button onClick={removeAndUpdateLocations(location)} className="w-[30%]">&times;</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div> */}
             </div>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-        {/* <Button
-          bgColor='blue-500'
-          textColor='white'
-          onClick={() => {setSelectGeneralDays((oldState) => {
-              return !oldState
-          })}}
-        >
-          {
-            selectGeneralDays === true ? "Select Specfic Dates" : "Select General Days"
-          }
-        </Button> */}
-
         <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
           <button
             onClick={() => {
@@ -384,7 +320,6 @@ export const DaySelectComponent = () => {
             theEventName={[eventName, setEventName]}
             selectedStartDate={[startDate, setStartDate]}
             selectedEndDate={[endDate, setEndDate]}
-            // @ts-expect-error
             theSelectedDates={[selectedDates, setSelectedDates]}
             popUpOpen={[popUpIsOpen, setPopupIsOpen]}
             popUpMessage={[popUpMessage, setPopupMessage]}

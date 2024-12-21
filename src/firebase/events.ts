@@ -95,11 +95,10 @@ async function generateUniqueEventKey(): Promise<string> {
 // for other getters and settings defined in this file.
 async function getEventById (id: EventId): Promise<void> {
   const eventsRef = collection(db, 'events')
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     getDoc(doc(eventsRef, id)).then(async (result) => {
       if (result.exists()) {
-        // @ts-expect-error
-        workingEvent = result.data()
+        workingEvent = result.data() as Event
         workingEvent.details.startTime = workingEvent.details.startTime ? (workingEvent.details.startTime as unknown as Timestamp).toDate() : workingEvent.details.startTime
         workingEvent.details.endTime = workingEvent.details.endTime ? (workingEvent.details.endTime as unknown as Timestamp).toDate() : workingEvent.details.endTime
         workingEvent.details.chosenStartDate = workingEvent.details.chosenStartDate ? (workingEvent.details.chosenStartDate as unknown as Timestamp).toDate() : workingEvent.details.chosenStartDate
@@ -112,7 +111,6 @@ async function getEventById (id: EventId): Promise<void> {
         }).catch((err) => {
           reject(err)
         })
-        //@ts-ignore
         resolve()
       } else {
         reject('Document not found')
@@ -179,8 +177,7 @@ async function createEvent (eventDetails: EventDetails): Promise<Event | null> {
     details: {
       ...eventDetails,
       // TODO map dates to JSON
-      // @ts-expect-error
-      dates: dateToObject(eventDetails.dates)
+      dates: eventDetails.dates
     },
     publicId: id,
     participants: []
@@ -379,7 +376,6 @@ async function wrappedSaveParticipantDetails (availability: Availability, locati
     name,
     accountId: getAccountId(),
     email: getAccountEmail(),
-    // @ts-expect-error
     availability: JSON.stringify(availability),
     location: locations !== undefined ? locations : []
   })
@@ -397,8 +393,8 @@ async function setChosenDate (chosenStartDate: Date | undefined, chosenEndDate: 
     delete workingEvent.details.chosenEndDate
 
     // make sure the order is correct
-    // @ts-expect-error
-  } else if (chosenEndDate > chosenStartDate) {
+    
+  } else if (chosenStartDate !== undefined && chosenEndDate !== undefined && chosenEndDate > chosenStartDate) {
     workingEvent.details.chosenStartDate = chosenStartDate
     workingEvent.details.chosenEndDate = chosenEndDate
   } else {
@@ -450,8 +446,9 @@ async function getEventOnPageload (id: string): Promise<void> {
 function getAvailabilityByName (name: string): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
-      // @ts-expect-error
-      return JSON.parse(workingEvent.participants[i].availability)
+      //@ts-expect-error
+      return JSON.parse(workingEvent.participants[i].availability) 
+      // this arises because to store an availability object in Firestore, it must be stringified, but the frontend uses a JSON object
     }
   }
 }

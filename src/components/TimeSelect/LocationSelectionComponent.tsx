@@ -11,11 +11,10 @@ export function LocationSelectionComponent(props: any) {
   }));
 
   const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (containerRef.current) {
-      // @ts-expect-error
       setContainerWidth(containerRef.current.offsetWidth);
     }
   }, []);
@@ -23,7 +22,6 @@ export function LocationSelectionComponent(props: any) {
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
-        // @ts-expect-error
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };

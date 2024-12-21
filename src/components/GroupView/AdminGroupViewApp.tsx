@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { calanderState, userData, calendarDimensions } from '../../types';
+import {
+  calanderState,
+  userData,
+  calendarDimensions,
+  dragProperties,
+} from '../../types';
 import eventAPI from '../../firebase/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { signInWithGoogle } from '../../firebase/auth';
@@ -13,13 +18,8 @@ import {
   getEventDescription,
   getLocationsVotes,
   getLocationOptions,
-  setChosenLocation,
-  getChosenDayAndTime,
   getAccountName,
-  setChosenDate,
   getChosenLocation,
-  getZoomLink,
-  undoAdminSelections,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -29,8 +29,6 @@ import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
 import copy from 'clipboard-copy';
 import { IconCopy } from '@tabler/icons-react';
-import Button from '../utils/components/Button';
-import { Popup } from '../utils/components/Popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
 import { GAPIContext } from '../../firebase/gapiContext';
@@ -41,27 +39,21 @@ import { useContext } from 'react';
  * @returns Page Component
  */
 export default function AdminGroupViewPage() {
-  const { gapi, GAPILoading, handleIsSignedIn } = useContext(GAPIContext);
+  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
 
-  const [status, setStatus] = useState<string>('');
-
-  const [calendarState, setCalendarState] = useState<calanderState | undefined>(
-    undefined
-  );
-  const [calendarFramework, setCalendarFramework] = useState<
-    calendarDimensions | undefined
-  >(undefined);
-
-  const [isGeneralDays, setIsGeneralDays] = useState(
-    calendarFramework?.dates?.[0][0].date instanceof Date &&
-      (calendarFramework.dates[0][0].date as Date).getFullYear() !== 2000
-  );
+  const [calendarState, setCalendarState] = useState<calanderState>([]);
+  const [calendarFramework, setCalendarFramework] =
+    useState<calendarDimensions>({
+      dates: [],
+      startTime: new Date(),
+      endTime: new Date(),
+      numOfBlocks: 0,
+      numOfCols: 0,
+    });
 
   const { code } = useParams();
 
-  const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
-    undefined
-  );
+  const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
 
@@ -75,43 +67,19 @@ export default function AdminGroupViewPage() {
 
   // this is the location the admin previously submitted / submitted to the backend, which is pulled and set
   // or updated to be the admin location
-  const [selectedLocation, setSelectedLocation] = useState<string | undefined>(
-    undefined
-  );
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<
-    Date[]
-  >([]);
-
+  const [selectedLocation, setSelectedLocation] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
 
-  const [dragState, setDragState] = useState({
+  const [dragState, setDragState] = useState<dragProperties>({
     dragStartedOnID: [], // [columnID, blockID]
     dragEndedOnID: [],
     dragStartedOn: false,
-    affectedBlocks: new Set(),
+    blocksAffectedDuringDrag: new Set(),
   });
 
-  const useMediaQuery = (query: string) => {
-    const [matches, setMatches] = useState(window.matchMedia(query).matches);
-
-    useEffect(() => {
-      const mediaQueryList = window.matchMedia(query);
-      const handleChange = () => setMatches(mediaQueryList.matches);
-
-      mediaQueryList.addEventListener('change', handleChange);
-      return () => mediaQueryList.removeEventListener('change', handleChange);
-    }, [query]);
-
-    return matches;
-  };
-  const isMedScreen = useMediaQuery('(min-width: 768px)');
-
   const [copied, setCopied] = useState(false);
-
-  const [selectionConfirmedPopupOpen, setSelectionConfirmedPopupOpen] =
-    useState(false);
 
   const nav = useNavigate();
 
@@ -139,11 +107,12 @@ export default function AdminGroupViewPage() {
   }, []);
 
   const handleAddToCalendar = useCallback(
-    async (startDate: Date, endDate: Date, location: string) => {
+    async (startDate: Date, endDate: Date, location: string | undefined) => {
+      console.log('here');
+
       const event = getEventObjectForGCal(startDate, endDate, location);
       const calendarEventUrl = createCalendarEventUrl(event);
 
-      // Open the event in a new tab
       window.open(calendarEventUrl, '_blank');
     },
     [createCalendarEventUrl]
@@ -168,8 +137,6 @@ export default function AdminGroupViewPage() {
             setSelectedLocation(getChosenLocation());
             setAdminChosenLocation(getChosenLocation());
             setLoading(false);
-            // @ts-expect-error
-            setSelectedDateTimeObjects(getChosenDayAndTime());
           })
           .catch(() => {
             nav('/notfound');
@@ -193,37 +160,34 @@ export default function AdminGroupViewPage() {
       return;
     }
 
-    // @ts-expect-error
-    const calDate = [].concat(...calendarFramework.dates)[
-      dragState.dragStartedOnID[0]
-    ];
+    const calDate =
+      calendarFramework?.dates.flat()[dragState.dragStartedOnID[0]];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
     );
-    // @ts-expect-error
-    const times = [].concat(...timeBlocks);
+
+    const times = timeBlocks.flat();
 
     if (
       dragState.dragStartedOnID.length > 0 &&
       dragState.dragEndedOnID.length > 0
     ) {
-      const selectedStartTimeHHMM = times[dragState.dragStartedOnID[1]];
-      const selectedEndTimeHHMM = times[dragState.dragEndedOnID[1]];
+      const selectedStartTimeHHMM: string = times[dragState.dragStartedOnID[1]];
+      const selectedEndTimeHHMM: string = times[dragState.dragEndedOnID[1]];
+
       const [startHour, startMinute] = selectedStartTimeHHMM
-        //@ts-ignore
         .split(':')
         .map(Number);
-      // @ts-expect-error
-      let [endHour, endMinute] = selectedEndTimeHHMM.split(':').map(Number);
+      let [endHour, endMinute] = selectedEndTimeHHMM
+        ? selectedEndTimeHHMM.split(':').map(Number)
+        : [0, 0];
 
-      // @ts-expect-error
-      const selectedStartTimeDateObject = new Date(calDate.date);
+      const selectedStartTimeDateObject = new Date(calDate?.date!);
       selectedStartTimeDateObject.setHours(startHour);
       selectedStartTimeDateObject.setMinutes(startMinute);
 
-      // @ts-expect-error
-      const selectedEndTimeDateObject = new Date(calDate.date);
+      const selectedEndTimeDateObject = new Date(calDate?.date!);
 
       endMinute += 15;
       if (endMinute == 60) {
@@ -237,33 +201,15 @@ export default function AdminGroupViewPage() {
       selectedEndTimeDateObject.setHours(endHour);
       selectedEndTimeDateObject.setMinutes(endMinute);
 
-      setSelectedDateTimeObjects([
-        selectedStartTimeDateObject,
-        selectedEndTimeDateObject,
-      ]);
-
       if (getAccountId() !== '') {
         await handleAddToCalendar(
           selectedStartTimeDateObject,
           selectedEndTimeDateObject,
-          adminChosenLocation === undefined ? '' : adminChosenLocation
-        ); // Ensure handleAddToCalendar is awaited
+          adminChosenLocation
+        );
       } else {
         signInWithGoogle(undefined, gapi, handleIsSignedIn);
       }
-
-      // setChosenDate(
-      //   selectedStartTimeDateObject,
-      //   selectedEndTimeDateObject
-      // ).then(() => {
-      //   setSelectedLocation(adminChosenLocation);
-
-      //   if (adminChosenLocation != undefined) {
-      //     setChosenLocation(adminChosenLocation);
-      //   }
-
-      //   setSelectionConfirmedPopupOpen(false);
-      // });
     }
   }
 
@@ -327,86 +273,7 @@ export default function AdminGroupViewPage() {
                   {eventDescription}
                 </h3>
 
-                {/* <button
-                  onClick={() => {
-                    copy(`${window.location.origin}/timeselect/${code}`);
-                    setCopied(true);
-                    setTimeout(() => {
-                      setCopied(false);
-                    }, 1500);
-                  }}
-                  className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                    copied
-                      ? 'bg-green-500 hover:bg-green-500 text-white'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                  } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
-                >
-                  {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-                  {copied
-                    ? 'Copied to Clipboard'
-                    : `Shareable ymeets Link (Event Code: ${code})`}
-                </button> */}
-
                 <div className="flex flex-col">
-                  {/* <h3 className="text-base text-center md:text-left">
-                    <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects &&
-                    selectedDateTimeObjects[0].getFullYear() != 1970
-                      ? selectedDateTimeObjects[0].getFullYear() === 2000
-                        ? // For general days (year 2000)
-                          selectedDateTimeObjects[0].toLocaleString('en-us', {
-                            weekday: 'long',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : // For specific dates
-                          selectedDateTimeObjects[0].toLocaleDateString(
-                            'en-us',
-                            {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          ) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleTimeString(
-                            'en-us',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )
-                      : 'not selected'}
-                  </h3>
-                  {locationOptions.length > 0 && (
-                    <h3 className="text-base text-center md:text-left">
-                      <span className="font-bold">Location:</span>{' '}
-                      {selectedLocation !== undefined
-                        ? selectedLocation
-                        : 'not selected'}
-                    </h3>
-                  )}
-                  {getZoomLink() && (
-                    <h3 className="text-base text-center md:text-left">
-                      <span className="font-bold">Zoom Link:</span>{' '}
-                      <a
-                        href={getZoomLink()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
-                      >
-                        {getZoomLink()}
-                      </a>
-                    </h3>
-                  )} */}
                   <div className="h-3"></div>
                   <button
                     onClick={() => {
@@ -434,7 +301,6 @@ export default function AdminGroupViewPage() {
               <div className="mb-2">
                 {chartedUsers !== undefined && (
                   <UserChart
-                    // @ts-expect-error
                     chartedUsersData={[chartedUsers, setChartedUsers]}
                   />
                 )}
@@ -444,9 +310,7 @@ export default function AdminGroupViewPage() {
               {locationOptions.length > 0 && (
                 <LocationChart
                   theSelectedLocation={[
-                    // @ts-expect-error
                     adminChosenLocation,
-                    // @ts-expect-error
                     setAdminChosenLocation,
                   ]}
                   locationOptions={
@@ -454,9 +318,9 @@ export default function AdminGroupViewPage() {
                   }
                   locationVotes={Object.values(locationVotes)}
                   selectionMade={
-                    getChosenLocation() == ''
+                    getChosenLocation() === ''
                       ? false
-                      : getChosenLocation() == undefined
+                      : getChosenLocation() === undefined
                         ? false
                         : true
                   }
@@ -468,11 +332,8 @@ export default function AdminGroupViewPage() {
             <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
               <Calendar
                 title={''}
-                // @ts-expect-error
                 theCalendarState={[calendarState, setCalendarState]}
-                // @ts-expect-error
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                // @ts-expect-error
                 chartedUsersData={[chartedUsers, setChartedUsers]}
                 draggable={
                   calendarFramework?.dates?.[0][0].date instanceof Date &&
@@ -481,16 +342,8 @@ export default function AdminGroupViewPage() {
                 }
                 user={getCurrentUserIndex()}
                 isAdmin={true}
-                theSelectedDate={[
-                  //@ts-expect-error
-                  selectedDateTimeObjects,
-                  //@ts-expect-error
-                  setSelectedDateTimeObjects,
-                ]}
-                // @ts-expect-error
                 theDragState={[dragState, setDragState]}
-                // @ts-expect-error
-                theGoogleCalendarEvents={[undefined, undefined]}
+                theGoogleCalendarEvents={[[], () => {}]}
               />
             </div>
             {calendarFramework?.dates?.[0][0].date instanceof Date &&
@@ -510,41 +363,6 @@ export default function AdminGroupViewPage() {
                 )}
               </div>
             </div>
-            {/* <div className="flex items-center justify-center">
-              {!selectedDateTimeObjects ||
-              selectedDateTimeObjects[0].getFullYear() == 1970 ? (
-                <button
-                  onClick={() => {
-                    handleSelectionSubmission();
-                  }}
-                  className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
-                                        transform transition-transform hover:scale-90 active:scale-100e"
-                >
-                  Submit Selection
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    undoAdminSelections().then(() => {
-                      window.location.reload();
-                    });
-                  }}
-                  className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
-                                    transform transition-transform hover:scale-90 active:scale-100e"
-                >
-                  Undo Selection
-                </button>
-              )}
-            </div> */}
-            {/* <div className="flex justify-center items-center mt-1">
-              {selectedDateTimeObjects &&
-              selectedDateTimeObjects[0].getFullYear() != 1970 && // makes sure we didn't undo, since to undo we set selected date to epoch year
-              calendarFramework?.dates[0][0].date?.getFullYear() != 2000 ? ( // makes sure its not a general day (can't add to cal)
-                <div className="flex justify-center items-center px-4">
-                  <AddToGoogleCalendarButton />
-                </div>
-              ) : undefined}
-            </div> */}
           </div>
           <div className="md:hidden flex flex-col flex-none mb-5 items-center">
             {/* (Mobile): Event name, location, and time */}
@@ -573,67 +391,6 @@ export default function AdminGroupViewPage() {
                 </h3>
 
                 <div className="flex flex-col">
-                  {/* <h3 className="text-base text-center">
-                    <span className="font-bold">Time:</span>{' '}
-                    {selectedDateTimeObjects &&
-                    selectedDateTimeObjects[0].getFullYear() != 1970
-                      ? selectedDateTimeObjects[0].getFullYear() === 2000
-                        ? // For general days (year 2000)
-                          selectedDateTimeObjects[0].toLocaleString('en-us', {
-                            weekday: 'long',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          }) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleString('en-us', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : // For specific dates
-                          selectedDateTimeObjects[0].toLocaleDateString(
-                            'en-us',
-                            {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          ) +
-                          ' — ' +
-                          selectedDateTimeObjects[1].toLocaleTimeString(
-                            'en-us',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )
-                      : 'not selected'}
-                  </h3>
-
-                  {locationOptions.length > 0 && (
-                    <h3 className="text-base text-center md:text-left">
-                      <span className="font-bold">Location:</span>{' '}
-                      {selectedLocation !== undefined
-                        ? selectedLocation
-                        : 'not selected'}
-                    </h3>
-                  )}
-                  {getZoomLink() && (
-                    <h3 className="text-base text-center lg:text-left">
-                      <span className="font-bold">Zoom Link:</span>{' '}
-                      <a
-                        href={getZoomLink()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
-                      >
-                        {getZoomLink()}
-                      </a>
-                    </h3>
-                  )} */}
-
                   <button
                     onClick={() => {
                       copy(`${window.location.origin}/timeselect/${code}`);

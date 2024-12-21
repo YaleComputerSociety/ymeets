@@ -1,6 +1,5 @@
-/* eslint-disable */
-
 import { LocationSelectionComponent } from './LocationSelectionComponent';
+import { calendar_v3 } from 'googleapis';
 import { useState, useEffect } from 'react';
 import {
   calanderState,
@@ -8,6 +7,7 @@ import {
   calendarDimensions,
   Availability,
   calandarDate,
+  dragProperties,
 } from '../../types';
 import eventAPI from '../../firebase/eventAPI';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +22,6 @@ import {
   getEventDescription,
   getLocationOptions,
   getParticipantIndex,
-  checkIfLoggedIn,
   getChosenDayAndTime,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
@@ -36,9 +35,7 @@ import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
-import Button from '../utils/components/Button';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import InformationPopup from '../utils/components/InformationPopup';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
 /**
@@ -59,12 +56,15 @@ function TimeSelectPage() {
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
   );
-  const [calendarState, setCalendarState] = useState<calanderState | undefined>(
-    undefined
-  );
-  const [calendarFramework, setCalendarFramework] = useState<
-    calendarDimensions | undefined
-  >(undefined);
+  const [calendarState, setCalendarState] = useState<calanderState>([]);
+  const [calendarFramework, setCalendarFramework] =
+    useState<calendarDimensions>({
+      dates: [],
+      startTime: new Date(),
+      endTime: new Date(),
+      numOfBlocks: 0,
+      numOfCols: 0,
+    });
 
   const [selectedLocations, updateSelectedLocations] = useState([]);
 
@@ -73,10 +73,6 @@ function TimeSelectPage() {
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [locationOptions, setLocationOptions] = useState(Array<string>);
-
-  const [selectedDateTimeObjects, setSelectedDateTimeObjects] = useState<
-    [Date, Date] | undefined
-  >(undefined);
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   // hook that handles whether or not we are working with dates, or just selecting days of the week
@@ -87,17 +83,19 @@ function TimeSelectPage() {
     window.location.reload();
   };
 
-  const [dragState, setDragState] = useState({
+  const [dragState, setDragState] = useState<dragProperties>({
     dragStartedOnID: [], // [columnID, blockID]
     dragEndedOnID: [],
     dragStartedOn: false,
-    affectedBlocks: new Set(),
+    blocksAffectedDuringDrag: new Set(),
   });
 
   const gapiContext = useContext(GAPIContext);
   const { gapi, handleIsSignedIn } = gapiContext;
 
-  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<any[]>([]);
+  const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
+    calendar_v3.Schema$Event[]
+  >([]);
   // const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
   const [googleCalIds, setGoogleCalIds] = useState<string[]>([]); // still easy for user to specify primary cal?
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
@@ -131,7 +129,6 @@ function TimeSelectPage() {
       ).toISOString();
 
       for (let i = 0; i < calIds.length; i++) {
-        // @ts-expect-error
         const eventList = await gapi?.client?.calendar?.events?.list({
           calendarId: calIds[i],
           timeMin: theDates[0]?.date?.toISOString(),
@@ -144,9 +141,11 @@ function TimeSelectPage() {
 
         for (let event of theEvents) {
           const startDate = new Date(
-            event?.start?.dateTime || event?.start?.date
+            event?.start?.dateTime || event?.start?.date || ''
           );
-          const endDate = new Date(event?.end?.dateTime || event?.end?.date);
+          const endDate = new Date(
+            event?.end?.dateTime ?? event?.end?.date ?? ''
+          );
 
           if (startDate.getDay() !== endDate.getDay()) {
             continue; // Skip events that span multiple days
@@ -179,15 +178,14 @@ function TimeSelectPage() {
 
   const fetchUserCals = async () => {
     return await new Promise((resolve, reject) => {
-      // @ts-expect-error
       gapi?.client?.calendar?.calendarList
         .list()
-        // @ts-expect-error
+
         .then((response) => {
           const calendars = response.result.items;
           resolve(calendars);
         })
-        // @ts-expect-error
+
         .catch((error) => {
           reject(error);
         });
@@ -290,7 +288,6 @@ function TimeSelectPage() {
           if (accountName === null) {
             return;
           }
-          setSelectedDateTimeObjects(getChosenDayAndTime() ?? undefined);
 
           let avail: Availability | undefined =
             getAccountId() !== ''
@@ -310,7 +307,7 @@ function TimeSelectPage() {
           setLocationOptions(getLocationOptions());
 
           const theRange = getChosenDayAndTime();
-          setSelectedDateTimeObjects(theRange);
+
           setCalendarState([...availabilities, avail]);
           setCalendarFramework(dim);
 
@@ -388,11 +385,12 @@ function TimeSelectPage() {
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
     try {
-      // @ts-expect-error
       const response = await gapi?.client?.calendar?.calendarList.list();
-      const calendars = response.result.items;
-      setGoogleCalendars(calendars);
-      setGcalPopupOpen(true);
+      const calendars = response?.result.items;
+      if (calendars !== undefined) {
+        setGoogleCalendars(calendars);
+        setGcalPopupOpen(true);
+      }
     } catch (error) {
       console.error('Error fetching Google Calendars:', error);
     }
@@ -450,15 +448,14 @@ function TimeSelectPage() {
             </div>
           )}
 
-          {selectedDateTimeObjects == undefined &&
-            locationOptions.length > 0 && (
-              <div className="mb-8">
-                <LocationSelectionComponent
-                  update={updateSelectedLocations}
-                  locations={locationOptions}
-                />
-              </div>
-            )}
+          {locationOptions.length > 0 && (
+            <div className="mb-8">
+              <LocationSelectionComponent
+                update={updateSelectedLocations}
+                locations={locationOptions}
+              />
+            </div>
+          )}
 
           <div className="hidden md:flex md:mt-12 flex flex-col items-center">
             <ButtonSmall
@@ -468,22 +465,6 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
-            {/* {hasAvailability && (
-              <ButtonSmall
-                bgColor="green-500"
-                textColor="white"
-                onClick={() => navigate(`/groupview/${code}`)}
-              >
-                Go to GroupView
-              </ButtonSmall>
-            )} */}
-            {selectedDateTimeObjects !== undefined &&
-              (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
-                <InformationPopup
-                  content="Note: You can't edit your availability because the admin has
-                already selected a time and/or location!"
-                />
-              )}
           </div>
           <div className="mt-6 md:hidden md:mt-12 flex flex-col items-center">
             <ButtonSmall
@@ -493,52 +474,23 @@ function TimeSelectPage() {
             >
               Submit Availability
             </ButtonSmall>
-            {/* {hasAvailability && (
-              <ButtonSmall
-                bgColor="green-500"
-                textColor="white"
-                onClick={() => navigate(`/groupview/${code}`)}
-              >
-                Go to GroupView
-              </ButtonSmall>
-            )} */}
-            {selectedDateTimeObjects !== undefined &&
-              (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 && (
-                <InformationPopup
-                  content="Note: You can't edit your availability because the admin has
-                already selected a time and/or location!"
-                />
-              )}
           </div>
         </div>
 
         {/* Calendar section */}
-        <div
-          className={`w-[95%] mb-4 md:w-[45%] right-column ${selectedDateTimeObjects !== undefined && (selectedDateTimeObjects[0] as Date).getFullYear() != 1970 ? 'opacity-60' : ''}`}
-        >
+        <div className={`w-[95%] mb-4 md:w-[45%] right-column`}>
           <div className="overflow-x-auto md:overflow-x-visible">
             <Calendar
               title={'Enter Your Availability'}
-              // @ts-expect-error
               theCalendarState={[calendarState, setCalendarState]}
               user={getCurrentUserIndex()}
-              // @ts-expect-error
               theCalendarFramework={[calendarFramework, setCalendarFramework]}
               draggable={true}
               chartedUsersData={undefined}
-              theSelectedDate={[
-                //@ts-expect-error
-                selectedDateTimeObjects,
-                //@ts-expect-error
-                setSelectedDateTimeObjects,
-              ]}
-              // @ts-expect-error
               theDragState={[dragState, setDragState]}
               isAdmin={false}
               theGoogleCalendarEvents={[
-                //@ts-expect-error
                 googleCalendarEvents,
-                //@ts-expect-error
                 setGoogleCalendarEvents,
               ]}
             />
@@ -560,20 +512,6 @@ function TimeSelectPage() {
                   bgColor="blue-500"
                   textColor="white"
                   onClick={handleToggleGCalAvailabilitiesClick}
-                  //   fetchUserCals()
-                  //     .then((calendars) => {
-                  //       // @ts-expect-error
-                  //       setGoogleCalendars(calendars);
-
-                  //       setGcalPopupOpen(true);
-                  //     })
-                  //     .catch((error) => {
-                  //       console.error(
-                  //         'Error fetching Google Calendars:',
-                  //         error
-                  //       );
-                  //     });
-                  // }}
                 >
                   Show GCal Events
                 </ButtonSmall>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
   calandarDate,
@@ -12,9 +13,10 @@ import DateBar from './DateBar';
 import { dragProperties } from './CalendarApp';
 
 interface SelectCalanderProps {
-  theCalendarState:
-    | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined;
+  theCalendarState: [
+    calanderState,
+    React.Dispatch<React.SetStateAction<calanderState>>,
+  ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
     | undefined;
@@ -30,19 +32,17 @@ interface SelectCalanderProps {
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
-  theCalendarFramework:
+  theCalendarFramework: [
+    calendarDimensions,
+    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+  ];
+  theGoogleCalendarEvents:
     | [
-        calendarDimensions,
-        React.Dispatch<React.SetStateAction<calendarDimensions>>,
+        calendar_v3.Schema$Event[],
+        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
       ]
     | undefined;
-  theSelectedDate:
-    | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined;
-  theGoogleCalendarEvents:
-    | [Date, React.Dispatch<React.SetStateAction<Date>>]
-    | undefined;
-  calendarIndex: number; // New prop to track the calendar index
+  calendarIndex: number;
 }
 
 function SelectCalander({
@@ -56,26 +56,10 @@ function SelectCalander({
   user,
   startDate,
   endDate,
-  renderTime,
   theDragState,
-  theSelectedDate,
   theGoogleCalendarEvents,
-  calendarIndex, // New prop
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
-
-  const militaryConvert = (time: string) => {
-    let hours = Number.parseInt(time.slice(0, 2));
-    const AmOrPm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    const minutes = Number.parseInt(time.slice(-2));
-    return (
-      hours +
-      (minutes == 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
-      ' ' +
-      AmOrPm
-    );
-  };
 
   return (
     <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
@@ -112,8 +96,6 @@ function SelectCalander({
                         theDragState={theDragState}
                         theCalendarFramework={theCalendarFramework}
                         chartedUsersData={chartedUsersData}
-                        theSelectedDate={theSelectedDate}
-                        // @ts-expect-error
                         theGoogleCalendarEvents={theGoogleCalendarEvents}
                         borderStyle={
                           time.slice(3) === '30' ? 'dotted' : 'solid'

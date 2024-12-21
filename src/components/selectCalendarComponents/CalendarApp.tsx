@@ -1,4 +1,5 @@
 import React from 'react';
+import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import {
   calendarDimensions,
@@ -7,20 +8,16 @@ import {
   calandarDate,
 } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import { useRef } from 'react';
-import DateBar from './DateBar';
-import { GrPowerReset } from 'react-icons/gr';
 
 interface CalendarProps {
-  theCalendarFramework:
-    | [
-        calendarDimensions,
-        React.Dispatch<React.SetStateAction<calendarDimensions>>,
-      ]
-    | undefined;
-  theCalendarState:
-    | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined;
+  theCalendarFramework: [
+    calendarDimensions,
+    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+  ];
+  theCalendarState: [
+    calanderState,
+    React.Dispatch<React.SetStateAction<calanderState>>,
+  ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
     | undefined;
@@ -28,14 +25,15 @@ interface CalendarProps {
   user: number;
   isAdmin: boolean;
   title: string;
-  theSelectedDate:
-    | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined;
+
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
-  theGoogleCalendarEvents: [Date, React.Dispatch<React.SetStateAction<Date>>];
+  theGoogleCalendarEvents: [
+    calendar_v3.Schema$Event[],
+    React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
+  ];
 }
 
 export interface dragProperties {
@@ -53,20 +51,15 @@ export default function Calendar({
   user,
   isAdmin,
   title,
-  theSelectedDate,
   theDragState,
   theGoogleCalendarEvents,
 }: CalendarProps) {
-  // @ts-expect-error
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
-
-  // @ts-expect-error
   const [calendarState, setCalendarState] = theCalendarState;
 
   let columnIndexOffset = 0;
 
   const [dragState, setDragState] = theDragState;
-  const calendarRef = useRef<HTMLDivElement>(null);
 
   const hasTitle = title !== '';
 
@@ -95,16 +88,6 @@ export default function Calendar({
           <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
             {title}
           </p>
-          {/* <a
-            className="ml-auto mr-4"
-            onClick={() => {
-              setCalendarState(
-                calendarState.map((row: any) => row.map(() => false))
-              );
-            }}
-          >
-            <GrPowerReset size={38} />
-          </a> */}
         </div>
       )}
 
@@ -120,7 +103,6 @@ export default function Calendar({
           {/* Time Column */}
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
-            {/* <div className="h-16 bg-white"></div> */}
             <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
             <div className="bg-white">
               <div
@@ -165,18 +147,6 @@ export default function Calendar({
 
                 return (
                   <div className="ml-0 mr-2 mb-4" key={index}>
-                    {/* <div className="sticky">
-                      <div className="absolute top-0 mb-2 flex flex-row z-30">
-                        <div className="bg-white w-[105%]">
-                          <div className="bg-white z-50 h-6"></div>
-                        </div>
-                      </div>
-                    </div> */}
-                    {/* <div className="sticky top-0 mb-2 flex flex-row z-30">
-                      <div className="bg-white w-[105%]">
-                        <div className="bg-white z-50 h-6"></div>
-                      </div>
-                    </div> */}
                     <SelectCalander
                       renderTime={false}
                       theCalendarState={[calendarState, setCalendarState]}
@@ -191,7 +161,6 @@ export default function Calendar({
                       theDragState={[dragState, setDragState]}
                       theCalendarFramework={theCalendarFramework}
                       chartedUsersData={chartedUsersData}
-                      theSelectedDate={theSelectedDate}
                       theGoogleCalendarEvents={theGoogleCalendarEvents}
                       calendarIndex={index}
                     />

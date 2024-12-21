@@ -5,10 +5,9 @@ import ChartRow from './UserChartRow';
 import { userData } from '../../types';
 
 interface UserChartProps {
-  chartedUsersData: [
-    userData[],
-    React.Dispatch<React.SetStateAction<userData[]>>,
-  ];
+  chartedUsersData:
+    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | undefined;
 }
 
 /**
@@ -19,21 +18,20 @@ interface UserChartProps {
  * @returns Page Support Component - Admin View
  */
 const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
-  const [chartedUsers, setChartedUsers] = chartedUsersData;
+  const [chartedUsers, setChartedUsers] = chartedUsersData || [
+    { available: [], unavailable: [] },
+    () => {},
+  ];
 
   const numRows = Math.max(
-    // @ts-expect-error
     chartedUsers.available.length,
-    // @ts-expect-error
     chartedUsers.unavailable.length
   );
 
   const rows: Array<[string, string]> = Array.from(
     { length: numRows },
     (_, i) => [
-      // @ts-expect-error
       chartedUsers.available[i]?.name || '',
-      // @ts-expect-error
       chartedUsers.unavailable[i]?.name || '',
     ]
   );

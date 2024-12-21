@@ -21,7 +21,7 @@
     "noEmit": true,
     "downlevelIteration": true,
     "jsx": "react-jsx",
-    "types": ["react", "react-dom", "reactjs-popup", "gapi", "gapi.auth2"],
+    "types": ["react", "react-dom", "reactjs-popup", "gapi", "gapi.auth2", "gapi.client", "gapi.client.calendar"],
   },
   
   "include": [

@@ -1,70 +1,71 @@
-export type EventId = string
-export type Location = string
-export type Availability = boolean[][]
+export type EventId = string;
+export type Location = string;
+export type Availability = boolean[][];
 
-export interface Event { // Firebase ID is EventID
-  publicId: EventId // field
-  details: EventDetails // map (nested object)
-  participants: Participant[] // subcollection
+export interface Event {
+  // Firebase ID is EventID
+  publicId: EventId; // field
+  details: EventDetails; // map (nested object)
+  participants: Participant[]; // subcollection
 }
 
 export interface EventDetails {
-  name: string
-  description: string
-  adminName: string
-  adminAccountId: string // firebase uid
-  dates: Date[]
-  startTime: Date
-  endTime: Date
-  plausibleLocations: Location[]
-  chosenLocation?: Location | undefined
-  chosenStartDate?: Date | undefined
-  chosenEndDate?: Date | undefined // minutes
-  zoomLink?: string | undefined, 
+  name: string;
+  description: string;
+  adminName: string;
+  adminAccountId: string; // firebase uid
+  dates: Date[];
+  startTime: Date;
+  endTime: Date;
+  plausibleLocations: Location[];
+  chosenLocation?: Location | undefined;
+  chosenStartDate?: Date | undefined;
+  chosenEndDate?: Date | undefined; // minutes
+  zoomLink?: string | undefined;
 }
 
 export interface Participant {
-  name: string
-  accountId?: string
-  email?: string
-  availability: Availability // Availability || JSON string of Availability type
-  location: Location[]
+  name: string;
+  accountId?: string;
+  email?: string;
+  availability: Availability | string; // Availability || JSON string of Availability type
+  location: Location[];
 }
 
-export type calanderState = Availability[] // length = num of people
+export type calanderState = Availability[]; // length = num of people
 
 export type DateRange = {
-  startDate: Date,
-  endDate: Date
+  startDate: Date;
+  endDate: Date;
 };
 
 export interface calandarDate {
-  id: number
-  shortenedWeekDay: string
-  calanderDay: string
-  month: string
-  year?: string
-  date?: Date
+  id: number;
+  shortenedWeekDay: string;
+  calanderDay: string;
+  month: string;
+  year?: string;
+  date?: Date;
 }
 
 export interface calendarDimensions {
-  dates: calandarDate[][]
-  startTime: Date
-  endTime: Date
-  numOfBlocks: number
-  numOfCols: number
+  dates: calandarDate[][];
+  startTime: Date;
+  endTime: Date;
+  numOfBlocks: number;
+  numOfCols: number;
 }
 
 export interface dragProperties {
-  dragStartedOnID: number[]
-  dragEndedOnID: number[]
-  dragStartedOn: boolean
-  blocksAffectedDuringDrag: Set<any>
+  dragStartedOnID: number[];
+  dragEndedOnID: number[];
+  dragStartedOn: boolean;
+  blocksAffectedDuringDrag: Set<any>;
 }
 
 export interface calendar {
-  availabilities: calanderState
-  participants: userData
+  availabilities: calanderState;
+  participants: userData;
 }
 
 // The User ID MUST match the schedule in the position calandarState
@@ -72,12 +73,12 @@ export interface calendar {
 // TODO : potential code smell -- just have array of users with attributes available / unavailable
 
 export interface user {
-  name: string
-  id: number
+  name: string;
+  id: number;
 }
 
 export interface userData {
-  users: user[]
-  available: user[]
-  unavailable: user[]
+  users: user[];
+  available: user[];
+  unavailable: user[];
 }

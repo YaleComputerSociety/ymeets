@@ -55,8 +55,7 @@ export const CalanderComponent = ({
 
   const today = new Date();
 
-  // @ts-expect-error
-  const tileClassName = ({ date, view }) => {
+  const tileClassName = ({ date, view }: any) => {
     if (view === 'month') {
       if (
         date.getFullYear() === today.getFullYear() &&
@@ -82,7 +81,7 @@ export const CalanderComponent = ({
   const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
   const [selectedDates, setSelectedDates] = theSelectedDates;
-  const [lastSelectedDate, setLastSelectedDate] = useState<Date|null>(null);
+  const [lastSelectedDate, setLastSelectedDate] = useState<Date | null>(null);
 
   const addDay = (date: Date) => {
     const arr = [...selectedDates];
@@ -102,28 +101,30 @@ export const CalanderComponent = ({
   };
 
   const toggleDate = (arr: Date[], date: Date) => {
-    const index = arr.findIndex((selected) => selected.getTime() === date.getTime());
+    const index = arr.findIndex(
+      (selected) => selected.getTime() === date.getTime()
+    );
     if (index === -1) {
       return [...arr, date];
     } else {
       return arr.filter((_, i) => i !== index);
     }
-  }
+  };
 
   const handleRange = (date: Date) => {
     if (lastSelectedDate) {
       const dates: DateRange = {
         startDate: lastSelectedDate,
-        endDate: date
-      }
-      if (dates.startDate>dates.endDate) {
-        [dates.startDate,dates.endDate]=[dates.endDate,dates.startDate];
+        endDate: date,
+      };
+      if (dates.startDate > dates.endDate) {
+        [dates.startDate, dates.endDate] = [dates.endDate, dates.startDate];
       }
       const range = getDatesFromRange(dates);
       let arr = [...selectedDates];
-      range.forEach(({date, dayOfWeek}) => {
+      range.forEach(({ date, dayOfWeek }) => {
         arr = toggleDate(arr, date);
-      })
+      });
       arr = toggleDate(arr, lastSelectedDate);
       arr.sort((a, b) => a.getTime() - b.getTime());
       setSelectedDates([...arr]);
@@ -131,7 +132,7 @@ export const CalanderComponent = ({
       addDay(date);
     }
     setLastSelectedDate(date);
-  }
+  };
 
   const [startDate, setStartDate] = selectedStartDate;
   const [popupIsOpen, setPopupIsOpen] = useState(false);
@@ -192,11 +193,7 @@ export const CalanderComponent = ({
           }
         />
       ) : (
-        <DaysNotDates
-          theSelectedDays={[selectedDays, setSelectedDays]}
-          selectedStartDate={[startDate, setStartDate]}
-          selectedEndDate={[endDate, setEndDate]}
-        />
+        <DaysNotDates theSelectedDays={[selectedDays, setSelectedDays]} />
       )}
 
       <Tooltip id="holiday-tooltip" style={{ zIndex: 3 }} />

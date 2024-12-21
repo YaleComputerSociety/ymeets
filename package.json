@@ -32,6 +32,7 @@
     "dayjs": "^1.11.12",
     "firebase": "^9.15.0",
     "gapi-script": "^1.2.0",
+    "googleapis": "^144.0.0",
     "mdb-react-ui-kit": "^7.1.0",
     "npm": "^10.8.2",
     "postcss": "^8.4.28",
@@ -85,6 +86,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@types/body-scroll-lock": "^3.1.2",
+    "@types/gapi.client": "^1.0.8",
+    "@types/gapi.client.calendar": "^3.0.12",
     "@types/react": "^18.3.7",
     "@types/react-calendar": "^3.9.0",
     "@types/react-dom": "^18.3.0",

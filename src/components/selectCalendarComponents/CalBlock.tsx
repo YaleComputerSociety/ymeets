@@ -1,31 +1,22 @@
-/* eslint-disable */
 import React, { useEffect, useState, useRef } from 'react';
+import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
-import {
-  calanderState,
-  userData,
-  user,
-  calendarDimensions,
-  calandarDate,
-} from '../../types';
+import { calanderState, userData, user, calendarDimensions } from '../../types';
 import { dragProperties } from './CalendarApp';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import { useCallback } from 'react';
-import { checkIfLoggedIn, getChosenDayAndTime } from '../../firebase/events';
-import { dateObjectToHHMM } from '../utils/functions/dateObjecToHHMM';
 
 interface CalBlockProps {
   blockID: number;
   columnID: number;
-  theCalendarState:
-    | [calanderState, React.Dispatch<React.SetStateAction<calanderState>>]
-    | undefined;
-  theCalendarFramework:
-    | [
-        calendarDimensions,
-        React.Dispatch<React.SetStateAction<calendarDimensions>>,
-      ]
-    | undefined;
+  theCalendarState: [
+    calanderState,
+    React.Dispatch<React.SetStateAction<calanderState>>,
+  ];
+  theCalendarFramework: [
+    calendarDimensions,
+    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+  ];
+
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
     | undefined;
@@ -38,11 +29,9 @@ interface CalBlockProps {
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
-  theSelectedDate:
-    | [calandarDate, React.Dispatch<React.SetStateAction<calandarDate>>]
-    | undefined;
+
   isOnGcal: boolean;
-  associatedEvents?: any;
+  associatedEvents?: calendar_v3.Schema$Event[];
 }
 
 export default function CalBlock({
@@ -56,7 +45,6 @@ export default function CalBlock({
   user,
   is30Minute,
   theDragState,
-  theSelectedDate,
   isOnGcal,
   associatedEvents = undefined,
 }: CalBlockProps) {
@@ -86,66 +74,6 @@ export default function CalBlock({
     }
   }, [gCalEventActive]);
 
-  function checkIfBlockIsAdminSelection() {
-    const chosenDates = getChosenDayAndTime();
-    // check if a selection has been made by the admin, locking the users from editing their
-    // availability
-    if (
-      chosenDates !== undefined &&
-      chosenDates[0] instanceof Date &&
-      chosenDates[0].getFullYear() != 1970
-    ) {
-      setIsDraggable(false);
-
-      const startTimeHHMM = dateObjectToHHMM(chosenDates[0]);
-      const endTimeHHMM = dateObjectToHHMM(chosenDates[1]);
-
-      const times = [].concat(
-        //@ts-expect-error
-        ...generateTimeBlocks(
-          calendarFramework.startTime,
-          calendarFramework.endTime
-        )
-      );
-      const dates = [].concat(...calendarFramework.dates);
-
-      // @ts-expect-error
-      const startBlockID = times.indexOf(startTimeHHMM);
-
-      // @ts-expect-error
-      const endBlockID = times.indexOf(endTimeHHMM);
-
-      let startColumnID = -1;
-
-      let endColumnID = -1;
-
-      for (let i = 0; i < dates?.length; i++) {
-        // @ts-expect-error
-        if (dates[i].calanderDay == chosenDates[0].getDate()) {
-          startColumnID = i;
-        }
-        // @ts-expect-error
-        if (dates[i].calanderDay == chosenDates[1].getDate()) {
-          endColumnID = i;
-        }
-      }
-      // if this block falls within the selected region of the admin, then set the color of that block to be selection colored
-      if (
-        columnID >= startColumnID &&
-        columnID <= endColumnID &&
-        startBlockID <= blockID &&
-        endBlockID >= blockID
-      ) {
-        if (blockID == endBlockID) {
-          // for that last one, based on how blocks are coded.
-          return '';
-        }
-        return 'green-700';
-      }
-    }
-    return '';
-  }
-
   function interpolateColor(
     color1: string,
     color2: string,
@@ -171,15 +99,6 @@ export default function CalBlock({
       if (calendarState[i][columnID][blockID] === true) {
         selectedCount += 1;
       }
-    }
-
-    // if its not draggable -> just a participant group view
-    // if it is draggble and is an admin -> admin group view
-    // all other cases must just be a timeselect.
-    const res = checkIfBlockIsAdminSelection();
-
-    if (res != '') {
-      return res;
     }
 
     if (!isDraggable || (isDraggable && isAdmin)) {
@@ -217,11 +136,9 @@ export default function CalBlock({
     }
   }, []);
 
-  // @ts-expect-error
   const [calendarState, setCalanderState] = theCalendarState;
   const [isDottedBorder, setIsDottedBorder] = useState(false);
   const [dragState, setDragState] = theDragState;
-  // @ts-expect-error
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const prevDragState = useRef(dragState);
 
@@ -369,11 +286,9 @@ export default function CalBlock({
       return;
     }
 
-    // @ts-expect-error
     const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
-      ?.split('-')
-      .map(Number);
-    //
+      ? touchedElement.id.split('-').map(Number)
+      : [undefined, undefined];
 
     if (obtainedBlockID === undefined) {
       return;
@@ -383,10 +298,12 @@ export default function CalBlock({
       return;
     }
 
-    setDragState((oldState) => ({
-      ...oldState,
-      dragEndedOnID: [obtainedColumnID, obtainedBlockID],
-    }));
+    if (obtainedColumnID !== undefined && obtainedBlockID !== undefined) {
+      setDragState((oldState) => ({
+        ...oldState,
+        dragEndedOnID: [obtainedColumnID, obtainedBlockID],
+      }));
+    }
   };
 
   const handleDragStart = (event: any) => {
@@ -408,18 +325,7 @@ export default function CalBlock({
     }
   };
 
-  function isTouchDevice() {
-    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  }
-
   const handleBlockClick = () => {
-    // if (isTouchDevice()) {
-    //   setGcalEventActive(!gCalEventActive);
-    //   setTimeout(() => {
-    //     setGcalEventActive(false);
-    //   }, 3000);
-    // }
-
     if (isDraggable) {
       if (isAdmin === true) {
         return;
@@ -501,10 +407,11 @@ export default function CalBlock({
       return;
     }
 
-    // @ts-expect-error
-    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
-      ?.split('-')
-      .map(Number);
+    const [obtainedColumnID, obtainedBlockID] =
+      touchedElement && touchedElement.id
+        ? touchedElement.id.split('-').map(Number)
+        : [undefined, undefined];
+
     if (chartedUsers != undefined) {
       for (let i = 0; i < chartedUsers.users.length; i++) {
         const user = chartedUsers.users[i];
@@ -513,7 +420,9 @@ export default function CalBlock({
         const indexOfCol = obtainedColumnID;
 
         if (
-          oldData[user.id][indexOfCol][obtainedBlockID] == true ||
+          (indexOfCol !== undefined &&
+            obtainedBlockID !== undefined &&
+            oldData[user.id][indexOfCol][obtainedBlockID] === true) ||
           shadeColor == 'green-700'
         ) {
           availableUsers.push(user);
@@ -594,7 +503,7 @@ export default function CalBlock({
             transition: 'background-color 0.2s ease',
           }}
         ></div>
-        {gCalEventActive && associatedEvents?.length > 0 && (
+        {gCalEventActive && (associatedEvents?.length ?? 0) > 0 && (
           <div
             ref={popupRef}
             className={`fixed z-50 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
@@ -606,10 +515,9 @@ export default function CalBlock({
               left: `${popupPosition.left}px`,
               top: `${popupPosition.top}px`,
             }}
-            // style={{ minWidth: '150px', opacity: gCalEventActive ? 1 : 0 }}
           >
             {associatedEvents
-              .filter(
+              ?.filter(
                 (gEvent: any, index: number, self: any[]) =>
                   index === self.findIndex((e) => e.summary === gEvent.summary)
               )
