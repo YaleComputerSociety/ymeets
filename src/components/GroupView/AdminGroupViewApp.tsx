@@ -91,7 +91,6 @@ export default function AdminGroupViewPage() {
       .toISOString()
       .replace(/-|:|\.\d\d\d/g, '');
 
-    // Construct the Google Calendar event URL
     const baseUrl = 'https://calendar.google.com/calendar/render';
     const queryParams = new URLSearchParams({
       action: 'TEMPLATE',
@@ -99,7 +98,6 @@ export default function AdminGroupViewPage() {
       dates: `${startDateTime}/${endDateTime}`,
       details: event.description,
       location: event.location,
-      sprop: 'website:https://example.com', // You can set your website or leave it empty
       spropname: 'Add Event',
     });
 

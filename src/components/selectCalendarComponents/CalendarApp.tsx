@@ -1,12 +1,7 @@
 import React from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
-import {
-  calendarDimensions,
-  calanderState,
-  userData,
-  calandarDate,
-} from '../../types';
+import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
 interface CalendarProps {
@@ -70,7 +65,7 @@ export default function Calendar({
     const minutes = Number.parseInt(time.slice(-2));
     return (
       hours +
-      (minutes == 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
+      (minutes === 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
       ' ' +
       AmOrPm
     );
@@ -80,6 +75,22 @@ export default function Calendar({
     calendarFramework.startTime,
     calendarFramework.endTime
   );
+
+  const NUMBER_OF_COLUMNS_PER_PAGE = 7;
+  const [currentStartPage, setCurrentStartPage] = React.useState(0);
+
+  const handlePrev = () => {
+    setCurrentStartPage(Math.max(currentStartPage - 1, 0));
+  };
+
+  const handleNext = () => {
+    if (
+      currentStartPage + NUMBER_OF_COLUMNS_PER_PAGE <
+      calendarFramework.dates.flat().length
+    ) {
+      setCurrentStartPage(currentStartPage + 1);
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -100,7 +111,6 @@ export default function Calendar({
           className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
         ></div>
         <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
-          {/* Time Column */}
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
             <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
@@ -136,39 +146,33 @@ export default function Calendar({
             </div>
           </div>
 
-          {/* Calendar Content */}
           <div className="flex">
-            {calendarFramework?.dates.map(
-              (bucket: calandarDate[], index: number) => {
-                if (index !== 0) {
-                  const prev_bucket = calendarFramework.dates[index - 1];
-                  columnIndexOffset += prev_bucket.length;
-                }
-
-                return (
-                  <div className="ml-0 mr-2 mb-4" key={index}>
-                    <SelectCalander
-                      renderTime={false}
-                      theCalendarState={[calendarState, setCalendarState]}
-                      bucket={bucket}
-                      draggable={draggable}
-                      isAdmin={isAdmin}
-                      key={index}
-                      user={user}
-                      columnIndexOffset={columnIndexOffset}
-                      startDate={calendarFramework.startTime}
-                      endDate={calendarFramework.endTime}
-                      theDragState={[dragState, setDragState]}
-                      theCalendarFramework={theCalendarFramework}
-                      chartedUsersData={chartedUsersData}
-                      theGoogleCalendarEvents={theGoogleCalendarEvents}
-                      calendarIndex={index}
-                    />
-                  </div>
-                );
-              }
-            )}
+            <div className="ml-0 mr-2 mb-4">
+              <SelectCalander
+                renderTime={false}
+                theCalendarState={[calendarState, setCalendarState]}
+                bucket={calendarFramework?.dates
+                  .flat()
+                  .slice(
+                    currentStartPage,
+                    currentStartPage + NUMBER_OF_COLUMNS_PER_PAGE
+                  )}
+                draggable={draggable}
+                isAdmin={isAdmin}
+                user={user}
+                columnIndexOffset={columnIndexOffset}
+                startDate={calendarFramework.startTime}
+                endDate={calendarFramework.endTime}
+                theDragState={[dragState, setDragState]}
+                theCalendarFramework={theCalendarFramework}
+                chartedUsersData={chartedUsersData}
+                theGoogleCalendarEvents={theGoogleCalendarEvents}
+              />
+            </div>
           </div>
+
+          <button onClick={handlePrev}>Prev</button>
+          <button onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>

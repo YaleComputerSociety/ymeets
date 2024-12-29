@@ -42,7 +42,6 @@ interface SelectCalanderProps {
         React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
       ]
     | undefined;
-  calendarIndex: number;
 }
 
 function SelectCalander({
