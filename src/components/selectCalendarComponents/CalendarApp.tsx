@@ -160,7 +160,7 @@ export default function Calendar({
                 draggable={draggable}
                 isAdmin={isAdmin}
                 user={user}
-                columnIndexOffset={columnIndexOffset}
+                columnIndexOffset={currentStartPage}
                 startDate={calendarFramework.startTime}
                 endDate={calendarFramework.endTime}
                 theDragState={[dragState, setDragState]}

@@ -64,7 +64,7 @@ export default function CalRow({
 
   return (
     <div className={`flex flex-row `}>
-      {bucket.map((d: calandarDate, columnIndex) => {
+      {bucket.map((d: calandarDate, columnIndex: number) => {
         const matchedDates = googleCalendarEvents
           ?.map((gEvent: calendar_v3.Schema$Event) => {
             if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
