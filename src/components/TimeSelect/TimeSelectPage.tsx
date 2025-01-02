@@ -431,117 +431,69 @@ function TimeSelectPage() {
 
   return (
     <div className="bg-sky-100 w-full px-4 md:px-8 lg:px-12">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between align-center justify-center items-center">
-        {/* Event details and location selection */}
-        <div className="w-[90%] md:w-full md:ml-[5%] md:mr-[2%] md:mt-[5%] md:w-[45%] mb-8 md:mb-0">
-          <div className="mb-4">
-            <h3 className="text-sm text-gray-400 mb-0">Event Name</h3>
-            <h3 className="text-2xl font-bold break-words mt-0">{eventName}</h3>
-          </div>
-
-          {eventDescription && (
-            <div className="mb-10">
-              <h3 className="text-sm text-gray-400 mb-0">Description</h3>
-              <h3 className="text-xl font-bold break-words mt-0">
-                {eventDescription}
-              </h3>
-            </div>
-          )}
-
-          {locationOptions.length > 0 && (
-            <div className="mb-8">
-              <LocationSelectionComponent
-                update={updateSelectedLocations}
-                locations={locationOptions}
-              />
-            </div>
-          )}
-
-          <div className="hidden md:flex md:mt-12 flex flex-col items-center">
-            <ButtonSmall
-              bgColor="blue-500"
-              textColor="white"
-              onClick={handleSubmitAvailability}
-            >
-              Submit Availability
-            </ButtonSmall>
-          </div>
-          <div className="mt-6 md:hidden md:mt-12 flex flex-col items-center">
-            <ButtonSmall
-              bgColor="blue-500"
-              textColor="white"
-              onClick={handleSubmitAvailability}
-            >
-              Submit Availability
-            </ButtonSmall>
-          </div>
+      <div>
+        {/* <div className={`w-[95%] mb-4 md:w-[45%] right-column`}> */}
+        <div>
+          <Calendar
+            theCalendarState={[calendarState, setCalendarState]}
+            user={getCurrentUserIndex()}
+            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+            draggable={true}
+            chartedUsersData={undefined}
+            theDragState={[dragState, setDragState]}
+            isAdmin={false}
+            theGoogleCalendarEvents={[
+              googleCalendarEvents,
+              setGoogleCalendarEvents,
+            ]}
+          />
         </div>
 
-        {/* Calendar section */}
-        <div className={`w-[95%] mb-4 md:w-[45%] right-column`}>
-          <div className="overflow-x-auto md:overflow-x-visible">
-            <Calendar
-              title={'Enter Your Availability'}
-              theCalendarState={[calendarState, setCalendarState]}
-              user={getCurrentUserIndex()}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              draggable={true}
-              chartedUsersData={undefined}
-              theDragState={[dragState, setDragState]}
-              isAdmin={false}
-              theGoogleCalendarEvents={[
-                googleCalendarEvents,
-                setGoogleCalendarEvents,
-              ]}
-            />
-          </div>
-
-          {!areSelectingGeneralDays && getAccountId() !== '' ? (
-            <div className="md:pl-4 z-60 mb-4 md:mb-0">
-              <div className="hidden md:flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={handleToggleGCalAvailabilitiesClick}
-                >
-                  Show GCal Events
-                </ButtonSmall>
-              </div>
-              <div className="md:hidden flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={handleToggleGCalAvailabilitiesClick}
-                >
-                  Show GCal Events
-                </ButtonSmall>
-              </div>
+        {!areSelectingGeneralDays && getAccountId() !== '' ? (
+          <div className="md:pl-4 z-60 mb-4 md:mb-0">
+            <div className="hidden md:flex">
+              <ButtonSmall
+                bgColor="blue-500"
+                textColor="white"
+                onClick={handleToggleGCalAvailabilitiesClick}
+              >
+                Show GCal Events
+              </ButtonSmall>
             </div>
-          ) : (
-            !areSelectingGeneralDays && (
-              <div className="md:pl-4 mb-4 md:mb-0">
-                <button
-                  className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+            <div className="md:hidden flex">
+              <ButtonSmall
+                bgColor="blue-500"
+                textColor="white"
+                onClick={handleToggleGCalAvailabilitiesClick}
+              >
+                Show GCal Events
+              </ButtonSmall>
+            </div>
+          </div>
+        ) : (
+          !areSelectingGeneralDays && (
+            <div className="md:pl-4 mb-4 md:mb-0">
+              <button
+                className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
                             flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={() => {
-                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                      (loginSuccessful) => {
-                        if (loginSuccessful) {
-                          window.location.reload();
-                        } else {
-                          console.error('login failed');
-                        }
+                onClick={() => {
+                  signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+                    (loginSuccessful) => {
+                      if (loginSuccessful) {
+                        window.location.reload();
+                      } else {
+                        console.error('login failed');
                       }
-                    );
-                  }}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
-                  Sign in with Google to access GCal
-                </button>
-              </div>
-            )
-          )}
-        </div>
+                    }
+                  );
+                }}
+              >
+                <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
+                Sign in with Google to access GCal
+              </button>
+            </div>
+          )
+        )}
       </div>
       <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}

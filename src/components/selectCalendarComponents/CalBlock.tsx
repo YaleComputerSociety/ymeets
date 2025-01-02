@@ -442,9 +442,8 @@ export default function CalBlock({
 
   return (
     <>
-      {/* Container for relative positioning */}
-      <div style={{ position: 'relative' }}>
-        {/* Main draggable content */}
+      <div>
+        {/* <div style={{ position: 'relative' }}> */}
         <div
           draggable="true"
           id={elementId}
@@ -469,7 +468,6 @@ export default function CalBlock({
               dataTransfer: new DataTransfer(),
             });
 
-            // This will trigger the dragStart handler.
             if (dragRef.current) {
               dragRef.current.dispatchEvent(dragStartEvent);
             }
@@ -492,9 +490,9 @@ export default function CalBlock({
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
-                : `bg-${unShadeColor} flex-1 w-16 p-0 h-3 touch-none`
-              : `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
+                ? `bg-${shadeColor} w-full p-0 h-3 touch-none`
+                : `bg-${unShadeColor} w-full p-0 h-3 touch-none`
+              : `bg-${shadeColor} w-full p-0 h-3 touch-none`
           }
           style={{
             borderRight: '1px solid #000',

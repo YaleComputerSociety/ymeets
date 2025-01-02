@@ -329,7 +329,6 @@ export default function AdminGroupViewPage() {
           <div className="max-w-[100%] lg:max-w-[50%] ">
             <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
               <Calendar
-                title={''}
                 theCalendarState={[calendarState, setCalendarState]}
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 chartedUsersData={[chartedUsers, setChartedUsers]}

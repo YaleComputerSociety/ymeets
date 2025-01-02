@@ -61,51 +61,48 @@ function SelectCalander({
   const timeBlocks = generateTimeBlocks(startDate, endDate);
 
   return (
-    <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
+    <div
+      className="relative max-h-130 mr-2 w-screen"
+      style={{ touchAction: 'none' }}
+    >
       <div className="flex flex-col">
-        <div className="sticky h-full overflow-auto top-0 mb-2 flex flex-row z-30 w-[105%]">
-          <div className="bg-white w-[110%]">
+        <div className="sticky h-full top-0 mb-2 flex flex-row z-30">
+          <div className="bg-white w-full">
             <div className="bg-white z-50 h-6"></div>
-            <div className="flex">
-              <DateBar dates={bucket} />
-            </div>
+            <DateBar dates={bucket} />
           </div>
         </div>
-        <div className="flex">
-          <div className="overflow-x-auto">
-            <div className="h-px bg-black"></div>
-            {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-              <div key={blockIDOffset} className="flex flex-row">
-                <div className="flex flex-col">
-                  {hour.map((time: string, blockID) => (
-                    <div
-                      key={time}
-                      className={`border-black border-l ${hour.length - 1 == blockID ? 'border-b' : ''}`}
-                    >
-                      <CalRow
-                        is30Minute={time.slice(3) === '30'}
-                        time={time}
-                        bucket={bucket}
-                        theCalendarState={theCalendarState}
-                        draggable={draggable}
-                        columnIndexOffSet={columnIndexOffset}
-                        blockID={blockIDOffset * 4 + blockID}
-                        user={user}
-                        isAdmin={isAdmin}
-                        theDragState={theDragState}
-                        theCalendarFramework={theCalendarFramework}
-                        chartedUsersData={chartedUsersData}
-                        theGoogleCalendarEvents={theGoogleCalendarEvents}
-                        borderStyle={
-                          time.slice(3) === '30' ? 'dotted' : 'solid'
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
+        <div className="w-screen">
+          <div className="h-px bg-black"></div>
+          {timeBlocks.map((hour: string[], blockIDOffset: number) => (
+            <div key={blockIDOffset}>
+              <div className="flex flex-col">
+                {hour.map((time: string, blockID) => (
+                  <div
+                    key={time}
+                    className={`border-black border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
+                  >
+                    <CalRow
+                      is30Minute={time.slice(3) === '30'}
+                      time={time}
+                      bucket={bucket}
+                      theCalendarState={theCalendarState}
+                      draggable={draggable}
+                      columnIndexOffSet={columnIndexOffset}
+                      blockID={blockIDOffset * 4 + blockID}
+                      user={user}
+                      isAdmin={isAdmin}
+                      theDragState={theDragState}
+                      theCalendarFramework={theCalendarFramework}
+                      chartedUsersData={chartedUsersData}
+                      theGoogleCalendarEvents={theGoogleCalendarEvents}
+                      borderStyle={time.slice(3) === '30' ? 'dotted' : 'solid'}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
