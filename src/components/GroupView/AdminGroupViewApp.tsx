@@ -108,8 +108,6 @@ export default function AdminGroupViewPage() {
 
   const handleAddToCalendar = useCallback(
     async (startDate: Date, endDate: Date, location: string | undefined) => {
-      console.log('here');
-
       const event = getEventObjectForGCal(startDate, endDate, location);
       const calendarEventUrl = createCalendarEventUrl(event);
 

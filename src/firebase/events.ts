@@ -4,6 +4,9 @@ import { doc, collection, getDoc, setDoc, updateDoc, CollectionReference, Docume
 import { Availability, Event, Location, EventDetails, EventId, Participant } from '../types'
 import { auth, db } from './firebase'
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks'
+import { time } from 'console'
+import { start } from 'repl'
+import { DateTime } from "luxon";
 
 // ASSUME names are unique within an event
 
@@ -17,7 +20,8 @@ let workingEvent: Event = {
     dates: [],
     startTime: new Date(), // minutes; min: 0, max 24*60 = 1440
     endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
-    plausibleLocations: ['HH17', 'Sterling']
+    plausibleLocations: ['HH17', 'Sterling'],
+    timeZone: 'America/New_York',
   },
   participants: []
 }
@@ -546,12 +550,69 @@ function getZoomLink (): string | undefined {
   return workingEvent.details.zoomLink || undefined
 }
 
-function getDates (): Date[] {
-  return workingEvent.details.dates
+
+function getDates(): Date[] {
+  const { timeZone, startTime, endTime } = workingEvent.details;
+  let dates = workingEvent.details.dates;
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (timeZone == userTimeZone) {
+    return dates;
+  }
+
+  dates = dates.map(date => {
+    // Treat the date as UTC and convert to the target timezone
+    return DateTime.fromJSDate(date, { zone: 'utc' }).setZone(timeZone, { keepLocalTime: true }).toJSDate();
+  });
+
+  // Convert the start and end times to the user's time zone
+  const startInUserZone = DateTime.fromJSDate(startTime).setZone(userTimeZone);
+  const endInUserZone = DateTime.fromJSDate(endTime).setZone(userTimeZone);
+
+  // Get the original DateTime objects in the creator's time zone (without converting to ISO date)
+  const startInCreatorZone = DateTime.fromJSDate(startTime).setZone(timeZone);
+  const endInCreatorZone = DateTime.fromJSDate(endTime).setZone(timeZone);
+  
+  // Determine if the time range crosses into another day
+  let adjustedDates = [...dates];
+  const startDateUserZone = startInUserZone?.toISODate();
+  const startDateCreatorZone = startInCreatorZone?.toISODate();
+  const endDateUserZone = endInUserZone?.toISODate();
+  const endDateCreatorZone = endInCreatorZone?.toISODate();
+  
+  if (startDateUserZone && startDateCreatorZone && startDateUserZone < startDateCreatorZone) {
+    // If the start date is earlier in the user's time zone (crosses backward)
+    adjustedDates = adjustedDates.map(date => {
+      const adjustedDate = new Date(date);
+      adjustedDate.setDate(date.getDate() - 1); // Shift the date backward by 1
+      return adjustedDate;
+    });
+  } else if (endDateUserZone && endDateCreatorZone && endDateUserZone < endDateCreatorZone) {
+    // If the end date is later in the user's time zone (crosses forward)
+    adjustedDates = adjustedDates.map(date => {
+      const adjustedDate = new Date(date);
+      adjustedDate.setDate(date.getDate() + 1); // Shift the date forward by 1
+      return adjustedDate;
+    });
+  } else {
+    // console.log("Does not cross");
+  }
+  return adjustedDates;
 }
 
+
+
+
+
 function getStartAndEndTimes (): Date[] {
-  return [workingEvent.details.startTime, workingEvent.details.endTime]
+  let startTime = workingEvent.details.startTime;
+  let endTime = workingEvent.details.endTime;
+
+  return [startTime, endTime];
+}
+
+function getTimezone(): string {
+  return workingEvent.details.timeZone
 }
 
 function getEventObjectForGCal (startDate: Date, endDate: Date, location?: string) {
@@ -562,11 +623,12 @@ function getEventObjectForGCal (startDate: Date, endDate: Date, location?: strin
     description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
     start: {
       dateTime: startDate,
-      timeZone: 'America/New_York'  
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
     },
     end: {
       dateTime: endDate,
-      timeZone: 'America/New_York'
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      
     },
     attendees: workingEvent.participants
       .filter((participant: Participant) => 

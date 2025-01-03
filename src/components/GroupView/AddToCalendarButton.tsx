@@ -1,8 +1,4 @@
-import { useState, useCallback, useContext } from 'react';
-import { getAccountId, getEventObjectForGCal } from '../../firebase/events';
-import { GAPIContext } from '../../firebase/gapiContext';
-import { signInWithGoogle } from '../../firebase/auth';
-import { LoadingAnim } from '../utils/components/LoadingAnim';
+import { getAccountId } from '../../firebase/events';
 import googleLogo from '../utils/components/LoginPopup/googlelogo.png';
 import googleCalLogo from './google-calendar-icon.png';
 
