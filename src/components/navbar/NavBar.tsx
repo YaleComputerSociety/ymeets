@@ -3,7 +3,6 @@ import NavLogo from './NavLogo';
 import { checkIfLoggedIn, getAccountName } from '../../firebase/events';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconUser } from '@tabler/icons-react';
 import { signInWithGoogle } from '../../firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
@@ -11,8 +10,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import { FaBars, FaCog } from 'react-icons/fa';
 import { logout } from '../../firebase/auth';
-import { VscThreeBars } from 'react-icons/vsc';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+
 import {
   FaInfoCircle,
   FaCalendarAlt,
@@ -96,7 +94,7 @@ export default function NavBar() {
                   >
                     <a
                       href="#"
-                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
                       onClick={() => {
                         nav('/about-us');
                         setMenuState('closed');
@@ -107,7 +105,7 @@ export default function NavBar() {
                     <div className="border-t border-gray-200"></div>
                     <a
                       href="#"
-                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
                       onClick={() => {
                         nav('/useraccount');
                         setMenuState('closed');
@@ -120,7 +118,7 @@ export default function NavBar() {
                       href="https://ymeets.canny.io"
                       rel="noopener noreferrer"
                       target="_blank"
-                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
                       onClick={() => {
                         setMenuState('closed');
                       }}
@@ -131,7 +129,7 @@ export default function NavBar() {
                     {checkIfLoggedIn() ? (
                       <a
                         href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
                         onClick={() => {
                           logout(gapi);
                           setMenuState('closed');
@@ -143,7 +141,7 @@ export default function NavBar() {
                     ) : (
                       <a
                         href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
                         onClick={() => {
                           signInWithGoogle(
                             undefined,
@@ -168,7 +166,7 @@ export default function NavBar() {
         </div>
         {name.length > 0 && (
           <div className="sm:hidden w-[90%] flex justify-center">
-            <div className="inline-block bg-blue-500 text-white rounded-b-lg px-4 py-1 text-center text-xs whitespace-nowrap">
+            <div className="inline-block bg-primary text-white rounded-b-lg px-4 py-1 text-center text-xs whitespace-nowrap">
               Welcome, {name}
             </div>
           </div>

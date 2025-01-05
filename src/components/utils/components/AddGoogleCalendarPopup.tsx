@@ -45,7 +45,7 @@ export const AddGoogleCalendarPopup = ({
           </button>
         </div>
         {isFillingAvailability && (
-          <div className="w-6 h-6 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-4 border-t-primary border-gray-200 rounded-full animate-spin"></div>
         )}
       </div>
     </Popup>

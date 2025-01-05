@@ -160,7 +160,7 @@ export default function LocationChart({
               />
               <div className="flex flex-row gap-2">
                 <button
-                  className="bg-blue-500 gp text-white p-2 rounded"
+                  className="bg-primary gp text-white p-2 rounded"
                   type="button"
                   onClick={() => {
                     window.open(getBookingLink(building), '_blank');
@@ -170,7 +170,7 @@ export default function LocationChart({
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white p-2 rounded"
+                  className="bg-primary text-white p-2 rounded"
                 >
                   <IoIosCheckmarkCircle />
                 </button>

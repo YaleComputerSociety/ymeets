@@ -10,7 +10,7 @@ export default function NavLogo() {
       <a href="/">
         <div
           className="flex flex-row items-center select-none text-gray-500 \
-                                hover:text-blue-500"
+                                hover:text-primary"
         >
           <div className="mr-2">
             <CalendarIcon></CalendarIcon>

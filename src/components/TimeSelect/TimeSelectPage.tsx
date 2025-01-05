@@ -430,70 +430,96 @@ function TimeSelectPage() {
   };
 
   return (
-    <div className="bg-sky-100 w-full px-4 md:px-8 lg:px-12">
-      <div>
-        {/* <div className={`w-[95%] mb-4 md:w-[45%] right-column`}> */}
-        <div>
-          <Calendar
-            theCalendarState={[calendarState, setCalendarState]}
-            user={getCurrentUserIndex()}
-            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            draggable={true}
-            chartedUsersData={undefined}
-            theDragState={[dragState, setDragState]}
-            isAdmin={false}
-            theGoogleCalendarEvents={[
-              googleCalendarEvents,
-              setGoogleCalendarEvents,
-            ]}
-          />
-        </div>
-
-        {!areSelectingGeneralDays && getAccountId() !== '' ? (
-          <div className="md:pl-4 z-60 mb-4 md:mb-0">
-            <div className="hidden md:flex">
-              <ButtonSmall
-                bgColor="blue-500"
-                textColor="white"
-                onClick={handleToggleGCalAvailabilitiesClick}
-              >
-                Show GCal Events
-              </ButtonSmall>
+    <div className="bg-background w-full px-4 md:px-8 lg:px-12">
+      <div
+        className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 flex flex-col"
+        // style={{ width: '70vw', maxWidth: '100%' }}
+      >
+        <div className="pl-7 mt-5 col-span-1">
+          <div className="text-3xl font-bold">{eventName}</div>
+          <div className="text-xl mt-5">{eventDescription}</div>
+          {locationOptions.length > 0 && (
+            <div className="mb-8 mt-5">
+              <LocationSelectionComponent
+                update={updateSelectedLocations}
+                locations={locationOptions}
+              />
             </div>
-            <div className="md:hidden flex">
+          )}
+        </div>
+        <div className="col-span-3">
+          <div className="flex items-center justify-center">
+            <Calendar
+              theCalendarState={[calendarState, setCalendarState]}
+              user={getCurrentUserIndex()}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              draggable={true}
+              chartedUsersData={undefined}
+              theDragState={[dragState, setDragState]}
+              isAdmin={false}
+              theGoogleCalendarEvents={[
+                googleCalendarEvents,
+                setGoogleCalendarEvents,
+              ]}
+            />
+          </div>
+          <div className="flex flex-row justify-between">
+            {!areSelectingGeneralDays && getAccountId() !== '' ? (
+              <div className="pl-5 z-60 mb-4 md:mb-0">
+                <div className="hidden md:flex">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={handleToggleGCalAvailabilitiesClick}
+                  >
+                    Show GCal Events
+                  </ButtonSmall>
+                </div>
+                <div className="md:hidden flex">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={handleToggleGCalAvailabilitiesClick}
+                  >
+                    Show GCal Events
+                  </ButtonSmall>
+                </div>
+              </div>
+            ) : (
+              !areSelectingGeneralDays && (
+                <div className="md:pl-4 mb-4 md:mb-0">
+                  <button
+                    className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                    onClick={() => {
+                      signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+                        (loginSuccessful) => {
+                          if (loginSuccessful) {
+                            window.location.reload();
+                          } else {
+                            console.error('login failed');
+                          }
+                        }
+                      );
+                    }}
+                  >
+                    <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
+                    Sign in with Google to access GCal
+                  </button>
+                </div>
+              )
+            )}
+            <div className="pr-5">
               <ButtonSmall
-                bgColor="blue-500"
+                bgColor="primary"
                 textColor="white"
-                onClick={handleToggleGCalAvailabilitiesClick}
+                onClick={handleSubmitAvailability}
               >
-                Show GCal Events
+                Next
               </ButtonSmall>
             </div>
           </div>
-        ) : (
-          !areSelectingGeneralDays && (
-            <div className="md:pl-4 mb-4 md:mb-0">
-              <button
-                className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
-                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                onClick={() => {
-                  signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                    (loginSuccessful) => {
-                      if (loginSuccessful) {
-                        window.location.reload();
-                      } else {
-                        console.error('login failed');
-                      }
-                    }
-                  );
-                }}
-              >
-                <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
-                Sign in with Google to access GCal
-              </button>
-            </div>
-          )
-        )}
+        </div>
       </div>
       <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}

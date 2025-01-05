@@ -129,7 +129,7 @@ export default function AccountsPage() {
               </div>
             </div>
             <button
-              className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+              className="font-bold text-white bg-primary rounded-full bg-primary text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
               onClick={() => {
                 nav('/dayselect');
               }}
@@ -197,7 +197,7 @@ export default function AccountsPage() {
                         onClick={() => {
                           nav('/groupview/' + event.id);
                         }}
-                        className="text-sm lg:text-base bg-blue-500 flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+                        className="text-sm lg:text-base bg-primary flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                       >
                         Open
                       </button>
@@ -237,7 +237,7 @@ export default function AccountsPage() {
                 logout(gapi);
                 nav('/');
               }}
-              className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
             >
               Logout
             </button>

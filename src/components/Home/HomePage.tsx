@@ -29,7 +29,7 @@ export default function HomePage() {
   };
   const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
     setEventCode(event.target.value);
-  };  
+  };
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
       signInAndGoToEvent();
@@ -65,7 +65,7 @@ export default function HomePage() {
     <>
       <div className="h-1 md:h-8"></div>
       <div
-        className="h-fit w-full overflow-auto bg-sky-100 p-8 sm:p-14 pt-0 \
+        className="h-fit w-full overflow-auto bg-background p-8 sm:p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60"
       >
         <div
@@ -106,7 +106,7 @@ export default function HomePage() {
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0"
             >
               <Button
-                bgColor="blue-500"
+                bgColor="primary"
                 textColor="white"
                 onClick={() => navigate('/dayselect')}
               >
@@ -131,7 +131,7 @@ export default function HomePage() {
                   Event Code
                 </label>
                 <input
-                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"
+                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-primary"
                   placeholder="Enter your event code"
                   name="eventCode"
                   onInput={updateEventCode}
@@ -139,7 +139,7 @@ export default function HomePage() {
                   autoComplete="off"
                 />
                 <button
-                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
+                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-primary"
                   onClick={signInAndGoToEvent}
                 >
                   Join
@@ -148,7 +148,7 @@ export default function HomePage() {
                   className={
                     !showFormValidation
                       ? 'hidden'
-                      : 'text-blue-500 absolute -bottom-10 mb-2 text-center w-full'
+                      : 'text-primary absolute -bottom-10 mb-2 text-center w-full'
                   }
                 >
                   Try Again: {formErrorMessage}

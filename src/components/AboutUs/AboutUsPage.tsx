@@ -144,7 +144,7 @@ function ContributorCard({
           <h1 className="text-xl mb-3 font-bold font-mono">{name}</h1>
           {title?.map((subtitle) => {
             const style: Record<string, string> = {
-              'Software Engineer': 'text-blue-500 border-blue-500',
+              'Software Engineer': 'text-primary border-primary',
               'UI/UX Designer': 'text-pink-500 border-pink-500',
               'Product Lead': 'text-amber-500 border-amber-500',
             };
@@ -164,21 +164,21 @@ function ContributorCard({
           </p> */}
         </div>
         <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500">
-          <div className="pr-1 hover:text-blue-500">
+          <div className="pr-1 hover:text-primary">
             {github && (
               <a href={github}>
                 <FaGithubSquare size={30} />
               </a>
             )}
           </div>
-          <div className="pr-1 hover:text-blue-500">
+          <div className="pr-1 hover:text-primary">
             {linkedin && (
               <a href={linkedin}>
                 <FaLinkedin size={30} />
               </a>
             )}
           </div>
-          <div className="pr-1 hover:text-blue-500">
+          <div className="pr-1 hover:text-primary">
             {portfolio && (
               <a href={portfolio}>
                 <FaLink size={30} />
@@ -213,14 +213,14 @@ export default function AboutUsPage() {
             physical location for meetings to also be decided on. The app is
             built and maintained by a small team of{' '}
             <a
-              className="text-blue-500 "
+              className="text-primary "
               href="https://yalecomputersociety.org/"
             >
               y/cs (Yale Computer Society){' '}
             </a>
             developers. If you have concerns about our app uses your
             information, please go to the following{' '}
-            <a className="text-blue-500" href="/privacy">
+            <a className="text-primary" href="/privacy">
               page
             </a>{' '}
             to view our privacy policy.

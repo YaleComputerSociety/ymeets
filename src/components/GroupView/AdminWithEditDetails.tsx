@@ -300,7 +300,7 @@
 //                 <div className="flex-grow">
 //                   <div className="hidden md:block flex flex-row ml-0 md:ml-4">
 //                     <Button
-//                       bgColor="blue-500"
+//                       bgColor="primary"
 //                       textColor="white"
 //                       onClick={() => {
 //                         nav('/timeselect/' + code);
@@ -416,7 +416,7 @@
 //                     {selectedLocation && (
 //                       <Button
 //                         textColor="white"
-//                         bgColor="blue-500"
+//                         bgColor="primary"
 //                         onClick={() => {
 //                           window.open(
 //                             'https://25live.collegenet.com/pro/yale#!/home/event/form',
@@ -516,7 +516,7 @@
 //                     onClick={() => {
 //                       setSelectionConfirmedPopupOpen(true);
 //                     }}
-//                     className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
+//                     className="font-bold rounded-full bg-primary text-white py-3 px-5 text-sm mb-8 w-fit
 //                                         transform transition-transform hover:scale-90 active:scale-100e"
 //                   >
 //                     Submit Selection
@@ -528,7 +528,7 @@
 //                         window.location.reload();
 //                       });
 //                     }}
-//                     className="font-bold rounded-full bg-blue-500 text-white py-3 px-5 text-sm mb-8 w-fit
+//                     className="font-bold rounded-full bg-primary text-white py-3 px-5 text-sm mb-8 w-fit
 //                                     transform transition-transform hover:scale-90 active:scale-100e"
 //                   >
 //                     Undo Selection
@@ -570,7 +570,7 @@
 //                 <div className="flex flex-row ml-0 md:ml-4">
 //                   <div className="flex-grow ml-2">
 //                     <button
-//                       className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+//                       className="font-bold text-white bg-primary rounded-full bg-primary text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
 //                       onClick={() => {
 //                         nav('/timeselect/' + code);
 //                       }}
@@ -643,7 +643,7 @@
 //                           href={getZoomLink()}
 //                           target="_blank"
 //                           rel="noopener noreferrer"
-//                           className="inline-block text-left w-full md:w-auto break-all text-blue-500 underline"
+//                           className="inline-block text-left w-full md:w-auto break-all text-primary underline"
 //                         >
 //                           {getZoomLink()}
 //                         </a>
@@ -658,7 +658,7 @@
 //                               '_blank'
 //                             );
 //                           }}
-//                           className="font-bold mt-2 items-center justify-center rounded-md bg-blue-500 text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
+//                           className="font-bold mt-2 items-center justify-center rounded-md bg-primary text-white text-base w-fit p-3 transform transition-transform hover:scale-90 active:scale-100e"
 //                         >
 //                           Book Room
 //                         </button>

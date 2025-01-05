@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './components/Home/HomePage';
 import DaySelectComponent from './components/DaySelect/day_select_component';
 import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
-import NavBar from './components/NavBar/NavBar';
+import NavBar from './components/navbar/NavBar';
 import AccountsPage from './components/Accounts/AccountsPage';
 import GroupViewApp from './components/GroupView/GroupViewPage';
 import AboutUsPage from './components/AboutUs/AboutUsPage';
@@ -14,7 +14,7 @@ import Banner from './components/utils/components/Banner';
 
 function Root() {
   return (
-    <>
+    <div className="bg-background">
       <Banner title="1.0 Release is Live" text="Please report bugs" />
       <GAPIContextWrapper>
         <Router>
@@ -31,7 +31,7 @@ function Root() {
           </Routes>
         </Router>
       </GAPIContextWrapper>
-    </>
+    </div>
   );
 }
 

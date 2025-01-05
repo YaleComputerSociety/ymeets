@@ -293,7 +293,7 @@ export const DaySelectComponent = () => {
             <div
               className={`absolute rounded-md transition-transform duration-300 ${
                 selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
-              } bg-blue-500`}
+              } bg-primary`}
             />
           </button>
           <button
@@ -308,7 +308,7 @@ export const DaySelectComponent = () => {
             <div
               className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
                 selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
-              } bg-blue-500`}
+              } bg-primary`}
             />
           </button>
         </div>
@@ -329,7 +329,7 @@ export const DaySelectComponent = () => {
         <div className="flex items-center justify-center">
           <Button
             textColor="white"
-            bgColor="blue-500"
+            bgColor="primary"
             onClick={verifyNextAndSubmitEvent}
           >
             Next

@@ -59,13 +59,13 @@
 //                 {/* Centered Submit Button with Spinner */}
 //                 <div className="flex justify-center items-center space-x-4 mt-4">
 //                   <button
-//                     className="text-lg bg-blue-500 w-fit text-white font-medium py-2 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+//                     className="text-lg bg-primary w-fit text-white font-medium py-2 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
 //                     onClick={onCloseAndSubmit}
 //                   >
 //                     Submit
 //                   </button>
 //                   {isFillingAvailability && (
-//                     <div className="w-6 h-6 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+//                     <div className="w-6 h-6 border-4 border-t-primary border-gray-200 rounded-full animate-spin"></div>
 //                   )}
 //                 </div>
 //               </div>
@@ -97,7 +97,7 @@ export const Popup = ({ isOpen, onClose, children, onCloseAndSubmit }: any) => {
               {children}
               <br />
               <button
-                className="text-lg bg-blue-500 w-fit text-white font-medium py-2 px-5 rounded-lg mt-4 hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+                className="text-lg bg-primary w-fit text-white font-medium py-2 px-5 rounded-lg mt-4 hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                 onClick={onCloseAndSubmit}
               >
                 Submit

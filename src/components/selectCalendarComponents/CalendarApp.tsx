@@ -3,6 +3,8 @@ import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -69,7 +71,27 @@ export default function Calendar({
     calendarFramework.endTime
   );
 
-  const NUMBER_OF_COLUMNS_PER_PAGE = 5;
+  const calculateColumnsPerPage = () => {
+    const width = window.innerWidth;
+    if (width > 1200) return 5;
+    if (width > 900) return 3;
+    return 3;
+  };
+
+  const [NUMBER_OF_COLUMNS_PER_PAGE, setNumberOfColumnsPerPage] =
+    React.useState(calculateColumnsPerPage);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setNumberOfColumnsPerPage(calculateColumnsPerPage());
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   const [currentStartPage, setCurrentStartPage] = React.useState(0);
 
   const handlePrev = () => {
@@ -86,7 +108,7 @@ export default function Calendar({
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col">
       <div
         id="cal"
         className="flex justify-center mb-4 md:m-5 md:justify-start relative"
@@ -95,15 +117,13 @@ export default function Calendar({
           style={{ width: '3.75rem', height: '3.75rem' }}
           className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
         ></div>
-        <div className="bg-white flex flex-row sm:pb-4 md:bg-white rounded-lg max-h-130">
+
+        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
-            <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
-
-            <div
-              style={{ width: '3.75rem', height: '0.50rem' }}
-              className="bg-white"
-            ></div>
+            {/* handles aligning it with the cal */}
+            <div style={{ width: '3.75rem', height: '5.75rem' }}></div>
+            <div style={{ width: '3.75rem', height: '0.50rem' }}></div>
             {timeBlocks.map((hour: string[], blockIDOffset: number) => (
               <div
                 key={blockIDOffset}
@@ -116,7 +136,7 @@ export default function Calendar({
                     className="h-3 flex items-center justify-end pr-2 bg-white"
                   >
                     {time.slice(-2) === '00' && (
-                      <span className="text-xs relative z-20">
+                      <span className="text-xs text-steelgray relative z-20">
                         {militaryConvert(time)}
                       </span>
                     )}
@@ -130,8 +150,16 @@ export default function Calendar({
             ></div>
           </div>
 
-          <div className="ml-0 mr-2 mb-4">
+          <div
+            className="ml-0 mr-2 mb-4"
+            style={{
+              width: window.innerWidth > 900 ? '60vw' : '80vw',
+              maxWidth: '100%',
+            }}
+          >
             <SelectCalander
+              handleNext={handleNext}
+              handlePrev={handlePrev}
               renderTime={false}
               theCalendarState={[calendarState, setCalendarState]}
               bucket={calendarFramework?.dates
@@ -153,8 +181,8 @@ export default function Calendar({
             />
           </div>
 
-          <button onClick={handlePrev}>Prev</button>
-          <button onClick={handleNext}>Next</button>
+          {/* <button onClick={handlePrev}>Prev</button>
+          <button onClick={handleNext}>Next</button> */}
         </div>
       </div>
     </div>

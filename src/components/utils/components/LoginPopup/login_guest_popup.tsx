@@ -128,7 +128,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
                   isValidInput && inputName.trim().length > 0
                     ? 'bg-gray-300 text-white'
                     : 'bg-gray-100 text-gray-400'
-                } py-2 px-4 text-lg hover:outline-blue-500 hover:outline-3`}
+                } py-2 px-4 text-lg hover:outline-primary hover:outline-3`}
                 onClick={handleSignInWithoutGoogle}
                 disabled={!isValidInput || inputName.trim().length === 0}
               >

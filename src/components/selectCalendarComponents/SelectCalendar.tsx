@@ -12,6 +12,9 @@ import CalRow from './CalRow';
 import DateBar from './DateBar';
 import { dragProperties } from './CalendarApp';
 
+import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
+
 interface SelectCalanderProps {
   theCalendarState: [
     calanderState,
@@ -42,6 +45,8 @@ interface SelectCalanderProps {
         React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
       ]
     | undefined;
+  handleNext: any;
+  handlePrev: any;
 }
 
 function SelectCalander({
@@ -57,22 +62,35 @@ function SelectCalander({
   endDate,
   theDragState,
   theGoogleCalendarEvents,
+  handleNext,
+  handlePrev,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
 
   return (
-    <div
-      className="relative max-h-130 mr-2 w-screen"
-      style={{ touchAction: 'none' }}
-    >
+    <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
+      <div className="sticky z-50 flex flex-row justify-between mt-5 top-0">
+        <FaArrowLeft
+          onClick={handlePrev}
+          size={35}
+          className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+        />
+        <FaArrowRight
+          onClick={handleNext}
+          size={35}
+          className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+        />
+      </div>
+
       <div className="flex flex-col">
-        <div className="sticky h-full top-0 mb-2 flex flex-row z-30">
-          <div className="bg-white w-full">
+        <div className="sticky h-full mb-2 flex flex-row z-30 top-0">
+          <div className="bg-white w-full flex">
             <div className="bg-white z-50 h-6"></div>
             <DateBar dates={bucket} />
           </div>
         </div>
-        <div className="w-screen">
+
+        <div>
           <div className="h-px bg-black"></div>
           {timeBlocks.map((hour: string[], blockIDOffset: number) => (
             <div key={blockIDOffset}>
@@ -80,7 +98,7 @@ function SelectCalander({
                 {hour.map((time: string, blockID) => (
                   <div
                     key={time}
-                    className={`border-black border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
+                    className={`border-steelgray border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
                   >
                     <CalRow
                       is30Minute={time.slice(3) === '30'}

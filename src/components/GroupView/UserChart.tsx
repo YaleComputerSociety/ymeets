@@ -41,7 +41,7 @@ const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
       <table className="table-fixed border-collapse w-full">
         <thead>
           <tr>
-            <th className="border-b p-3 text-blue-500">Available</th>
+            <th className="border-b p-3 text-primary">Available</th>
             <th className="border-b p-3 text-gray-500">Unavailable</th>
           </tr>
         </thead>

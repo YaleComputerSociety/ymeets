@@ -438,7 +438,7 @@ export default function CalBlock({
     }
   };
 
-  const borderTop = is30Minute ? '1px dotted #000' : 'none';
+  const borderTop = is30Minute ? '1px dotted #7E7E7E' : 'none';
 
   return (
     <>
@@ -495,7 +495,7 @@ export default function CalBlock({
               : `bg-${shadeColor} w-full p-0 h-3 touch-none`
           }
           style={{
-            borderRight: '1px solid #000',
+            borderRight: '1px solid #7E7E7E',
             borderTop,
             backgroundColor: shadeColor,
             transition: 'background-color 0.2s ease',
