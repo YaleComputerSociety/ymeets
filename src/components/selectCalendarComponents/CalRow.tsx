@@ -42,6 +42,7 @@ interface CalRowProps {
       ]
     | undefined;
   time: string;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export default function CalRow({
@@ -58,6 +59,7 @@ export default function CalRow({
   chartedUsersData,
   theGoogleCalendarEvents,
   time,
+  onClick,
 }: CalRowProps) {
   const [googleCalendarEvents, setGoogleCalendarEvents] =
     theGoogleCalendarEvents || [];
@@ -113,6 +115,7 @@ export default function CalRow({
         return (
           // <div key={columnIndex}>hi</div>
           <CalBlock
+            onClick={onClick}
             theCalendarFramework={theCalendarFramework}
             is30Minute={is30Minute}
             theCalendarState={theCalendarState}

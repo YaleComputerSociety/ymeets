@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { checkIfAdmin } from '../../firebase/events';
 import {
   calanderState,
   userData,
@@ -34,11 +35,14 @@ import InformationPopup from '../utils/components/InformationPopup';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 
+interface GroupViewProps {
+  isAdmin: boolean;
+}
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
-export default function AdminGroupViewPage() {
+export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   const { gapi, handleIsSignedIn } = useContext(GAPIContext);
 
   const [calendarState, setCalendarState] = useState<calanderState>([]);
@@ -52,6 +56,8 @@ export default function AdminGroupViewPage() {
     });
 
   const { code } = useParams();
+
+  const [showUserChart, setShowUserChart] = useState(false);
 
   const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
   const [eventName, setEventName] = useState('');
@@ -106,8 +112,6 @@ export default function AdminGroupViewPage() {
 
   const handleAddToCalendar = useCallback(
     async (startDate: Date, endDate: Date, location: string | undefined) => {
-      console.log('here');
-
       const event = getEventObjectForGCal(startDate, endDate, location);
       const calendarEventUrl = createCalendarEventUrl(event);
 
@@ -231,81 +235,145 @@ export default function AdminGroupViewPage() {
 
   return (
     <>
-      <div className="flex justify-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="flex flex-col-reverse justify-center w-[100%] md:px-8 md:flex-row md:space-x-7 lg:space-x-15 xl:space-x-25">
-          {showGeneralPopup && (
-            <GeneralPopup
-              onClose={() => {
-                setShowGeneralPopup(false);
-              }}
-              message={generalPopupMessage}
-              isLogin={false}
-            />
-          )}
-          <div className="flex flex-col flex-none md:w-[48%] mb-4 md:mt-0 space-y-5 items-center">
-            <div className="w-[100%] content-start align-start items-start">
-              {/* Edit availability button */}
+      <div className="flex flex-col md:flex-row justify-center mx-4 mb-4 md:mx-10 md:mb-10">
+        <div className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 md:gap-1 w-full">
+          <div className="col-span-1 mt-2 ml-0 md:ml-9 w-full">
+            {showGeneralPopup && (
+              <GeneralPopup
+                onClose={() => {
+                  setShowGeneralPopup(false);
+                }}
+                message={generalPopupMessage}
+                isLogin={false}
+              />
+            )}
+            <div>
+              <div className="flex flex-col content-center md:w-[75%] flex-none mb-5 md:mt-0">
+                {/* Event name, location, and time */}
+                <div className="mb-4 flex flex-col">
+                  <h3 className="text-2xl md:text-3xl font-bold text-center md:text-left">
+                    {eventName}
+                  </h3>
+                  <h3 className="text-md md:text-xl text-center md:text-left">
+                    {eventDescription}
+                  </h3>
 
-              <div className="hidden md:block flex flex-row ml-0 md:ml-4">
-                <div className="flex-grow">
-                  <button
-                    className="font-bold text-white bg-primary rounded-full bg-primary text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                    onClick={() => {
-                      nav('/timeselect/' + code);
-                    }}
-                  >
-                    <span className="mr-1">&#8592;</span> Edit Your
-                    Availiability
-                  </button>
+                  <div className="flex flex-col">
+                    <div className="h-3"></div>
+                    <button
+                      onClick={() => {
+                        copy(`${window.location.origin}/timeselect/${code}`);
+                        setCopied(true);
+                        setTimeout(() => {
+                          setCopied(false);
+                        }, 1500);
+                      }}
+                      className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
+                        copied
+                          ? 'bg-green-500 hover:bg-green-500 text-white'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
+                    >
+                      {
+                        <IconCopy
+                          size={25}
+                          className="inline-block w-4 lg:w-5 mr-2"
+                        />
+                      }
+                      {copied
+                        ? 'Copied to Clipboard'
+                        : `Shareable ymeets Link (Event Code: ${code})`}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex flex-col content-center space-y-1 md:w-[75%] flex-none mb-5 md:mt-0">
-              {/* Event name, location, and time */}
 
-              <div className="hidden mb-4 flex flex-col space-y-5 md:block">
-                <h3 className="text-3xl font-bold text-center md:text-left">
-                  {eventName}
-                </h3>
-                <h3 className="text-xl text-center md:text-left">
-                  {eventDescription}
-                </h3>
-
-                <div className="flex flex-col">
-                  <div className="h-3"></div>
-                  <button
-                    onClick={() => {
-                      copy(`${window.location.origin}/timeselect/${code}`);
-                      setCopied(true);
-                      setTimeout(() => {
-                        setCopied(false);
-                      }, 1500);
-                    }}
-                    className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                      copied
-                        ? 'bg-green-500 hover:bg-green-500 text-white'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
-                  >
-                    {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-                    {copied
-                      ? 'Copied to Clipboard'
-                      : `Shareable ymeets Link (Event Code: ${code})`}
-                  </button>
+                {/* User availability table */}
+                <div className="hidden md:block mb-2">
+                  {chartedUsers !== undefined && (
+                    <UserChart
+                      chartedUsersData={[chartedUsers, setChartedUsers]}
+                    />
+                  )}
                 </div>
-              </div>
 
-              {/* User availability table */}
-              <div className="mb-2">
-                {chartedUsers !== undefined && (
-                  <UserChart
-                    chartedUsersData={[chartedUsers, setChartedUsers]}
-                  />
+                {/* Location options table */}
+                {locationOptions.length > 0 && (
+                  <div className="hidden md:block">
+                    <LocationChart
+                      theSelectedLocation={[
+                        adminChosenLocation,
+                        setAdminChosenLocation,
+                      ]}
+                      locationOptions={
+                        locationOptions.length > 0 ? locationOptions : ['']
+                      }
+                      locationVotes={Object.values(locationVotes)}
+                      selectionMade={
+                        getChosenLocation() === ''
+                          ? false
+                          : getChosenLocation() === undefined
+                            ? false
+                            : true
+                      }
+                    />
+                  </div>
                 )}
               </div>
+            </div>
+          </div>
+          <div className="col-span-3">
+            <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
+              <Calendar
+                onClick={() => {
+                  setShowUserChart(true);
+                  setTimeout(() => setShowUserChart(false), 3000);
+                }}
+                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                chartedUsersData={[chartedUsers, setChartedUsers]}
+                draggable={
+                  isAdmin &&
+                  calendarFramework?.dates?.[0][0].date instanceof Date &&
+                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                    2000
+                }
+                user={getCurrentUserIndex()}
+                isAdmin={isAdmin}
+                theDragState={[dragState, setDragState]}
+                theGoogleCalendarEvents={[[], () => {}]}
+              />
+              <div className="flex flex-row justify-between ml-0 mr-5 md:ml-4 gap-x-4">
+                <button
+                  className="font-bold rounded-full bg-primary text-white py-3 px-4 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                  onClick={() => {
+                    nav('/timeselect/' + code);
+                  }}
+                >
+                  <span className="mr-1">&#8592;</span> Edit Your Availability
+                </button>
 
-              {/* Location options table */}
-              {locationOptions.length > 0 && (
+                {isAdmin &&
+                  calendarFramework?.dates?.[0][0].date instanceof Date &&
+                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                    2000 && (
+                    <AddToGoogleCalendarButton
+                      onClick={handleSelectionSubmission}
+                    />
+                  )}
+              </div>
+            </div>
+
+            <div className="md:pl-3 mt-2">
+              <div className="p-1 flex-shrink w-full md:w-[80%] text-gray-500 text-left text-sm md:text-left">
+                {locationOptions.length == 0 ? (
+                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
+                ) : (
+                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
+                )}
+              </div>
+            </div>
+            {locationOptions.length > 0 && (
+              <div className="md:hidden">
                 <LocationChart
                   theSelectedLocation={[
                     adminChosenLocation,
@@ -323,114 +391,21 @@ export default function AdminGroupViewPage() {
                         : true
                   }
                 />
-              )}
-            </div>
-          </div>
-          <div className="max-w-[100%] lg:max-w-[50%] ">
-            <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
-              <Calendar
-                theCalendarState={[calendarState, setCalendarState]}
-                theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                chartedUsersData={[chartedUsers, setChartedUsers]}
-                draggable={
-                  calendarFramework?.dates?.[0][0].date instanceof Date &&
-                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                    2000
-                }
-                user={getCurrentUserIndex()}
-                isAdmin={true}
-                theDragState={[dragState, setDragState]}
-                theGoogleCalendarEvents={[[], () => {}]}
-              />
-            </div>
-            {calendarFramework?.dates?.[0][0].date instanceof Date &&
-              (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                2000 && (
-                <AddToGoogleCalendarButton
-                  onClick={handleSelectionSubmission}
-                />
-              )}
-            <div className="md:pl-3">
-              <div className="p-1 flex-shrink w-[80%] text-gray-500 text-left text-sm md:text-left">
-                {/* NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. <br/>  */}
-                {locationOptions.length == 0 ? (
-                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
-                ) : (
-                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
+                {chartedUsers !== undefined && (
+                  <div
+                    className={`fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
+                      showUserChart ? 'translate-y-0' : 'translate-y-full'
+                    }`}
+                  >
+                    <div className="bg-white p-4 z-50 rounded-t-xl shadow-lg">
+                      <UserChart
+                        chartedUsersData={[chartedUsers, setChartedUsers]}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-          <div className="md:hidden flex flex-col flex-none mb-5 items-center">
-            {/* (Mobile): Event name, location, and time */}
-            <div className="w-[100%] content-start align-start items-start">
-              <div className="flex flex-row ml-0 md:ml-4">
-                <div className="flex-grow ml-2">
-                  <button
-                    className="font-bold text-white bg-primary rounded-full bg-primary text-white py-2 px-4 text-sm w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                    onClick={() => {
-                      nav('/timeselect/' + code);
-                    }}
-                  >
-                    <span className="mr-1">&#8592;</span> Edit Your
-                    Availiability
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col content-center space-y-1 w-[80%] flex-none mb-5 md:mt-0">
-              <div className="mb-4 flex flex-col space-y-2 mt-4">
-                <h3 className="text-2xl font-bold text-center mb-0">
-                  {eventName}
-                </h3>
-                <h3 className="text-md text-center lg:text-left mt-0">
-                  {eventDescription}
-                </h3>
-
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => {
-                      copy(`${window.location.origin}/timeselect/${code}`);
-                      setCopied(true);
-                      setTimeout(() => {
-                        setCopied(false);
-                      }, 1500);
-                    }}
-                    className={`
-                      text-sm mt-4 lg:text-base
-                      flex flex-col items-center justify-center
-                      ${
-                        copied
-                          ? 'bg-green-600 hover:bg-green-600 text-white'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                      }
-                      border border-slate-300 font-medium
-                      py-2 px-5 rounded-lg transition-colors
-                      relative h-[3.5rem]
-                    `}
-                  >
-                    {copied ? (
-                      <span className="flex items-center gap-2">
-                        <IconCopy className="inline-block w-4" />
-                        Copied to Clipboard
-                      </span>
-                    ) : (
-                      <>
-                        <div className="items-center justify-center align-center">
-                          <span className="flex items-center justify-center align-center">
-                            <IconCopy className="inline-block w-4 mr-2" />
-                            Shareable ymeets Link
-                          </span>
-                          <span className="text-xs align-top">
-                            (Event Code: {code})
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

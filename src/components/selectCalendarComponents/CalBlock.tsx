@@ -4,6 +4,7 @@ import 'tailwindcss/tailwind.css';
 import { calanderState, userData, user, calendarDimensions } from '../../types';
 import { dragProperties } from './CalendarApp';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { useCallback } from 'react';
 
 interface CalBlockProps {
   blockID: number;
@@ -32,6 +33,7 @@ interface CalBlockProps {
 
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export default function CalBlock({
@@ -47,6 +49,7 @@ export default function CalBlock({
   theDragState,
   isOnGcal,
   associatedEvents = undefined,
+  onClick,
 }: CalBlockProps) {
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -107,10 +110,12 @@ export default function CalBlock({
       const percentageSelected = selectedCount / calendarState.length;
       // green-200
       // const start_shade = '#A7F3D0'
-      const start_shade = '#A0F4E4';
+      // const start_shade = '#A0F4E4';
+      const start_shade = '#afcdfa';
       // green-500
       // const end_shade = '#10B981'
-      const end_shade = '#4D7C0F';
+      // const end_shade = '#4D7C0F';
+      const end_shade = '#4b86de';
 
       if (selectedCount === 0) {
         return 'white';
@@ -119,7 +124,7 @@ export default function CalBlock({
       }
     } else {
       // timeselect - shade color is just going to be sky
-      return 'sky-200';
+      return 'select';
     }
   }
 
@@ -325,7 +330,9 @@ export default function CalBlock({
     }
   };
 
-  const handleBlockClick = () => {
+  const handleBlockClick = (e: any) => {
+    onClick(e);
+
     if (isDraggable) {
       if (isAdmin === true) {
         return;
@@ -440,6 +447,16 @@ export default function CalBlock({
 
   const borderTop = is30Minute ? '1px dotted #7E7E7E' : 'none';
 
+  // pagination updates
+  const updateShadeColors = useCallback(() => {
+    setShadeColor(getDefaultShadeColor());
+    setOriginalShadeColor(getDefaultShadeColor());
+  }, [columnID, blockID, isAdmin]);
+
+  useEffect(() => {
+    updateShadeColors();
+  }, [updateShadeColors]);
+
   return (
     <>
       <div>
@@ -456,7 +473,7 @@ export default function CalBlock({
           onMouseEnter={() => {
             setGcalEventActive(true);
           }}
-          onTouchStart={() => {
+          onTouchStart={(event) => {
             // setGcalEventActive(true);
             if (!isDraggable) {
               return;
@@ -473,7 +490,7 @@ export default function CalBlock({
             }
 
             handleDesktopHoverChartedUser();
-            handleBlockClick();
+            handleBlockClick(event);
           }}
           onTouchMove={(e) => {
             handleMobileAvailabilitySelect(e);
@@ -487,12 +504,13 @@ export default function CalBlock({
             setIsDottedBorder(false);
             handleMouseOrTouchLeaveBlock();
           }}
+          // Remove the className bg-color reference and only use the inline style
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} w-full p-0 h-3 touch-none`
-                : `bg-${unShadeColor} w-full p-0 h-3 touch-none`
-              : `bg-${shadeColor} w-full p-0 h-3 touch-none`
+                ? `bg-${shadeColor} flex-1 w-full p-0 h-3 touch-none`
+                : `bg-${unShadeColor} flex-1 w-full p-0 h-3 touch-none`
+              : `bg-${shadeColor} flex-1 w-full p-0 h-3 touch-none`
           }
           style={{
             borderRight: '1px solid #7E7E7E',

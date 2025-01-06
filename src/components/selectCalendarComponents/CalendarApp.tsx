@@ -3,8 +3,6 @@ import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import { FaArrowLeft } from 'react-icons/fa';
-import { FaArrowRight } from 'react-icons/fa';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -29,6 +27,7 @@ interface CalendarProps {
     calendar_v3.Schema$Event[],
     React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
   ];
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export interface dragProperties {
@@ -47,6 +46,7 @@ export default function Calendar({
   isAdmin,
   theDragState,
   theGoogleCalendarEvents,
+  onClick,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -73,13 +73,14 @@ export default function Calendar({
 
   const calculateColumnsPerPage = () => {
     const width = window.innerWidth;
-    if (width > 1200) return 5;
-    if (width > 900) return 3;
+    if (width > 1200) return 7;
+    if (width > 900) return 5;
     return 3;
   };
 
-  const [NUMBER_OF_COLUMNS_PER_PAGE, setNumberOfColumnsPerPage] =
-    React.useState(calculateColumnsPerPage);
+  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
+    calculateColumnsPerPage
+  );
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -100,7 +101,7 @@ export default function Calendar({
 
   const handleNext = () => {
     if (
-      currentStartPage + NUMBER_OF_COLUMNS_PER_PAGE <
+      currentStartPage + numberOfColumnsPerPage <
       calendarFramework.dates.flat().length
     ) {
       setCurrentStartPage(currentStartPage + 1);
@@ -158,15 +159,18 @@ export default function Calendar({
             }}
           >
             <SelectCalander
+              onClick={onClick}
               handleNext={handleNext}
               handlePrev={handlePrev}
+              numberOfColumns={numberOfColumnsPerPage}
+              currentStartPage={currentStartPage}
               renderTime={false}
               theCalendarState={[calendarState, setCalendarState]}
               bucket={calendarFramework?.dates
                 .flat()
                 .slice(
                   currentStartPage,
-                  currentStartPage + NUMBER_OF_COLUMNS_PER_PAGE
+                  currentStartPage + numberOfColumnsPerPage
                 )}
               draggable={draggable}
               isAdmin={isAdmin}

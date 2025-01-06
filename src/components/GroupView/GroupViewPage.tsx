@@ -32,11 +32,11 @@ export default function GroupViewApp() {
     <>
       {isAdmin ? (
         <div>
-          <AdminGroupViewPage />
+          <AdminGroupViewPage isAdmin={true} />
         </div>
       ) : (
         <div>
-          <ParticipantGroupViewPage />
+          <AdminGroupViewPage isAdmin={false} />
         </div>
       )}
     </>

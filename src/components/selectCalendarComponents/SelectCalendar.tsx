@@ -47,6 +47,9 @@ interface SelectCalanderProps {
     | undefined;
   handleNext: any;
   handlePrev: any;
+  currentStartPage: number;
+  numberOfColumns: number;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 function SelectCalander({
@@ -64,22 +67,33 @@ function SelectCalander({
   theGoogleCalendarEvents,
   handleNext,
   handlePrev,
+  currentStartPage,
+  numberOfColumns,
+  onClick,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
+  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
   return (
     <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
       <div className="sticky z-50 flex flex-row justify-between mt-5 top-0">
-        <FaArrowLeft
-          onClick={handlePrev}
-          size={35}
-          className="bg-primary text-white p-2 rounded-lg cursor-pointer "
-        />
-        <FaArrowRight
-          onClick={handleNext}
-          size={35}
-          className="bg-primary text-white p-2 rounded-lg cursor-pointer "
-        />
+        {currentStartPage !== 0 ? (
+          <FaArrowLeft
+            onClick={handlePrev}
+            size={35}
+            className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+          />
+        ) : (
+          <div></div>
+        )}
+        {currentStartPage + numberOfColumns <
+          calendarFramework.dates.flat().length && (
+          <FaArrowRight
+            onClick={handleNext}
+            size={35}
+            className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+          />
+        )}
       </div>
 
       <div className="flex flex-col">
@@ -101,6 +115,7 @@ function SelectCalander({
                     className={`border-steelgray border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
                   >
                     <CalRow
+                      onClick={onClick}
                       is30Minute={time.slice(3) === '30'}
                       time={time}
                       bucket={bucket}

@@ -23,6 +23,7 @@ module.exports = {
         steelgray: "#7E7E7E",
         primary: "#5191F2",
         secondary: "#609CF6",
+        select: "#afcdfa",
       },
       height: {
         nineteen: "70px",

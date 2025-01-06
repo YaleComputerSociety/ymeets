@@ -160,7 +160,7 @@ export default function HomePage() {
             <img
               src={graphic}
               alt="graphic"
-              className=" w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]"
+              className="opacity-80 w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]"
             />
           </div>
         </div>

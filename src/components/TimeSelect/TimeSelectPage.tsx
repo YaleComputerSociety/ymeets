@@ -450,6 +450,7 @@ function TimeSelectPage() {
         <div className="col-span-3">
           <div className="flex items-center justify-center">
             <Calendar
+              onClick={() => {}}
               theCalendarState={[calendarState, setCalendarState]}
               user={getCurrentUserIndex()}
               theCalendarFramework={[calendarFramework, setCalendarFramework]}
