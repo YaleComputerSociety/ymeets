@@ -125,7 +125,7 @@ export default function CalRow({
             draggable={draggable}
             user={user}
             theDragState={theDragState}
-            key={columnIndex}
+            key={columnIndex + columnIndexOffSet}
             chartedUsersData={chartedUsersData}
             isOnGcal={isOnGcal === undefined ? false : isOnGcal}
             associatedEvents={surroundingEvents}

@@ -95,26 +95,23 @@ export default function CalBlock({
     return `#${result.join('')}`;
   }
 
-  function getDefaultShadeColor() {
+  function getDefaultShadeColor(): string {
     let selectedCount = 0;
 
-    for (let i = 0; i < calendarState.length; i++) {
+    // if (shadeColor === '#73dd64') {
+    //   return shadeColor;
+    // }
+
+    for (let i = 0; i < Object.keys(calendarState).length; i++) {
       if (calendarState[i][columnID][blockID] === true) {
         selectedCount += 1;
       }
     }
 
     if (!isDraggable || (isDraggable && isAdmin)) {
-      // one of the groupviews
-
-      const percentageSelected = selectedCount / calendarState.length;
-      // green-200
-      // const start_shade = '#A7F3D0'
-      // const start_shade = '#A0F4E4';
+      const percentageSelected =
+        selectedCount / Object.keys(calendarState).length;
       const start_shade = '#afcdfa';
-      // green-500
-      // const end_shade = '#10B981'
-      // const end_shade = '#4D7C0F';
       const end_shade = '#4b86de';
 
       if (selectedCount === 0) {
@@ -123,7 +120,6 @@ export default function CalBlock({
         return interpolateColor(start_shade, end_shade, percentageSelected);
       }
     } else {
-      // timeselect - shade color is just going to be sky
       return 'select';
     }
   }
@@ -241,8 +237,10 @@ export default function CalBlock({
       }
     } else {
       if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
-        setShadeColor('#94D22E');
+        console.log('hi');
+        setShadeColor('#73dd64');
       } else {
+        console.log('bye!');
         setShadeColor(originalShadeColor);
       }
     }
@@ -451,16 +449,15 @@ export default function CalBlock({
   const updateShadeColors = useCallback(() => {
     setShadeColor(getDefaultShadeColor());
     setOriginalShadeColor(getDefaultShadeColor());
-  }, [columnID, blockID, isAdmin]);
+  }, [columnID, blockID]);
 
   useEffect(() => {
     updateShadeColors();
-  }, [updateShadeColors]);
+  }, [updateShadeColors, calendarFramework, columnID]);
 
   return (
     <>
       <div>
-        {/* <div style={{ position: 'relative' }}> */}
         <div
           draggable="true"
           id={elementId}
