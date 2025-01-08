@@ -33,6 +33,10 @@ interface CalBlockProps {
 
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
+
   onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -50,7 +54,10 @@ export default function CalBlock({
   isOnGcal,
   associatedEvents = undefined,
   onClick,
+  theShowUserChart,
 }: CalBlockProps) {
+  const [showUserChart, setShowUserChart] = theShowUserChart ?? [];
+
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const elementId = `${columnID}-${blockID}`;
@@ -111,7 +118,7 @@ export default function CalBlock({
     if (!isDraggable || (isDraggable && isAdmin)) {
       const percentageSelected =
         selectedCount / Object.keys(calendarState).length;
-      const start_shade = '#afcdfa';
+      const start_shade = '#bbd5fc';
       const end_shade = '#4b86de';
 
       if (selectedCount === 0) {
@@ -237,10 +244,8 @@ export default function CalBlock({
       }
     } else {
       if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
-        console.log('hi');
         setShadeColor('#73dd64');
       } else {
-        console.log('bye!');
         setShadeColor(originalShadeColor);
       }
     }
@@ -490,6 +495,9 @@ export default function CalBlock({
             handleBlockClick(event);
           }}
           onTouchMove={(e) => {
+            if (theShowUserChart !== undefined) {
+              setShowUserChart?.(false);
+            }
             handleMobileAvailabilitySelect(e);
             handleMobileHoverChartedUser(e);
           }}

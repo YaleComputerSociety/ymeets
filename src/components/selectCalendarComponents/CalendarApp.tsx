@@ -28,6 +28,9 @@ interface CalendarProps {
     React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
   ];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
 }
 
 export interface dragProperties {
@@ -46,6 +49,7 @@ export default function Calendar({
   isAdmin,
   theDragState,
   theGoogleCalendarEvents,
+  theShowUserChart,
   onClick,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
@@ -116,10 +120,10 @@ export default function Calendar({
       >
         <div
           style={{ width: '3.75rem', height: '3.75rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-40"
         ></div>
 
-        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
+        <div className="bg-white flex flex-row w-full max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
             {/* handles aligning it with the cal */}
@@ -151,14 +155,9 @@ export default function Calendar({
             ></div>
           </div>
 
-          <div
-            className="ml-0 mr-2 mb-4"
-            style={{
-              width: window.innerWidth > 900 ? '60vw' : '80vw',
-              maxWidth: '100%',
-            }}
-          >
+          <div className="w-full flex-1">
             <SelectCalander
+              theShowUserChart={theShowUserChart}
               onClick={onClick}
               handleNext={handleNext}
               handlePrev={handlePrev}

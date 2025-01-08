@@ -50,6 +50,9 @@ interface SelectCalanderProps {
   currentStartPage: number;
   numberOfColumns: number;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
 }
 
 function SelectCalander({
@@ -70,18 +73,19 @@ function SelectCalander({
   currentStartPage,
   numberOfColumns,
   onClick,
+  theShowUserChart,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
   return (
-    <div className="relative max-h-130 mr-2" style={{ touchAction: 'none' }}>
+    <div className=" max-h-130 mr-2" style={{ touchAction: 'none' }}>
       <div className="sticky z-50 flex flex-row justify-between mt-5 top-0">
         {currentStartPage !== 0 ? (
           <FaArrowLeft
             onClick={handlePrev}
             size={35}
-            className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+            className=" text-steelgray p-2 rounded-lg cursor-pointer "
           />
         ) : (
           <div></div>
@@ -91,7 +95,7 @@ function SelectCalander({
           <FaArrowRight
             onClick={handleNext}
             size={35}
-            className="bg-primary text-white p-2 rounded-lg cursor-pointer "
+            className="text-steelgray p-2 rounded-lg cursor-pointer "
           />
         )}
       </div>
@@ -115,6 +119,7 @@ function SelectCalander({
                     className={`border-steelgray border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
                   >
                     <CalRow
+                      theShowUserChart={theShowUserChart}
                       onClick={onClick}
                       is30Minute={time.slice(3) === '30'}
                       time={time}

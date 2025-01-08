@@ -431,25 +431,28 @@ function TimeSelectPage() {
 
   return (
     <div className="bg-background w-full px-4 md:px-8 lg:px-12">
-      <div
-        className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 flex flex-col"
-        // style={{ width: '70vw', maxWidth: '100%' }}
-      >
-        <div className="pl-7 mt-5 col-span-1">
-          <div className="text-3xl font-bold">{eventName}</div>
-          <div className="text-xl mt-5">{eventDescription}</div>
+      <div className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 md:gap-11 flex flex-col">
+        <div
+          className="md:mt-5 col-span-1 gap-y-3 flex flex-col md:items-start md:justify-start
+           items-center justify-center mb-3"
+        >
+          <div className="text-4xl font-bold text-center md:text-left">
+            {eventName}
+          </div>
+          <div className="text-xl text-center md:text-left">
+            {eventDescription}
+          </div>
           {locationOptions.length > 0 && (
-            <div className="mb-8 mt-5">
-              <LocationSelectionComponent
-                update={updateSelectedLocations}
-                locations={locationOptions}
-              />
-            </div>
+            <LocationSelectionComponent
+              update={updateSelectedLocations}
+              locations={locationOptions}
+            />
           )}
         </div>
         <div className="col-span-3">
-          <div className="flex items-center justify-center">
+          <div className="w-full">
             <Calendar
+              theShowUserChart={undefined}
               onClick={() => {}}
               theCalendarState={[calendarState, setCalendarState]}
               user={getCurrentUserIndex()}

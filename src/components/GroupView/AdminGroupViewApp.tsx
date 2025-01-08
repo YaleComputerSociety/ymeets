@@ -34,6 +34,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
+import { Switch, FormControlLabel } from '@mui/material';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -65,6 +66,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
 
   const [locationVotes, setLocationVotes] = useState(Object);
   const [locationOptions, setLocationOptions] = useState(Array<string>);
+  const [showLocationChart, setShowLocationChart] = useState(false);
 
   // this is the location that admin selected on the CLIENT side
   const [adminChosenLocation, setAdminChosenLocation] = useState<
@@ -235,9 +237,9 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-center mx-4 mb-4 md:mx-10 md:mb-10">
-        <div className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 md:gap-1 w-full">
-          <div className="col-span-1 mt-2 ml-0 md:ml-9 w-full">
+      <div className="flex flex-col lg:flex-row justify-center mx-4 mb-4 lg:mx-10 lg:mb-10 ">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-11 w-full gap-y-3">
+          <div className="col-span-1 mt-2 ml-0 lg:ml-9 w-full">
             {showGeneralPopup && (
               <GeneralPopup
                 onClose={() => {
@@ -248,82 +250,84 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
               />
             )}
             <div>
-              <div className="flex flex-col content-center md:w-[75%] flex-none mb-5 md:mt-0">
+              <div className="flex flex-col content-center gap-4 mt-0">
                 {/* Event name, location, and time */}
-                <div className="mb-4 flex flex-col">
-                  <h3 className="text-2xl md:text-3xl font-bold text-center md:text-left">
+                <div className="m flex flex-col text-center space-y-3">
+                  <div className="text-2xl lg:text-4xl font-bold lg:text-left">
                     {eventName}
-                  </h3>
-                  <h3 className="text-md md:text-xl text-center md:text-left">
-                    {eventDescription}
-                  </h3>
-
-                  <div className="flex flex-col">
-                    <div className="h-3"></div>
-                    <button
-                      onClick={() => {
-                        copy(`${window.location.origin}/timeselect/${code}`);
-                        setCopied(true);
-                        setTimeout(() => {
-                          setCopied(false);
-                        }, 1500);
-                      }}
-                      className={`text-sm mt-4 lg:text-base flex items-center gap-2 justify-center ${
-                        copied
-                          ? 'bg-green-500 hover:bg-green-500 text-white'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                      } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
-                    >
-                      {
-                        <IconCopy
-                          size={25}
-                          className="inline-block w-4 lg:w-5 mr-2"
-                        />
-                      }
-                      {copied
-                        ? 'Copied to Clipboard'
-                        : `Shareable ymeets Link (Event Code: ${code})`}
-                    </button>
                   </div>
+                  <div className="text-lg lg:text-xl lg:text-left line-clamp-2 overflow-auto">
+                    {eventDescription}
+                  </div>
+                  <button
+                    onClick={() => {
+                      copy(`${window.location.origin}/timeselect/${code}`);
+                      setCopied(true);
+                      setTimeout(() => {
+                        setCopied(false);
+                      }, 1500);
+                    }}
+                    className={`text-sm lg:text-base flex items-center justify-center ${
+                      copied
+                        ? 'bg-green-500 hover:bg-green-500 text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
+                  >
+                    {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
+                    {copied ? 'Copied to Clipboard' : `Event Code: ${code}`}
+                  </button>
                 </div>
 
-                {/* User availability table */}
-                <div className="hidden md:block mb-2">
-                  {chartedUsers !== undefined && (
+                {/* User availability and Location options tables */}
+                <div className="hidden lg:block mb-2 space-y-2">
+                  {/* Toggle button - only show if locationOptions exist */}
+                  {locationOptions.length > 0 && (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          onClick={() => setShowLocationChart((prev) => !prev)}
+                        />
+                      }
+                      label={`Show ${showLocationChart ? 'User Availability' : 'Locations'}`}
+                    />
+                  )}
+
+                  {/* Charts */}
+                  {chartedUsers !== undefined && !showLocationChart && (
                     <UserChart
                       chartedUsersData={[chartedUsers, setChartedUsers]}
                     />
                   )}
-                </div>
 
-                {/* Location options table */}
-                {locationOptions.length > 0 && (
-                  <div className="hidden md:block">
-                    <LocationChart
-                      theSelectedLocation={[
-                        adminChosenLocation,
-                        setAdminChosenLocation,
-                      ]}
-                      locationOptions={
-                        locationOptions.length > 0 ? locationOptions : ['']
-                      }
-                      locationVotes={Object.values(locationVotes)}
-                      selectionMade={
-                        getChosenLocation() === ''
-                          ? false
-                          : getChosenLocation() === undefined
+                  {locationOptions.length > 0 && showLocationChart && (
+                    <div className="relative w-full">
+                      <LocationChart
+                        theSelectedLocation={[
+                          adminChosenLocation,
+                          setAdminChosenLocation,
+                        ]}
+                        locationOptions={
+                          locationOptions.length > 0 ? locationOptions : ['']
+                        }
+                        locationVotes={Object.values(locationVotes)}
+                        selectionMade={
+                          getChosenLocation() === ''
                             ? false
-                            : true
-                      }
-                    />
-                  </div>
-                )}
+                            : getChosenLocation() === undefined
+                              ? false
+                              : true
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
           <div className="col-span-3">
-            <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
+            <div className="flex flex-col overflow-x-auto w-full max-w-full">
               <Calendar
+                theShowUserChart={[showUserChart, setShowUserChart]}
                 onClick={() => {
                   setShowUserChart(true);
                   setTimeout(() => setShowUserChart(false), 3000);
@@ -342,9 +346,9 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
                 theDragState={[dragState, setDragState]}
                 theGoogleCalendarEvents={[[], () => {}]}
               />
-              <div className="flex flex-row justify-between ml-0 mr-5 md:ml-4 gap-x-4">
+              <div className="flex items-center justify-center lg:flex-row lg:justify-between lg:mr-3 lg:ml-3 gap-x-4">
                 <button
-                  className="font-bold rounded-full bg-primary text-white py-3 px-4 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+                  className="font-bold rounded-full bg-primary text-white py-3 px-3 lg:py-3 lg:px-5 text-sm lg:text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
                   onClick={() => {
                     nav('/timeselect/' + code);
                   }}
@@ -363,9 +367,9 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
               </div>
             </div>
 
-            <div className="md:pl-3 mt-2">
-              <div className="p-1 flex-shrink w-full md:w-[80%] text-gray-500 text-left text-sm md:text-left">
-                {locationOptions.length == 0 ? (
+            <div className="lg:pl-3 mt-2">
+              <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm lg:text-left">
+                {locationOptions.length === 0 ? (
                   <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
                 ) : (
                   <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
@@ -373,7 +377,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
               </div>
             </div>
             {locationOptions.length > 0 && (
-              <div className="md:hidden">
+              <div className="lg:hidden">
                 <LocationChart
                   theSelectedLocation={[
                     adminChosenLocation,
@@ -393,11 +397,11 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
                 />
                 {chartedUsers !== undefined && (
                   <div
-                    className={`fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
+                    className={`z-[9999] fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
                       showUserChart ? 'translate-y-0' : 'translate-y-full'
                     }`}
                   >
-                    <div className="bg-white p-4 z-50 rounded-t-xl shadow-lg">
+                    <div className="bg-white p-4 z-[9999] rounded-t-xl shadow-lg">
                       <UserChart
                         chartedUsersData={[chartedUsers, setChartedUsers]}
                       />

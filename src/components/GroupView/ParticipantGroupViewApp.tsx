@@ -175,6 +175,7 @@ export default function ParticipantGroupViewPage() {
           <div className="max-w-[100%] lg:max-w-[50%] ">
             <div className="flex flex-col content-center flex-1 grow overflow-x-auto md:content-end">
               <Calender
+                theShowUserChart={undefined}
                 onClick={() => {}}
                 isAdmin={false}
                 theCalendarState={[calendarState, setCalendarState]}

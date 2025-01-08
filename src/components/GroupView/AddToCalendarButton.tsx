@@ -27,7 +27,7 @@ function AddToGoogleCalendarButton({
 
   return (
     <button
-      className={`flex items-center justify-center font-bold rounded-full py-3 px-5 text-sm md:text-md w-fit
+      className={`flex items-center justify-center font-bold rounded-full py-3 px-3 lg:py-3 lg:px-5 text-sm md:text-md w-fit
   transform transition-transform ${loading ? 'bg-gray-200 text-gray-500' : 'bg-white text-black'} 
   ${!loading ? 'hover:scale-90 active:scale-100' : ''}`}
       onClick={onClick}
@@ -40,7 +40,7 @@ function AddToGoogleCalendarButton({
             alt="Google Calendar Logo"
             className="mr-2 h-6"
           />
-          {'Submit Selection to GCal'}
+          {'Send Choice to GCal'}
         </>
       ) : (
         <>

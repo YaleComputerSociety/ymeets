@@ -24,6 +24,7 @@ module.exports = {
         primary: "#5191F2",
         secondary: "#609CF6",
         select: "#afcdfa",
+        submit: "#73dd64",
       },
       height: {
         nineteen: "70px",

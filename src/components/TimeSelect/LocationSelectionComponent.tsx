@@ -37,7 +37,7 @@ export function LocationSelectionComponent(props: any) {
         {' '}
         {/* Ensure width matches the textarea */}
         <Select
-          style={{ height: '100%', width: '100%' }} // Apply 100% width to match container
+          style={{ height: '100%', width: '100%', zIndex: 9999 }} // Apply 100% width to match container
           multi
           create={false}
           options={options}
