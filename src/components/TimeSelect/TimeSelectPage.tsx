@@ -430,16 +430,16 @@ function TimeSelectPage() {
   };
 
   return (
-    <div className="bg-background w-full px-4 md:px-8 lg:px-12">
-      <div className="lg:grid lg:grid-cols-4 md:grid md:grid-cols-4 md:gap-11 flex flex-col">
+    <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
-          className="md:mt-5 col-span-1 gap-y-3 flex flex-col md:items-start md:justify-start
+          className="ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3"
         >
-          <div className="text-4xl font-bold text-center md:text-left">
+          <div className="text-4xl font-bold text-center lg:text-left">
             {eventName}
           </div>
-          <div className="text-xl text-center md:text-left">
+          <div className="text-xl text-center lg:text-left">
             {eventDescription}
           </div>
           {locationOptions.length > 0 && (
@@ -469,8 +469,8 @@ function TimeSelectPage() {
           </div>
           <div className="flex flex-row justify-between">
             {!areSelectingGeneralDays && getAccountId() !== '' ? (
-              <div className="pl-5 z-60 mb-4 md:mb-0">
-                <div className="hidden md:flex">
+              <div className="pl-5 z-60 mb-4 lg:mb-0">
+                <div className="hidden lg:flex">
                   <ButtonSmall
                     bgColor="primary"
                     textColor="white"
@@ -479,7 +479,7 @@ function TimeSelectPage() {
                     Show GCal Events
                   </ButtonSmall>
                 </div>
-                <div className="md:hidden flex">
+                <div className="lg:hidden flex">
                   <ButtonSmall
                     bgColor="primary"
                     textColor="white"
@@ -491,9 +491,9 @@ function TimeSelectPage() {
               </div>
             ) : (
               !areSelectingGeneralDays && (
-                <div className="md:pl-4 mb-4 md:mb-0">
+                <div className="lg:pl-4 mb-4 lg:mb-0">
                   <button
-                    className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+                    className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
                             flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                     onClick={() => {
                       signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
@@ -507,7 +507,7 @@ function TimeSelectPage() {
                       );
                     }}
                   >
-                    <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
+                    <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
                     Sign in with Google to access GCal
                   </button>
                 </div>
@@ -519,7 +519,7 @@ function TimeSelectPage() {
                 textColor="white"
                 onClick={handleSubmitAvailability}
               >
-                Next
+                Next <span className="ml-1">&#8594;</span>
               </ButtonSmall>
             </div>
           </div>

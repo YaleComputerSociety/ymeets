@@ -100,13 +100,18 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
       .replace(/-|:|\.\d\d\d/g, '');
 
     const baseUrl = 'https://calendar.google.com/calendar/render';
+    const attendeesEmails = (event.attendees || [])
+      .map((attendee: { email: string }) => attendee.email)
+      .join(',');
+
     const queryParams = new URLSearchParams({
       action: 'TEMPLATE',
       text: event.summary,
       dates: `${startDateTime}/${endDateTime}`,
       details: event.description,
-      location: event.location,
+      location: event.location || '',
       spropname: 'Add Event',
+      add: attendeesEmails,
     });
 
     return `${baseUrl}?${queryParams.toString()}`;
@@ -236,183 +241,157 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <>
-      <div className="flex flex-col lg:flex-row justify-center mx-4 mb-4 lg:mx-10 lg:mb-10 ">
-        <div className="lg:grid lg:grid-cols-4 lg:gap-11 w-full gap-y-3">
-          <div className="col-span-1 mt-2 ml-0 lg:ml-9 w-full">
-            {showGeneralPopup && (
-              <GeneralPopup
-                onClose={() => {
-                  setShowGeneralPopup(false);
-                }}
-                message={generalPopupMessage}
-                isLogin={false}
-              />
-            )}
-            <div>
-              <div className="flex flex-col content-center gap-4 mt-0">
-                {/* Event name, location, and time */}
-                <div className="m flex flex-col text-center space-y-3">
-                  <div className="text-2xl lg:text-4xl font-bold lg:text-left">
-                    {eventName}
-                  </div>
-                  <div className="text-lg lg:text-xl lg:text-left line-clamp-2 overflow-auto">
-                    {eventDescription}
-                  </div>
-                  <button
-                    onClick={() => {
-                      copy(`${window.location.origin}/timeselect/${code}`);
-                      setCopied(true);
-                      setTimeout(() => {
-                        setCopied(false);
-                      }, 1500);
-                    }}
-                    className={`text-sm lg:text-base flex items-center justify-center ${
-                      copied
-                        ? 'bg-green-500 hover:bg-green-500 text-white'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    } border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg transition-colors relative`}
-                  >
-                    {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-                    {copied ? 'Copied to Clipboard' : `Event Code: ${code}`}
-                  </button>
-                </div>
-
-                {/* User availability and Location options tables */}
-                <div className="hidden lg:block mb-2 space-y-2">
-                  {/* Toggle button - only show if locationOptions exist */}
-                  {locationOptions.length > 0 && (
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          onClick={() => setShowLocationChart((prev) => !prev)}
-                        />
-                      }
-                      label={`Show ${showLocationChart ? 'User Availability' : 'Locations'}`}
-                    />
-                  )}
-
-                  {/* Charts */}
-                  {chartedUsers !== undefined && !showLocationChart && (
-                    <UserChart
-                      chartedUsersData={[chartedUsers, setChartedUsers]}
-                    />
-                  )}
-
-                  {locationOptions.length > 0 && showLocationChart && (
-                    <div className="relative w-full">
-                      <LocationChart
-                        theSelectedLocation={[
-                          adminChosenLocation,
-                          setAdminChosenLocation,
-                        ]}
-                        locationOptions={
-                          locationOptions.length > 0 ? locationOptions : ['']
-                        }
-                        locationVotes={Object.values(locationVotes)}
-                        selectionMade={
-                          getChosenLocation() === ''
-                            ? false
-                            : getChosenLocation() === undefined
-                              ? false
-                              : true
-                        }
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+    <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
+        <div className="ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+          <div className="text-4xl font-bold text-center lg:text-left">
+            {eventName}
           </div>
-          <div className="col-span-3">
-            <div className="flex flex-col overflow-x-auto w-full max-w-full">
-              <Calendar
-                theShowUserChart={[showUserChart, setShowUserChart]}
-                onClick={() => {
-                  setShowUserChart(true);
-                  setTimeout(() => setShowUserChart(false), 3000);
-                }}
-                theCalendarState={[calendarState, setCalendarState]}
-                theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                chartedUsersData={[chartedUsers, setChartedUsers]}
-                draggable={
-                  isAdmin &&
-                  calendarFramework?.dates?.[0][0].date instanceof Date &&
-                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                    2000
+          <div className="text-xl text-center lg:text-left">
+            {eventDescription}
+          </div>
+          <button
+            onClick={() => {
+              copy(`${window.location.origin}/timeselect/${code}`);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+            className={`text-sm lg:text-base flex items-center justify-center ${
+              copied
+                ? 'bg-green-500 hover:bg-green-500 text-white'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            } border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
+          >
+            {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
+            {copied ? 'Copied to Clipboard' : `Event Code: ${code}`}
+          </button>
+
+          {locationOptions.length > 0 && (
+            <div className="hidden lg:block">
+              <FormControlLabel
+                control={
+                  <Switch
+                    onClick={() => setShowLocationChart((prev) => !prev)}
+                  />
                 }
-                user={getCurrentUserIndex()}
-                isAdmin={isAdmin}
-                theDragState={[dragState, setDragState]}
-                theGoogleCalendarEvents={[[], () => {}]}
+                label={`Show ${showLocationChart ? 'User Availability' : 'Locations'}`}
               />
-              <div className="flex items-center justify-center lg:flex-row lg:justify-between lg:mr-3 lg:ml-3 gap-x-4">
-                <button
-                  className="font-bold rounded-full bg-primary text-white py-3 px-3 lg:py-3 lg:px-5 text-sm lg:text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-                  onClick={() => {
-                    nav('/timeselect/' + code);
-                  }}
-                >
-                  <span className="mr-1">&#8592;</span> Edit Your Availability
-                </button>
-
-                {isAdmin &&
-                  calendarFramework?.dates?.[0][0].date instanceof Date &&
-                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                    2000 && (
-                    <AddToGoogleCalendarButton
-                      onClick={handleSelectionSubmission}
-                    />
-                  )}
-              </div>
             </div>
+          )}
 
-            <div className="lg:pl-3 mt-2">
-              <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm lg:text-left">
-                {locationOptions.length === 0 ? (
-                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
-                ) : (
-                  <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
-                )}
-              </div>
-            </div>
-            {locationOptions.length > 0 && (
-              <div className="lg:hidden">
-                <LocationChart
-                  theSelectedLocation={[
-                    adminChosenLocation,
-                    setAdminChosenLocation,
-                  ]}
-                  locationOptions={
-                    locationOptions.length > 0 ? locationOptions : ['']
-                  }
-                  locationVotes={Object.values(locationVotes)}
-                  selectionMade={
-                    getChosenLocation() === ''
-                      ? false
-                      : getChosenLocation() === undefined
-                        ? false
-                        : true
-                  }
-                />
-                {chartedUsers !== undefined && (
-                  <div
-                    className={`z-[9999] fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
-                      showUserChart ? 'translate-y-0' : 'translate-y-full'
-                    }`}
-                  >
-                    <div className="bg-white p-4 z-[9999] rounded-t-xl shadow-lg">
-                      <UserChart
-                        chartedUsersData={[chartedUsers, setChartedUsers]}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+          <div className="hidden lg:block w-full">
+            {chartedUsers !== undefined && !showLocationChart && (
+              <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+            )}
+
+            {locationOptions.length > 0 && showLocationChart && (
+              <LocationChart
+                theSelectedLocation={[
+                  adminChosenLocation,
+                  setAdminChosenLocation,
+                ]}
+                locationOptions={
+                  locationOptions.length > 0 ? locationOptions : ['']
+                }
+                locationVotes={Object.values(locationVotes)}
+                selectionMade={!!getChosenLocation()}
+              />
             )}
           </div>
         </div>
+
+        <div className="col-span-3">
+          <div className="w-full">
+            <Calendar
+              theShowUserChart={[showUserChart, setShowUserChart]}
+              onClick={() => {
+                setShowUserChart(true);
+                setTimeout(() => setShowUserChart(false), 3000);
+              }}
+              theCalendarState={[calendarState, setCalendarState]}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              chartedUsersData={[chartedUsers, setChartedUsers]}
+              draggable={
+                isAdmin &&
+                calendarFramework?.dates?.[0][0].date instanceof Date &&
+                (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                  2000
+              }
+              user={getCurrentUserIndex()}
+              isAdmin={isAdmin}
+              theDragState={[dragState, setDragState]}
+              theGoogleCalendarEvents={[[], () => {}]}
+            />
+          </div>
+
+          <div className="flex flex-row justify-between mt-4">
+            <button
+              className="font-bold rounded-full bg-primary text-white py-3 px-3 lg:py-3 lg:px-5 text-sm lg:text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+              onClick={() => {
+                nav('/timeselect/' + code);
+              }}
+            >
+              <span className="mr-1">&#8592;</span> Edit Your Availability
+            </button>
+
+            {isAdmin &&
+              calendarFramework?.dates?.[0][0].date instanceof Date &&
+              (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                2000 && (
+                <AddToGoogleCalendarButton
+                  onClick={handleSelectionSubmission}
+                />
+              )}
+          </div>
+
+          <div className="pl-3 mt-2">
+            <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm">
+              {locationOptions.length === 0 ? (
+                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
+              ) : (
+                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Charts */}
+          {locationOptions.length > 0 && (
+            <div className="lg:hidden mt-4">
+              <LocationChart
+                theSelectedLocation={[
+                  adminChosenLocation,
+                  setAdminChosenLocation,
+                ]}
+                locationOptions={
+                  locationOptions.length > 0 ? locationOptions : ['']
+                }
+                locationVotes={Object.values(locationVotes)}
+                selectionMade={!!getChosenLocation()}
+              />
+            </div>
+          )}
+
+          {chartedUsers !== undefined && (
+            <div
+              className={`z-[9999] lg:hidden fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
+                showUserChart ? 'translate-y-0' : 'translate-y-full'
+              }`}
+            >
+              <div className="bg-white p-4 z-[9999] rounded-t-xl shadow-lg">
+                <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+
+      {showGeneralPopup && (
+        <GeneralPopup
+          onClose={() => setShowGeneralPopup(false)}
+          message={generalPopupMessage}
+          isLogin={false}
+        />
+      )}
+    </div>
   );
 }
