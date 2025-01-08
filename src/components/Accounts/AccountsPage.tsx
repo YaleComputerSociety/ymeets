@@ -167,22 +167,6 @@ export default function AccountsPage() {
                   </div>
                   <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
                     <hr />
-                    <div className="grid gap-2 text-sky-600 text-xs sm:text-sm lg:text-base">
-                      <p className="flex gap-3 items-center">
-                        <IconCalendarEvent className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">{event.dates}</span>
-                      </p>
-                      <p className="flex gap-3 items-center">
-                        <IconClock className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">
-                          {event.startTime}
-                        </span>
-                      </p>
-                      <p className="flex gap-3 items-center">
-                        <IconMapPin className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">{event.location}</span>
-                      </p>
-                    </div>
                     <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
                       <button
                         onClick={() => {
