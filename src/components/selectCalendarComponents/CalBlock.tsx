@@ -61,6 +61,8 @@ export default function CalBlock({
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const elementId = `${columnID}-${blockID}`;
+  const [lastToggleTime, setLastToggleTime] = useState(0);
+  const [touchHandled, setTouchHandled] = useState(false);
 
   const [isDraggable, setIsDraggable] = useState(draggable);
   const [gCalEventActive, setGcalEventActive] = useState(false);
@@ -209,7 +211,7 @@ export default function CalBlock({
     if (
       startCol === endCol &&
       startBlock === endBlock &&
-      (blockID == 0 || blockID == NUM_OF_TIME_BLOCKS)
+      (blockID === 0 || blockID === NUM_OF_TIME_BLOCKS)
     ) {
       curAffectedBlocks = [];
     }
@@ -333,23 +335,25 @@ export default function CalBlock({
     }
   };
 
-  const handleBlockClick = (e: any) => {
+  const handleBlockClick = (e: any, fromTouch = false) => {
     onClick(e);
 
-    if (isDraggable) {
-      if (isAdmin === true) {
-        return;
-      }
+    const now = Date.now();
+    if (now - lastToggleTime < 300) {
+      // 300ms debounce
+      return;
+    }
+    setLastToggleTime(now);
 
-      if (calendarState[user][columnID][blockID] === true) {
-        const oldData = { ...calendarState };
-        oldData[user][columnID][blockID] = false;
-        setCalanderState(oldData);
-      } else {
-        const oldData = { ...calendarState };
-        oldData[user][columnID][blockID] = true;
-        setCalanderState(oldData);
-      }
+    if (!fromTouch && touchHandled) {
+      setTouchHandled(false);
+      return;
+    }
+
+    if (isDraggable && !isAdmin) {
+      const oldData = { ...calendarState };
+      oldData[user][columnID][blockID] = !oldData[user][columnID][blockID];
+      setCalanderState(oldData);
     }
   };
 
@@ -467,7 +471,9 @@ export default function CalBlock({
           draggable="true"
           id={elementId}
           ref={dragRef}
-          onClick={handleBlockClick}
+          onClick={(e) => {
+            handleBlockClick(e);
+          }}
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
           onDragOver={handleDesktopAvailabilitySelect}
@@ -476,10 +482,11 @@ export default function CalBlock({
             setGcalEventActive(true);
           }}
           onTouchStart={(event) => {
-            // setGcalEventActive(true);
             if (!isDraggable) {
               return;
             }
+
+            setTouchHandled(true);
 
             const dragStartEvent = new DragEvent('dragstart', {
               bubbles: true,
@@ -492,7 +499,17 @@ export default function CalBlock({
             }
 
             handleDesktopHoverChartedUser();
-            handleBlockClick(event);
+
+            // Create a synthetic click event
+            const clickEvent = {
+              ...event,
+              type: 'click',
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            };
+
+            // Call handleBlockClick directly with the synthetic event
+            handleBlockClick(clickEvent);
           }}
           onTouchMove={(e) => {
             if (theShowUserChart !== undefined) {

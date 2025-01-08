@@ -89,6 +89,7 @@ export default class FrontendEventAPI {
         endTime,
         plausibleLocations, // TODO admin creator is not being added; maybe should be done on time select?
         zoomLink: zoomLink,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
 
       return ev;

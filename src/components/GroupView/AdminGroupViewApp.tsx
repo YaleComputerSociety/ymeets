@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { checkIfAdmin } from '../../firebase/events';
+import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
   userData,
@@ -243,7 +244,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   return (
     <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
-        <div className="ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+        <div className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div className="text-4xl font-bold text-center lg:text-left">
             {eventName}
           </div>
@@ -263,7 +264,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
             } border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
           >
             {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-            {copied ? 'Copied to Clipboard' : `Event Code: ${code}`}
+            {copied ? 'Copied to Clipboard' : `Share Link: ${code}`}
           </button>
 
           {locationOptions.length > 0 && (
@@ -305,6 +306,9 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
             <Calendar
               theShowUserChart={[showUserChart, setShowUserChart]}
               onClick={() => {
+                if (showUserChart === true) {
+                  return;
+                }
                 setShowUserChart(true);
                 setTimeout(() => setShowUserChart(false), 3000);
               }}
@@ -324,15 +328,16 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
             />
           </div>
 
-          <div className="flex flex-row justify-between mt-4">
-            <button
-              className="font-bold rounded-full bg-primary text-white py-3 px-3 lg:py-3 lg:px-5 text-sm lg:text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+          <div className="flex flex-row justify-between space-x-2  ">
+            <ButtonSmall
+              bgColor={'primary'}
+              textColor={'white'}
               onClick={() => {
                 nav('/timeselect/' + code);
               }}
             >
               <span className="mr-1">&#8592;</span> Edit Your Availability
-            </button>
+            </ButtonSmall>
 
             {isAdmin &&
               calendarFramework?.dates?.[0][0].date instanceof Date &&

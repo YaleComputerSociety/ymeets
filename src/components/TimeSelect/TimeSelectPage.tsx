@@ -433,7 +433,7 @@ function TimeSelectPage() {
     <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
-          className="ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
+          className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3"
         >
           <div className="text-4xl font-bold text-center lg:text-left">

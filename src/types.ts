@@ -22,6 +22,7 @@ export interface EventDetails {
   chosenStartDate?: Date | undefined;
   chosenEndDate?: Date | undefined; // minutes
   zoomLink?: string | undefined;
+  timeZone: string;
 }
 
 export interface Participant {

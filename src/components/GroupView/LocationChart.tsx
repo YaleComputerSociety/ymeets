@@ -113,8 +113,8 @@ export default function LocationChart({
           <table className="table-fixed border-collapse w-full">
             <tbody>
               <tr>
-                <th className="border-b p-3 text-black">Location</th>
-                <th className="border-b p-3 text-black">Votes</th>
+                <th className="border-b p-3 text-steelgray">Location</th>
+                <th className="border-b p-3 text-steelgray">Votes</th>
               </tr>
               {locationOptions?.map((loc: Location, idx: number) => {
                 return (
@@ -146,7 +146,7 @@ export default function LocationChart({
               <button
                 type="button"
                 onClick={handleClose}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                className="absolute top-2 right-2 text-steelgray hover:text-gray-800"
               >
                 &times;
               </button>
