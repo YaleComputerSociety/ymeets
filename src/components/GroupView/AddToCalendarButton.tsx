@@ -41,7 +41,7 @@ function AddToGoogleCalendarButton({
             alt="Google Logo"
             className="mr-1 lg:mr-2 h-4 sm:h-6"
           />
-          {'Sign in with Google to add to GCal'}
+          {'Sign in to View GCals'}
         </>
       )}
     </button>

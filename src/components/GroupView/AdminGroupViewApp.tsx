@@ -242,7 +242,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <div className="bg-background w-full px-0 lg:px-8 lg:px-12">
+    <div className="bg-background w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div className="text-4xl font-bold text-center lg:text-left">
@@ -329,28 +329,33 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <div className="flex flex-row justify-between space-x-2  ">
-            <ButtonSmall
-              bgColor={'primary'}
-              textColor={'white'}
-              onClick={() => {
-                nav('/timeselect/' + code);
-              }}
-            >
-              <span className="ml-3 lg:ml-0 mr-1">&#8592;</span> Edit Your
-              Availability
-            </ButtonSmall>
+            <div className="pl-5">
+              <ButtonSmall
+                bgColor={'primary'}
+                textColor={'white'}
+                onClick={() => {
+                  nav('/timeselect/' + code);
+                }}
+              >
+                <span className="ml-3 lg:ml-0 mr-1">&#8592;</span> Edit Your
+                Availability
+              </ButtonSmall>
+            </div>
 
             {isAdmin &&
               calendarFramework?.dates?.[0][0].date instanceof Date &&
               (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                2000 && (
-                <AddToGoogleCalendarButton
-                  onClick={handleSelectionSubmission}
-                />
+                2000 &&
+              isAdmin && (
+                <div className="pr-5">
+                  <AddToGoogleCalendarButton
+                    onClick={handleSelectionSubmission}
+                  />
+                </div>
               )}
           </div>
 
-          <div className="pl-3 mt-2">
+          <div className="pl-5 mt-2">
             <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm">
               {locationOptions.length === 0 ? (
                 <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />

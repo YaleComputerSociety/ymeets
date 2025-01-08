@@ -116,10 +116,10 @@ export default function Calendar({
     <div className="flex flex-col">
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 md:justify-start relative"
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
       >
         <div
-          style={{ width: '3.75rem', height: '3.75rem' }}
+          style={{ width: '3.00rem', height: '3.75rem' }}
           className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-40"
         ></div>
 
@@ -127,8 +127,8 @@ export default function Calendar({
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
             {/* handles aligning it with the cal */}
-            <div style={{ width: '3.75rem', height: '5.75rem' }}></div>
-            <div style={{ width: '3.75rem', height: '0.50rem' }}></div>
+            <div style={{ height: '6.3rem' }}></div>
+            <div style={{ height: '0.50rem' }}></div>
             {timeBlocks.map((hour: string[], blockIDOffset: number) => (
               <div
                 key={blockIDOffset}
@@ -138,10 +138,10 @@ export default function Calendar({
                 {hour.map((time: string, blockID) => (
                   <div
                     key={blockID}
-                    className="h-3 flex items-center justify-end pr-2 bg-white"
+                    className="h-3 flex items-center justify-end pr-1 bg-white"
                   >
                     {time.slice(-2) === '00' && (
-                      <span className="text-xs text-steelgray relative z-20">
+                      <span className="text-xs p-0 text-steelgray relative z-20">
                         {militaryConvert(time)}
                       </span>
                     )}
@@ -150,7 +150,7 @@ export default function Calendar({
               </div>
             ))}
             <div
-              style={{ width: '3.75rem', height: '0.50rem' }}
+              style={{ width: '3.00rem', height: '0.50rem' }}
               className="bg-white"
             ></div>
           </div>
@@ -183,9 +183,6 @@ export default function Calendar({
               theGoogleCalendarEvents={theGoogleCalendarEvents}
             />
           </div>
-
-          {/* <button onClick={handlePrev}>Prev</button>
-          <button onClick={handleNext}>Next</button> */}
         </div>
       </div>
     </div>

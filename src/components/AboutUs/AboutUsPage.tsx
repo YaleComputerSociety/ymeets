@@ -35,7 +35,7 @@ const CONTRIBUTORS = [
   },
 
   {
-    name: 'Rome Thortensen',
+    name: 'Rome Thorstenson',
     title: ['Software Engineer'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/romethorstenson/',

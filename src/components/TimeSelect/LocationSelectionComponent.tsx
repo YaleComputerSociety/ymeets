@@ -32,27 +32,25 @@ export function LocationSelectionComponent(props: any) {
   }, []);
 
   return (
-    <div className="w-[100%] flex flex-row justify-center md:justify-start z-[9999]">
-      <div className="custom-select-wrapper-time">
-        {' '}
-        {/* Ensure width matches the textarea */}
-        <Select
-          style={{ height: '100%', width: '100%' }} // Apply 100% width to match container
-          multi
-          create={false}
-          options={options}
-          clearOnSelect={false}
-          values={[]}
-          onChange={(values: any) => {
-            props.update(values.map((val: any) => val.value));
-          }}
-          dropdownPosition="auto"
-          placeholder=" Select preferred location(s)"
-          noDataRenderer={() => (
-            <div className="p-2 text-center">No location options set :(</div>
-          )}
-        />
-      </div>
+    <div ref={containerRef} className="w-full">
+      <Select
+        style={{
+          zIndex: 9999,
+        }}
+        multi
+        create={false}
+        options={options}
+        clearOnSelect={false}
+        values={[]}
+        onChange={(values: any) => {
+          props.update(values.map((val: any) => val));
+        }}
+        dropdownPosition="auto"
+        placeholder=" Select preferred location(s)"
+        noDataRenderer={() => (
+          <div className="p-2 text-center">No location options set :(</div>
+        )}
+      />
     </div>
   );
 }

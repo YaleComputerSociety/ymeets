@@ -515,6 +515,18 @@ export default function CalBlock({
             if (theShowUserChart !== undefined) {
               setShowUserChart?.(false);
             }
+
+            const touch = e.touches[0];
+            const viewportHeight = window.innerHeight;
+            const scrollThreshold = 30;
+            const scrollSpeed = 7;
+
+            if (touch.clientY < scrollThreshold) {
+              window.scrollBy(0, -scrollSpeed);
+            } else if (touch.clientY > viewportHeight - scrollThreshold) {
+              window.scrollBy(0, scrollSpeed);
+            }
+
             handleMobileAvailabilitySelect(e);
             handleMobileHoverChartedUser(e);
           }}

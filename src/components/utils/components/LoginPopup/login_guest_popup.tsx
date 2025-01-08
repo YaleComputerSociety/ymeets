@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login_guest_popup.css';
 import {
-  User,
   UserCredential,
   signInAnonymously,
   updateProfile,
@@ -10,6 +9,8 @@ import {
 import { signInWithGoogle } from '../../../../firebase/auth';
 import { auth } from '../../../../firebase/firebase';
 import LOGO from './googlelogo.png';
+import ButtonSmall from '../ButtonSmall';
+import { useParams } from 'react-router-dom';
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
@@ -22,6 +23,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
+  const { code } = useParams();
 
   const handleSignInWithGoogle = () => {
     signInWithGoogle().then((loginSuccessful) => {
@@ -124,18 +126,36 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
                 maxLength={25}
               />
               <button
-                className={`rounded-r-md font-bold ${
-                  isValidInput && inputName.trim().length > 0
-                    ? 'bg-gray-300 text-white'
-                    : 'bg-gray-100 text-gray-400'
-                } py-2 px-4 text-lg hover:outline-primary hover:outline-3`}
+                className={`
+                  rounded-r-md font-semibold
+                  py-2 px-4 min-w-[48px]
+                  transition-all duration-200 ease-in-out
+                  ${
+                    isValidInput && inputName.trim().length > 0
+                      ? 'bg-primary hover:bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }
+                  focus:outline-none focus:ring-2 focus:ring-blue-300
+                  active:transform active:scale-95
+                `}
                 onClick={handleSignInWithoutGoogle}
                 disabled={!isValidInput || inputName.trim().length === 0}
               >
-                <span className="text-l">&rarr;</span>
+                <span className="text-xl">&rarr;</span>
               </button>
             </div>
           )}
+          <div className="mt-4">
+            <ButtonSmall
+              onClick={() => {
+                navigate('/groupview/' + code);
+              }}
+              bgColor="primary"
+              textColor="white"
+            >
+              Enter Availability Later
+            </ButtonSmall>
+          </div>
         </div>
       </div>
     </div>
