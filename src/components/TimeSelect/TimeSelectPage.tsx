@@ -430,10 +430,10 @@ function TimeSelectPage() {
   };
 
   return (
-    <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
+    <div className="bg-background w-full px-0 lg:px-8 lg:px-12">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
-          className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
+          className="lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3"
         >
           <div className="text-4xl font-bold text-center lg:text-left">
@@ -443,13 +443,15 @@ function TimeSelectPage() {
             {eventDescription}
           </div>
           {locationOptions.length > 0 && (
-            <LocationSelectionComponent
-              update={updateSelectedLocations}
-              locations={locationOptions}
-            />
+            <div className="px-1 z-[9999]">
+              <LocationSelectionComponent
+                update={updateSelectedLocations}
+                locations={locationOptions}
+              />
+            </div>
           )}
         </div>
-        <div className="col-span-3">
+        <div className="lg:col-span-3">
           <div className="w-full">
             <Calendar
               theShowUserChart={undefined}

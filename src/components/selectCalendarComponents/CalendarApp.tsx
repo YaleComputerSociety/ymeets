@@ -123,7 +123,7 @@ export default function Calendar({
           className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-40"
         ></div>
 
-        <div className="bg-white flex flex-row w-full max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
+        <div className="bg-white flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg lg:max-h-140">
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
             {/* handles aligning it with the cal */}
@@ -133,7 +133,7 @@ export default function Calendar({
               <div
                 key={blockIDOffset}
                 className="flex flex-col"
-                style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}
+                style={{ paddingBottom: '1.36rem', marginTop: '-0.3rem' }}
               >
                 {hour.map((time: string, blockID) => (
                   <div

@@ -530,9 +530,9 @@ export default function CalBlock({
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} flex-1 w-full p-0 h-3 touch-none`
-                : `bg-${unShadeColor} flex-1 w-full p-0 h-3 touch-none`
-              : `bg-${shadeColor} flex-1 w-full p-0 h-3 touch-none`
+                ? `bg-${shadeColor} flex-1 w-full p-0 h-4 touch-none`
+                : `bg-${unShadeColor} flex-1 w-full p-0 h-4 touch-none`
+              : `bg-${shadeColor} flex-1 w-full p-0 h-4 touch-none`
           }
           style={{
             borderRight: '1px solid #7E7E7E',

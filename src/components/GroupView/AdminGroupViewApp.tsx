@@ -242,7 +242,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <div className="bg-background w-full px-4 lg:px-8 lg:px-12">
+    <div className="bg-background w-full px-0 lg:px-8 lg:px-12">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div className="text-4xl font-bold text-center lg:text-left">
@@ -336,7 +336,8 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
                 nav('/timeselect/' + code);
               }}
             >
-              <span className="mr-1">&#8592;</span> Edit Your Availability
+              <span className="ml-3 lg:ml-0 mr-1">&#8592;</span> Edit Your
+              Availability
             </ButtonSmall>
 
             {isAdmin &&
