@@ -37,6 +37,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 /**
  *
@@ -450,6 +451,7 @@ function TimeSelectPage() {
               />
             </div>
           )}
+          <CopyCodeButton />
         </div>
         <div className="lg:col-span-3">
           <div className="w-full">

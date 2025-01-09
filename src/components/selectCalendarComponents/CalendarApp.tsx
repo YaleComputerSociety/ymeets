@@ -112,6 +112,8 @@ export default function Calendar({
     }
   };
 
+  const isSmallScreen = window.innerWidth < 1024;
+
   return (
     <div className="flex flex-col">
       <div
@@ -127,8 +129,17 @@ export default function Calendar({
           <div className="sticky left-0 z-20 bg-white"></div>
           <div className="sticky left-0 z-30 bg-white">
             {/* handles aligning it with the cal */}
-            <div style={{ height: '6.3rem' }}></div>
-            <div style={{ height: '0.50rem' }}></div>
+            {isSmallScreen ? (
+              <>
+                <div style={{ height: '6.3rem' }}></div>
+                <div style={{ height: '0.50rem' }}></div>
+              </>
+            ) : (
+              <>
+                <div style={{ height: '3.5rem' }}></div>
+                <div style={{ height: '0.50rem' }}></div>
+              </>
+            )}
             {timeBlocks.map((hour: string[], blockIDOffset: number) => (
               <div
                 key={blockIDOffset}

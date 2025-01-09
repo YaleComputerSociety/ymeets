@@ -464,6 +464,27 @@ export default function CalBlock({
     updateShadeColors();
   }, [updateShadeColors, calendarFramework, columnID]);
 
+  let scrollAnimationFrame: any;
+  const handleScroll = (scrollDelta: any) => {
+    if (scrollAnimationFrame) return;
+
+    scrollAnimationFrame = requestAnimationFrame(() => {
+      const maxScrollTop =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const currentScrollTop = window.scrollY;
+
+      // Prevent scrolling beyond the document bounds
+      if (
+        (scrollDelta < 0 && currentScrollTop > 0) ||
+        (scrollDelta > 0 && currentScrollTop < maxScrollTop)
+      ) {
+        window.scrollBy(0, scrollDelta);
+      }
+
+      scrollAnimationFrame = null;
+    });
+  };
+
   return (
     <>
       <div>
@@ -519,12 +540,27 @@ export default function CalBlock({
             const touch = e.touches[0];
             const viewportHeight = window.innerHeight;
             const scrollThreshold = 50;
-            const scrollSpeed = 8;
 
-            if (touch.clientY < scrollThreshold) {
-              window.scrollBy(0, -scrollSpeed);
-            } else if (touch.clientY > viewportHeight - scrollThreshold) {
-              window.scrollBy(0, scrollSpeed);
+            // Dynamically calculate scroll speed
+            const distanceFromTop = touch.clientY;
+            const distanceFromBottom = viewportHeight - touch.clientY;
+            const maxSpeed = 6; // Maximum scroll speed
+            let scrollSpeed = 0;
+
+            if (distanceFromTop < scrollThreshold) {
+              scrollSpeed = -Math.min(
+                maxSpeed,
+                (scrollThreshold - distanceFromTop) / 2
+              );
+            } else if (distanceFromBottom < scrollThreshold) {
+              scrollSpeed = Math.min(
+                maxSpeed,
+                (scrollThreshold - distanceFromBottom) / 2
+              );
+            }
+
+            if (scrollSpeed !== 0) {
+              handleScroll(scrollSpeed);
             }
 
             handleMobileAvailabilitySelect(e);

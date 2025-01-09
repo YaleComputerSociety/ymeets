@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { checkIfAdmin } from '../../firebase/events';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -29,13 +28,13 @@ import UserChart from './UserChart';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
-import copy from 'clipboard-copy';
-import { IconCopy } from '@tabler/icons-react';
+
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
+import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -87,8 +86,6 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
     dragStartedOn: false,
     blocksAffectedDuringDrag: new Set(),
   });
-
-  const [copied, setCopied] = useState(false);
 
   const nav = useNavigate();
 
@@ -251,21 +248,8 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
           <div className="text-xl text-center lg:text-left">
             {eventDescription}
           </div>
-          <button
-            onClick={() => {
-              copy(`${window.location.origin}/timeselect/${code}`);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1500);
-            }}
-            className={`text-sm lg:text-base flex items-center justify-center ${
-              copied
-                ? 'bg-green-500 hover:bg-green-500 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-            } border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
-          >
-            {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-            {copied ? 'Copied to Clipboard' : `Share Link: ${code}`}
-          </button>
+
+          <CopyCodeButton />
 
           {locationOptions.length > 0 && (
             <div className="hidden lg:block">
