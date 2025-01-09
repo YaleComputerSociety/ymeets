@@ -79,7 +79,7 @@ function SelectCalander({
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
   return (
-    <div className=" max-h-140 mr-3" style={{ touchAction: 'none' }}>
+    <div className=" max-h-140 mr-2" style={{ touchAction: 'none' }}>
       <div className="sticky z-50 flex flex-row justify-between mt-5 top-0">
         {currentStartPage !== 0 ? (
           <FaArrowLeft
