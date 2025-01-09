@@ -518,8 +518,8 @@ export default function CalBlock({
 
             const touch = e.touches[0];
             const viewportHeight = window.innerHeight;
-            const scrollThreshold = 30;
-            const scrollSpeed = 7;
+            const scrollThreshold = 50;
+            const scrollSpeed = 8;
 
             if (touch.clientY < scrollThreshold) {
               window.scrollBy(0, -scrollSpeed);

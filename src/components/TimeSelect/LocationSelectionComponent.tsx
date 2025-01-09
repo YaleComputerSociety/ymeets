@@ -1,11 +1,31 @@
-import * as React from 'react';
-import './locationSelectionComponent.css';
+import React, { useEffect, useState, useRef } from 'react';
 import Select from 'react-dropdown-select';
-import { useEffect, useState, useRef } from 'react';
+import { getAccountName, getLocationVotesByName } from '../../firebase/events';
+import './locationSelectionComponent.css';
 
-export function LocationSelectionComponent(props: any) {
-  const locations: string[] = props.locations;
+interface LocationSelectionProps {
+  locations: string[];
+  update: any;
+}
+
+interface LocationOption {
+  value: string;
+  label: string;
+}
+
+const LocationSelectionComponent: React.FC<LocationSelectionProps> = (
+  props
+) => {
+  const locations = props.locations || [];
+
   const options = locations.map((loc) => ({
+    value: loc,
+    label: loc,
+  }));
+
+  const alreadySelectedLocations =
+    getLocationVotesByName(getAccountName()) || [];
+  const initialValues = alreadySelectedLocations.map((loc) => ({
     value: loc,
     label: loc,
   }));
@@ -33,24 +53,29 @@ export function LocationSelectionComponent(props: any) {
 
   return (
     <div ref={containerRef} className="w-full">
-      <Select
-        style={{
-          zIndex: 9999,
-        }}
+      <Select<LocationOption>
         multi
+        className=""
         create={false}
         options={options}
         clearOnSelect={false}
-        values={[]}
-        onChange={(values: any) => {
-          props.update(values.map((val: any) => val));
+        values={initialValues}
+        onChange={(values) => {
+          props.update(values.map((val) => val.value));
         }}
+        valueField="value"
+        labelField="label"
         dropdownPosition="auto"
-        placeholder=" Select preferred location(s)"
+        placeholder="Select preferred location(s)"
         noDataRenderer={() => (
           <div className="p-2 text-center">No location options set :(</div>
         )}
+        style={{
+          zIndex: 9999,
+        }}
       />
     </div>
   );
-}
+};
+
+export default LocationSelectionComponent;

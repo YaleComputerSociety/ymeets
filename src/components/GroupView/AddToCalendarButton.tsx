@@ -19,7 +19,7 @@ function AddToGoogleCalendarButton({
 
   return (
     <button
-      className={`flex items-center justify-center font-bold rounded-full  py-3 px-4 lg:py-3 lg:px-5 text-sm md:text-md w-fit transform transition-transform
+      className={`mr-3 lg:mr-0 flex items-center justify-center font-bold rounded-full  py-3 px-4 lg:py-3 lg:px-5 text-sm md:text-md w-fit transform transition-transform
         ${loading ? 'bg-gray-200 text-gray-500' : 'bg-white text-black'} 
         ${!loading ? 'hover:scale-95 active:scale-100' : ''}`}
       onClick={onClick}

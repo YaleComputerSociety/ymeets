@@ -62,7 +62,7 @@ export default function NavBar() {
   return (
     <>
       <div className="flex flex-col w-full mt-6 justify-center z-40 items-center">
-        <div className="flex bg-white rounded-xl h-16 w-[90%] px-5 sm:px-8 items-center justify-between shadow-lg">
+        <div className="flex bg-white rounded-xl h-16 w-[94%] px-5 sm:px-8 items-center justify-between shadow-lg">
           <NavLogo />
           <div className="flex items-center space-x-4">
             <div className="hidden sm:block">

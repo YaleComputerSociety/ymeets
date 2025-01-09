@@ -1,4 +1,4 @@
-import { LocationSelectionComponent } from './LocationSelectionComponent';
+import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3 } from 'googleapis';
 import { useState, useEffect } from 'react';
 import {
@@ -445,8 +445,8 @@ function TimeSelectPage() {
           {locationOptions.length > 0 && (
             <div className="w-full z-[9999]">
               <LocationSelectionComponent
-                update={updateSelectedLocations}
                 locations={locationOptions}
+                update={updateSelectedLocations}
               />
             </div>
           )}

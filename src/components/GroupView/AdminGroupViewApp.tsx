@@ -244,7 +244,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
   return (
     <div className="bg-background w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
-        <div className="lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+        <div className="lg:p-0 p-2 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div className="text-4xl font-bold text-center lg:text-left">
             {eventName}
           </div>
@@ -329,7 +329,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <div className="flex flex-row justify-between space-x-2  ">
-            <div className="pl-5">
+            <div className="lg:pl-5 lg:ml-0 ml-3">
               <ButtonSmall
                 bgColor={'primary'}
                 textColor={'white'}
@@ -337,8 +337,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
                   nav('/timeselect/' + code);
                 }}
               >
-                <span className="ml-3 lg:ml-0 mr-1">&#8592;</span> Edit Your
-                Availability
+                <span>&#8592;</span> Edit Your Availability
               </ButtonSmall>
             </div>
 
@@ -347,7 +346,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
               (calendarFramework.dates[0][0].date as Date).getFullYear() !==
                 2000 &&
               isAdmin && (
-                <div className="pr-5">
+                <div className="lg:pr-5 lg:mr-0 mr-10">
                   <AddToGoogleCalendarButton
                     onClick={handleSelectionSubmission}
                   />
