@@ -88,15 +88,17 @@ function SelectCalander({
             className="text-steelgray p-3 rounded-lg cursor-pointer "
           />
         ) : (
-          <div></div>
+          <div className="p-3 h-11"></div>
         )}
         {currentStartPage + numberOfColumns <
-          calendarFramework.dates.flat().length && (
+        calendarFramework.dates.flat().length ? (
           <FaArrowRight
             onClick={handleNext}
             size={45}
             className="text-steelgray p-3 rounded-lg cursor-pointer "
           />
+        ) : (
+          <div className="p-3 h-11"></div>
         )}
       </div>
 
