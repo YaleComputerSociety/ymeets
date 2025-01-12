@@ -7,6 +7,8 @@
       "esnext"
       
     ],
+    
+
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -25,6 +27,7 @@
   },
   
   "include": [
-    "src", "tailwind.config.js"  
+    "src", "tailwind.config.js"  ,
+    "src", "Intl.d.ts"
 ]
 }

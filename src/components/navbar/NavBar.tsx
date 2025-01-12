@@ -8,7 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
-import { FaBars, FaCog } from 'react-icons/fa';
+import { FaBars } from 'react-icons/fa';
 import { logout } from '../../firebase/auth';
 
 import {
@@ -19,6 +19,7 @@ import {
 } from 'react-icons/fa';
 import { MdFeedback, MdDarkMode, MdOutlineDarkMode } from 'react-icons/md';
 import { useTheme } from '../../contexts/ThemeContext';
+import { TiWeatherSunny } from 'react-icons/ti';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
@@ -69,15 +70,15 @@ export default function NavBar() {
           <div className="flex items-center space-x-4">
             <div onClick={toggleTheme}>
               {theme === 'dark' ? (
-                <MdOutlineDarkMode
+                <MdDarkMode
                   className="cursor-pointer"
                   color={'#f8f9fa'}
                   size={25}
                 />
               ) : (
-                <MdDarkMode
+                <TiWeatherSunny
                   className="cursor-pointer"
-                  color={'#7E7E7E'}
+                  color={'#595e69'}
                   size={25}
                 />
               )}
@@ -161,7 +162,7 @@ export default function NavBar() {
                     ) : (
                       <a
                         href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white transition-colors duration-200"
+                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
                         onClick={() => {
                           signInWithGoogle(
                             undefined,

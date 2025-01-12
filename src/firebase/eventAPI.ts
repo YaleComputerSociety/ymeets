@@ -76,7 +76,8 @@ export default class FrontendEventAPI {
     plausibleLocations: Location[],
     startTime: Date,
     endTime: Date,
-    zoomLink: string = ''
+    zoomLink: string = '',
+    timeZone: string
   ): Promise<Event | null> {
     try {
       const ev: Event | null = await createEvent({
@@ -89,7 +90,7 @@ export default class FrontendEventAPI {
         endTime,
         plausibleLocations, // TODO admin creator is not being added; maybe should be done on time select?
         zoomLink: zoomLink,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timeZone: timeZone,
       });
 
       return ev;

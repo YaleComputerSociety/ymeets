@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-dropdown-select';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
+import TimezonePicker from '../../utils/components/TimezonePicker';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -14,6 +15,9 @@ export const DaySelectComponent = () => {
   nineAM.setHours(9);
   const fivePM = new Date('January 1, 2023');
   fivePM.setHours(17);
+  const [timezone, setTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -164,7 +168,8 @@ export const DaySelectComponent = () => {
           locations, // plaus locs
           startDate,
           endDate,
-          zoomLink
+          zoomLink,
+          timezone
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
@@ -186,7 +191,8 @@ export const DaySelectComponent = () => {
           locations, // plaus locs
           startDate,
           endDate,
-          zoomLink
+          zoomLink,
+          timezone
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
@@ -197,6 +203,10 @@ export const DaySelectComponent = () => {
   const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
     setSelectGeneralDays(tab === 'General Days');
   };
+
+  useEffect(() => {
+    console.log(timezone);
+  }, [timezone]);
 
   const inputClasses =
     'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
@@ -233,6 +243,9 @@ export const DaySelectComponent = () => {
               maxLength={100}
             />
           </div>
+          <div className="w-[80%]  flex flex-row justify-center md:justify-start">
+            <TimezonePicker theTimezone={[timezone, setTimezone]} />
+          </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
               <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
@@ -268,6 +281,7 @@ export const DaySelectComponent = () => {
                 />
               </div>
             </div>
+
             <div className="mt-2 mb-6 z-50">
               <InformationPopup
                 content="

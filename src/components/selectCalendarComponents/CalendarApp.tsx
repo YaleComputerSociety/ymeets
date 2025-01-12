@@ -3,6 +3,9 @@ import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { useState } from 'react';
+import { getTimezone } from '../../firebase/events';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -115,8 +118,31 @@ export default function Calendar({
   // const isSmallScreen = window.innerWidth < 1024;
   // console.log(isSmallScreen);
 
+  const [calStartTime, setCalStartTime] = useState(calendarFramework.startTime);
+  const [calEndTime, setCalEndTime] = useState(calendarFramework.endTime);
+
+  const handleTimezoneUpdate = (newStartTime: Date, newEndTime: Date) => {
+    setCalStartTime(newStartTime);
+    setCalEndTime(newEndTime);
+
+    // Update your calendar framework or state as needed
+    setCalendarFramework((prev) => ({
+      ...prev,
+      startTime: newStartTime,
+      endTime: newEndTime,
+    }));
+  };
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col space-y-0">
+      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 ml-0 mb-1">
+        <div className="w-full max-w-full">
+          <TimezoneChanger
+            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+            initialTimezone={getTimezone()}
+          />
+        </div>
+      </div>
       <div
         id="cal"
         className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
