@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './calander_component.css';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+// import 'react-calendar/dist/Calendar.css';
 import CircleComponent from '../circle_component';
 import TimeSelectComponent from '../time_select_component';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
 import { getDatesFromRange } from '../../utils/functions/getDatesFromRange';
 import { DateRange } from '../../../types';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -45,6 +46,8 @@ export const CalanderComponent = ({
 
   const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays;
   const [selectedDays, setSelectedDays] = theGeneralDays;
+
+  const { theme } = useTheme();
 
   useEffect(() => {
     // TODO better practice is to use onAuthStateChange
@@ -155,7 +158,7 @@ export const CalanderComponent = ({
   };
 
   return (
-    <div className="calendar-wrapper">
+    <div className="calendar-wrapper bg-secondary_background ">
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
@@ -167,8 +170,18 @@ export const CalanderComponent = ({
           calendarType="US"
           prev2Label={null}
           next2Label={null}
-          nextLabel={<FontAwesomeIcon icon={faArrowRight} />}
-          prevLabel={<FontAwesomeIcon icon={faArrowLeft} />}
+          nextLabel={
+            <FontAwesomeIcon
+              icon={faArrowRight}
+              color={theme === 'dark' ? '#f8f9fa' : 'black'}
+            />
+          }
+          prevLabel={
+            <FontAwesomeIcon
+              icon={faArrowLeft}
+              color={theme === 'dark' ? '#f8f9fa' : 'black'}
+            />
+          }
           selectRange={false}
           showNeighboringMonth={true}
           minDetail="month"
@@ -188,9 +201,13 @@ export const CalanderComponent = ({
               </div>
             );
           }}
-          navigationLabel={({ date, label, locale, view }) =>
-            date.toLocaleString('default', { month: 'long' })
-          }
+          navigationLabel={({ date, label, locale, view }) => {
+            return (
+              <div className="dark:text-text-dark">
+                {date.toLocaleString('default', { month: 'long' })}
+              </div>
+            );
+          }}
         />
       ) : (
         <DaysNotDates theSelectedDays={[selectedDays, setSelectedDays]} />

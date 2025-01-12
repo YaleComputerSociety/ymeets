@@ -6,7 +6,9 @@ interface DateBarProps {
 
 export default function DateBar({ dates }: DateBarProps) {
   return (
-    <div className={`grid grid-cols-${dates.length} w-full text-steelgray`}>
+    <div
+      className={`grid grid-cols-${dates.length} w-full text-outline dark:text-text-dark`}
+    >
       {dates.map((d, index) => (
         <div key={index} className="flex-1">
           <center>

@@ -109,19 +109,23 @@ export default function LocationChart({
     <>
       {roomNumber && <div>Chosen Room Number: {roomNumber}</div>}
       {locationOptions && (
-        <div className="relative flex justify-center items-center text-center bg-white rounded-lg">
+        <div className="text-text dark:text-text-dark relative flex justify-center items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg">
           <table className="table-fixed border-collapse w-full">
             <tbody>
               <tr>
-                <th className="border-b p-3 text-steelgray">Location</th>
-                <th className="border-b p-3 text-steelgray">Votes</th>
+                <th className="border-b p-3 text-text dark:text-text-dark">
+                  Location
+                </th>
+                <th className="border-b p-3 text-text dark:text-text-dark">
+                  Votes
+                </th>
               </tr>
               {locationOptions?.map((loc: Location, idx: number) => {
                 return (
                   <tr
                     key={idx}
                     onClick={() => handleRowClick(loc)}
-                    className={`group p-4 cursor-pointer ${
+                    className={`group dark:bg-secondary_background-dark dark:text-text-dark text-text p-4 cursor-pointer ${
                       checkIfAdmin() && !selectionMade
                         ? 'hover:scale-102 transition-transform duration-200'
                         : ''

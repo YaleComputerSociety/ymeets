@@ -15,10 +15,11 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #e1e8f8;
+  /* background-color: #e1e8f8; */
 }
 
 code {
   font-family: 'Inter', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+

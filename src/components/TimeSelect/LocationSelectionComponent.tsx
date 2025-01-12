@@ -55,7 +55,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = (
     <div ref={containerRef} className="w-full">
       <Select<LocationOption>
         multi
-        className=""
+        className="dark:bg-secondary_background-dark"
         create={false}
         options={options}
         clearOnSelect={false}

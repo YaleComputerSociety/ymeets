@@ -85,7 +85,7 @@ function SelectCalander({
           <FaArrowLeft
             onClick={handlePrev}
             size={45}
-            className="text-steelgray p-3 rounded-lg cursor-pointer "
+            className="text-outline dark:text-text-dark p-3 rounded-lg cursor-pointer "
           />
         ) : (
           <div className="p-3 h-11"></div>
@@ -95,7 +95,7 @@ function SelectCalander({
           <FaArrowRight
             onClick={handleNext}
             size={45}
-            className="text-steelgray p-3 rounded-lg cursor-pointer "
+            className="text-outline dark:text-text-dark p-3 rounded-lg cursor-pointer "
           />
         ) : (
           <div className="p-3 h-11"></div>
@@ -104,8 +104,8 @@ function SelectCalander({
 
       <div className="flex flex-col">
         <div className="sticky h-full mb-2 flex flex-row z-30 top-0">
-          <div className="bg-white w-full flex">
-            <div className="bg-white z-50 h-6"></div>
+          <div className="bg-white dark:bg-secondary_background-dark w-full flex">
+            <div className="bg-white dark:bg-secondary_background-dark z-50 h-6"></div>
             <DateBar dates={bucket} />
           </div>
         </div>
@@ -118,7 +118,7 @@ function SelectCalander({
                 {hour.map((time: string, blockID) => (
                   <div
                     key={time}
-                    className={`border-steelgray border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
+                    className={`border-outline border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
                   >
                     <CalRow
                       theShowUserChart={theShowUserChart}

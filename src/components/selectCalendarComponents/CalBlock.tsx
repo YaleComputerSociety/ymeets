@@ -5,6 +5,7 @@ import { calanderState, userData, user, calendarDimensions } from '../../types';
 import { dragProperties } from './CalendarApp';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { useCallback } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface CalBlockProps {
   blockID: number;
@@ -57,6 +58,7 @@ export default function CalBlock({
   theShowUserChart,
 }: CalBlockProps) {
   const [showUserChart, setShowUserChart] = theShowUserChart ?? [];
+  const { theme } = useTheme();
 
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -124,7 +126,7 @@ export default function CalBlock({
       const end_shade = '#4b86de';
 
       if (selectedCount === 0) {
-        return 'white';
+        return theme === 'light' ? 'white' : '#2d3748';
       } else {
         return interpolateColor(start_shade, end_shade, percentageSelected);
       }
@@ -166,12 +168,14 @@ export default function CalBlock({
 
   // handles the color that is created when the user drags over the block and it IS selected (value of the block init true)
   const [unShadeColor, setUnshadeColor] = useState(() => {
-    return isOnGcal ? 'gray-500' : 'white'; // always white unless it is a gcal block
+    return isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'; // always white unless it is a gcal block
   });
 
   // need this for some reason as well, investigate
   useEffect(() => {
-    setUnshadeColor(isOnGcal ? 'gray-500' : 'white');
+    setUnshadeColor(
+      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
+    );
   }, [isOnGcal]);
 
   const NUM_OF_TIME_BLOCKS =
@@ -458,32 +462,67 @@ export default function CalBlock({
   const updateShadeColors = useCallback(() => {
     setShadeColor(getDefaultShadeColor());
     setOriginalShadeColor(getDefaultShadeColor());
-  }, [columnID, blockID]);
+    setUnshadeColor(
+      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
+    );
+  }, [columnID, blockID, theme]);
 
   useEffect(() => {
     updateShadeColors();
-  }, [updateShadeColors, calendarFramework, columnID]);
+  }, [updateShadeColors, calendarFramework, columnID, theme]);
 
-  let scrollAnimationFrame: any;
-  const handleScroll = (scrollDelta: any) => {
-    if (scrollAnimationFrame) return;
+  const containerRef = useRef<HTMLElement | null>(null);
+  let scrollAnimationFrame: number | null = null;
+
+  // Find and store reference to scrollable container
+  useEffect(() => {
+    const findScrollContainer = (
+      element: HTMLElement | null
+    ): HTMLElement | null => {
+      while (element) {
+        const overflowY = window.getComputedStyle(element).overflowY;
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          return element;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    };
+
+    if (dragRef.current) {
+      containerRef.current = findScrollContainer(dragRef.current);
+    }
+  }, []);
+
+  const handleScroll = (scrollDelta: number) => {
+    if (!containerRef.current || scrollAnimationFrame) return;
 
     scrollAnimationFrame = requestAnimationFrame(() => {
-      const maxScrollTop =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const currentScrollTop = window.scrollY;
+      if (!containerRef.current) return;
 
-      // Prevent scrolling beyond the document bounds
+      const container = containerRef.current;
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      const currentScroll = container.scrollTop;
+
+      // Prevent scrolling beyond the container bounds
       if (
-        (scrollDelta < 0 && currentScrollTop > 0) ||
-        (scrollDelta > 0 && currentScrollTop < maxScrollTop)
+        (scrollDelta < 0 && currentScroll > 0) ||
+        (scrollDelta > 0 && currentScroll < maxScroll)
       ) {
-        window.scrollBy(0, scrollDelta);
+        container.scrollTop += scrollDelta;
       }
 
       scrollAnimationFrame = null;
     });
   };
+
+  useEffect(() => {
+    return () => {
+      if (scrollAnimationFrame) {
+        cancelAnimationFrame(scrollAnimationFrame);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -498,6 +537,7 @@ export default function CalBlock({
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
           onDragOver={handleDesktopAvailabilitySelect}
+          // onDragEnd={stopScrolling}
           onMouseOver={handleDesktopHoverChartedUser}
           onMouseEnter={() => {
             setGcalEventActive(true);
@@ -567,7 +607,10 @@ export default function CalBlock({
             handleMobileHoverChartedUser(e);
           }}
           onTouchEnd={() => {
-            // setGcalEventActive(false);
+            if (scrollAnimationFrame) {
+              cancelAnimationFrame(scrollAnimationFrame);
+              scrollAnimationFrame = null;
+            }
           }}
           onMouseLeave={() => {
             setGcalEventActive(false);
@@ -578,9 +621,9 @@ export default function CalBlock({
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} flex-1 w-full p-0 h-4 touch-none`
-                : `bg-${unShadeColor} flex-1 w-full p-0 h-4 touch-none`
-              : `bg-${shadeColor} flex-1 w-full p-0 h-4 touch-none`
+                ? `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
+                : `bg-${unShadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
+              : `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
           }
           style={{
             borderRight: '1px solid #7E7E7E',

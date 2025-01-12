@@ -65,7 +65,7 @@ export default function HomePage() {
     <>
       <div className="h-1 md:h-8"></div>
       <div
-        className="h-fit w-full overflow-auto bg-background p-8 sm:p-14 pt-0 \
+        className="h-fit w-full overflow-autop-8 sm:p-14 pt-0 \
                         md:px-16 md:pt-14 lg:px-40 xl:px-60"
       >
         <div
@@ -74,10 +74,10 @@ export default function HomePage() {
         >
           <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
-              <h1 className="font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0">
+              <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
                 A cleaner, faster way to schedule meetings on Yale's campus.
               </h1>
-              <h3 className="md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
+              <h3 className="md:block text-text dark:text-text-dark text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
                 <div className="hidden lg:flex flex-col gap-1 text-[90%]">
                   <div className="flex flex-row text-md gap-3 items-center">
                     <SiGooglecalendar />

@@ -270,4 +270,32 @@ export default class FrontendEventAPI {
       participants: userData,
     };
   }
+
+  static getCalendarWithSelectNames(selectNames: string[]): calendar {
+    const avails = getAllAvailabilities();
+    const names = getAllAvailabilitiesNames();
+
+    const userData: userData = {
+      users: [],
+      available: [],
+      unavailable: [],
+    };
+
+    for (let i = 0; i < names.length; i++) {
+      userData.users.push({
+        name: names[i],
+        id: i,
+      });
+    }
+
+    const availMatrix: calanderState = [];
+    for (let i = 0; i < avails.length; i++) {
+      availMatrix.push(avails[i]);
+    }
+
+    return {
+      availabilities: availMatrix,
+      participants: userData,
+    };
+  }
 }

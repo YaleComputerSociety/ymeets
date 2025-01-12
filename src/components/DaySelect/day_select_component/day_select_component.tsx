@@ -199,7 +199,7 @@ export const DaySelectComponent = () => {
   };
 
   const inputClasses =
-    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white';
+    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
@@ -237,7 +237,7 @@ export const DaySelectComponent = () => {
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
               <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
                 <Select
-                  className="react-dropdown-select z-69"
+                  className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
                   multi
                   create
                   options={locationOptions}
@@ -280,13 +280,15 @@ export const DaySelectComponent = () => {
       </div>
 
       <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-        <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
+        <div className="mb-4 flex space-x-4 p-2 bg-white dark:bg-secondary_background-dark rounded-lg shadow-md relative">
           <button
             onClick={() => {
               handleTabChange('Specific Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative specific-days-button ${
-              selectGeneralDays ? 'text-black' : 'text-white'
+              selectGeneralDays
+                ? 'text-black dark:text-text-dark'
+                : 'text-white'
             }`}
           >
             <span className="relative z-10">Specific Days</span>
@@ -301,7 +303,9 @@ export const DaySelectComponent = () => {
               handleTabChange('General Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative general-days-button ${
-              selectGeneralDays ? 'text-white' : 'text-black'
+              selectGeneralDays
+                ? 'text-white'
+                : 'text-black dark:text-text-dark'
             }`}
           >
             <span className="relative z-10">General Days</span>

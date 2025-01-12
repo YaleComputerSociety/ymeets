@@ -1,337 +1,378 @@
+.react-calendar {
+  background-color: #ffff !important; /* Replace with your desired color */
+  @apply dark:bg-secondary_background-dark !important; /* Apply a dark mode background if needed */
+}
+
+.react-calendar button {
+  /* @apply text-black !important;
+  @apply dark:bg-secondary_background-dark !important;
+  @apply text-text-dark !important; */
+  @apply dark:bg-secondary_background-dark !important;
+}
+
 .react-calendar__tile--now {
-    background: white !important;
-    color: black !important;
+  background: white !important;
+  color: black !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .react-calendar__month-view__days__day--weekend {
-    color: black !important;
+  color: black !important;
+  @apply dark:text-text-dark !important;
 }
 
 .react-calendar__tile--active {
-    color: black !important;
-    background-color: white !important;
+  color: black !important;
+  background-color: white !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .highlight {
-    font-weight: 1000;
-    color:rgb(14 165 233) !important;
-    /* text-decoration: underline; */
-  }
+  font-weight: 1000;
+  color: rgb(14 165 233) !important;
+  /* text-decoration: underline; */
+}
 
 .react-calendar__tile--active:hover {
-    background-color: none;
+  background-color: none;
 }
 
 .react-calendar__month-view__weekdays {
-    padding-bottom: 1em;
-    border-bottom: 1px solid #e6e6e6;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #e6e6e6;
+  @apply dark:bg-secondary_background-dark !important;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  @apply dark:text-text-dark !important;
 }
 
 .react-calendar__navigation__label {
-    flex-grow: 0 !important;
-    background-color: white !important;
+  flex-grow: 0 !important;
+  background-color: white !important;
 }
 
 .react-calendar__navigation button {
-    min-width: 10px !important;
-    font-size: 2rem;
-    color: #c3c3c3;
+  min-width: 10px !important;
+  font-size: 2rem;
+  color: #c3c3c3;
+  @apply dark:bg-secondary_background-dark;
+  @apply dark:text-text-dark !important;
 }
 
 .react-calendar__navigation {
-    display: flex;
-    justify-content: center;
-    gap: 22px;
-    min-width: 190px;
-  }
-  
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  min-width: 190px;
+  @apply dark:bg-secondary_background-dark;
+}
+
 .react-calendar__navigation__label__labelText--from {
-    font-weight: 250 !important;
+  font-weight: 250 !important;
 }
 
 .react-calendar__navigation__arrow {
-    font-size: 22px !important;
-    color: black !important;
+  font-size: 22px !important;
+  color: black !important;
+  /* @apply dark:bg-secondary_background-dark !important; */
 }
 
 .react-calendar__navigation__label {
-    /* Adjust these styles as needed */
-    flex-grow: 1;
+  /* Adjust these styles as needed */
+  flex-grow: 1;
+  @apply bg-secondary_background-dark;
 }
 
 .react-calendar__navigation__arrow.react-calendar__navigation__next2-button {
-    /* Set a fixed width or any other desired styles */
-    width: 20px;
-    /* Ensure the arrow stays on the right */
-    margin-left: auto;
+  /* Set a fixed width or any other desired styles */
+  width: 20px;
+  /* Ensure the arrow stays on the right */
+  margin-left: auto;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .react-calendar__navigation button:enabled:hover,
 .react-calendar__navigation button:enabled:focus {
-    background-color: white !important;
+  background-color: white !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .react-calendar__navigation:hover {
-    background-color: white !important;
+  background-color: white !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .react-calendar__navigation button:hover {
-    background-color: none !important;
+  background-color: none !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .react-calendar__navigation__label__labelText {
-    font-size: 2rem;
-    font-weight: bold;
-    color: black;
-    /* padding: 0px, 50px, 0px, 50px; */
+  font-size: 2rem;
+  font-weight: bold;
+  color: black;
+  /* padding: 0px, 50px, 0px, 50px; */
 }
 
 abbr {
-    text-decoration: none !important;
-    font-weight: normal !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
 }
 
 .react-calendar {
-    border: none !important;
-    position: relative;
+  border: none !important;
+  position: relative;
 }
 
 .react-calendar__month-view__days__day--neighboringMonth {
-    color: lightgray !important;
+  color: lightgray !important;
+  @apply dark:text-gray-600 !important;
 }
 
 button.react-calendar__tile {
-    /* min-height: 75px !important; */
-    min-height: 50px !important;
-    position: relative !important;
-    padding: 0 !important;
-    font-size: 1.2rem !important;
+  /* min-height: 75px !important; */
+  min-height: 50px !important;
+  position: relative !important;
+  padding: 0 !important;
+  font-size: 1.2rem !important;
+  @apply dark:text-text-dark;
+}
+
+button.react-calendar__tile--weekend {
+  background-color: #f1f1f1 !important; /* Light background for weekends */
+  color: #d32f2f !important; /* Red color for weekends */
+  @apply dark:text-text-dark !important;
 }
 
 button.react-calendar__tile div {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .react-calendar__tile:hover {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .react-calendar__tile > abbr {
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    top: 27.5px;
-    position: absolute;
-    z-index: 3;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  top: 27.5px;
+  position: absolute;
+  z-index: 3;
 }
 
 .react-calendar__navigation {
-    margin-bottom: 80px !important;
-    width: 100% !important;
+  margin-bottom: 80px !important;
+  width: 100% !important;
 }
 
 .react-calendar__month-view__weekdays {
-    border-bottom: none !important;
-    padding-bottom: 0 !important;
-    padding-top: 17px !important;
-    border-top: 1px solid lightgray !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  padding-top: 17px !important;
+  border-top: 1px solid lightgray !important;
 }
 
 .time-select-container > div > .react-dropdown-select {
-    border: none !important;
-    border-radius: 8px !important;
-    background-color: rgb(216, 216, 216) !important;
-    max-height: 22px !important;
-    min-width: 88px !important;
-    padding-left: 9px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background-color: rgb(216, 216, 216) !important;
+  max-height: 22px !important;
+  min-width: 88px !important;
+  padding-left: 9px !important;
 }
 
 .time-select-container > div > div > .react-dropdown-select-dropdown-handle {
-    display: none !important;
+  display: none !important;
 }
 
 .react-calendar__tile > abbr {
-    display: none;
+  display: none;
 }
 
 .react-calendar__tile--hover {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .react-calendar__tile--hover > .circle {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 .react-calendar {
-    max-height: 500px !important;
+  max-height: 500px !important;
 }
 
 .circle {
-    /* position: absolute; */
-    /* height: 30px;
+  /* position: absolute; */
+  /* height: 30px;
     width: 30px; */
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 2;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    /* top: 22.5px; */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  /* top: 22.5px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .circle button:hover {
-    background-color: #e6e6e6 !important;
+  background-color: #e6e6e6 !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
-.react-calendar__tile--active  .circle {
-    background-color: none !important;
+.react-calendar__tile--active .circle {
+  background-color: none !important;
 }
 
-.react-calendar__tile--active  .circle:hover {
-    background-color: none !important;
+.react-calendar__tile--active .circle:hover {
+  background-color: none !important;
 }
 
 .calendar-wrapper {
-    position: relative;
-    width: 100%;
-    padding: 1.8rem 2rem 1.3rem 2rem !important;
-    background-color: white;
-    /* min-height: fit-content; */
-    /* padding: "10px"; */
-    /* min-height: 350px !important; */
-    border-radius: 10px !important;
-    /* margin-top: 65px; */
+  position: relative;
+  width: 100%;
+  padding: 1.8rem 2rem 1.3rem 2rem !important;
+  background-color: white;
+  @apply dark:bg-secondary_background-dark !important;
+  /* min-height: fit-content; */
+  /* padding: "10px"; */
+  /* min-height: 350px !important; */
+  border-radius: 10px !important;
+  /* margin-top: 65px; */
 }
 
 .calendar-event-name-wrapper {
-    position: absolute;
-    top: -80px;
-    left: 0;
-    height: 30px;
+  position: absolute;
+  top: -80px;
+  left: 0;
+  height: 30px;
 }
 
 .calendar-event-name-wrapper input {
-    border: none;
-    height: 30px;
-    border-bottom: 1px solid #a3a2a2;
-    font-size: 20px;
-    width: 200%;
+  border: none;
+  height: 30px;
+  border-bottom: 1px solid #a3a2a2;
+  font-size: 20px;
+  width: 200%;
 }
 
 .calendar-event-name-wrapper input:focus {
-    outline: none;
+  outline: none;
 }
 
 .next-button-wrapper {
-    position: absolute;
-    display: grid;
-    justify-items: start;
-    /* height: 60px; */
-    margin-top: 5%;
+  position: absolute;
+  display: grid;
+  justify-items: start;
+  /* height: 60px; */
+  margin-top: 5%;
 }
 
 .next-button-wrapper button {
-    background-color: #00356B;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    width: 80px;
-    height: 30px;
-    cursor: pointer;
-    font-size: 100%;
-    position: fixed;
-    bottom: 5vh;
-    right: 10.2vw;
+  background-color: #00356b;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  width: 80px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 100%;
+  position: fixed;
+  bottom: 5vh;
+  right: 10.2vw;
 }
 
 .nextbuttondaysel {
-    box-shadow: 2px 4px 3px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 4px 3px 0px rgba(0, 0, 0, 0.4);
 }
 
 .nextbuttondaysel:hover {
-    /* transform: translateY(5px);
+  /* transform: translateY(5px);
     transform: translateX(3px); */
-    transform: translate3d(1.5px, 3px, 0px);
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
-    /* transform: translateX(4px); */
+  transform: translate3d(1.5px, 3px, 0px);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.5);
+  /* transform: translateX(4px); */
 }
 
 .react-calendar__tile:disabled,
 .react-calendar__tile:disabled:hover {
-    background-color: #f0f0f0 !important;
+  background-color: #f0f0f0 !important;
+  @apply dark:bg-secondary_background-dark !important;
 }
 
 .tooltip-overlay.has-tooltip:hover::before {
-    content: attr(data-title);
-    position: absolute;
-    bottom: calc(100% - 20px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    background-color: #333;
-    color: white;
-    white-space: nowrap;
-    border-radius: 5px;
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.8;
-    font-size: 1em;
-    font-family: 'Roboto', sans-serif;
-  }
-  
-  .tooltip-overlay.has-tooltip:hover::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% - 30px);
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: #333;
-    pointer-events: none;
-  }
-  
-  .custom-popup {
-    background-color: #fff;
-    padding: 30px; /* Increase padding to make it larger */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 300px; /* Set a specific width for the popup */
-    position: relative; /* Required for absolute positioning */
-    color: #00356B;
-    border-color: #00356B
+  content: attr(data-title);
+  position: absolute;
+  bottom: calc(100% - 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: #333;
+  color: white;
+  white-space: nowrap;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.8;
+  font-size: 1em;
+  font-family: 'Roboto', sans-serif;
+}
 
-  }
+.tooltip-overlay.has-tooltip:hover::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 30px);
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+  pointer-events: none;
+}
+
+.custom-popup {
+  background-color: #fff;
+  padding: 30px; /* Increase padding to make it larger */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 300px; /* Set a specific width for the popup */
+  position: relative; /* Required for absolute positioning */
+  color: #00356b;
+  border-color: #00356b;
+  @apply dark:bg-secondary_background-dark !important;
+}
 
 .close-button {
-    background-color: #ccc;
-    color: #fff;
-    border: none;
-    padding: 5px;
-    border-radius: 50%; /* Make it a circle */
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 20px; /* Increase font size to make it an X */
-    width: 24px; /* Adjust width to align X */
-    height: 24px; /* Adjust height to align X */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.3s; /* Add transition for hover effect */
-    }
+  background-color: #ccc;
+  @apply dark:bg-secondary_background-dark !important;
+  color: #fff;
+  border: none;
+  padding: 5px;
+  border-radius: 50%; /* Make it a circle */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px; /* Increase font size to make it an X */
+  width: 24px; /* Adjust width to align X */
+  height: 24px; /* Adjust height to align X */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s; /* Add transition for hover effect */
+}
 
 .close-button:hover {
-    background-color: #00356B;
-    }
+  background-color: #00356b;
+}
 
 .close-button::before {
-    content: "X"; /* Use the '×' character as content for the close button */
-    }
+  content: 'X'; /* Use the '×' character as content for the close button */
+}

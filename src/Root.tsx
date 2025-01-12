@@ -11,27 +11,30 @@ import NotFound from './components/NotFound/NotFound';
 import PrivacyPage from './components/Privacy/PrivacyPage';
 import { GAPIContextWrapper } from './firebase/gapiContext';
 import Banner from './components/utils/components/Banner';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function Root() {
   return (
-    <div className="bg-background">
-      <Banner title="1.0 Release is Live" text="Please report bugs" />
-      <GAPIContextWrapper>
-        <Router>
-          <NavBar></NavBar>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/dayselect" element={<DaySelectComponent />} />
-            <Route path="/timeselect/:code" element={<TimeSelectPage />} />
-            <Route path="/groupview/:code" element={<GroupViewApp />} />
-            <Route path="/useraccount" element={<AccountsPage />} />
-            <Route path="/about-us" element={<AboutUsPage />} />
-            <Route path="*" element={<NotFound />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-          </Routes>
-        </Router>
-      </GAPIContextWrapper>
-    </div>
+    <ThemeProvider>
+      <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
+        <Banner title="2.0 Release is Live" text="Please report bugs" />
+        <GAPIContextWrapper>
+          <Router>
+            <NavBar></NavBar>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/dayselect" element={<DaySelectComponent />} />
+              <Route path="/timeselect/:code" element={<TimeSelectPage />} />
+              <Route path="/groupview/:code" element={<GroupViewApp />} />
+              <Route path="/useraccount" element={<AccountsPage />} />
+              <Route path="/about-us" element={<AboutUsPage />} />
+              <Route path="*" element={<NotFound />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+            </Routes>
+          </Router>
+        </GAPIContextWrapper>
+      </div>
+    </ThemeProvider>
   );
 }
 

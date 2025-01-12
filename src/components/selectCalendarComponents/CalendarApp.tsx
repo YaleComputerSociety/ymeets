@@ -123,12 +123,12 @@ export default function Calendar({
       >
         <div
           style={{ width: '3.00rem', height: '3.75rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-40"
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-lg z-40"
         ></div>
 
-        <div className="bg-white flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg lg:max-h-140">
-          <div className="sticky left-0 z-20 bg-white"></div>
-          <div className="sticky left-0 z-30 bg-white">
+        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg lg:max-h-140">
+          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
+          <div className="sticky left-0 z-30 bg-white dark:bg-secondary_background-dark">
             {/* handles aligning it with the cal */}
 
             <>
@@ -150,10 +150,10 @@ export default function Calendar({
                 {hour.map((time: string, blockID) => (
                   <div
                     key={blockID}
-                    className="h-3 flex items-center justify-end pr-1 bg-white"
+                    className="h-3 flex items-center justify-end pr-1 bg-white dark:bg-secondary_background-dark"
                   >
                     {time.slice(-2) === '00' && (
-                      <span className="text-xs p-0 text-steelgray relative z-20">
+                      <span className="text-xs p-0 text-outline dark:text-text-dark relative z-20">
                         {militaryConvert(time)}
                       </span>
                     )}
@@ -163,7 +163,7 @@ export default function Calendar({
             ))}
             <div
               style={{ width: '3.00rem', height: '0.50rem' }}
-              className="bg-white"
+              className="bg-white dark:bg-secondary_background-dark"
             ></div>
           </div>
 

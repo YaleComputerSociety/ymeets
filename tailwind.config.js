@@ -2,6 +2,7 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class", // This is essential
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
@@ -14,18 +15,25 @@ module.exports = {
         custom: "2px 4px 3px 0px rgba(0, 0, 0, 0.4)",
       },
       colors: {
-        "ymeets-gray": "#D0CFCF",
-        "ymeets-med-blue": "#0056AE",
-        "ymeets-light-blue": "#BEDEFF",
-        "ymeets-dark-blue": "#00356B",
-        "selection-made-red": "#D86969",
-        background: "#e1e8f7",
-        steelgray: "#7E7E7E",
-        primary: "#5191F2",
-        secondary: "#609CF6",
-        select: "#afcdfa",
-        submit: "#73dd64",
+        background: "#e1e8f7", // Light mode background
+        secondary_background: "#ffffff", // Light mode secondary background
+        text: "#595e69", // Light mode text color
+        outline: "#7E7E7E", // Light mode outline
+        primary: "#5191F2", // Light mode primary color
+        secondary: "#609CF6", // Light mode secondary color
+        select: "#afcdfa", // Light mode select color
+        submit: "#73dd64", // Light mode submit button color
+
+        // Dark mode colors
+        "background-dark": "#1a202c", // Dark mode background
+        "secondary_background-dark": "#2d3748", // Dark mode secondary background
+        "text-dark": "#f8f9fa", // Dark mode text color
+        "primary-dark": "#90cdf4", // Dark mode primary color
+        "secondary-dark": "#609CF6", // Dark mode secondary color (same as light)
+        "select-dark": "#afcdfa", // Dark mode select color (same as light)
+        "submit-dark": "#73dd64", // Dark mode submit button color (same as light)
       },
+
       height: {
         nineteen: "70px",
         17: "66px",
