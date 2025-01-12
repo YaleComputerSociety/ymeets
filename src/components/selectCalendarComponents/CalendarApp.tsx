@@ -115,9 +115,6 @@ export default function Calendar({
     }
   };
 
-  // const isSmallScreen = window.innerWidth < 1024;
-  // console.log(isSmallScreen);
-
   const [calStartTime, setCalStartTime] = useState(calendarFramework.startTime);
   const [calEndTime, setCalEndTime] = useState(calendarFramework.endTime);
 
@@ -134,7 +131,7 @@ export default function Calendar({
   };
 
   return (
-    <div className="flex flex-col space-y-0">
+    <div className="flex flex-col space-y-0 mb-2">
       <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 ml-0 mb-1">
         <div className="w-full max-w-full">
           <TimezoneChanger

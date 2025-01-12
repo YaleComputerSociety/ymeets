@@ -313,7 +313,7 @@ export default function AdminGroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <div className="flex flex-row justify-between space-x-2  ">
-            <div className="lg:pl-5 lg:ml-0 ml-3">
+            <div className="lg:pl-5 lg:ml-0 ml-3 mt-2">
               <ButtonSmall
                 bgColor={'primary'}
                 textColor={'white'}

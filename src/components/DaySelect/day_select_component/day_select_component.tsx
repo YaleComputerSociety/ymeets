@@ -204,10 +204,6 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days');
   };
 
-  useEffect(() => {
-    console.log(timezone);
-  }, [timezone]);
-
   const inputClasses =
     'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
 
