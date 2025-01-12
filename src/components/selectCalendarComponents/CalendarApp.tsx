@@ -6,6 +6,7 @@ import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { useState } from 'react';
 import { getTimezone } from '../../firebase/events';
+import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -132,7 +133,7 @@ export default function Calendar({
 
   return (
     <div className="flex flex-col space-y-0 mb-2">
-      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 ml-0 mb-1">
+      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
         <div className="w-full max-w-full">
           <TimezoneChanger
             theCalendarFramework={[calendarFramework, setCalendarFramework]}
@@ -140,22 +141,43 @@ export default function Calendar({
           />
         </div>
       </div>
+      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-50 p-0">
+        {currentStartPage !== 0 ? (
+          <FaArrowLeft
+            onClick={handlePrev}
+            size={45}
+            className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
+          />
+        ) : (
+          <div className="p-3 h-11"></div>
+        )}
+        {currentStartPage + numberOfColumnsPerPage <
+        calendarFramework.dates.flat().length ? (
+          <FaArrowRight
+            onClick={handleNext}
+            size={45}
+            className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
+          />
+        ) : (
+          <div className="p-3 h-11"></div>
+        )}
+      </div>
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative "
       >
         <div
-          style={{ width: '3.00rem', height: '3.75rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-lg z-40"
+          style={{ width: '3.00rem', height: '2.50rem' }}
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-40"
         ></div>
 
-        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg lg:max-h-140 pr-2 lg:p-0">
+        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0">
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
           <div className="sticky left-0 z-30 bg-white dark:bg-secondary_background-dark">
             {/* handles aligning it with the cal */}
 
             <>
-              <div style={{ height: '6.3rem' }}></div>
+              <div style={{ height: '2.30rem' }}></div>
               <div style={{ height: '0.50rem' }}></div>
             </>
 
