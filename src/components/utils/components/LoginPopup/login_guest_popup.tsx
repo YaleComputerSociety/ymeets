@@ -28,7 +28,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   const handleSignInWithGoogle = () => {
     signInWithGoogle().then((loginSuccessful) => {
       if (loginSuccessful !== false) {
-        navigate('/dayselect');
+        navigate(`/timeselect/${code}`);
         onClose();
         document.body.classList.remove('popup-open');
       }

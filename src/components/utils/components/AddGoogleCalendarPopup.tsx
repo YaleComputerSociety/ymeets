@@ -27,7 +27,7 @@ export const AddGoogleCalendarPopup = ({
       onCloseAndSubmit={onCloseAndSubmit}
     >
       {children}
-      <div className="relative mt-6 space-y-3">
+      <div className="relative mt-6 space-y-3 ">
         <div className="flex justify-center">
           <button
             className="text-sm bg-gray-100 text-gray-700 font-medium py-1 px-4 rounded shadow-md hover:bg-gray-200 transition-colors"

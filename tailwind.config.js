@@ -66,5 +66,5 @@ module.exports = {
   variants: {
     fill: ["hover", "focus"],
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 };
