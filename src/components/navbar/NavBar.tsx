@@ -52,8 +52,6 @@ export default function NavBar() {
     return onAuthStateChanged(auth, () => {
       let obtainedName = getAccountName().split(' ')[0];
 
-      // console.log(obtainedName)
-
       if (obtainedName.length >= 11) {
         setName(obtainedName.slice(0, 10) + '...');
       } else {
