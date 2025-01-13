@@ -1,6 +1,8 @@
 import React from 'react';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <>
       <div className="h-3"></div>
@@ -9,7 +11,7 @@ export default function Footer() {
           <div className="items-center justify-center px-2 m-1">
             <p className="px-2 text-center hover:text-blue-700 font-bold">
               <a href="https://yalecomputersociety.org/">
-                &copy; 2024 &ndash; A y/cs product
+                &copy; {currentYear} &ndash; A y/cs product
               </a>
             </p>
           </div>

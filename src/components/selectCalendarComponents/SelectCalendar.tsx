@@ -45,10 +45,7 @@ interface SelectCalanderProps {
         React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
       ]
     | undefined;
-  handleNext: any;
-  handlePrev: any;
-  currentStartPage: number;
-  numberOfColumns: number;
+
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -68,40 +65,13 @@ function SelectCalander({
   endDate,
   theDragState,
   theGoogleCalendarEvents,
-  handleNext,
-  handlePrev,
-  currentStartPage,
-  numberOfColumns,
+
   onClick,
   theShowUserChart,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
-
   return (
     <div className=" max-h-140" style={{ touchAction: 'none' }}>
-      {/* <div className="sticky z-50 flex flex-row justify-between space-x-10 mt-5 top-0">
-        {currentStartPage !== 0 ? (
-          <FaArrowLeft
-            onClick={handlePrev}
-            size={45}
-            className="text-outline dark:text-text-dark p-3 mr-32 rounded-lg cursor-pointer"
-          />
-        ) : (
-          <div className="p-3 h-11"></div>
-        )}
-        {currentStartPage + numberOfColumns <
-        calendarFramework.dates.flat().length ? (
-          <FaArrowRight
-            onClick={handleNext}
-            size={45}
-            className="text-outline dark:text-text-dark p-3 rounded-lg cursor-pointer "
-          />
-        ) : (
-          <div className="p-3 h-11"></div>
-        )}
-      </div> */}
-
       <div className="flex flex-col">
         <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px]">
           <div className="bg-white dark:bg-secondary_background-dark w-full flex ">

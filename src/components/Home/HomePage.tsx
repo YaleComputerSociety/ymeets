@@ -66,7 +66,7 @@ export default function HomePage() {
       <div className="h-1 md:h-8"></div>
       <div
         className="h-fit w-full overflow-autop-8 sm:p-14 pt-0 \
-                        md:px-16 md:pt-14 lg:px-40 xl:px-60"
+                        md:px-16 md:pt-14 lg:px-40 xl:px-60 mb-3"
       >
         <div
           className="flex-col-reverse justify-center \ 

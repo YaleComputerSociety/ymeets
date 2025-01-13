@@ -216,10 +216,6 @@ export default function Calendar({
             <SelectCalander
               theShowUserChart={theShowUserChart}
               onClick={onClick}
-              handleNext={handleNext}
-              handlePrev={handlePrev}
-              numberOfColumns={numberOfColumnsPerPage}
-              currentStartPage={currentStartPage}
               renderTime={false}
               theCalendarState={[calendarState, setCalendarState]}
               bucket={calendarFramework?.dates
