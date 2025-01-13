@@ -116,21 +116,6 @@ export default function Calendar({
     }
   };
 
-  const [calStartTime, setCalStartTime] = useState(calendarFramework.startTime);
-  const [calEndTime, setCalEndTime] = useState(calendarFramework.endTime);
-
-  const handleTimezoneUpdate = (newStartTime: Date, newEndTime: Date) => {
-    setCalStartTime(newStartTime);
-    setCalEndTime(newEndTime);
-
-    // Update your calendar framework or state as needed
-    setCalendarFramework((prev) => ({
-      ...prev,
-      startTime: newStartTime,
-      endTime: newEndTime,
-    }));
-  };
-
   return (
     <div className="flex flex-col space-y-0 mb-2">
       <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
@@ -180,11 +165,6 @@ export default function Calendar({
               <div style={{ height: '2.30rem' }}></div>
               <div style={{ height: '0.50rem' }}></div>
             </>
-
-            {/* <>
-                <div style={{ height: '3.5rem' }}></div>
-                <div style={{ height: '0.50rem' }}></div>
-              </> */}
 
             {timeBlocks.map((hour: string[], blockIDOffset: number) => (
               <div

@@ -5,7 +5,7 @@ import DaySelectComponent from './components/DaySelect/day_select_component';
 import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
 import NavBar from './components/navbar/NavBar';
 import AccountsPage from './components/Accounts/AccountsPage';
-import GroupViewApp from './components/GroupView/GroupViewPage';
+import ConditionalGroupViewRenderer from './components/GroupView/ConditionalGroupViewRenderer';
 import AboutUsPage from './components/AboutUs/AboutUsPage';
 import NotFound from './components/NotFound/NotFound';
 import PrivacyPage from './components/Privacy/PrivacyPage';
@@ -25,7 +25,10 @@ function Root() {
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
               <Route path="/timeselect/:code" element={<TimeSelectPage />} />
-              <Route path="/groupview/:code" element={<GroupViewApp />} />
+              <Route
+                path="/groupview/:code"
+                element={<ConditionalGroupViewRenderer />}
+              />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
               <Route path="*" element={<NotFound />} />

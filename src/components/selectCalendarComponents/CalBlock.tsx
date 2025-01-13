@@ -537,7 +537,6 @@ export default function CalBlock({
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
           onDragOver={handleDesktopAvailabilitySelect}
-          // onDragEnd={stopScrolling}
           onMouseOver={handleDesktopHoverChartedUser}
           onMouseEnter={() => {
             setGcalEventActive(true);
@@ -577,40 +576,8 @@ export default function CalBlock({
               setShowUserChart?.(false);
             }
 
-            // const touch = e.touches[0];
-            // const viewportHeight = window.innerHeight;
-            // const scrollThreshold = 50;
-
-            // // Dynamically calculate scroll speed
-            // const distanceFromTop = touch.clientY;
-            // const distanceFromBottom = viewportHeight - touch.clientY;
-            // const maxSpeed = 6; // Maximum scroll speed
-            // let scrollSpeed = 0;
-
-            // if (distanceFromTop < scrollThreshold) {
-            //   scrollSpeed = -Math.min(
-            //     maxSpeed,
-            //     (scrollThreshold - distanceFromTop) / 2
-            //   );
-            // } else if (distanceFromBottom < scrollThreshold) {
-            //   scrollSpeed = Math.min(
-            //     maxSpeed,
-            //     (scrollThreshold - distanceFromBottom) / 2
-            //   );
-            // }
-
-            // if (scrollSpeed !== 0) {
-            //   handleScroll(scrollSpeed);
-            // }
-
             handleMobileAvailabilitySelect(e);
             handleMobileHoverChartedUser(e);
-          }}
-          onTouchEnd={() => {
-            // if (scrollAnimationFrame) {
-            //   cancelAnimationFrame(scrollAnimationFrame);
-            //   scrollAnimationFrame = null;
-            // }
           }}
           onMouseLeave={() => {
             setGcalEventActive(false);

@@ -131,7 +131,7 @@ function ContributorCard({
 }: ContributorCardProps) {
   return (
     <div
-      className="rounded-lg border min-w-fit bg-white mr-6 mb-6 shadow-lg \
+      className="rounded-lg border min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
@@ -163,7 +163,7 @@ function ContributorCard({
             {founding === true ? 'Founding Member' : ''}
           </p> */}
         </div>
-        <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500">
+        <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500 dark:text-text-dark">
           <div className="pr-1 hover:text-primary">
             {github && (
               <a href={github}>
@@ -197,14 +197,14 @@ function ContributorCard({
  */
 export default function AboutUsPage() {
   return (
-    <div className="flex flex-row justify-center items-center w-screen">
+    <div className="flex flex-row justify-center items-center w-screen dark:text-text-dark">
       <div className="w-[80%] md:w-[70%]">
         <h1 className="text-5xl font-bold mb-7">Our Story</h1>
         <div
           className="flex flex-col-reverse justify-between \
                             lg:flex-row"
         >
-          <p className="text-xl text-gray-700">
+          <p className="text-xl text-gray-700 dark:text-text-dark">
             Frusturated with unaesthetic group schedulers that lacked modern
             integrations and were not tailored to the college student's needs,
             we set out to provide our own solution. <br /> <br />
