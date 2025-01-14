@@ -31,8 +31,8 @@ function Root() {
               />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
-              <Route path="*" element={<NotFound />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
         </GAPIContextWrapper>

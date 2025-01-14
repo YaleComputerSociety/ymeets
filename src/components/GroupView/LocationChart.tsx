@@ -107,7 +107,11 @@ export default function LocationChart({
 
   return (
     <>
-      {roomNumber && <div>Chosen Room Number: {roomNumber}</div>}
+      {roomNumber && (
+        <div className="dark:text-text-dark">
+          Chosen Room Number: {roomNumber}
+        </div>
+      )}
       {locationOptions && (
         <div className="text-text dark:text-text-dark relative flex justify-center items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg">
           <table className="table-fixed border-collapse w-full">
@@ -159,7 +163,7 @@ export default function LocationChart({
                 value={roomNumber}
                 onChange={handleInputChange}
                 placeholder={`Enter ${building} room number`}
-                className="border p-2 rounded mb-2"
+                className="border text-black p-2 rounded mb-2"
                 maxLength={10}
               />
               <div className="flex flex-row gap-2">

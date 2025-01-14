@@ -371,7 +371,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 showUserChart ? 'translate-y-0' : 'translate-y-full'
               }`}
             >
-              <div className="bg-white p-4 z-[9999] rounded-t-xl shadow-lg">
+              <div className="bg-white dark:bg-secondary_background-dark p-4 z-[9999] rounded-t-xl shadow-lg">
                 <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
               </div>
             </div>

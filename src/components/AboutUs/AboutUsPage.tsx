@@ -205,7 +205,7 @@ export default function AboutUsPage() {
                             lg:flex-row"
         >
           <p className="text-xl text-gray-700 dark:text-text-dark">
-            Frusturated with unaesthetic group schedulers that lacked modern
+            Frustrated with unaesthetic group schedulers that lacked modern
             integrations and were not tailored to the college student's needs,
             we set out to provide our own solution. <br /> <br />
             ymeets is a platform designed to make it easier to schedule group
