@@ -122,7 +122,11 @@ export default function Calendar({
         <div className="w-full max-w-full">
           <TimezoneChanger
             theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            initialTimezone={getTimezone()}
+            initialTimezone={
+              getTimezone()
+                ? getTimezone()
+                : Intl.DateTimeFormat().resolvedOptions().timeZone
+            }
           />
         </div>
       </div>
