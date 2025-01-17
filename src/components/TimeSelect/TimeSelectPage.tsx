@@ -471,7 +471,7 @@ function TimeSelectPage() {
               ]}
             />
           </div>
-          <div className="flex flex-row justify-between">
+          <div className="flex flex-row justify-between mb-3">
             {!areSelectingGeneralDays && getAccountId() !== '' ? (
               <div className="pl-5 z-60 mb-4 lg:mb-0">
                 <div className="hidden lg:flex">

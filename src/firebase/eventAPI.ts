@@ -144,6 +144,7 @@ export default class FrontendEventAPI {
       11: 'DEC',
     };
 
+    // if its a general day
     if (theDates[0].getFullYear() === 2000) {
       for (let i = 0; i < theDates.length; i++) {
         if (i == 0) {

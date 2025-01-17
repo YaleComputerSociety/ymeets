@@ -1,3 +1,5 @@
+import getShorterTimezonesList from '../functions/getShorterListofTimezones';
+
 interface TimezonePickerProps {
   theTimezone: [string, React.Dispatch<React.SetStateAction<string>>];
 }

@@ -472,7 +472,6 @@ export default function CalBlock({
   }, [updateShadeColors, calendarFramework, columnID, theme]);
 
   const containerRef = useRef<HTMLElement | null>(null);
-  let scrollAnimationFrame: number | null = null;
 
   // Find and store reference to scrollable container
   useEffect(() => {
@@ -492,36 +491,6 @@ export default function CalBlock({
     if (dragRef.current) {
       containerRef.current = findScrollContainer(dragRef.current);
     }
-  }, []);
-
-  const handleScroll = (scrollDelta: number) => {
-    if (!containerRef.current || scrollAnimationFrame) return;
-
-    scrollAnimationFrame = requestAnimationFrame(() => {
-      if (!containerRef.current) return;
-
-      const container = containerRef.current;
-      const maxScroll = container.scrollHeight - container.clientHeight;
-      const currentScroll = container.scrollTop;
-
-      // Prevent scrolling beyond the container bounds
-      if (
-        (scrollDelta < 0 && currentScroll > 0) ||
-        (scrollDelta > 0 && currentScroll < maxScroll)
-      ) {
-        container.scrollTop += scrollDelta;
-      }
-
-      scrollAnimationFrame = null;
-    });
-  };
-
-  useEffect(() => {
-    return () => {
-      if (scrollAnimationFrame) {
-        cancelAnimationFrame(scrollAnimationFrame);
-      }
-    };
   }, []);
 
   return (
