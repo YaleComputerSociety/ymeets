@@ -29,7 +29,7 @@ export default function HomePage() {
   };
   const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
     setEventCode(event.target.value);
-  };  
+  };
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
       signInAndGoToEvent();
@@ -65,8 +65,8 @@ export default function HomePage() {
     <>
       <div className="h-1 md:h-8"></div>
       <div
-        className="h-fit w-full overflow-auto bg-sky-100 p-8 sm:p-14 pt-0 \
-                        md:px-16 md:pt-14 lg:px-40 xl:px-60"
+        className="h-fit w-full overflow-autop-8 sm:p-14 pt-0 \
+                        md:px-16 md:pt-14 lg:px-40 xl:px-60 mb-3"
       >
         <div
           className="flex-col-reverse justify-center \ 
@@ -74,10 +74,10 @@ export default function HomePage() {
         >
           <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
-              <h1 className="font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0">
+              <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
                 A cleaner, faster way to schedule meetings on Yale's campus.
               </h1>
-              <h3 className="md:block text-gray-600 text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
+              <h3 className="md:block text-text dark:text-text-dark text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
                 <div className="hidden lg:flex flex-col gap-1 text-[90%]">
                   <div className="flex flex-row text-md gap-3 items-center">
                     <SiGooglecalendar />
@@ -106,7 +106,7 @@ export default function HomePage() {
                                     md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0"
             >
               <Button
-                bgColor="blue-500"
+                bgColor="primary"
                 textColor="white"
                 onClick={() => navigate('/dayselect')}
               >
@@ -131,7 +131,7 @@ export default function HomePage() {
                   Event Code
                 </label>
                 <input
-                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-blue-500"
+                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-primary"
                   placeholder="Enter your event code"
                   name="eventCode"
                   onInput={updateEventCode}
@@ -139,7 +139,7 @@ export default function HomePage() {
                   autoComplete="off"
                 />
                 <button
-                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-blue-500"
+                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-primary"
                   onClick={signInAndGoToEvent}
                 >
                   Join
@@ -148,7 +148,7 @@ export default function HomePage() {
                   className={
                     !showFormValidation
                       ? 'hidden'
-                      : 'text-blue-500 absolute -bottom-10 mb-2 text-center w-full'
+                      : 'text-primary absolute -bottom-10 mb-2 text-center w-full'
                   }
                 >
                   Try Again: {formErrorMessage}
@@ -160,7 +160,7 @@ export default function HomePage() {
             <img
               src={graphic}
               alt="graphic"
-              className=" w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]"
+              className="opacity-80 w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]"
             />
           </div>
         </div>

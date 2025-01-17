@@ -8,7 +8,7 @@ export default function LoginButton() {
 
   return (
     <Button
-      bgColor="blue-500"
+      bgColor="primary"
       textColor="white"
       onClick={() => {
         signInWithGoogle(undefined, gapi, handleIsSignedIn).then(

@@ -1,11 +1,31 @@
-import * as React from 'react';
-import './locationSelectionComponent.css';
+import React, { useEffect, useState, useRef } from 'react';
 import Select from 'react-dropdown-select';
-import { useEffect, useState, useRef } from 'react';
+import { getAccountName, getLocationVotesByName } from '../../firebase/events';
+import './locationSelectionComponent.css';
 
-export function LocationSelectionComponent(props: any) {
-  const locations: string[] = props.locations;
+interface LocationSelectionProps {
+  locations: string[];
+  update: any;
+}
+
+interface LocationOption {
+  value: string;
+  label: string;
+}
+
+const LocationSelectionComponent: React.FC<LocationSelectionProps> = (
+  props
+) => {
+  const locations = props.locations || [];
+
   const options = locations.map((loc) => ({
+    value: loc,
+    label: loc,
+  }));
+
+  const alreadySelectedLocations =
+    getLocationVotesByName(getAccountName()) || [];
+  const initialValues = alreadySelectedLocations.map((loc) => ({
     value: loc,
     label: loc,
   }));
@@ -32,27 +52,30 @@ export function LocationSelectionComponent(props: any) {
   }, []);
 
   return (
-    <div className="w-[100%] flex flex-row justify-center md:justify-start z-50">
-      <div className="custom-select-wrapper-time">
-        {' '}
-        {/* Ensure width matches the textarea */}
-        <Select
-          style={{ height: '100%', width: '100%' }} // Apply 100% width to match container
-          multi
-          create={false}
-          options={options}
-          clearOnSelect={false}
-          values={[]}
-          onChange={(values: any) => {
-            props.update(values.map((val: any) => val.value));
-          }}
-          dropdownPosition="auto"
-          placeholder=" Select preferred location(s)"
-          noDataRenderer={() => (
-            <div className="p-2 text-center">No location options set :(</div>
-          )}
-        />
-      </div>
+    <div ref={containerRef} className="w-full">
+      <Select<LocationOption>
+        multi
+        className="dark:bg-secondary_background-dark"
+        create={false}
+        options={options}
+        clearOnSelect={false}
+        values={initialValues}
+        onChange={(values) => {
+          props.update(values.map((val) => val.value));
+        }}
+        valueField="value"
+        labelField="label"
+        dropdownPosition="auto"
+        placeholder="Select preferred location(s)"
+        noDataRenderer={() => (
+          <div className="p-2 text-center">No location options set :(</div>
+        )}
+        style={{
+          zIndex: 9999,
+        }}
+      />
     </div>
   );
-}
+};
+
+export default LocationSelectionComponent;

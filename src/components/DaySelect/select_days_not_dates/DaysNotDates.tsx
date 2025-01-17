@@ -21,7 +21,7 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
   const [selectedDays, setSelectedDays] = theSelectedDays || [{}, () => {}];
 
   return (
-    <div className="days-calendar-wrapper">
+    <div className="w-full p-3 dark:text-text-dark">
       <div className="flex flex-row mt-12">
         {DAYS.map((day) => (
           <div
@@ -39,7 +39,7 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
                   },
                 }));
               }}
-              className={`h-32 sm:h-48 border border-black rounded-md ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'bg-white'}`}
+              className={`h-32 sm:h-48 border border-black rounded-md ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'dark:bg-text-dark bg-white'}`}
             ></div>
           </div>
         ))}

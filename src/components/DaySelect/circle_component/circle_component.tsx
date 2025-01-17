@@ -9,7 +9,7 @@ export const CircleComponent = (props: any) => {
   // Holidays found here: https://your.yale.edu/work-yale/benefits/paid-time/official-yale-holidays
   const holidays: Holidays = {
     "New Year's Day": new Date(2000, 0, 1),
-    'MLK Jr Day': new Date(2000, 0, 15),
+    'MLK Jr Day': new Date(2000, 0, 20),
     'Spring Break': Array.from(
       { length: 16 },
       (_, i) => new Date(2000, 2, 9 + i)
@@ -83,7 +83,7 @@ export const CircleComponent = (props: any) => {
     if (event.shiftKey) {
       props.handleRange(props.date);
     } else {
-      if (active==='not-active-circle') {
+      if (active === 'not-active-circle') {
         toggleActive('active-circle');
         props.add(props.date);
       } else {
@@ -114,7 +114,7 @@ export const CircleComponent = (props: any) => {
       )}
       {holidayMetadata.isHoliday ? (
         <div
-          className={`holiday-indicator ${active==='active-circle' ? 'selected' : ''}`}
+          className={`holiday-indicator ${active === 'active-circle' ? 'selected' : ''}`}
         ></div>
       ) : null}
     </div>

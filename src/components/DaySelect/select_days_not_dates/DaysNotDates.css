@@ -1,11 +1,10 @@
 .days-calendar-wrapper {
-    position: relative;
-    width: 100%;
-    /* padding: 2rem !important; */
-    background-color: white;
+  position: relative;
+  width: 100%;
+  /* padding: 2rem !important; *
     /* min-height: fit-content; */
-    padding : "10px";
-    /* min-height: 350px !important; */
-    border-radius: 10px !important;
-    /* margin-top: 65px; */
+  padding: '10px';
+  /* min-height: 350px !important; */
+  border-radius: 10px !important;
+  /* margin-top: 65px; */
 }

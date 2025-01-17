@@ -235,7 +235,7 @@ export default function NotFound() {
             URL and make sure it is valid.
           </p>
           <Button
-            bgColor="blue-500"
+            bgColor="primary"
             onClick={() => nav('/')}
             textColor={'white'}
           >

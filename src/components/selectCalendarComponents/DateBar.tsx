@@ -1,4 +1,3 @@
-import React from 'react';
 import { calandarDate } from '../../types';
 
 interface DateBarProps {
@@ -7,9 +6,11 @@ interface DateBarProps {
 
 export default function DateBar({ dates }: DateBarProps) {
   return (
-    <div className="flex flex-row">
+    <div
+      className={`grid grid-cols-${dates.length} w-full text-outline dark:text-text-dark`}
+    >
       {dates.map((d, index) => (
-        <div key={index} className="flex-1 w-16">
+        <div key={index} className="flex-1">
           <center>
             <p className="text-sm">{d.shortenedWeekDay}</p>
             <p className="text-xs">

@@ -37,12 +37,14 @@ const UserChart: React.FC<UserChartProps> = ({ chartedUsersData }) => {
   );
 
   return (
-    <div className="flex justify-center items-center text-center bg-white rounded-lg mb-3 md:mb-4">
+    <div className="flex text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
       <table className="table-fixed border-collapse w-full">
         <thead>
           <tr>
-            <th className="border-b p-3 text-blue-500">Available</th>
-            <th className="border-b p-3 text-gray-500">Unavailable</th>
+            <th className="border-b p-3 text-primary">Available</th>
+            <th className="border-b p-3 text-text dark:text-text-dark">
+              Unavailable
+            </th>
           </tr>
         </thead>
         <tbody>

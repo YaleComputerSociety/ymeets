@@ -8,7 +8,7 @@ import './privacyPolicy.css';
  */
 export default function PrivacyPage() {
   return (
-    <div className="bg-sky-100 ml-20 mr-20">
+    <div className="dark:text-text-dark ml-20 mr-20">
       <h2 className="text-4xl">Understanding this Privacy Policy</h2>
 
       <h1 className="text-xl">

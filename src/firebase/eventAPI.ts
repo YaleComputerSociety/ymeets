@@ -76,7 +76,8 @@ export default class FrontendEventAPI {
     plausibleLocations: Location[],
     startTime: Date,
     endTime: Date,
-    zoomLink: string = ''
+    zoomLink: string = '',
+    timeZone: string
   ): Promise<Event | null> {
     try {
       const ev: Event | null = await createEvent({
@@ -89,7 +90,7 @@ export default class FrontendEventAPI {
         endTime,
         plausibleLocations, // TODO admin creator is not being added; maybe should be done on time select?
         zoomLink: zoomLink,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timeZone: timeZone,
       });
 
       return ev;
@@ -143,6 +144,7 @@ export default class FrontendEventAPI {
       11: 'DEC',
     };
 
+    // if its a general day
     if (theDates[0].getFullYear() === 2000) {
       for (let i = 0; i < theDates.length; i++) {
         if (i == 0) {
@@ -244,6 +246,34 @@ export default class FrontendEventAPI {
    * @returns
    */
   static getCalendar(): calendar {
+    const avails = getAllAvailabilities();
+    const names = getAllAvailabilitiesNames();
+
+    const userData: userData = {
+      users: [],
+      available: [],
+      unavailable: [],
+    };
+
+    for (let i = 0; i < names.length; i++) {
+      userData.users.push({
+        name: names[i],
+        id: i,
+      });
+    }
+
+    const availMatrix: calanderState = [];
+    for (let i = 0; i < avails.length; i++) {
+      availMatrix.push(avails[i]);
+    }
+
+    return {
+      availabilities: availMatrix,
+      participants: userData,
+    };
+  }
+
+  static getCalendarWithSelectNames(selectNames: string[]): calendar {
     const avails = getAllAvailabilities();
     const names = getAllAvailabilitiesNames();
 

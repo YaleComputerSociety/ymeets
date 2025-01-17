@@ -35,7 +35,7 @@ const CONTRIBUTORS = [
   },
 
   {
-    name: 'Rome Thortensen',
+    name: 'Rome Thorstenson',
     title: ['Software Engineer'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/romethorstenson/',
@@ -131,7 +131,7 @@ function ContributorCard({
 }: ContributorCardProps) {
   return (
     <div
-      className="rounded-lg border min-w-fit bg-white mr-6 mb-6 shadow-lg \
+      className="rounded-lg border min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
@@ -144,7 +144,7 @@ function ContributorCard({
           <h1 className="text-xl mb-3 font-bold font-mono">{name}</h1>
           {title?.map((subtitle) => {
             const style: Record<string, string> = {
-              'Software Engineer': 'text-blue-500 border-blue-500',
+              'Software Engineer': 'text-primary border-primary',
               'UI/UX Designer': 'text-pink-500 border-pink-500',
               'Product Lead': 'text-amber-500 border-amber-500',
             };
@@ -163,22 +163,22 @@ function ContributorCard({
             {founding === true ? 'Founding Member' : ''}
           </p> */}
         </div>
-        <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500">
-          <div className="pr-1 hover:text-blue-500">
+        <div className="flex bottom-0 flex-row mt-2 py-2 text-gray-500 dark:text-text-dark">
+          <div className="pr-1 hover:text-primary">
             {github && (
               <a href={github}>
                 <FaGithubSquare size={30} />
               </a>
             )}
           </div>
-          <div className="pr-1 hover:text-blue-500">
+          <div className="pr-1 hover:text-primary">
             {linkedin && (
               <a href={linkedin}>
                 <FaLinkedin size={30} />
               </a>
             )}
           </div>
-          <div className="pr-1 hover:text-blue-500">
+          <div className="pr-1 hover:text-primary">
             {portfolio && (
               <a href={portfolio}>
                 <FaLink size={30} />
@@ -197,15 +197,15 @@ function ContributorCard({
  */
 export default function AboutUsPage() {
   return (
-    <div className="flex flex-row justify-center items-center w-screen">
+    <div className="flex flex-row justify-center items-center w-screen dark:text-text-dark">
       <div className="w-[80%] md:w-[70%]">
         <h1 className="text-5xl font-bold mb-7">Our Story</h1>
         <div
           className="flex flex-col-reverse justify-between \
                             lg:flex-row"
         >
-          <p className="text-xl text-gray-700">
-            Frusturated with unaesthetic group schedulers that lacked modern
+          <p className="text-xl text-gray-700 dark:text-text-dark">
+            Frustrated with unaesthetic group schedulers that lacked modern
             integrations and were not tailored to the college student's needs,
             we set out to provide our own solution. <br /> <br />
             ymeets is a platform designed to make it easier to schedule group
@@ -213,14 +213,14 @@ export default function AboutUsPage() {
             physical location for meetings to also be decided on. The app is
             built and maintained by a small team of{' '}
             <a
-              className="text-blue-500 "
+              className="text-primary "
               href="https://yalecomputersociety.org/"
             >
               y/cs (Yale Computer Society){' '}
             </a>
             developers. If you have concerns about our app uses your
             information, please go to the following{' '}
-            <a className="text-blue-500" href="/privacy">
+            <a className="text-primary" href="/privacy">
               page
             </a>{' '}
             to view our privacy policy.

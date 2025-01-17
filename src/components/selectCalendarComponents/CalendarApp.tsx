@@ -1,13 +1,12 @@
 import React from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
-import {
-  calendarDimensions,
-  calanderState,
-  userData,
-  calandarDate,
-} from '../../types';
+import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { useState } from 'react';
+import { getTimezone } from '../../firebase/events';
+import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -24,8 +23,6 @@ interface CalendarProps {
   draggable: boolean;
   user: number;
   isAdmin: boolean;
-  title: string;
-
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
@@ -34,6 +31,10 @@ interface CalendarProps {
     calendar_v3.Schema$Event[],
     React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
   ];
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
 }
 
 export interface dragProperties {
@@ -50,18 +51,15 @@ export default function Calendar({
   draggable,
   user,
   isAdmin,
-  title,
   theDragState,
   theGoogleCalendarEvents,
+  theShowUserChart,
+  onClick,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
 
-  let columnIndexOffset = 0;
-
   const [dragState, setDragState] = theDragState;
-
-  const hasTitle = title !== '';
 
   const militaryConvert = (time: string) => {
     let hours = Number.parseInt(time.slice(0, 2));
@@ -70,7 +68,7 @@ export default function Calendar({
     const minutes = Number.parseInt(time.slice(-2));
     return (
       hours +
-      (minutes == 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
+      (minutes === 0 ? '' : ':' + minutes.toString().padStart(2, '0')) +
       ' ' +
       AmOrPm
     );
@@ -81,93 +79,146 @@ export default function Calendar({
     calendarFramework.endTime
   );
 
-  return (
-    <div className="flex flex-col">
-      {hasTitle && (
-        <div className="flex flex-row">
-          <p className="text-3xl sm:text-4xl mt-0 mb-4 sm:mb-1 sm:ml-6 font-bold">
-            {title}
-          </p>
-        </div>
-      )}
+  const calculateColumnsPerPage = () => {
+    const width = window.innerWidth;
+    if (width > 1200) return 7;
+    if (width > 900) return 5;
+    return 3;
+  };
 
+  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
+    calculateColumnsPerPage
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setNumberOfColumnsPerPage(calculateColumnsPerPage());
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const [currentStartPage, setCurrentStartPage] = React.useState(0);
+
+  const handlePrev = () => {
+    setCurrentStartPage(Math.max(currentStartPage - 1, 0));
+  };
+
+  const handleNext = () => {
+    if (
+      currentStartPage + numberOfColumnsPerPage <
+      calendarFramework.dates.flat().length
+    ) {
+      setCurrentStartPage(currentStartPage + 1);
+    }
+  };
+
+  return (
+    <div className="flex flex-col space-y-0 mb-2">
+      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+        <div className="w-full max-w-full">
+          <TimezoneChanger
+            theCalendarFramework={[calendarFramework, setCalendarFramework]}
+            initialTimezone={
+              getTimezone()
+                ? getTimezone()
+                : Intl.DateTimeFormat().resolvedOptions().timeZone
+            }
+          />
+        </div>
+      </div>
+      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-50 p-0">
+        {currentStartPage !== 0 ? (
+          <FaArrowLeft
+            onClick={handlePrev}
+            size={45}
+            className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
+          />
+        ) : (
+          <div className="p-3 h-11"></div>
+        )}
+        {currentStartPage + numberOfColumnsPerPage <
+        calendarFramework.dates.flat().length ? (
+          <FaArrowRight
+            onClick={handleNext}
+            size={45}
+            className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
+          />
+        ) : (
+          <div className="p-3 h-11"></div>
+        )}
+      </div>
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 md:justify-start relative"
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative "
       >
         <div
-          style={{ width: '3.75rem', height: '3.75rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white rounded-tl-lg z-50"
+          style={{ width: '3.00rem', height: '2.50rem' }}
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-40"
         ></div>
-        <div className="bg-white flex flex-row w-fit max-w-full h-full overflow-auto sm:pb-4 md:bg-white rounded-lg max-h-130">
-          {/* Time Column */}
-          <div className="sticky left-0 z-20 bg-white"></div>
-          <div className="sticky left-0 z-30 bg-white">
-            <div style={{ width: '3.75rem', height: '3.75rem' }}></div>
-            <div className="bg-white">
+
+        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0">
+          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
+          <div className="sticky left-0 z-30 bg-white dark:bg-secondary_background-dark">
+            {/* handles aligning it with the cal */}
+
+            <>
+              <div style={{ height: '2.30rem' }}></div>
+              <div style={{ height: '0.50rem' }}></div>
+            </>
+
+            {timeBlocks.map((hour: string[], blockIDOffset: number) => (
               <div
-                style={{ width: '3.75rem', height: '0.50rem' }}
-                className="bg-white"
-              ></div>
-              {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-                <div
-                  key={blockIDOffset}
-                  className="flex flex-col"
-                  style={{ paddingBottom: '0.36rem', marginTop: '-0.3rem' }}
-                >
-                  {hour.map((time: string, blockID) => (
-                    <div
-                      key={blockID}
-                      className="h-3 flex items-center justify-end pr-2 bg-white"
-                    >
-                      {time.slice(-2) == '00' && (
-                        <span className="text-xs relative z-20">
-                          {militaryConvert(time)}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))}
-              <div
-                style={{ width: '3.75rem', height: '0.50rem' }}
-                className="bg-white"
-              ></div>
-            </div>
+                key={blockIDOffset}
+                className="flex flex-col"
+                style={{ paddingBottom: '1.36rem', marginTop: '-0.3rem' }}
+              >
+                {hour.map((time: string, blockID) => (
+                  <div
+                    key={blockID}
+                    className="h-3 flex items-center justify-end pr-1 bg-white dark:bg-secondary_background-dark"
+                  >
+                    {time.slice(-2) === '00' && (
+                      <span className="text-xs p-0 text-outline dark:text-text-dark relative z-20">
+                        {militaryConvert(time)}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+            <div
+              style={{ width: '3.00rem', height: '0.50rem' }}
+              className="bg-white dark:bg-secondary_background-dark"
+            ></div>
           </div>
 
-          {/* Calendar Content */}
-          <div className="flex">
-            {calendarFramework?.dates.map(
-              (bucket: calandarDate[], index: number) => {
-                if (index !== 0) {
-                  const prev_bucket = calendarFramework.dates[index - 1];
-                  columnIndexOffset += prev_bucket.length;
-                }
-
-                return (
-                  <div className="ml-0 mr-2 mb-4" key={index}>
-                    <SelectCalander
-                      renderTime={false}
-                      theCalendarState={[calendarState, setCalendarState]}
-                      bucket={bucket}
-                      draggable={draggable}
-                      isAdmin={isAdmin}
-                      key={index}
-                      user={user}
-                      columnIndexOffset={columnIndexOffset}
-                      startDate={calendarFramework.startTime}
-                      endDate={calendarFramework.endTime}
-                      theDragState={[dragState, setDragState]}
-                      theCalendarFramework={theCalendarFramework}
-                      chartedUsersData={chartedUsersData}
-                      theGoogleCalendarEvents={theGoogleCalendarEvents}
-                      calendarIndex={index}
-                    />
-                  </div>
-                );
-              }
-            )}
+          <div className="w-full flex-1">
+            <SelectCalander
+              theShowUserChart={theShowUserChart}
+              onClick={onClick}
+              renderTime={false}
+              theCalendarState={[calendarState, setCalendarState]}
+              bucket={calendarFramework?.dates
+                .flat()
+                .slice(
+                  currentStartPage,
+                  currentStartPage + numberOfColumnsPerPage
+                )}
+              draggable={draggable}
+              isAdmin={isAdmin}
+              user={user}
+              columnIndexOffset={currentStartPage}
+              startDate={calendarFramework.startTime}
+              endDate={calendarFramework.endTime}
+              theDragState={[dragState, setDragState]}
+              theCalendarFramework={theCalendarFramework}
+              chartedUsersData={chartedUsersData}
+              theGoogleCalendarEvents={theGoogleCalendarEvents}
+            />
           </div>
         </div>
       </div>

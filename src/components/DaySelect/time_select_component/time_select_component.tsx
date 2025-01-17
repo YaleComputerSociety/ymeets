@@ -55,7 +55,7 @@ export const TimeSelectComponent = (props: any) => {
       className={`time-select-container absolute z-50 ${props.paddingClass} flex flex-row items-center justify-center`}
     >
       <div className="grid items-center sm:px-2">
-        <p className="text-right font-normal m-0 text-xs sm:text-base">
+        <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base">
           From:{' '}
         </p>
       </div>
@@ -67,7 +67,7 @@ export const TimeSelectComponent = (props: any) => {
         onChange={handleStartChange}
       />
       <div className="grid items-center pl-4 px-1 sm:px-2">
-        <p className="text-right font-normal m-0 text-xs sm:text-base pl-2">
+        <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base pl-2">
           &nbsp; to:{' '}
         </p>
       </div>

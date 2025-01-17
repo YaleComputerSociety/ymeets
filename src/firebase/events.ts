@@ -733,6 +733,7 @@ export {
   getEventObjectForGCal,
   getEmails,
   getZoomLink,
+  getTimezone,
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,

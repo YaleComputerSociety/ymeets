@@ -15,9 +15,9 @@ interface Props {
 export default function ChartRow({ available, unavailable }: Props) {
   return (
     <>
-      <tr className="w-1/2">
-        <td className="p-3 text-blue-500">{available}</td>
-        <td className="p-3 text-gray-500">{unavailable}</td>
+      <tr className="w-1/2 text-md">
+        <td className="p-3 text-primary">{available}</td>
+        <td className="p-3 text-text dark:text-text-dark">{unavailable}</td>
       </tr>
     </>
   );

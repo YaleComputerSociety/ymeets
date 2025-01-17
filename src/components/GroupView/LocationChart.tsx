@@ -107,21 +107,29 @@ export default function LocationChart({
 
   return (
     <>
-      {roomNumber && <div>Chosen Room Number: {roomNumber}</div>}
+      {roomNumber && (
+        <div className="dark:text-text-dark">
+          Chosen Room Number: {roomNumber}
+        </div>
+      )}
       {locationOptions && (
-        <div className="relative flex justify-center items-center text-center bg-white rounded-lg">
+        <div className="text-text dark:text-text-dark relative flex justify-center items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg">
           <table className="table-fixed border-collapse w-full">
             <tbody>
               <tr>
-                <th className="border-b p-3 text-black">Location</th>
-                <th className="border-b p-3 text-black">Votes</th>
+                <th className="border-b p-3 text-text dark:text-text-dark">
+                  Location
+                </th>
+                <th className="border-b p-3 text-text dark:text-text-dark">
+                  Votes
+                </th>
               </tr>
               {locationOptions?.map((loc: Location, idx: number) => {
                 return (
                   <tr
                     key={idx}
                     onClick={() => handleRowClick(loc)}
-                    className={`group p-4 cursor-pointer ${
+                    className={`group dark:bg-secondary_background-dark dark:text-text-dark text-text p-4 cursor-pointer ${
                       checkIfAdmin() && !selectionMade
                         ? 'hover:scale-102 transition-transform duration-200'
                         : ''
@@ -146,7 +154,7 @@ export default function LocationChart({
               <button
                 type="button"
                 onClick={handleClose}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                className="absolute top-2 right-2 text-steelgray hover:text-gray-800"
               >
                 &times;
               </button>
@@ -155,12 +163,12 @@ export default function LocationChart({
                 value={roomNumber}
                 onChange={handleInputChange}
                 placeholder={`Enter ${building} room number`}
-                className="border p-2 rounded mb-2"
+                className="border text-black p-2 rounded mb-2"
                 maxLength={10}
               />
               <div className="flex flex-row gap-2">
                 <button
-                  className="bg-blue-500 gp text-white p-2 rounded"
+                  className="bg-primary gp text-white p-2 rounded"
                   type="button"
                   onClick={() => {
                     window.open(getBookingLink(building), '_blank');
@@ -170,7 +178,7 @@ export default function LocationChart({
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white p-2 rounded"
+                  className="bg-primary text-white p-2 rounded"
                 >
                   <IoIosCheckmarkCircle />
                 </button>

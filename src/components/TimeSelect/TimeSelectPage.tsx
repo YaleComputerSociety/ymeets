@@ -1,4 +1,4 @@
-import { LocationSelectionComponent } from './LocationSelectionComponent';
+import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3 } from 'googleapis';
 import { useState, useEffect } from 'react';
 import {
@@ -37,6 +37,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 /**
  *
@@ -430,58 +431,33 @@ function TimeSelectPage() {
   };
 
   return (
-    <div className="bg-sky-100 w-full px-4 md:px-8 lg:px-12">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between align-center justify-center items-center">
-        {/* Event details and location selection */}
-        <div className="w-[90%] md:w-full md:ml-[5%] md:mr-[2%] md:mt-[5%] md:w-[45%] mb-8 md:mb-0">
-          <div className="mb-4">
-            <h3 className="text-sm text-gray-400 mb-0">Event Name</h3>
-            <h3 className="text-2xl font-bold break-words mt-0">{eventName}</h3>
+    <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+      <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
+        <div
+          className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
+           items-center justify-center mb-3 text-text dark:text-text-dark"
+        >
+          <div className="text-4xl font-bold text-center lg:text-left">
+            {eventName}
           </div>
-
-          {eventDescription && (
-            <div className="mb-10">
-              <h3 className="text-sm text-gray-400 mb-0">Description</h3>
-              <h3 className="text-xl font-bold break-words mt-0">
-                {eventDescription}
-              </h3>
-            </div>
-          )}
-
+          <div className="text-xl text-center lg:text-left">
+            {eventDescription}
+          </div>
           {locationOptions.length > 0 && (
-            <div className="mb-8">
+            <div className="w-full z-[9999]">
               <LocationSelectionComponent
-                update={updateSelectedLocations}
                 locations={locationOptions}
+                update={updateSelectedLocations}
               />
             </div>
           )}
-
-          <div className="hidden md:flex md:mt-12 flex flex-col items-center">
-            <ButtonSmall
-              bgColor="blue-500"
-              textColor="white"
-              onClick={handleSubmitAvailability}
-            >
-              Submit Availability
-            </ButtonSmall>
-          </div>
-          <div className="mt-6 md:hidden md:mt-12 flex flex-col items-center">
-            <ButtonSmall
-              bgColor="blue-500"
-              textColor="white"
-              onClick={handleSubmitAvailability}
-            >
-              Submit Availability
-            </ButtonSmall>
-          </div>
+          <CopyCodeButton />
         </div>
-
-        {/* Calendar section */}
-        <div className={`w-[95%] mb-4 md:w-[45%] right-column`}>
-          <div className="overflow-x-auto md:overflow-x-visible">
+        <div className="lg:col-span-3">
+          <div className="w-full">
             <Calendar
-              title={'Enter Your Availability'}
+              theShowUserChart={undefined}
+              onClick={() => {}}
               theCalendarState={[calendarState, setCalendarState]}
               user={getCurrentUserIndex()}
               theCalendarFramework={[calendarFramework, setCalendarFramework]}
@@ -495,52 +471,62 @@ function TimeSelectPage() {
               ]}
             />
           </div>
-
-          {!areSelectingGeneralDays && getAccountId() !== '' ? (
-            <div className="md:pl-4 z-60 mb-4 md:mb-0">
-              <div className="hidden md:flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={handleToggleGCalAvailabilitiesClick}
-                >
-                  Show GCal Events
-                </ButtonSmall>
+          <div className="flex flex-row justify-between mb-3">
+            {!areSelectingGeneralDays && getAccountId() !== '' ? (
+              <div className="pl-5 z-60 mb-4 lg:mb-0">
+                <div className="hidden lg:flex">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={handleToggleGCalAvailabilitiesClick}
+                  >
+                    Show GCal Events
+                  </ButtonSmall>
+                </div>
+                <div className="lg:hidden flex">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={handleToggleGCalAvailabilitiesClick}
+                  >
+                    Show GCal Events
+                  </ButtonSmall>
+                </div>
               </div>
-              <div className="md:hidden flex">
-                <ButtonSmall
-                  bgColor="blue-500"
-                  textColor="white"
-                  onClick={handleToggleGCalAvailabilitiesClick}
-                >
-                  Show GCal Events
-                </ButtonSmall>
-              </div>
-            </div>
-          ) : (
-            !areSelectingGeneralDays && (
-              <div className="md:pl-4 mb-4 md:mb-0">
-                <button
-                  className="w-full md:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm md:text-base
+            ) : (
+              !areSelectingGeneralDays && (
+                <div className="lg:pl-4 mb-4 lg:mb-0">
+                  <button
+                    className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
                             flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={() => {
-                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                      (loginSuccessful) => {
-                        if (loginSuccessful) {
-                          window.location.reload();
-                        } else {
-                          console.error('login failed');
+                    onClick={() => {
+                      signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+                        (loginSuccessful) => {
+                          if (loginSuccessful) {
+                            window.location.reload();
+                          } else {
+                            console.error('login failed');
+                          }
                         }
-                      }
-                    );
-                  }}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-5 md:h-6" />
-                  Sign in with Google to access GCal
-                </button>
-              </div>
-            )
-          )}
+                      );
+                    }}
+                  >
+                    <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
+                    Sign in with Google to access GCal
+                  </button>
+                </div>
+              )
+            )}
+            <div className="pr-5">
+              <ButtonSmall
+                bgColor="primary"
+                textColor="white"
+                onClick={handleSubmitAvailability}
+              >
+                Next <span className="ml-1">&#8594;</span>
+              </ButtonSmall>
+            </div>
+          </div>
         </div>
       </div>
       <AddGoogleCalendarPopup

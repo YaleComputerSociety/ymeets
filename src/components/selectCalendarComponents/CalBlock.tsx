@@ -4,6 +4,8 @@ import 'tailwindcss/tailwind.css';
 import { calanderState, userData, user, calendarDimensions } from '../../types';
 import { dragProperties } from './CalendarApp';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { useCallback } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface CalBlockProps {
   blockID: number;
@@ -32,6 +34,11 @@ interface CalBlockProps {
 
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
+
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export default function CalBlock({
@@ -47,10 +54,17 @@ export default function CalBlock({
   theDragState,
   isOnGcal,
   associatedEvents = undefined,
+  onClick,
+  theShowUserChart,
 }: CalBlockProps) {
+  const [showUserChart, setShowUserChart] = theShowUserChart ?? [];
+  const { theme } = useTheme();
+
   const dragRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const elementId = `${columnID}-${blockID}`;
+  const [lastToggleTime, setLastToggleTime] = useState(0);
+  const [touchHandled, setTouchHandled] = useState(false);
 
   const [isDraggable, setIsDraggable] = useState(draggable);
   const [gCalEventActive, setGcalEventActive] = useState(false);
@@ -92,34 +106,32 @@ export default function CalBlock({
     return `#${result.join('')}`;
   }
 
-  function getDefaultShadeColor() {
+  function getDefaultShadeColor(): string {
     let selectedCount = 0;
 
-    for (let i = 0; i < calendarState.length; i++) {
+    // if (shadeColor === '#73dd64') {
+    //   return shadeColor;
+    // }
+
+    for (let i = 0; i < Object.keys(calendarState).length; i++) {
       if (calendarState[i][columnID][blockID] === true) {
         selectedCount += 1;
       }
     }
 
     if (!isDraggable || (isDraggable && isAdmin)) {
-      // one of the groupviews
-
-      const percentageSelected = selectedCount / calendarState.length;
-      // green-200
-      // const start_shade = '#A7F3D0'
-      const start_shade = '#A0F4E4';
-      // green-500
-      // const end_shade = '#10B981'
-      const end_shade = '#4D7C0F';
+      const percentageSelected =
+        selectedCount / Object.keys(calendarState).length;
+      const start_shade = '#bbd5fc';
+      const end_shade = '#4b86de';
 
       if (selectedCount === 0) {
-        return 'white';
+        return theme === 'light' ? 'white' : '#2d3748';
       } else {
         return interpolateColor(start_shade, end_shade, percentageSelected);
       }
     } else {
-      // timeselect - shade color is just going to be sky
-      return 'sky-200';
+      return 'select';
     }
   }
 
@@ -156,12 +168,14 @@ export default function CalBlock({
 
   // handles the color that is created when the user drags over the block and it IS selected (value of the block init true)
   const [unShadeColor, setUnshadeColor] = useState(() => {
-    return isOnGcal ? 'gray-500' : 'white'; // always white unless it is a gcal block
+    return isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'; // always white unless it is a gcal block
   });
 
   // need this for some reason as well, investigate
   useEffect(() => {
-    setUnshadeColor(isOnGcal ? 'gray-500' : 'white');
+    setUnshadeColor(
+      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
+    );
   }, [isOnGcal]);
 
   const NUM_OF_TIME_BLOCKS =
@@ -201,7 +215,7 @@ export default function CalBlock({
     if (
       startCol === endCol &&
       startBlock === endBlock &&
-      (blockID == 0 || blockID == NUM_OF_TIME_BLOCKS)
+      (blockID === 0 || blockID === NUM_OF_TIME_BLOCKS)
     ) {
       curAffectedBlocks = [];
     }
@@ -236,7 +250,7 @@ export default function CalBlock({
       }
     } else {
       if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
-        setShadeColor('#94D22E');
+        setShadeColor('#73dd64');
       } else {
         setShadeColor(originalShadeColor);
       }
@@ -325,21 +339,25 @@ export default function CalBlock({
     }
   };
 
-  const handleBlockClick = () => {
-    if (isDraggable) {
-      if (isAdmin === true) {
-        return;
-      }
+  const handleBlockClick = (e: any, fromTouch = false) => {
+    onClick(e);
 
-      if (calendarState[user][columnID][blockID] === true) {
-        const oldData = { ...calendarState };
-        oldData[user][columnID][blockID] = false;
-        setCalanderState(oldData);
-      } else {
-        const oldData = { ...calendarState };
-        oldData[user][columnID][blockID] = true;
-        setCalanderState(oldData);
-      }
+    const now = Date.now();
+    if (now - lastToggleTime < 300) {
+      // 300ms debounce
+      return;
+    }
+    setLastToggleTime(now);
+
+    if (!fromTouch && touchHandled) {
+      setTouchHandled(false);
+      return;
+    }
+
+    if (isDraggable && !isAdmin) {
+      const oldData = { ...calendarState };
+      oldData[user][columnID][blockID] = !oldData[user][columnID][blockID];
+      setCalanderState(oldData);
     }
   };
 
@@ -438,18 +456,53 @@ export default function CalBlock({
     }
   };
 
-  const borderTop = is30Minute ? '1px dotted #000' : 'none';
+  const borderTop = is30Minute ? '1px dotted #7E7E7E' : 'none';
+
+  // pagination updates
+  const updateShadeColors = useCallback(() => {
+    setShadeColor(getDefaultShadeColor());
+    setOriginalShadeColor(getDefaultShadeColor());
+    setUnshadeColor(
+      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
+    );
+  }, [columnID, blockID, theme]);
+
+  useEffect(() => {
+    updateShadeColors();
+  }, [updateShadeColors, calendarFramework, columnID, theme]);
+
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  // Find and store reference to scrollable container
+  useEffect(() => {
+    const findScrollContainer = (
+      element: HTMLElement | null
+    ): HTMLElement | null => {
+      while (element) {
+        const overflowY = window.getComputedStyle(element).overflowY;
+        if (overflowY === 'auto' || overflowY === 'scroll') {
+          return element;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    };
+
+    if (dragRef.current) {
+      containerRef.current = findScrollContainer(dragRef.current);
+    }
+  }, []);
 
   return (
     <>
-      {/* Container for relative positioning */}
-      <div style={{ position: 'relative' }}>
-        {/* Main draggable content */}
+      <div>
         <div
           draggable="true"
           id={elementId}
           ref={dragRef}
-          onClick={handleBlockClick}
+          onClick={(e) => {
+            handleBlockClick(e);
+          }}
           onDragStart={handleDragStart}
           onDragEnter={handleDesktopAvailabilitySelect}
           onDragOver={handleDesktopAvailabilitySelect}
@@ -457,11 +510,12 @@ export default function CalBlock({
           onMouseEnter={() => {
             setGcalEventActive(true);
           }}
-          onTouchStart={() => {
-            // setGcalEventActive(true);
+          onTouchStart={(event) => {
             if (!isDraggable) {
               return;
             }
+
+            setTouchHandled(true);
 
             const dragStartEvent = new DragEvent('dragstart', {
               bubbles: true,
@@ -469,35 +523,46 @@ export default function CalBlock({
               dataTransfer: new DataTransfer(),
             });
 
-            // This will trigger the dragStart handler.
             if (dragRef.current) {
               dragRef.current.dispatchEvent(dragStartEvent);
             }
 
             handleDesktopHoverChartedUser();
-            handleBlockClick();
+
+            // Create a synthetic click event
+            const clickEvent = {
+              ...event,
+              type: 'click',
+              preventDefault: () => {},
+              stopPropagation: () => {},
+            };
+
+            // Call handleBlockClick directly with the synthetic event
+            handleBlockClick(clickEvent);
           }}
           onTouchMove={(e) => {
+            if (theShowUserChart !== undefined) {
+              setShowUserChart?.(false);
+            }
+
             handleMobileAvailabilitySelect(e);
             handleMobileHoverChartedUser(e);
-          }}
-          onTouchEnd={() => {
-            // setGcalEventActive(false);
           }}
           onMouseLeave={() => {
             setGcalEventActive(false);
             setIsDottedBorder(false);
             handleMouseOrTouchLeaveBlock();
           }}
+          // Remove the className bg-color reference and only use the inline style
           className={
             (!isDraggable || (isDraggable && isAdmin)) === false
               ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
-                : `bg-${unShadeColor} flex-1 w-16 p-0 h-3 touch-none`
-              : `bg-${shadeColor} flex-1 w-16 p-0 h-3 touch-none`
+                ? `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
+                : `bg-${unShadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
+              : `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
           }
           style={{
-            borderRight: '1px solid #000',
+            borderRight: '1px solid #7E7E7E',
             borderTop,
             backgroundColor: shadeColor,
             transition: 'background-color 0.2s ease',

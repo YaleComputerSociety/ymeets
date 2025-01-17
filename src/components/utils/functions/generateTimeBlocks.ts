@@ -37,5 +37,10 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
     if (!isOvernight && hour === endHour) break;
   }
 
+  // Remove the last hour worth of blocks
+  if (timeBlocks2D.length > 0) {
+    timeBlocks2D.pop();
+  }
+
   return timeBlocks2D;
 }

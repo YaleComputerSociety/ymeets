@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-dropdown-select';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
+import TimezonePicker from '../../utils/components/TimezonePicker';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -14,6 +15,9 @@ export const DaySelectComponent = () => {
   nineAM.setHours(9);
   const fivePM = new Date('January 1, 2023');
   fivePM.setHours(17);
+  const [timezone, setTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -164,7 +168,8 @@ export const DaySelectComponent = () => {
           locations, // plaus locs
           startDate,
           endDate,
-          zoomLink
+          zoomLink,
+          timezone
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
@@ -186,7 +191,8 @@ export const DaySelectComponent = () => {
           locations, // plaus locs
           startDate,
           endDate,
-          zoomLink
+          zoomLink,
+          timezone
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
@@ -199,7 +205,7 @@ export const DaySelectComponent = () => {
   };
 
   const inputClasses =
-    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white';
+    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
 
   return (
     <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
@@ -233,11 +239,14 @@ export const DaySelectComponent = () => {
               maxLength={100}
             />
           </div>
+          <div className="w-[80%]  flex flex-row justify-center md:justify-start">
+            <TimezonePicker theTimezone={[timezone, setTimezone]} />
+          </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
               <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
                 <Select
-                  className="react-dropdown-select z-69"
+                  className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
                   multi
                   create
                   options={locationOptions}
@@ -268,6 +277,7 @@ export const DaySelectComponent = () => {
                 />
               </div>
             </div>
+
             <div className="mt-2 mb-6 z-50">
               <InformationPopup
                 content="
@@ -280,20 +290,22 @@ export const DaySelectComponent = () => {
       </div>
 
       <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-        <div className="mb-4 flex space-x-4 p-2 bg-white rounded-lg shadow-md relative">
+        <div className="mb-4 flex space-x-4 p-2 bg-white dark:bg-secondary_background-dark rounded-lg shadow-md relative">
           <button
             onClick={() => {
               handleTabChange('Specific Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative specific-days-button ${
-              selectGeneralDays ? 'text-black' : 'text-white'
+              selectGeneralDays
+                ? 'text-black dark:text-text-dark'
+                : 'text-white'
             }`}
           >
             <span className="relative z-10">Specific Days</span>
             <div
               className={`absolute rounded-md transition-transform duration-300 ${
                 selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
-              } bg-blue-500`}
+              } bg-primary`}
             />
           </button>
           <button
@@ -301,14 +313,16 @@ export const DaySelectComponent = () => {
               handleTabChange('General Days');
             }}
             className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative general-days-button ${
-              selectGeneralDays ? 'text-white' : 'text-black'
+              selectGeneralDays
+                ? 'text-white'
+                : 'text-black dark:text-text-dark'
             }`}
           >
             <span className="relative z-10">General Days</span>
             <div
               className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
                 selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
-              } bg-blue-500`}
+              } bg-primary`}
             />
           </button>
         </div>
@@ -329,7 +343,7 @@ export const DaySelectComponent = () => {
         <div className="flex items-center justify-center">
           <Button
             textColor="white"
-            bgColor="blue-500"
+            bgColor="primary"
             onClick={verifyNextAndSubmitEvent}
           >
             Next

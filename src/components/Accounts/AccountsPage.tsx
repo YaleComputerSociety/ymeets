@@ -113,7 +113,7 @@ export default function AccountsPage() {
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-full pt-2 sm:pt-4 md:pt-6 lg:pt-8 xl:pt-10 pb-10 sm:pb-14 md:pb-17 lg:pb-20 xl:pb-24 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between lg:items-center gap-6 sm:gap-8">
-          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700">
+          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-text-dark">
             Your Events
           </h2>
           <div className="flex flex-col items-start sm:items-stretch sm:flex-row gap-4 sm:gap-4.5 md:gap-5 lg:gap-6 xl:gap-7">
@@ -122,14 +122,14 @@ export default function AccountsPage() {
                 type="text"
                 placeholder="Search"
                 onChange={handleInputChange}
-                className="text-sm lg:text-base outline-none bg-white text-slate-700 border border-slate-300 font-medium py-1 sm:py-1.5 md:py-2 px-3 rounded-l-lg transition-all focus:border-sky-600 focus:ring-4 focus:ring-sky-300/20"
+                className="text-sm lg:text-base outline-none bg-white text-slate-700 border border-slate-300 dark:bg-secondary_background-dark dark:text-text-dark font-medium py-1 sm:py-1.5 md:py-2 px-3 rounded-l-lg transition-all focus:border-sky-600 focus:ring-4 focus:ring-sky-300/20"
               />
               <div className="bg-slate-500 flex items-center gap-2 text-white font-semibold py-1 sm:py-1.5 md:py-2 px-4 rounded-r-lg transition-colors">
                 <IconSearch className="inline-block w-4 md:w-5" />
               </div>
             </div>
             <button
-              className="font-bold text-white bg-blue-500 rounded-full bg-blue-500 text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
+              className="font-bold text-white bg-primary rounded-full bg-primary text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
               onClick={() => {
                 nav('/dayselect');
               }}
@@ -156,10 +156,10 @@ export default function AccountsPage() {
               .map((event) => (
                 <div
                   key={event.id}
-                  className="bg-white rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
+                  className="bg-white dark:bg-secondary_background-dark dark:text-text-dark rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
                 >
                   <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
-                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800">
+                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark">
                       {event.name}
                     </h3>
                     {/* Do we want to enable users to edit their events? */}
@@ -167,22 +167,6 @@ export default function AccountsPage() {
                   </div>
                   <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
                     <hr />
-                    <div className="grid gap-2 text-sky-600 text-xs sm:text-sm lg:text-base">
-                      <p className="flex gap-3 items-center">
-                        <IconCalendarEvent className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">{event.dates}</span>
-                      </p>
-                      <p className="flex gap-3 items-center">
-                        <IconClock className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">
-                          {event.startTime}
-                        </span>
-                      </p>
-                      <p className="flex gap-3 items-center">
-                        <IconMapPin className="inline-block w-4 md:w-4.5 lg:w-5" />
-                        <span className="text-slate-600">{event.location}</span>
-                      </p>
-                    </div>
                     <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
                       <button
                         onClick={() => {
@@ -197,7 +181,7 @@ export default function AccountsPage() {
                         onClick={() => {
                           nav('/groupview/' + event.id);
                         }}
-                        className="text-sm lg:text-base bg-blue-500 flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+                        className="text-sm lg:text-base bg-primary flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                       >
                         Open
                       </button>
@@ -237,7 +221,7 @@ export default function AccountsPage() {
                 logout(gapi);
                 nav('/');
               }}
-              className="text-lg bg-blue-500 w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
             >
               Logout
             </button>

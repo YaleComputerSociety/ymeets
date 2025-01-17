@@ -42,6 +42,10 @@ interface CalRowProps {
       ]
     | undefined;
   time: string;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  theShowUserChart:
+    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | undefined;
 }
 
 export default function CalRow({
@@ -58,13 +62,15 @@ export default function CalRow({
   chartedUsersData,
   theGoogleCalendarEvents,
   time,
+  theShowUserChart,
+  onClick,
 }: CalRowProps) {
   const [googleCalendarEvents, setGoogleCalendarEvents] =
     theGoogleCalendarEvents || [];
 
   return (
-    <div className={`flex flex-row `}>
-      {bucket.map((d: calandarDate, columnIndex) => {
+    <div className={`grid grid-cols-${bucket.length}`}>
+      {bucket.map((d: calandarDate, columnIndex: number) => {
         const matchedDates = googleCalendarEvents
           ?.map((gEvent: calendar_v3.Schema$Event) => {
             if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
@@ -111,7 +117,10 @@ export default function CalRow({
         );
 
         return (
+          // <div key={columnIndex}>hi</div>
           <CalBlock
+            theShowUserChart={theShowUserChart}
+            onClick={onClick}
             theCalendarFramework={theCalendarFramework}
             is30Minute={is30Minute}
             theCalendarState={theCalendarState}
@@ -121,7 +130,7 @@ export default function CalRow({
             draggable={draggable}
             user={user}
             theDragState={theDragState}
-            key={columnIndex}
+            key={columnIndex + columnIndexOffSet}
             chartedUsersData={chartedUsersData}
             isOnGcal={isOnGcal === undefined ? false : isOnGcal}
             associatedEvents={surroundingEvents}
