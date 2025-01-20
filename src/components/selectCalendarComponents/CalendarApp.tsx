@@ -7,6 +7,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { useState } from 'react';
 import { getTimezone } from '../../firebase/events';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { dragProperties } from '../../types';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -35,13 +36,6 @@ interface CalendarProps {
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
-}
-
-export interface dragProperties {
-  dragStartedOnID: number[];
-  dragEndedOnID: number[];
-  dragStartedOn: boolean;
-  blocksAffectedDuringDrag: Set<any>;
 }
 
 export default function Calendar({

@@ -6,7 +6,7 @@ import {
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
 import CalBlock from './CalBlock';
-import { dragProperties } from './CalendarApp';
+import { dragProperties } from '../../types';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
 
@@ -119,7 +119,7 @@ export default function CalRow({
         return (
           // <div key={columnIndex}>hi</div>
           <CalBlock
-            theShowUserChart={theShowUserChart}
+            // theShowUserChart={theShowUserChart}
             onClick={onClick}
             theCalendarFramework={theCalendarFramework}
             is30Minute={is30Minute}

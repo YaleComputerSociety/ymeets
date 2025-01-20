@@ -81,10 +81,11 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const [generalPopupMessage] = useState('');
 
   const [dragState, setDragState] = useState<dragProperties>({
-    dragStartedOnID: [], // [columnID, blockID]
-    dragEndedOnID: [],
-    dragStartedOn: false,
-    blocksAffectedDuringDrag: new Set(),
+    isSelecting: false,
+    startPoint: null,
+    endPoint: null,
+    selectionMode: false, // true for selecting, false for deselecting
+    lastPosition: null,
   });
 
   const nav = useNavigate();
@@ -157,18 +158,20 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }, []);
 
   async function handleSelectionSubmission() {
-    if (dragState.dragEndedOnID.length == 0) {
+    if (!dragState.endPoint || !dragState.startPoint) {
       alert('No new time selection made!');
       return;
     }
 
-    if (dragState.dragEndedOnID[0] != dragState.dragStartedOnID[0]) {
+    const [startCol, startBlock] = dragState.startPoint;
+    const [endCol, endBlock] = dragState.endPoint;
+
+    if (startCol !== endCol) {
       alert('You must select times that occur on the same day!');
       return;
     }
 
-    const calDate =
-      calendarFramework?.dates.flat()[dragState.dragStartedOnID[0]];
+    const calDate = calendarFramework?.dates.flat()[startCol];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
@@ -176,47 +179,42 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
     const times = timeBlocks.flat();
 
-    if (
-      dragState.dragStartedOnID.length > 0 &&
-      dragState.dragEndedOnID.length > 0
-    ) {
-      const selectedStartTimeHHMM: string = times[dragState.dragStartedOnID[1]];
-      const selectedEndTimeHHMM: string = times[dragState.dragEndedOnID[1]];
+    const selectedStartTimeHHMM: string = times[startBlock];
+    const selectedEndTimeHHMM: string = times[endBlock];
 
-      const [startHour, startMinute] = selectedStartTimeHHMM
-        .split(':')
-        .map(Number);
-      let [endHour, endMinute] = selectedEndTimeHHMM
-        ? selectedEndTimeHHMM.split(':').map(Number)
-        : [0, 0];
+    const [startHour, startMinute] = selectedStartTimeHHMM
+      .split(':')
+      .map(Number);
+    let [endHour, endMinute] = selectedEndTimeHHMM
+      ? selectedEndTimeHHMM.split(':').map(Number)
+      : [0, 0];
 
-      const selectedStartTimeDateObject = new Date(calDate?.date!);
-      selectedStartTimeDateObject.setHours(startHour);
-      selectedStartTimeDateObject.setMinutes(startMinute);
+    const selectedStartTimeDateObject = new Date(calDate?.date!);
+    selectedStartTimeDateObject.setHours(startHour);
+    selectedStartTimeDateObject.setMinutes(startMinute);
 
-      const selectedEndTimeDateObject = new Date(calDate?.date!);
+    const selectedEndTimeDateObject = new Date(calDate?.date!);
 
-      endMinute += 15;
-      if (endMinute == 60) {
-        endMinute = 0;
-        endHour += 1;
-        if (endHour == 25) {
-          endHour = 0;
-        }
+    endMinute += 15;
+    if (endMinute == 60) {
+      endMinute = 0;
+      endHour += 1;
+      if (endHour == 25) {
+        endHour = 0;
       }
+    }
 
-      selectedEndTimeDateObject.setHours(endHour);
-      selectedEndTimeDateObject.setMinutes(endMinute);
+    selectedEndTimeDateObject.setHours(endHour);
+    selectedEndTimeDateObject.setMinutes(endMinute);
 
-      if (getAccountId() !== '') {
-        await handleAddToCalendar(
-          selectedStartTimeDateObject,
-          selectedEndTimeDateObject,
-          adminChosenLocation
-        );
-      } else {
-        signInWithGoogle(undefined, gapi, handleIsSignedIn);
-      }
+    if (getAccountId() !== '') {
+      await handleAddToCalendar(
+        selectedStartTimeDateObject,
+        selectedEndTimeDateObject,
+        adminChosenLocation
+      );
+    } else {
+      signInWithGoogle(undefined, gapi, handleIsSignedIn);
     }
   }
 
@@ -367,11 +365,22 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
           {chartedUsers !== undefined && (
             <div
-              className={`z-[9999] lg:hidden fixed bottom-0 left-0 right-0 transform transition-transform duration-300 ease-in-out ${
-                showUserChart ? 'translate-y-0' : 'translate-y-full'
-              }`}
+              className={`
+            z-[9999] lg:hidden fixed bottom-0 left-0 right-0 
+            transform transition-transform duration-300 ease-in-out
+            bg-white dark:bg-secondary_background-dark shadow-lg
+            ${showUserChart ? 'translate-y-0' : 'translate-y-full'}
+          `}
             >
-              <div className="bg-white dark:bg-secondary_background-dark p-4 z-[9999] rounded-t-xl shadow-lg">
+              <div className="p-4 rounded-t-xl">
+                {/* Add a close button for mobile */}
+                <button
+                  onClick={() => setShowUserChart(false)}
+                  className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+
                 <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
               </div>
             </div>

@@ -56,12 +56,26 @@ export interface calendarDimensions {
   numOfBlocks: number;
   numOfCols: number;
 }
+interface BoundingBox {
+  minCol: number;
+  maxCol: number;
+  minBlock: number;
+  maxBlock: number;
+}
+// export interface dragProperties {
+//   dragStartedOnID: number[];
+//   dragEndedOnID: number[];
+//   dragStartedOn: boolean;
+//   blocksAffectedDuringDrag: Set<any>;
+// }
 
 export interface dragProperties {
-  dragStartedOnID: number[];
-  dragEndedOnID: number[];
-  dragStartedOn: boolean;
-  blocksAffectedDuringDrag: Set<any>;
+  isSelecting: boolean;
+  startPoint: [number, number] | null;
+  endPoint: [number, number] | null;
+  lastPosition: [number, number] | null; // Add this line
+  selectionMode: boolean;
+  completedSelections?: BoundingBox[];
 }
 
 export interface calendar {

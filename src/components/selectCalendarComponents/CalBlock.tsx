@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { calendar_v3 } from 'googleapis';
-import 'tailwindcss/tailwind.css';
-import { calanderState, userData, user, calendarDimensions } from '../../types';
-import { dragProperties } from './CalendarApp';
-import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import { useCallback } from 'react';
+import {
+  calanderState,
+  userData,
+  user,
+  calendarDimensions,
+  dragProperties,
+} from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
+import _ from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -18,27 +21,26 @@ interface CalBlockProps {
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
   ];
-
-  chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined;
+  chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>];
   draggable: boolean;
   isAdmin?: boolean;
   user: number;
-  theDragStartedOn?: any;
   is30Minute: boolean;
   theDragState: [
     dragProperties,
     React.Dispatch<React.SetStateAction<dragProperties>>,
   ];
-
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
-  theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    | undefined;
-
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+}
+
+interface BoundingBox {
+  minCol: number;
+  maxCol: number;
+  minBlock: number;
+  maxBlock: number;
 }
 
 export default function CalBlock({
@@ -46,359 +48,282 @@ export default function CalBlock({
   columnID,
   theCalendarState,
   theCalendarFramework,
-  chartedUsersData,
   draggable,
   isAdmin,
   user,
-  is30Minute,
   theDragState,
   isOnGcal,
-  associatedEvents = undefined,
+  associatedEvents,
   onClick,
+  is30Minute,
+  chartedUsersData,
   theShowUserChart,
 }: CalBlockProps) {
-  const [showUserChart, setShowUserChart] = theShowUserChart ?? [];
   const { theme } = useTheme();
-
+  const [calendarState, setCalendarState] = theCalendarState;
+  const [dragState, setDragState] = theDragState;
+  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const [showUserChart, setShowUserChart] = theShowUserChart ?? [null, null];
+  const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
   const dragRef = useRef<HTMLDivElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
-  const elementId = `${columnID}-${blockID}`;
-  const [lastToggleTime, setLastToggleTime] = useState(0);
-  const [touchHandled, setTouchHandled] = useState(false);
+  const lastDragPoint = useRef<[number, number] | null>(null);
+  const previousBoundingBox = useRef<BoundingBox | null>(null);
+  const dragStartTime = useRef<number | null>(null);
 
-  const [isDraggable, setIsDraggable] = useState(draggable);
-  const [gCalEventActive, setGcalEventActive] = useState(false);
-  const [popupPosition, setPopupPosition] = useState({ left: 0, top: 0 });
-
+  // Initialize chartedUsers
   useEffect(() => {
-    if (gCalEventActive && dragRef.current && popupRef.current) {
-      const rect = dragRef.current.getBoundingClientRect();
-      const popupRect = popupRef.current.getBoundingClientRect();
-      const timesColumnWidth =
-        document.querySelector('.sticky.left-0')?.getBoundingClientRect()
-          .width || 0;
-
-      let left = rect.left + rect.width / 2 - popupRect.width / 2;
-      const top = rect.bottom + window.scrollY;
-
-      // Ensure the popup doesn't overlap with the times column
-      left = Math.max(left, timesColumnWidth);
-
-      setPopupPosition({ left, top });
+    if (chartedUsers && setChartedUsers) {
+      setChartedUsers({
+        users: chartedUsers.users,
+        available: [],
+        unavailable: [...chartedUsers.users],
+      });
     }
-  }, [gCalEventActive]);
+  }, []);
 
+  const showTooltipWithTimeout = () => {
+    setShowTooltip(true);
+    setIsVisible(true);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(() => setShowTooltip(false), 300);
+    }, 2000);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Helper functions for selection and color calculations
+  const isBlockSelected = useCallback((): boolean => {
+    return calendarState[user]?.[columnID]?.[blockID] === true;
+  }, [calendarState, user, columnID, blockID]);
+
+  const isInSelection = useCallback((): boolean => {
+    if (dragState.isSelecting && dragState.startPoint && dragState.endPoint) {
+      const currentBox = getBoundingBox(
+        dragState.startPoint,
+        dragState.endPoint
+      );
+      if (isInBox(columnID, blockID, currentBox)) {
+        return dragState.selectionMode;
+      }
+    }
+
+    if (isAdmin && dragState.completedSelections) {
+      return dragState.completedSelections.some((box) =>
+        isInBox(columnID, blockID, box)
+      );
+    }
+
+    return calendarState[user]?.[columnID]?.[blockID] || false;
+  }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
+
+  const getDefaultColor = useCallback(() => {
+    return isOnGcal ? '#6B7280' : theme === 'light' ? 'white' : '#2d3748';
+  }, [isOnGcal, theme]);
+
+  const getGroupPercentageColor = useCallback(() => {
+    let selectedCount = 0;
+    const totalUsers = Object.keys(calendarState).length;
+
+    for (let i = 0; i < totalUsers; i++) {
+      if (calendarState[i]?.[columnID]?.[blockID] === true) {
+        selectedCount += 1;
+      }
+    }
+
+    if (selectedCount === 0) {
+      return getDefaultColor();
+    }
+
+    const percentageSelected = selectedCount / totalUsers;
+    return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
+  }, [calendarState, columnID, blockID, getDefaultColor]);
+
+  const [shadeColor, setShadeColor] = useState(getDefaultColor);
+
+  // Update shade color when relevant props change
+  useEffect(() => {
+    if (!isAdmin && draggable) {
+      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
+    } else {
+      if (
+        isAdmin &&
+        dragState.startPoint &&
+        dragState.endPoint &&
+        isInBox(
+          columnID,
+          blockID,
+          getBoundingBox(dragState.startPoint, dragState.endPoint)
+        )
+      ) {
+        setShadeColor('#73dd64');
+      } else {
+        setShadeColor(getGroupPercentageColor());
+      }
+    }
+  }, [
+    isAdmin,
+    draggable,
+    dragState.isSelecting,
+    isInSelection,
+    isBlockSelected,
+    getGroupPercentageColor,
+    getDefaultColor,
+  ]);
+
+  // Color interpolation helper
   function interpolateColor(
     color1: string,
     color2: string,
     factor: number
   ): string {
-    const result = color1
-      .slice(1)
-      .match(/.{2}/g)!
-      .map((hex: string, index: number) => {
-        const c1 = parseInt(hex, 16);
-        const c2 = parseInt(color2.slice(1).match(/.{2}/g)![index], 16);
-        const value = Math.round(c1 + factor * (c2 - c1)).toString(16);
-        return value.padStart(2, '0');
-      });
+    const c1 = color1.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
+    const c2 = color2.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
+
+    const result = c1.map((value, index) => {
+      const hex = Math.round(value + factor * (c2[index] - value)).toString(16);
+      return hex.padStart(2, '0');
+    });
 
     return `#${result.join('')}`;
   }
 
-  function getDefaultShadeColor(): string {
-    let selectedCount = 0;
+  // Selection box utilities
+  const getBoundingBox = (
+    start: readonly [number, number],
+    end: readonly [number, number]
+  ): BoundingBox => {
+    const [startCol, startBlock] = start;
+    const [endCol, endBlock] = end;
+    return {
+      minCol: Math.min(startCol, endCol),
+      maxCol: Math.max(startCol, endCol),
+      minBlock: Math.min(startBlock, endBlock),
+      maxBlock: Math.max(startBlock, endBlock),
+    };
+  };
 
-    // if (shadeColor === '#73dd64') {
-    //   return shadeColor;
-    // }
+  const isInBox = (col: number, block: number, box: BoundingBox): boolean => {
+    return (
+      col >= box.minCol &&
+      col <= box.maxCol &&
+      block >= box.minBlock &&
+      block <= box.maxBlock
+    );
+  };
 
-    for (let i = 0; i < Object.keys(calendarState).length; i++) {
-      if (calendarState[i][columnID][blockID] === true) {
-        selectedCount += 1;
-      }
-    }
+  const handleClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (!draggable || isAdmin) return;
 
-    if (!isDraggable || (isDraggable && isAdmin)) {
-      const percentageSelected =
-        selectedCount / Object.keys(calendarState).length;
-      const start_shade = '#bbd5fc';
-      const end_shade = '#4b86de';
-
-      if (selectedCount === 0) {
-        return theme === 'light' ? 'white' : '#2d3748';
-      } else {
-        return interpolateColor(start_shade, end_shade, percentageSelected);
-      }
-    } else {
-      return 'select';
-    }
-  }
-
-  const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
-
-  // Set all users as unavailable on initial render
-  useEffect(() => {
-    if (chartedUsers && setChartedUsers) {
-      setChartedUsers({
-        users: chartedUsers.users,
-        available: [],
-        unavailable: [...chartedUsers.users],
+      setCalendarState((prev) => {
+        const newState = { ...prev };
+        if (!newState[user]) newState[user] = [];
+        if (!newState[user][columnID]) newState[user][columnID] = [];
+        newState[user][columnID][blockID] = !newState[user][columnID][blockID];
+        return newState;
       });
-    }
-  }, []);
 
-  const [calendarState, setCalanderState] = theCalendarState;
-  const [isDottedBorder, setIsDottedBorder] = useState(false);
-  const [dragState, setDragState] = theDragState;
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
-  const prevDragState = useRef(dragState);
-
-  // handles the color that is created when the user drags over the block and it is unselected (value of block is initfalse)
-  const [shadeColor, setShadeColor] = useState(() => {
-    return getDefaultShadeColor();
-  });
-
-  // when the admin is making a selection, the shade color needs to be overwritten.
-  // this stores the original shade color in case the admin unselects and selects something
-  // different
-  const [originalShadeColor, setOriginalShadeColor] = useState(() => {
-    return getDefaultShadeColor();
-  });
-
-  // handles the color that is created when the user drags over the block and it IS selected (value of the block init true)
-  const [unShadeColor, setUnshadeColor] = useState(() => {
-    return isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'; // always white unless it is a gcal block
-  });
-
-  // need this for some reason as well, investigate
-  useEffect(() => {
-    setUnshadeColor(
-      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
-    );
-  }, [isOnGcal]);
-
-  const NUM_OF_TIME_BLOCKS =
-    generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
-      .length * 4;
-
-  // handles drag update logic
-  useEffect(() => {
-    if (!isDraggable) {
-      return;
-    }
-
-    const [startCol, startBlock] = dragState.dragStartedOnID;
-    const [endCol, endBlock] = dragState.dragEndedOnID;
-
-    let curAffectedBlocks: any[] = [];
-
-    const oldDragState = { ...dragState };
-
-    prevDragState.current = dragState;
-
-    for (
-      let col = Math.min(startCol, endCol);
-      col <= Math.max(startCol, endCol);
-      col++
-    ) {
-      for (
-        let block = Math.min(startBlock, endBlock);
-        block <= Math.max(startBlock, endBlock);
-        block++
-      ) {
-        curAffectedBlocks.push([col, block]);
-        oldDragState.blocksAffectedDuringDrag.add(`${col}-${block}`);
-      }
-    }
-
-    if (
-      startCol === endCol &&
-      startBlock === endBlock &&
-      (blockID === 0 || blockID === NUM_OF_TIME_BLOCKS)
-    ) {
-      curAffectedBlocks = [];
-    }
-
-    const oldCalState = { ...calendarState };
-
-    if (!isAdmin) {
-      if (dragState.dragStartedOn) {
-        if (
-          curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)
-        ) {
-          oldCalState[user][columnID][blockID] = false;
-        } else {
-          if (
-            dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)
-          ) {
-            oldCalState[user][columnID][blockID] = true;
-          }
-        }
-      } else {
-        if (
-          curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)
-        ) {
-          oldCalState[user][columnID][blockID] = true;
-        } else {
-          if (
-            dragState.blocksAffectedDuringDrag?.has(`${columnID}-${blockID}`)
-          ) {
-            oldCalState[user][columnID][blockID] = false;
-          }
-        }
-      }
-    } else {
-      if (curAffectedBlocks.some(([c, b]) => c === columnID && b === blockID)) {
-        setShadeColor('#73dd64');
-      } else {
-        setShadeColor(originalShadeColor);
-      }
-    }
-
-    setDragState(oldDragState);
-
-    setCalanderState(oldCalState);
-  }, [
-    isDraggable,
-    dragState.dragStartedOn,
-    dragState.dragStartedOnID,
-    dragState.dragEndedOnID,
-  ]);
-
-  const createNewDrag = () => {
-    setGcalEventActive(false);
-    const oldState = dragState;
-
-    if (calendarState[user][columnID][blockID] === true) {
-      oldState.dragStartedOnID = [columnID, blockID];
-      oldState.dragEndedOnID = [columnID, blockID];
-      oldState.dragStartedOn = true;
-      oldState.blocksAffectedDuringDrag = new Set();
-    } else {
-      const oldState = dragState;
-
-      oldState.dragStartedOnID = [columnID, blockID];
-      oldState.dragEndedOnID = [columnID, blockID];
-      oldState.dragStartedOn = false;
-      oldState.blocksAffectedDuringDrag = new Set();
-    }
-
-    setDragState(oldState);
-  };
-
-  const handleMobileAvailabilitySelect = (event: any) => {
-    const touch = event.touches[0];
-    const touchedElement = document.elementFromPoint(
-      touch.clientX,
-      touch.clientY
-    );
-
-    const touchedEleId = touchedElement?.id;
-
-    if (!touchedEleId?.includes('-')) {
-      return;
-    }
-
-    const [obtainedColumnID, obtainedBlockID] = touchedElement?.id
-      ? touchedElement.id.split('-').map(Number)
-      : [undefined, undefined];
-
-    if (obtainedBlockID === undefined) {
-      return;
-    }
-
-    if (!isDraggable) {
-      return;
-    }
-
-    if (obtainedColumnID !== undefined && obtainedBlockID !== undefined) {
-      setDragState((oldState) => ({
-        ...oldState,
-        dragEndedOnID: [obtainedColumnID, obtainedBlockID],
-      }));
-    }
-  };
-
-  const handleDragStart = (event: any) => {
-    const crt = event.target.cloneNode(true);
-    crt.style.position = 'absolute';
-    crt.style.left = '-9999px';
-    crt.style.opacity = '0';
-    document.body.appendChild(crt);
-    event.dataTransfer.setDragImage(crt, 0, 0);
-
-    if (!isDraggable) {
-      return;
-    }
-
-    try {
-      createNewDrag();
-    } catch {
-      return;
-    }
-  };
+      onClick(event as any);
+    },
+    [draggable, isAdmin, user, columnID, blockID, setCalendarState, onClick]
+  );
 
   const handleBlockClick = (e: any, fromTouch = false) => {
     onClick(e);
 
-    const now = Date.now();
-    if (now - lastToggleTime < 300) {
-      // 300ms debounce
-      return;
-    }
-    setLastToggleTime(now);
-
-    if (!fromTouch && touchHandled) {
-      setTouchHandled(false);
-      return;
-    }
-
-    if (isDraggable && !isAdmin) {
+    if (draggable && !isAdmin) {
       const oldData = { ...calendarState };
       oldData[user][columnID][blockID] = !oldData[user][columnID][blockID];
-      setCalanderState(oldData);
+      setCalendarState(oldData);
     }
   };
 
-  const handleDesktopAvailabilitySelect = () => {
-    if (!isDraggable) {
-      return;
-    }
+  const handleDesktopHoverChartedUser = useCallback(() => {
+    if (!chartedUsers || !setChartedUsers) return;
 
-    setDragState((oldState) => ({
-      ...oldState,
-      dragEndedOnID: [columnID, blockID],
-    }));
-  };
-
-  const handleDesktopHoverChartedUser = () => {
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
 
-    if (chartedUsers != undefined) {
-      for (let i = 0; i < chartedUsers.users.length; i++) {
-        const user = chartedUsers.users[i];
-        const oldData = { ...calendarState };
+    chartedUsers.users.forEach((user) => {
+      if (calendarState[user.id]?.[columnID]?.[blockID] === true) {
+        availableUsers.push(user);
+      } else {
+        unavailableUsers.push(user);
+      }
+    });
 
-        const indexOfCol = columnID;
+    setChartedUsers({
+      users: chartedUsers.users,
+      available: availableUsers,
+      unavailable: unavailableUsers,
+    });
+  }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
-        if (oldData[user.id][indexOfCol][blockID] == true) {
+  const handleMobileHoverChartedUser = useCallback(
+    (event: React.TouchEvent) => {
+      if (!chartedUsers || !setChartedUsers) return;
+
+      const touch = event.touches[0];
+      const touchedElement = document.elementFromPoint(
+        touch.clientX,
+        touch.clientY
+      );
+      const touchedEleId = touchedElement?.id;
+
+      if (!touchedEleId?.includes('-')) return;
+
+      const parts = touchedEleId.split('-');
+      if (parts.length !== 2) return;
+
+      const obtainedColumnID = parseInt(parts[0]);
+      const obtainedBlockID = parseInt(parts[1]);
+
+      if (isNaN(obtainedColumnID) || isNaN(obtainedBlockID)) return;
+
+      console.log('here');
+
+      const availableUsers: user[] = [];
+      const unavailableUsers: user[] = [];
+
+      chartedUsers.users.forEach((user) => {
+        if (
+          calendarState[user.id]?.[obtainedColumnID]?.[obtainedBlockID] === true
+        ) {
           availableUsers.push(user);
         } else {
           unavailableUsers.push(user);
         }
-      }
+      });
+
+      console.log(availableUsers);
+      console.log(unavailableUsers);
+
       setChartedUsers({
         users: chartedUsers.users,
         available: availableUsers,
         unavailable: unavailableUsers,
       });
-    }
-  };
+    },
+    [chartedUsers, setChartedUsers, calendarState]
+  );
 
-  // New logic for resetting availability on mouse leave
-  const handleMouseOrTouchLeaveBlock = () => {
+  const handleMouseOrTouchLeaveBlock = useCallback(() => {
     if (chartedUsers && setChartedUsers) {
       setChartedUsers({
         users: chartedUsers.users,
@@ -406,196 +331,287 @@ export default function CalBlock({
         unavailable: [...chartedUsers.users],
       });
     }
-  };
+  }, [chartedUsers, setChartedUsers]);
 
-  const handleMobileHoverChartedUser = (event: any) => {
-    const availableUsers: user[] = [];
-    const unavailableUsers: user[] = [];
+  const debouncedSetDragState = useCallback(
+    _.debounce((newState) => {
+      setDragState(newState);
+    }, 16),
+    []
+  );
 
-    const touch = event.touches[0];
+  const updateCalendarForBoundingBoxes = useCallback(
+    (
+      currentBox: BoundingBox,
+      prevBox: BoundingBox | null,
+      selectionMode: boolean
+    ) => {
+      setCalendarState((prev) => {
+        const newState = { ...prev };
+        if (!newState[user]) newState[user] = [];
 
-    const touchedElement = document.elementFromPoint(
-      touch.clientX,
-      touch.clientY
-    );
-
-    const touchedEleId = touchedElement?.id;
-
-    if (!touchedEleId?.includes('-')) {
-      return;
-    }
-
-    const [obtainedColumnID, obtainedBlockID] =
-      touchedElement && touchedElement.id
-        ? touchedElement.id.split('-').map(Number)
-        : [undefined, undefined];
-
-    if (chartedUsers != undefined) {
-      for (let i = 0; i < chartedUsers.users.length; i++) {
-        const user = chartedUsers.users[i];
-        const oldData = { ...calendarState };
-
-        const indexOfCol = obtainedColumnID;
-
-        if (
-          (indexOfCol !== undefined &&
-            obtainedBlockID !== undefined &&
-            oldData[user.id][indexOfCol][obtainedBlockID] === true) ||
-          shadeColor == 'green-700'
-        ) {
-          availableUsers.push(user);
-        } else {
-          unavailableUsers.push(user);
+        for (let col = currentBox.minCol; col <= currentBox.maxCol; col++) {
+          if (!newState[user][col]) newState[user][col] = [];
+          for (
+            let block = currentBox.minBlock;
+            block <= currentBox.maxBlock;
+            block++
+          ) {
+            newState[user][col][block] = selectionMode;
+          }
         }
-      }
-      setChartedUsers({
-        users: chartedUsers.users,
-        available: availableUsers,
-        unavailable: unavailableUsers,
+
+        if (prevBox) {
+          for (let col = prevBox.minCol; col <= prevBox.maxCol; col++) {
+            if (!newState[user][col]) newState[user][col] = [];
+            for (
+              let block = prevBox.minBlock;
+              block <= prevBox.maxBlock;
+              block++
+            ) {
+              if (!isInBox(col, block, currentBox)) {
+                newState[user][col][block] = !selectionMode;
+              }
+            }
+          }
+        }
+
+        return newState;
       });
-    }
-  };
+    },
+    [user, setCalendarState]
+  );
 
-  const borderTop = is30Minute ? '1px dotted #7E7E7E' : 'none';
+  const handleSelectionStart = useCallback(
+    (event: any) => {
+      if (!draggable) return;
 
-  // pagination updates
-  const updateShadeColors = useCallback(() => {
-    setShadeColor(getDefaultShadeColor());
-    setOriginalShadeColor(getDefaultShadeColor());
-    setUnshadeColor(
-      isOnGcal ? 'gray-500' : theme === 'light' ? 'white' : '#2d3748'
-    );
-  }, [columnID, blockID, theme]);
-
-  useEffect(() => {
-    updateShadeColors();
-  }, [updateShadeColors, calendarFramework, columnID, theme]);
-
-  const containerRef = useRef<HTMLElement | null>(null);
-
-  // Find and store reference to scrollable container
-  useEffect(() => {
-    const findScrollContainer = (
-      element: HTMLElement | null
-    ): HTMLElement | null => {
-      while (element) {
-        const overflowY = window.getComputedStyle(element).overflowY;
-        if (overflowY === 'auto' || overflowY === 'scroll') {
-          return element;
-        }
-        element = element.parentElement;
+      if ('dataTransfer' in event) {
+        const crt = event.target.cloneNode(true);
+        crt.style.position = 'absolute';
+        crt.style.left = '-9999px';
+        crt.style.opacity = '0';
+        document.body.appendChild(crt);
+        event.dataTransfer.setDragImage(crt, 0, 0);
       }
-      return null;
-    };
 
-    if (dragRef.current) {
-      containerRef.current = findScrollContainer(dragRef.current);
-    }
-  }, []);
+      dragStartTime.current = Date.now();
+
+      const newSelectionMode = !isInSelection();
+
+      if (!isAdmin) {
+        setCalendarState((prev) => {
+          const newState = { ...prev };
+          if (!newState[user]) newState[user] = [];
+          if (!newState[user][columnID]) newState[user][columnID] = [];
+          newState[user][columnID][blockID] = newSelectionMode;
+          return newState;
+        });
+      }
+
+      setDragState({
+        isSelecting: true,
+        startPoint: [columnID, blockID],
+        endPoint: [columnID, blockID],
+        selectionMode: newSelectionMode,
+        lastPosition: [columnID, blockID],
+        completedSelections: dragState.completedSelections || [],
+      });
+
+      previousBoundingBox.current = {
+        minCol: columnID,
+        maxCol: columnID,
+        minBlock: blockID,
+        maxBlock: blockID,
+      };
+
+      lastDragPoint.current = [columnID, blockID];
+    },
+    [
+      draggable,
+      isAdmin,
+      isInSelection,
+      columnID,
+      blockID,
+      setDragState,
+      setCalendarState,
+      user,
+      dragState.completedSelections,
+    ]
+  );
+
+  const handleSelectionMove = useCallback(
+    (event: React.DragEvent | React.TouchEvent) => {
+      if (
+        !dragState.isSelecting ||
+        !lastDragPoint.current ||
+        !previousBoundingBox.current
+      )
+        return;
+
+      const point = 'touches' in event ? event.touches[0] : event;
+      const element = document.elementFromPoint(point.clientX, point.clientY);
+
+      if (!element?.id?.includes('-')) return;
+
+      const [newCol, newBlock] = element.id.split('-').map(Number);
+      const [lastCol, lastBlock] = lastDragPoint.current;
+
+      if (newCol === lastCol && newBlock === lastBlock) return;
+
+      if (!dragState.startPoint) return;
+
+      const currentBox = getBoundingBox(dragState.startPoint, [
+        newCol,
+        newBlock,
+      ]);
+
+      if (!isAdmin) {
+        updateCalendarForBoundingBoxes(
+          currentBox,
+          previousBoundingBox.current,
+          dragState.selectionMode
+        );
+      }
+
+      previousBoundingBox.current = currentBox;
+
+      debouncedSetDragState((prev: dragProperties) => ({
+        ...prev,
+        endPoint: [newCol, newBlock],
+        lastPosition: [newCol, newBlock],
+      }));
+
+      lastDragPoint.current = [newCol, newBlock];
+    },
+    [dragState, isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
+  );
+
+  const handleDragEnd = useCallback(
+    (event: React.DragEvent | React.TouchEvent) => {
+      if (dragStartTime.current && Date.now() - dragStartTime.current < 200) {
+        handleClick(event as any);
+      }
+
+      if (isAdmin && dragState.startPoint && dragState.endPoint) {
+        setDragState((prev) => {
+          const currentBox = getBoundingBox(
+            dragState.startPoint!,
+            dragState.endPoint!
+          );
+          return {
+            ...prev,
+            isSelecting: false,
+            completedSelections: [
+              ...(prev.completedSelections || []),
+              currentBox,
+            ],
+          };
+        });
+      } else {
+        setDragState((prev) => ({ ...prev, isSelecting: false }));
+      }
+      lastDragPoint.current = null;
+      previousBoundingBox.current = null;
+      dragStartTime.current = null;
+      debouncedSetDragState.cancel();
+    },
+    [isAdmin, setDragState, debouncedSetDragState, handleClick]
+  );
 
   return (
-    <>
-      <div>
-        <div
-          draggable="true"
-          id={elementId}
-          ref={dragRef}
-          onClick={(e) => {
-            handleBlockClick(e);
-          }}
-          onDragStart={handleDragStart}
-          onDragEnter={handleDesktopAvailabilitySelect}
-          onDragOver={handleDesktopAvailabilitySelect}
-          onMouseOver={handleDesktopHoverChartedUser}
-          onMouseEnter={() => {
-            setGcalEventActive(true);
-          }}
-          onTouchStart={(event) => {
-            if (!isDraggable) {
-              return;
-            }
+    <div
+      id={`${columnID}-${blockID}`}
+      className={`
+        cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
+        border-r border-[#7E7E7E]
+        ${is30Minute ? 'border-t border-dotted border-t-[#7E7E7E]' : ''}
+        transition-colors duration-200 ease-in-out
+      `}
+      style={{
+        backgroundColor: shadeColor,
+      }}
+      draggable={draggable}
+      onClick={handleBlockClick}
+      onDragStart={handleSelectionStart}
+      onDrag={handleSelectionMove}
+      onDragEnd={handleDragEnd}
+      onMouseOver={handleDesktopHoverChartedUser}
+      onMouseEnter={() => isOnGcal && showTooltipWithTimeout()}
+      onMouseLeave={() => {
+        handleMouseOrTouchLeaveBlock();
+      }}
+      onTouchStart={(e) => {
+        const touch = e.touches[0];
+        dragStartTime.current = Date.now();
+        lastDragPoint.current = [touch.clientX, touch.clientY];
+        handleMobileHoverChartedUser(e);
+        handleSelectionStart(e);
 
-            setTouchHandled(true);
+        if (isOnGcal) {
+          showTooltipWithTimeout();
+        }
+      }}
+      onTouchMove={(e) => {
+        if (theShowUserChart !== undefined) {
+          setShowUserChart?.(false);
+        }
+        handleSelectionMove(e);
+        handleMobileHoverChartedUser(e);
 
-            const dragStartEvent = new DragEvent('dragstart', {
-              bubbles: true,
-              cancelable: true,
-              dataTransfer: new DataTransfer(),
-            });
-
-            if (dragRef.current) {
-              dragRef.current.dispatchEvent(dragStartEvent);
-            }
-
-            handleDesktopHoverChartedUser();
-
-            // Create a synthetic click event
-            const clickEvent = {
-              ...event,
-              type: 'click',
-              preventDefault: () => {},
-              stopPropagation: () => {},
-            };
-
-            // Call handleBlockClick directly with the synthetic event
-            handleBlockClick(clickEvent);
-          }}
-          onTouchMove={(e) => {
-            if (theShowUserChart !== undefined) {
-              setShowUserChart?.(false);
-            }
-
-            handleMobileAvailabilitySelect(e);
-            handleMobileHoverChartedUser(e);
-          }}
-          onMouseLeave={() => {
-            setGcalEventActive(false);
-            setIsDottedBorder(false);
-            handleMouseOrTouchLeaveBlock();
-          }}
-          // Remove the className bg-color reference and only use the inline style
-          className={
-            (!isDraggable || (isDraggable && isAdmin)) === false
-              ? calendarState?.[user]?.[columnID]?.[blockID]
-                ? `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
-                : `bg-${unShadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
-              : `bg-${shadeColor} cursor-pointer flex-1 w-full p-0 h-4 touch-none`
+        if (isOnGcal) {
+          const touch = e.touches[0];
+          const [startX, startY] = lastDragPoint.current || [0, 0];
+          if (
+            Math.abs(touch.clientX - startX) > 10 ||
+            Math.abs(touch.clientY - startY) > 10
+          ) {
+            setShowTooltip(false);
           }
-          style={{
-            borderRight: '1px solid #7E7E7E',
-            borderTop,
-            backgroundColor: shadeColor,
-            transition: 'background-color 0.2s ease',
-          }}
-        ></div>
-        {gCalEventActive && (associatedEvents?.length ?? 0) > 0 && (
-          <div
-            ref={popupRef}
-            className={`fixed z-50 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg pointer-events-none transition-opacity duration-300 ${
-              gCalEventActive ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{
-              minWidth: '150px',
-              opacity: gCalEventActive ? 1 : 0,
-              left: `${popupPosition.left}px`,
-              top: `${popupPosition.top}px`,
-            }}
-          >
-            {associatedEvents
-              ?.filter(
-                (gEvent: any, index: number, self: any[]) =>
-                  index === self.findIndex((e) => e.summary === gEvent.summary)
-              )
-              .map((gEvent: any) => {
-                return (
-                  <div className="w-full mb-1 z-1 last:mb-0" key={gEvent.id}>
-                    {gEvent.summary}
-                  </div>
-                );
-              })}
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (!isOnGcal) {
+          handleDragEnd(e);
+        } else {
+          e.preventDefault();
+          if (
+            dragStartTime.current &&
+            Date.now() - dragStartTime.current < 200
+          ) {
+            showTooltipWithTimeout();
+            setCalendarState((prev) => {
+              const newState = { ...prev };
+              if (!newState[user]) newState[user] = [];
+              if (!newState[user][columnID]) newState[user][columnID] = [];
+              newState[user][columnID][blockID] =
+                !newState[user][columnID][blockID];
+              return newState;
+            });
+          }
+        }
+        dragStartTime.current = null;
+        lastDragPoint.current = null;
+      }}
+    >
+      {showTooltip && associatedEvents && associatedEvents.length > 0 && (
+        <div
+          className={`
+            absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
+            transform -translate-y-full transition-all duration-300 ease-in-out
+            ${isVisible ? 'opacity-100' : 'opacity-0'}
+          `}
+        >
+          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            {associatedEvents.map((event, index) => (
+              <div key={index} className="mb-1 last:mb-0 truncate">
+                {event.summary}
+              </div>
+            ))}
           </div>
-        )}
-      </div>
-    </>
+          <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-white dark:bg-gray-800" />
+        </div>
+      )}
+    </div>
   );
 }

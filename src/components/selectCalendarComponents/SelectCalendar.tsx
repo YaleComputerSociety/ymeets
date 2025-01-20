@@ -10,10 +10,10 @@ import {
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CalRow from './CalRow';
 import DateBar from './DateBar';
-import { dragProperties } from './CalendarApp';
-
-import { FaArrowLeft } from 'react-icons/fa';
-import { FaArrowRight } from 'react-icons/fa';
+import { dragProperties } from '../../types';
+import { useRef } from 'react';
+import { useCallback } from 'react';
+import { useEffect } from 'react';
 
 interface SelectCalanderProps {
   theCalendarState: [
@@ -70,8 +70,38 @@ function SelectCalander({
   theShowUserChart,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  const [dragState, setDragState] = theDragState;
+
+  const handleMouseLeave = useCallback(
+    (event: MouseEvent) => {
+      console.log('left');
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.relatedTarget as Node)
+      ) {
+        setDragState((prev) => ({ ...prev, isSelecting: false }));
+      }
+    },
+    [setDragState]
+  );
+
+  useEffect(() => {
+    const calendar = calendarRef.current;
+    if (calendar) {
+      calendar.addEventListener('mouseleave', handleMouseLeave);
+      return () => {
+        calendar.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, [handleMouseLeave]);
   return (
-    <div className=" max-h-140" style={{ touchAction: 'none' }}>
+    <div
+      className=" max-h-140"
+      ref={calendarRef}
+      style={{ touchAction: 'none' }}
+    >
       <div className="flex flex-col">
         <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px]">
           <div className="bg-white dark:bg-secondary_background-dark w-full flex ">
@@ -102,7 +132,7 @@ function SelectCalander({
                       blockID={blockIDOffset * 4 + blockID}
                       user={user}
                       isAdmin={isAdmin}
-                      theDragState={theDragState}
+                      theDragState={[dragState, setDragState]}
                       theCalendarFramework={theCalendarFramework}
                       chartedUsersData={chartedUsersData}
                       theGoogleCalendarEvents={theGoogleCalendarEvents}

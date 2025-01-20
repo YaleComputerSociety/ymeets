@@ -83,12 +83,12 @@ function TimeSelectPage() {
     setPromptUserForLogin(false);
     window.location.reload();
   };
-
   const [dragState, setDragState] = useState<dragProperties>({
-    dragStartedOnID: [], // [columnID, blockID]
-    dragEndedOnID: [],
-    dragStartedOn: false,
-    blocksAffectedDuringDrag: new Set(),
+    isSelecting: false,
+    startPoint: null,
+    endPoint: null,
+    selectionMode: false, // true for selecting, false for deselecting
+    lastPosition: null,
   });
 
   const gapiContext = useContext(GAPIContext);
