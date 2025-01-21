@@ -100,7 +100,7 @@ export const Popup = ({ isOpen, onClose, children, onCloseAndSubmit }: any) => {
                 className="text-lg bg-primary w-fit text-white font-medium py-2 px-5 rounded-lg mt-4 hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
                 onClick={onCloseAndSubmit}
               >
-                Submit
+                Fill In Availabilities Manually
               </button>
             </div>
           </div>

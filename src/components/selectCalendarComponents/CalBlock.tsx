@@ -296,8 +296,6 @@ export default function CalBlock({
 
       if (isNaN(obtainedColumnID) || isNaN(obtainedBlockID)) return;
 
-      console.log('here');
-
       const availableUsers: user[] = [];
       const unavailableUsers: user[] = [];
 
@@ -310,9 +308,6 @@ export default function CalBlock({
           unavailableUsers.push(user);
         }
       });
-
-      console.log(availableUsers);
-      console.log(unavailableUsers);
 
       setChartedUsers({
         users: chartedUsers.users,

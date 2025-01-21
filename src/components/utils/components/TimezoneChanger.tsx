@@ -98,9 +98,6 @@ const TimezoneChanger = ({
       // console.log("Does not cross");
     }
 
-    console.log(dates);
-    console.log(adjustedDates);
-
     // Update calendar start and end times
     const updatedFramework = {
       ...calendarFramework,

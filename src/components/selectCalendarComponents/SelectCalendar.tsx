@@ -76,7 +76,6 @@ function SelectCalander({
 
   const handleMouseLeave = useCallback(
     (event: MouseEvent) => {
-      console.log('left');
       if (
         calendarRef.current &&
         !calendarRef.current.contains(event.relatedTarget as Node)

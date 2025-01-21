@@ -50,7 +50,6 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
                   .then(() => { resolve(true) })
                   .catch((updateError) => { resolve(false) })
               } else {
-                console.log("resolved")
                 resolve(true)
               }
             })
