@@ -109,30 +109,80 @@ function TimeSelectPage() {
   const [isGeneralDays, setIsGeneralDays] = useState(
     calendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
   );
-  // Initialize isGeneralDays once when data is first loaded
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length === 6) {
         await getEventOnPageload(code).then(() => {
+          const { availabilities, participants } = eventAPI.getCalendar();
           const dim = eventAPI.getCalendarDimensions();
-          const theRange = getChosenDayAndTime();
 
-          /* Set isGeneralDays once when first loading */
+          if (dim == undefined) {
+            nav('/notfound');
+          }
+
+          const accountName = getAccountName();
+          if (accountName === null) {
+            return;
+          }
+
+          let avail: Availability | undefined =
+            getAccountId() !== ''
+              ? getAvailabilityByAccountId(getAccountId())
+              : getAvailabilityByName(accountName);
+
+          if (avail === undefined) {
+            avail = eventAPI.getEmptyAvailability(dim);
+          } else {
+            setHasAvailability(true);
+          }
+
+          setChartedUsers(participants);
+
+          setEventName(getEventName());
+          setEventDescription(getEventDescription());
+          setLocationOptions(getLocationOptions());
+
+          const theRange = getChosenDayAndTime();
           setIsGeneralDays(
             dim?.dates[0][0].date?.getFullYear() === 2000 &&
               theRange === undefined
           );
 
-          // ... rest of your existing code ...
+          setCalendarState([...availabilities, avail]);
+          setCalendarFramework(dim);
+
+          /* The first date having a year be 2000 means that it was a general days selection */
+          setAreSelectingGeneralDays(
+            dim?.dates[0][0].date?.getFullYear() == 2000 &&
+              theRange === undefined
+          );
+
+          // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
+          if (theRange != undefined && theRange[0].getFullYear() != 1970) {
+            nav('/groupview/' + code);
+          }
         });
+      } else {
+        console.error("The event code in the URL doesn't exist");
+        nav('/notfound');
       }
     };
-    fetchData();
-  }, []); // Only run on mount
 
-  // Separate effect for updating dates when in general days mode
+    fetchData()
+      .then(() => {
+        if (getAccountName() == '' || getAccountName() == undefined) {
+          setPromptUserForLogin(true);
+        }
+
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
+
   useEffect(() => {
-    if (!isGeneralDays) return; // Early return if not in general days mode
+    if (!isGeneralDays) return;
 
     const today = new Date();
     const getNextDayOccurrence = (targetDayNum: number): Date => {
@@ -198,6 +248,9 @@ function TimeSelectPage() {
       }
 
       // Calculate time range based on whether it's general days or not
+      // if general days -- the events for the next day are grabbed. So if SUN is one of them,
+      // the events for the next SUN are grabbed
+
       let timeMin: string;
       let timeMax: string;
 
