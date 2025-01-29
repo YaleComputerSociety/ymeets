@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -531,10 +531,17 @@ export default function CalBlock({
       onDragStart={handleSelectionStart}
       onDrag={handleSelectionMove}
       onDragEnd={handleDragEnd}
-      onMouseOver={handleDesktopHoverChartedUser}
-      onMouseEnter={() => isOnGcal && showTooltipWithTimeout()}
+      onMouseOver={() => {
+        if (isOnGcal) {
+          setShowTooltip(true);
+        }
+
+        handleDesktopHoverChartedUser();
+      }}
+      onMouseEnter={() => isOnGcal && setShowTooltip(true)}
       onMouseLeave={() => {
         handleMouseOrTouchLeaveBlock();
+        setShowTooltip(false);
       }}
       onTouchStart={(e) => {
         const touch = e.touches[0];
@@ -543,9 +550,9 @@ export default function CalBlock({
         handleMobileHoverChartedUser(e);
         handleSelectionStart(e);
 
-        if (isOnGcal) {
-          showTooltipWithTimeout();
-        }
+        // if (isOnGcal) {
+        //   showTooltipWithTimeout();
+        // }
       }}
       onTouchMove={(e) => {
         if (theShowUserChart !== undefined) {
@@ -566,25 +573,19 @@ export default function CalBlock({
         }
       }}
       onTouchEnd={(e) => {
-        if (!isOnGcal) {
-          handleDragEnd(e);
-        } else {
-          e.preventDefault();
-          if (
-            dragStartTime.current &&
-            Date.now() - dragStartTime.current < 200
-          ) {
-            showTooltipWithTimeout();
-            setCalendarState((prev) => {
-              const newState = { ...prev };
-              if (!newState[user]) newState[user] = [];
-              if (!newState[user][columnID]) newState[user][columnID] = [];
-              newState[user][columnID][blockID] =
-                !newState[user][columnID][blockID];
-              return newState;
-            });
-          }
-        }
+        handleDragEnd(e);
+
+        e.preventDefault();
+        // showTooltipWithTimeout();
+        setCalendarState((prev) => {
+          const newState = { ...prev };
+          if (!newState[user]) newState[user] = [];
+          if (!newState[user][columnID]) newState[user][columnID] = [];
+          newState[user][columnID][blockID] =
+            !newState[user][columnID][blockID];
+          return newState;
+        });
+
         dragStartTime.current = null;
         lastDragPoint.current = null;
       }}
@@ -594,7 +595,7 @@ export default function CalBlock({
           className={`
             absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
             transform -translate-y-full transition-all duration-300 ease-in-out
-            ${isVisible ? 'opacity-100' : 'opacity-0'}
+            
           `}
         >
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">

@@ -50,6 +50,7 @@ interface SelectCalanderProps {
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
+  isGeneralDays: boolean;
 }
 
 function SelectCalander({
@@ -65,9 +66,9 @@ function SelectCalander({
   endDate,
   theDragState,
   theGoogleCalendarEvents,
-
   onClick,
   theShowUserChart,
+  isGeneralDays,
 }: SelectCalanderProps) {
   const timeBlocks = generateTimeBlocks(startDate, endDate);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -105,7 +106,7 @@ function SelectCalander({
         <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px]">
           <div className="bg-white dark:bg-secondary_background-dark w-full flex ">
             <div className="bg-white dark:bg-secondary_background-dark z-50 h-6"></div>
-            <DateBar dates={bucket} />
+            <DateBar dates={bucket} isGeneralDays={isGeneralDays} />
           </div>
         </div>
 

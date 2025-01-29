@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
@@ -36,6 +36,7 @@ interface CalendarProps {
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
+  isGeneralDays: boolean;
 }
 
 export default function Calendar({
@@ -49,6 +50,7 @@ export default function Calendar({
   theGoogleCalendarEvents,
   theShowUserChart,
   onClick,
+  isGeneralDays,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -212,6 +214,7 @@ export default function Calendar({
               theCalendarFramework={theCalendarFramework}
               chartedUsersData={chartedUsersData}
               theGoogleCalendarEvents={theGoogleCalendarEvents}
+              isGeneralDays={isGeneralDays}
             />
           </div>
         </div>
