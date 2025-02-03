@@ -184,6 +184,7 @@ function TimeSelectPage() {
   useEffect(() => {
     if (!isGeneralDays) return;
 
+    // you need to injet dates into each column so later on
     const today = new Date();
     const getNextDayOccurrence = (targetDayNum: number): Date => {
       const date = new Date(today);
