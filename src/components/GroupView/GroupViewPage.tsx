@@ -307,6 +307,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               isAdmin={isAdmin}
               theDragState={[dragState, setDragState]}
               theGoogleCalendarEvents={[[], () => {}]}
+              isGeneralDays={false}
             />
           </div>
 

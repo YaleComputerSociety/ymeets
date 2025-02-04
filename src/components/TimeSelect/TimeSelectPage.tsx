@@ -106,6 +106,130 @@ function TimeSelectPage() {
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
 
   const [hasAvailability, setHasAvailability] = useState(false);
+  const [isGeneralDays, setIsGeneralDays] = useState(
+    calendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
+  );
+  useEffect(() => {
+    const fetchData = async () => {
+      if (code && code.length === 6) {
+        await getEventOnPageload(code).then(() => {
+          const { availabilities, participants } = eventAPI.getCalendar();
+          const dim = eventAPI.getCalendarDimensions();
+
+          if (dim == undefined) {
+            nav('/notfound');
+          }
+
+          const accountName = getAccountName();
+          if (accountName === null) {
+            return;
+          }
+
+          let avail: Availability | undefined =
+            getAccountId() !== ''
+              ? getAvailabilityByAccountId(getAccountId())
+              : getAvailabilityByName(accountName);
+
+          if (avail === undefined) {
+            avail = eventAPI.getEmptyAvailability(dim);
+          } else {
+            setHasAvailability(true);
+          }
+
+          setChartedUsers(participants);
+
+          setEventName(getEventName());
+          setEventDescription(getEventDescription());
+          setLocationOptions(getLocationOptions());
+
+          const theRange = getChosenDayAndTime();
+          setIsGeneralDays(
+            dim?.dates[0][0].date?.getFullYear() === 2000 &&
+              theRange === undefined
+          );
+
+          setCalendarState([...availabilities, avail]);
+          setCalendarFramework(dim);
+
+          /* The first date having a year be 2000 means that it was a general days selection */
+          setAreSelectingGeneralDays(
+            dim?.dates[0][0].date?.getFullYear() == 2000 &&
+              theRange === undefined
+          );
+
+          // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
+          if (theRange != undefined && theRange[0].getFullYear() != 1970) {
+            nav('/groupview/' + code);
+          }
+        });
+      } else {
+        console.error("The event code in the URL doesn't exist");
+        nav('/notfound');
+      }
+    };
+
+    fetchData()
+      .then(() => {
+        if (getAccountName() == '' || getAccountName() == undefined) {
+          setPromptUserForLogin(true);
+        }
+
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!isGeneralDays) return;
+
+    // you need to injet dates into each column so later on
+    const today = new Date();
+    const getNextDayOccurrence = (targetDayNum: number): Date => {
+      const date = new Date(today);
+      const currentDayNum = today.getDay();
+
+      let daysToAdd = targetDayNum - currentDayNum;
+      if (daysToAdd <= 0) {
+        daysToAdd += 7;
+      }
+
+      date.setDate(date.getDate() + daysToAdd);
+      return date;
+    };
+
+    const updatedDates = calendarFramework.dates.map((bucket) =>
+      bucket.map((date) => {
+        const dayMap: { [key: string]: number } = {
+          SUN: 0,
+          MON: 1,
+          TUE: 2,
+          WED: 3,
+          THU: 4,
+          FRI: 5,
+          SAT: 6,
+        };
+
+        const dayNum = dayMap[date.shortenedWeekDay];
+        const nextOccurrence = getNextDayOccurrence(dayNum);
+
+        return {
+          ...date,
+          date: nextOccurrence,
+          calanderDay: nextOccurrence.getDate().toString(),
+          month: (nextOccurrence.getMonth() + 1).toString(),
+          year: nextOccurrence.getFullYear().toString(),
+          shortenedWeekDay: date.shortenedWeekDay,
+        };
+      })
+    );
+
+    setCalendarFramework((prev) => ({
+      ...prev,
+      dates: updatedDates,
+    }));
+  }, [isGeneralDays]);
 
   const getGoogleCalData = async (
     calIds: string[],
@@ -124,16 +248,35 @@ function TimeSelectPage() {
         return;
       }
 
-      const timeMaxDate = new Date(theDates[theDates.length - 1].date as Date);
-      const timeMax = new Date(
-        timeMaxDate.setUTCHours(23, 59, 59, 999)
-      ).toISOString();
+      // Calculate time range based on whether it's general days or not
+      // if general days -- the events for the next day are grabbed. So if SUN is one of them,
+      // the events for the next SUN are grabbed
+
+      let timeMin: string;
+      let timeMax: string;
+
+      if (isGeneralDays) {
+        const today = new Date();
+        timeMin = new Date(today.setUTCHours(0, 0, 0, 0)).toISOString();
+
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        timeMax = new Date(nextWeek.setUTCHours(23, 59, 59, 999)).toISOString();
+      } else {
+        timeMin = theDates[0]?.date?.toISOString() ?? new Date().toISOString();
+        const timeMaxDate = new Date(
+          theDates[theDates.length - 1].date as Date
+        );
+        timeMax = new Date(
+          timeMaxDate.setUTCHours(23, 59, 59, 999)
+        ).toISOString();
+      }
 
       for (let i = 0; i < calIds.length; i++) {
         const eventList = await gapi?.client?.calendar?.events?.list({
           calendarId: calIds[i],
-          timeMin: theDates[0]?.date?.toISOString(),
-          timeMax: timeMax,
+          timeMin,
+          timeMax,
           singleEvents: true,
           orderBy: 'startTime',
         });
@@ -175,23 +318,7 @@ function TimeSelectPage() {
       }
     };
     fetchData();
-  }, [gapi, googleCalIds]);
-
-  const fetchUserCals = async () => {
-    return await new Promise((resolve, reject) => {
-      gapi?.client?.calendar?.calendarList
-        .list()
-
-        .then((response) => {
-          const calendars = response.result.items;
-          resolve(calendars);
-        })
-
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  };
+  }, [gapi, googleCalIds, isGeneralDays]);
 
   const onPopupCloseAndSubmit = async () => {
     if (selectedPopupIds === googleCalIds) {
@@ -351,7 +478,6 @@ function TimeSelectPage() {
     );
   }
 
-  // Check if the user has the required Google Calendar scope
   const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
     const currentScopes =
       gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getGrantedScopes() ||
@@ -361,7 +487,6 @@ function TimeSelectPage() {
     );
   };
 
-  // Request additional scopes if necessary
   const requestAdditionalScopes = async () => {
     try {
       await gapi?.auth2
@@ -469,10 +594,11 @@ function TimeSelectPage() {
                 googleCalendarEvents,
                 setGoogleCalendarEvents,
               ]}
+              isGeneralDays={isGeneralDays}
             />
           </div>
           <div className="flex flex-row justify-between mb-3">
-            {!areSelectingGeneralDays && getAccountId() !== '' ? (
+            {getAccountId() !== '' ? (
               <div className="pl-5 z-60 mb-4 lg:mb-0">
                 <div className="hidden lg:flex">
                   <ButtonSmall
@@ -494,28 +620,26 @@ function TimeSelectPage() {
                 </div>
               </div>
             ) : (
-              !areSelectingGeneralDays && (
-                <div className="lg:pl-4 mb-4 lg:mb-0">
-                  <button
-                    className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
+              <div className="lg:pl-4 mb-4 lg:mb-0">
+                <button
+                  className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
                             flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                    onClick={() => {
-                      signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                        (loginSuccessful) => {
-                          if (loginSuccessful) {
-                            window.location.reload();
-                          } else {
-                            console.error('login failed');
-                          }
+                  onClick={() => {
+                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+                      (loginSuccessful) => {
+                        if (loginSuccessful) {
+                          window.location.reload();
+                        } else {
+                          console.error('login failed');
                         }
-                      );
-                    }}
-                  >
-                    <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
-                    Sign in with Google to access GCal
-                  </button>
-                </div>
-              )
+                      }
+                    );
+                  }}
+                >
+                  <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
+                  Sign in with Google to access GCal
+                </button>
+              </div>
             )}
             <div className="pr-5">
               <ButtonSmall
