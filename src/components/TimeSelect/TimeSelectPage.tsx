@@ -687,6 +687,7 @@ function TimeSelectPage() {
         <LoginPopup
           onClose={endPromptUserForLogin}
           enableAnonymousSignIn={true}
+          code={code || ''}
         />
       )}
     </div>

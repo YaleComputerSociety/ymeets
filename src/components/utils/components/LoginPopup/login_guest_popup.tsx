@@ -15,18 +15,21 @@ import { useParams } from 'react-router-dom';
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
   enableAnonymousSignIn?: boolean;
+  code: string;
 }
 
 export const LoginPopup: React.FC<LoginPopupProps> = ({
   onClose,
   enableAnonymousSignIn = false,
+  code,
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
-  const { code } = useParams();
+  // const { code } = useParams();
 
   const handleSignInWithGoogle = () => {
     signInWithGoogle().then((loginSuccessful) => {
+      console.log(code || 'No Code Here');
       if (loginSuccessful !== false) {
         navigate(`/timeselect/${code}`);
         onClose();
