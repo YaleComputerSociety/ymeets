@@ -1,73 +1,126 @@
 /* eslint-disable */
 
-import { MouseEventHandler, useContext } from 'react'
-import { getAccountId, getAccountName, updateAnonymousUserToAuthUser } from './events'
+import { MouseEventHandler, useContext } from 'react';
+import {
+  getAccountId,
+  getAccountName,
+  getAccountEmail,
+  checkIfLoggedIn,
+  updateAnonymousUserToAuthUser,
+} from './events';
 
-import { auth, googleProvider } from './firebase'
-import { onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
-import { GAPIContext } from './gapiContext'
-import { get } from 'http'
+import { db, auth, googleProvider } from './firebase';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { GAPIContext } from './gapiContext';
+import { get } from 'http';
 
 // Google sign in
 // returns error message
 
-const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?: ((arg0: boolean) => void)) => {
+const handleAddingUserToDB = async () => {
+  try {
+    const userId = getAccountId();
+    const userEmail = getAccountEmail();
+    const userDocRef = doc(db, 'users', userId);
+
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        email: userEmail, // Set email from Google profile
+        name: getAccountName() || '', // Set first name from Google profile
+        selectedCalendarIDs: [userEmail], // Defaul value in user's email (primary cal)
+        uid: userId, // Set the UID
+        userEvents: [], // Initialize as empty array
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const signInWithGoogle = async (
+  clickEvent?: any,
+  gapi?: any,
+  handleIsSignedIn?: (arg0: boolean) => void
+) => {
   return await new Promise(async (resolve, reject) => {
     // Check if user is already signed in (anonymously)
     // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
-    let formerName = ''
+    let formerName = '';
     if (auth?.currentUser?.isAnonymous) {
-      formerName = auth.currentUser.displayName || ''
+      formerName = auth.currentUser.displayName || '';
     }
 
     try {
       if (gapi) {
-        const auth2 = gapi.auth2.getAuthInstance()
-        auth2.signIn().then((googleUser: any) => {
-          if (handleIsSignedIn) { handleIsSignedIn(true) }
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2
+          .signIn()
+          .then((googleUser: any) => {
+            if (handleIsSignedIn) {
+              handleIsSignedIn(true);
+            }
 
-          if (formerName !== '') {
-            updateAnonymousUserToAuthUser(formerName)
-              .then(() => { resolve(true) })
-              .catch((updateError) => { reject(updateError) })
-          } else {
-            resolve(true)
-          }
-        }).catch((error: any) => {
-          console.error(error)
-          resolve(false)
-        })
+            if (formerName !== '') {
+              updateAnonymousUserToAuthUser(formerName).catch((updateError) => {
+                reject(updateError);
+              });
+            }
+
+            handleAddingUserToDB().catch((dbError) => {
+              reject(dbError);
+            });
+
+            resolve(true);
+          })
+          .catch((error: any) => {
+            console.error(error);
+            resolve(false);
+          });
       } else {
         // try signing in with firebase (gapi not working...such as mobile???)
         try {
           signInWithPopup(auth, googleProvider)
             .then((googleUser: any) => {
-        
-              if (handleIsSignedIn) { handleIsSignedIn(true) }
+              if (handleIsSignedIn) {
+                handleIsSignedIn(true);
+              }
 
               if (formerName !== '') {
-                updateAnonymousUserToAuthUser(formerName)
-                  .then(() => { resolve(true) })
-                  .catch((updateError) => { resolve(false) })
-              } else {
-                resolve(true)
+                updateAnonymousUserToAuthUser(formerName).catch(
+                  (updateError) => {
+                    reject(updateError);
+                  }
+                );
               }
+
+              handleAddingUserToDB().catch((dbError) => {
+                reject(dbError);
+              });
+
+              resolve(true);
             })
             .catch((error) => {
-              console.error(error)
-              resolve(false)
-            })
+              console.error(error);
+              resolve(false);
+            });
         } catch (err) {
-          console.error(err)
-          resolve(false)
+          console.error(err);
+          resolve(false);
         }
       }
     } catch (err) {
-      console.error(err)
-      resolve(false)
+      console.error(err);
+      resolve(false);
     }
-  })
-}
+  });
+};
 
 // useEffect(() => {
 //     if (!authInstance) {
@@ -101,21 +154,18 @@ const signInWithGoogle = async (clickEvent?: any, gapi?: any, handleIsSignedIn?:
 const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
   if (loadedGAPI === null) {
     try {
-      gapi.auth2.getAuthInstance().signOut()
+      gapi.auth2.getAuthInstance().signOut();
     } catch (err) {
-      console.error('Error signing out (failing to load GAPI): ', err)
+      console.error('Error signing out (failing to load GAPI): ', err);
     }
-    return
+    return;
   }
 
-  const auth2 = loadedGAPI.auth2.getAuthInstance()
+  const auth2 = loadedGAPI.auth2.getAuthInstance();
 
   auth2.signOut().then(() => {
-    signOut(auth)
-  })
-}
+    signOut(auth);
+  });
+};
 
-export {
-  signInWithGoogle,
-  logout
-}
+export { signInWithGoogle, logout };
