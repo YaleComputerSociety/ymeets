@@ -38,6 +38,7 @@ import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 /**
  *
@@ -555,6 +556,20 @@ function TimeSelectPage() {
     saveAvailAndLocationChanges();
   };
 
+  const handleAddingUserToDB = async (gapi: any) => {
+    const user = gapi.auth2.getAuthInstance().currentUser.get();
+    const userId = user.getId();
+    const db = getFirestore();
+    const userDocRef = doc(db, 'users', userId);
+
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        /* initial user data */
+      });
+    }
+  };
+
   return (
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
@@ -628,6 +643,7 @@ function TimeSelectPage() {
                     signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
                       (loginSuccessful) => {
                         if (loginSuccessful) {
+                          handleAddingUserToDB(gapi);
                           window.location.reload();
                         } else {
                           console.error('login failed');
