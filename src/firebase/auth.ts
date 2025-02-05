@@ -153,19 +153,13 @@ const signInWithGoogle = async (
 // logout
 const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
   if (loadedGAPI === null) {
-    try {
-      gapi.auth2.getAuthInstance().signOut();
-    } catch (err) {
-      console.error('Error signing out (failing to load GAPI): ', err);
-    }
-    return;
-  }
-
-  const auth2 = loadedGAPI.auth2.getAuthInstance();
-
-  auth2.signOut().then(() => {
     signOut(auth);
-  });
+  } else {
+    const auth2 = loadedGAPI.auth2.getAuthInstance();
+    auth2.signOut().then(() => {
+      signOut(auth);
+    });
+  }
 };
 
 export { signInWithGoogle, logout };
