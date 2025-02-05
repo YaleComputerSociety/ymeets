@@ -28,7 +28,7 @@ jobs:
       #   run: npm install -g firebase-tools
 
       - name: Build Project
-        run: npm run build
+        run: CI=false npm run build
         env:
           REACT_APP_API_KEY_GAPI: ${{ secrets.REACT_APP_API_KEY_GAPI }}
           REACT_APP_CLIENT_ID_GAPI: ${{ secrets.REACT_APP_CLIENT_ID_GAPI }}
