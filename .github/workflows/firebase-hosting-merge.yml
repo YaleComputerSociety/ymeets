@@ -1,0 +1,39 @@
+name: Deploy to Firebase Hosting on PR merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true # Only run if PR is merged
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # - name: Install Firebase CLI
+      #   run: npm install -g firebase-tools
+
+      - name: Build Project
+        run: npm run build
+        env:
+          REACT_APP_API_KEY_GAPI: ${{ secrets.REACT_APP_API_KEY_GAPI }}
+          REACT_APP_CLIENT_ID_GAPI: ${{ secrets.REACT_APP_CLIENT_ID_GAPI }}
+
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --project studybuddy-392c7
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STUDYBUDDY_392C7 }}
