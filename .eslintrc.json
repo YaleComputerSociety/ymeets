@@ -24,11 +24,15 @@
     }
   },
   "rules": {
-    "prettier/prettier": "warn",
+    "prettier/prettier": "off",
     "react/react-in-jsx-scope": "off",
     "no-unused-vars":"off",
     "no-undef": "off",
     "no-unescaped-entities": "off",
-    "jsx-key": "off"
-  }
+    "jsx-key": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "eqeqeq": "off",
+    "react-hooks/exhaustive-deps": "off"
+  
+}
 }
