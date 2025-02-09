@@ -456,12 +456,27 @@ export default function CalBlock({
 
       if (!dragState.startPoint) return;
 
+      // Create a bounding box that includes both the last point and new point
+      // This ensures we don't miss blocks during fast drags
+      const intermediateBox = getBoundingBox(
+        [lastCol, lastBlock],
+        [newCol, newBlock]
+      );
+
       const currentBox = getBoundingBox(dragState.startPoint, [
         newCol,
         newBlock,
       ]);
 
       if (!isAdmin) {
+        // First update the intermediate blocks to ensure continuity
+        updateCalendarForBoundingBoxes(
+          intermediateBox,
+          null, // Don't provide previous box for intermediate update
+          dragState.selectionMode
+        );
+
+        // Then update the entire selection area
         updateCalendarForBoundingBoxes(
           currentBox,
           previousBoundingBox.current,
@@ -484,9 +499,10 @@ export default function CalBlock({
 
   const handleDragEnd = useCallback(
     (event: React.DragEvent | React.TouchEvent) => {
-      if (dragStartTime.current && Date.now() - dragStartTime.current < 200) {
-        handleClick(event as any);
-      }
+      // Remove this check - we don't want to trigger click on drag end
+      // if (dragStartTime.current && Date.now() - dragStartTime.current < 200) {
+      //   handleClick(event as any);
+      // }
 
       if (isAdmin && dragState.startPoint && dragState.endPoint) {
         setDragState((prev) => {
@@ -511,7 +527,7 @@ export default function CalBlock({
       dragStartTime.current = null;
       debouncedSetDragState.cancel();
     },
-    [isAdmin, setDragState, debouncedSetDragState, handleClick]
+    [isAdmin, setDragState, debouncedSetDragState]
   );
 
   return (
@@ -548,43 +564,55 @@ export default function CalBlock({
         dragStartTime.current = Date.now();
         lastDragPoint.current = [touch.clientX, touch.clientY];
         handleMobileHoverChartedUser(e);
-        handleSelectionStart(e);
-
-        // if (isOnGcal) {
-        //   showTooltipWithTimeout();
-        // }
+        // Remove handleSelectionStart from here
       }}
       onTouchMove={(e) => {
         if (theShowUserChart !== undefined) {
           setShowUserChart?.(false);
         }
-        handleSelectionMove(e);
+
+        const touch = e.touches[0];
+        const [startX, startY] = lastDragPoint.current || [0, 0];
+        const hasMoved =
+          Math.abs(touch.clientX - startX) > 10 ||
+          Math.abs(touch.clientY - startY) > 10;
+
+        // Only start drag selection if there's significant movement
+        if (hasMoved && !dragState.isSelecting) {
+          handleSelectionStart(e);
+        }
+
+        if (dragState.isSelecting) {
+          handleSelectionMove(e);
+        }
+
         handleMobileHoverChartedUser(e);
 
-        if (isOnGcal) {
-          const touch = e.touches[0];
-          const [startX, startY] = lastDragPoint.current || [0, 0];
-          if (
-            Math.abs(touch.clientX - startX) > 10 ||
-            Math.abs(touch.clientY - startY) > 10
-          ) {
-            setShowTooltip(false);
-          }
+        if (isOnGcal && hasMoved) {
+          setShowTooltip(false);
         }
       }}
       onTouchEnd={(e) => {
-        handleDragEnd(e);
-
         e.preventDefault();
-        // showTooltipWithTimeout();
-        setCalendarState((prev) => {
-          const newState = { ...prev };
-          if (!newState[user]) newState[user] = [];
-          if (!newState[user][columnID]) newState[user][columnID] = [];
-          newState[user][columnID][blockID] =
-            !newState[user][columnID][blockID];
-          return newState;
-        });
+
+        const touchDuration = Date.now() - (dragStartTime.current || 0);
+        const wasTap = touchDuration < 300 && !dragState.isSelecting;
+
+        if (wasTap) {
+          if (draggable && !isAdmin) {
+            setCalendarState((prev) => {
+              const newState = { ...prev };
+              if (!newState[user]) newState[user] = [];
+              if (!newState[user][columnID]) newState[user][columnID] = [];
+              newState[user][columnID][blockID] =
+                !newState[user][columnID][blockID];
+              return newState;
+            });
+            onClick(e as any);
+          }
+        } else if (dragState.isSelecting) {
+          handleDragEnd(e);
+        }
 
         dragStartTime.current = null;
         lastDragPoint.current = null;
