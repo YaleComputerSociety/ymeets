@@ -3,7 +3,11 @@ import copy from 'clipboard-copy';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-export default function CopyCodeButton() {
+type CopyCodeButtonProps = {
+  customEventCode?: string;
+};
+
+export default function CopyCodeButton({ customEventCode }: CopyCodeButtonProps = {}) {
   const [copied, setCopied] = useState(false);
   const { code } = useParams();
 
@@ -21,7 +25,7 @@ export default function CopyCodeButton() {
       } border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
     >
       {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-      {copied ? 'Copied to Clipboard' : `Share Link: ${code}`}
+      {copied ? 'Copied to Clipboard' : `Share Link: ${customEventCode? customEventCode : code}`}
     </button>
   );
 }

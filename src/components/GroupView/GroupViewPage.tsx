@@ -247,7 +247,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             {eventDescription}
           </div>
 
-          <CopyCodeButton />
+          <CopyCodeButton/>
 
           {locationOptions.length > 0 && (
             <div className="hidden lg:block">
