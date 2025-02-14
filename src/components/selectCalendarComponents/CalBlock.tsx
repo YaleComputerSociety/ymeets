@@ -565,6 +565,7 @@ export default function CalBlock({
         lastDragPoint.current = [touch.clientX, touch.clientY];
         handleMobileHoverChartedUser(e);
         // Remove handleSelectionStart from here
+        onClick(e as any);
       }}
       onTouchMove={(e) => {
         if (theShowUserChart !== undefined) {
@@ -612,6 +613,7 @@ export default function CalBlock({
           }
         } else if (dragState.isSelecting) {
           handleDragEnd(e);
+          onClick(e as any);
         }
 
         dragStartTime.current = null;

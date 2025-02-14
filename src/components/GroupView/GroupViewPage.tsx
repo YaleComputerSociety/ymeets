@@ -35,6 +35,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import { connectFirestoreEmulator } from 'firebase/firestore';
 
 interface GroupViewProps {
   isAdmin: boolean;
