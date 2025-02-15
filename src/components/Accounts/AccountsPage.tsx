@@ -24,6 +24,7 @@ import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
+import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 interface AccountsPageEvent {
   name: string;
@@ -168,7 +169,8 @@ export default function AccountsPage() {
                   <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
                     <hr />
                     <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
-                      <button
+                      <CopyCodeButton customEventCode={event.id}/>
+                      {/* <button
                         onClick={() => {
                           copy(event.id);
                         }}
@@ -176,7 +178,7 @@ export default function AccountsPage() {
                       >
                         {event.id}
                         <IconCopy className="inline-block w-4 lg:w-5" />
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => {
                           nav('/groupview/' + event.id);
