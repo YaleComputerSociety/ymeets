@@ -7,6 +7,7 @@ import {
   IconClock,
   IconMapPin,
   IconTrash,
+  IconEdit,
 } from '@tabler/icons-react';
 
 import {
@@ -81,6 +82,8 @@ const parseEventObjectForAccountsPage = (
  */
 export default function AccountsPage() {
   const { gapi } = useContext(GAPIContext);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState('');
 
   useEffect(() => {
     const retrieveAndSetEvents = async () => {
@@ -145,7 +148,7 @@ export default function AccountsPage() {
             <LoadingAnim />
           </div>
         ) : undefined}
-        {events && events.length != 0 ? (
+         {events && events.length != 0 ? (
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
             {events
               .filter(
@@ -159,11 +162,50 @@ export default function AccountsPage() {
                   className="bg-white dark:bg-secondary_background-dark dark:text-text-dark rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
                 >
                   <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
-                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark">
-                      {event.name}
-                    </h3>
-                    {/* Do we want to enable users to edit their events? */}
-                    {/* <IconEdit className="inline-block w-4 md:w-5 text-slate-400 hover:text-slate-500 cursor-pointer transition-colors active:text-slate-600" /> */}
+                    {editingId === event.id ? (
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const updatedEvents = events.map((evt) =>
+                              evt.id === event.id
+                                ? { ...evt, name: editedName }
+                                : evt
+                            );
+                            setEvents(updatedEvents);
+                            setEditingId(null);
+                          } else if (e.key === 'Escape') {
+                            setEditingId(null);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (editedName.trim()) {
+                            const updatedEvents = events.map((evt) =>
+                              evt.id === event.id
+                                ? { ...evt, name: editedName }
+                                : evt
+                            );
+                            setEvents(updatedEvents);
+                          }
+                          setEditingId(null);
+                        }}
+                        autoFocus
+                        className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark bg-transparent border-b border-slate-300 focus:border-primary outline-none"
+                      />
+                    ) : (
+                      <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark">
+                        {event.name}
+                      </h3>
+                    )}
+                    <IconEdit
+                      className="inline-block w-4 md:w-5 text-slate-400 hover:text-slate-500 cursor-pointer transition-colors active:text-slate-600"
+                      onClick={() => {
+                        setEditingId(event.id);
+                        setEditedName(event.name);
+                      }}
+                    />
                   </div>
                   <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
                     <hr />
