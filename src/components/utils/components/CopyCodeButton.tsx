@@ -25,7 +25,7 @@ export default function CopyCodeButton({ customEventCode }: CopyCodeButtonProps 
       } border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
     >
       {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
-      {copied ? 'Copied to Clipboard' : `Share Link: ${customEventCode? customEventCode : code}`}
+      {copied ? 'Copied Link' : `${customEventCode? customEventCode : code}`}
     </button>
   );
 }
