@@ -93,6 +93,17 @@ export default function NavBar() {
                 </div>
               )}
             </div>
+            {/* Change by Julien Dang, 2/15/25; relocated Events to navbar */}
+            <div className="hidden sm:flex items-center">
+              <a href="#"
+                 className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-x-105"
+                 onClick={() => {
+                 nav('/useraccount');
+                }}
+                    >
+                      <FaCalendarAlt className="mr-2" /> My Events
+                    </a>
+            </div>
             <div className="relative">
               <button className="menu-button" onClick={handleGearClick}>
                 <FaBars
@@ -121,6 +132,7 @@ export default function NavBar() {
                     >
                       <FaInfoCircle className="mr-2" /> About Us
                     </a>
+                    {/* Change by Julien Dang, 2/15/25; removed Events from hamburger menu
                     <div className="border-t border-gray-200"></div>
                     <a
                       href="#"
@@ -131,7 +143,7 @@ export default function NavBar() {
                       }}
                     >
                       <FaCalendarAlt className="mr-2" /> Events
-                    </a>
+                    </a> */}
                     <div className="border-t border-gray-200"></div>
                     <a
                       href="https://ymeets.canny.io"
