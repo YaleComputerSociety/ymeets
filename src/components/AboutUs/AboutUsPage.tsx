@@ -190,7 +190,7 @@ function ContributorCard({
 }: ContributorCardProps) {
   return (
     <div
-      className="rounded-lg border min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
+      className="rounded-lg min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
