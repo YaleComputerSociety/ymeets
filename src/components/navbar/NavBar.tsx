@@ -94,20 +94,20 @@ export default function NavBar() {
               )}
             </div>
             {/* Change by Julien Dang, 2/15/25; relocated Events to navbar */}
-            <div className="hidden sm:flex items-center">
+            <div>
               <a href="#"
-                 className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-x-105"
+                 className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
                  onClick={() => {
                  nav('/useraccount');
                 }}
                     >
-                      <FaCalendarAlt className="mr-2" /> My Events
+                      <FaCalendarAlt size={25} className="py-0.5"/> <span className="text-sm hidden sm:block ml-2">My Events</span>
                     </a>
             </div>
             <div className="relative">
-              <button className="menu-button" onClick={handleGearClick}>
+              <button className="menu-button flex items-center" onClick={handleGearClick}>
                 <FaBars
-                  className="text-text dark:text-text-dark mt-1"
+                  className="text-text dark:text-text-dark"
                   size={25}
                 />
               </button>
