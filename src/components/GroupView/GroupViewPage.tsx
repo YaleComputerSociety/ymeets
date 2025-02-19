@@ -253,8 +253,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
           <CopyCodeButton />
           <AutoDraftEmailButton
-            eventTitle="TESTING EVENT WOOOO"
-            yourName="JEET PARIKH WOOOO"
+            eventTitle={eventName}
+            yourName={getAccountName()}
           />
 
           {locationOptions.length > 0 && (
