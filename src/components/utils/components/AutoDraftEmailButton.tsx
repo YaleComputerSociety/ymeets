@@ -16,8 +16,8 @@ export default function AutoDraftEmailButton({
 }: AutoDraftEmailProps = {}) {
   const { code } = useParams();
   const usedCode = customEventCode ? customEventCode : code;
-  const event = eventTitle ?? 'Unnamed Event'; // Replace dynamically
-  const userName = yourName ?? ''; // Replace dynamically
+  const event = eventTitle ?? 'Unnamed Event'; 
+  const userName = yourName ?? ''; 
 
   return (
     <button
@@ -25,8 +25,6 @@ export default function AutoDraftEmailButton({
         const url = `${window.location.origin}/timeselect/${usedCode}`;
 
         const mailToUrl = `mailto:?subject=Invitation%20to%20Fill%20Out%20YMeets%20for%20%22${encodeURIComponent(event)}%22&body=Hello%2C%0D%0A%0D%0AYou’ve%20been%20invited%20to%20fill%20out%20a%20YMeets%20to%20help%20find%20the%20best%20time%20for%20our%20meeting:%20%22${encodeURIComponent(event)}%22.%0D%0A%0D%0APlease%20click%20the%20link%20below%20to%20provide%20your%20availability:%0D%0A${encodeURIComponent(url)}%0D%0A%0D%0ALet%20me%20know%20if%20you%20have%20any%20questions.%20Looking%20forward%20to%20scheduling%20with%20you!%0D%0A%0D%0ABest,%0D%0A${encodeURIComponent(userName)}`;
-
-        window.open(mailToUrl, '_blank', 'noopener,noreferrer');
 
         window.open(mailToUrl, '_blank', 'noopener,noreferrer');
       }}
