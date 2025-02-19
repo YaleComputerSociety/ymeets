@@ -36,9 +36,7 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { IoSparkles } from 'react-icons/io5';
 import { connectFirestoreEmulator } from 'firebase/firestore';
-import { title } from 'process';
 
 interface GroupViewProps {
   isAdmin: boolean;
