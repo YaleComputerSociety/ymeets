@@ -252,10 +252,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <CopyCodeButton />
-          <AutoDraftEmailButton
-            eventTitle={eventName}
-            yourName={getAccountName()}
-          />
+          {isAdmin && (
+            <AutoDraftEmailButton
+              eventTitle={eventName}
+              yourName={getAccountName()}
+            />
+          )}
 
           {locationOptions.length > 0 && (
             <div className="hidden lg:block">
