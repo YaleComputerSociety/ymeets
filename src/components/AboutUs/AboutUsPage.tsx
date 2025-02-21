@@ -3,6 +3,11 @@
 import React from 'react';
 import no_person from './anon.jpeg';
 import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconLink,
+} from '@tabler/icons-react';
 import group from './ymeetsgroupimage.png';
 import ETHAN from './ethan.png';
 import NICK from './NicholasRibeiero.jpg';
@@ -161,7 +166,7 @@ const PAST_CONTRIBUTORS = [
     portfolio: undefined,
     image: SHANKARA,
   },
-]
+];
 
 interface ContributorCardProps {
   name: string | undefined;
@@ -227,21 +232,21 @@ function ContributorCard({
           <div className="pr-1 hover:text-primary">
             {github && (
               <a href={github}>
-                <FaGithubSquare size={30} />
+                <IconBrandGithub size={30} />
               </a>
             )}
           </div>
           <div className="pr-1 hover:text-primary">
             {linkedin && (
               <a href={linkedin}>
-                <FaLinkedin size={30} />
+                <IconBrandLinkedin size={30} />
               </a>
             )}
           </div>
           <div className="pr-1 hover:text-primary">
             {portfolio && (
               <a href={portfolio}>
-                <FaLink size={30} />
+                <IconLink size={30} />
               </a>
             )}
           </div>
