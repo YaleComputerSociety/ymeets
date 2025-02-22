@@ -6,7 +6,8 @@ import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { useState } from 'react';
 import { getTimezone } from '../../firebase/events';
-import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+// import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 import { dragProperties } from '../../types';
 
 interface CalendarProps {
@@ -128,7 +129,7 @@ export default function Calendar({
       </div>
       <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-50 p-0">
         {currentStartPage !== 0 ? (
-          <FaArrowLeft
+          <IconArrowLeft
             onClick={handlePrev}
             size={45}
             className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
@@ -138,7 +139,7 @@ export default function Calendar({
         )}
         {currentStartPage + numberOfColumnsPerPage <
         calendarFramework.dates.flat().length ? (
-          <FaArrowRight
+          <IconArrowRight
             onClick={handleNext}
             size={45}
             className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "

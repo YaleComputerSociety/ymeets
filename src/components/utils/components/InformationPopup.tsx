@@ -1,9 +1,10 @@
-import {
-  IoIosInformationCircleOutline,
-  IoMdInformationCircleOutline,
-} from 'react-icons/io';
+// import {
+//   IoIosInformationCircleOutline,
+//   IoMdInformationCircleOutline,
+// } from 'react-icons/io';
 import { useState } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { IconInfoCircle } from '@tabler/icons-react';
 interface Props {
   content: string;
 }
@@ -13,7 +14,7 @@ export default function InformationPopup({ content }: Props) {
 
   return (
     <div className="relative">
-      <IoMdInformationCircleOutline
+      <IconInfoCircle
         onMouseEnter={() => {
           setOpacity(1);
         }} // Set opacity to 1 on mouse enter

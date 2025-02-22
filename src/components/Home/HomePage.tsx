@@ -7,9 +7,12 @@ import graphic from './calendargraphic.png';
 import LoginPopup from '../utils/components/LoginPopup';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
+
 import { SiGooglecalendar } from 'react-icons/si';
 import { FaLock } from 'react-icons/fa';
-import { CiLocationOn } from 'react-icons/ci';
+// import { CiLocationOn } from 'react-icons/ci';
+
+import { IconMapPinFilled, IconMapPin, IconBrandGoogle } from '@tabler/icons-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -84,7 +87,7 @@ export default function HomePage() {
                     <p>GCal integration</p>
                   </div>
                   <div className="flex flex-row text-md gap-3 items-center">
-                    <CiLocationOn />
+                    <IconMapPinFilled />
                     <p className="hidden md:block">
                       Vote on a preferred campus meeting place
                     </p>

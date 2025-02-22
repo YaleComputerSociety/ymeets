@@ -2,12 +2,14 @@
 
 import React from 'react';
 import no_person from './anon.jpeg';
-import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+// import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+
 import {
   IconBrandGithub,
   IconBrandLinkedin,
   IconLink,
 } from '@tabler/icons-react';
+
 import group from './ymeetsgroupimage.png';
 import ETHAN from './ethan.png';
 import NICK from './NicholasRibeiero.jpg';
