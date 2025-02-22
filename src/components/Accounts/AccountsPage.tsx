@@ -17,6 +17,8 @@ import {
   deleteEvent,
 } from '../../firebase/events';
 import { logout } from '../../firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/firebase';
 
 import { useNavigate } from 'react-router-dom';
 import copy from 'clipboard-copy';
@@ -84,6 +86,21 @@ export default function AccountsPage() {
   const { gapi } = useContext(GAPIContext);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedName, setEditedName] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const updateEventName = async (eventId: string, newName: string) => {
+    try {
+      const eventRef = doc(db, 'events', eventId);
+      await updateDoc(eventRef, {
+        'details.name': newName
+      });
+      return true;
+    } catch (error) {
+      console.error('Error updating event name:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const retrieveAndSetEvents = async () => {
@@ -105,11 +122,41 @@ export default function AccountsPage() {
 
   const nav = useNavigate();
   const [filter, setFilter] = useState('');
-
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
+  };
+
+  const handleUpdateName = async (event: AccountsPageEvent, newName: string) => {
+    if (newName.trim() === event.name) {
+      setEditingId(null);
+      return;
+    }
+
+    setIsUpdating(true);
+    setUpdateError(null);
+
+    try {
+      const success = await updateEventName(event.id, newName.trim());
+      
+      if (success) {
+        const updatedEvents = events?.map((evt) =>
+          evt.id === event.id
+            ? { ...evt, name: newName.trim() }
+            : evt
+        );
+        setEvents(updatedEvents);
+        setEditingId(null);
+      } else {
+        setUpdateError('Failed to update event name');
+      }
+    } catch (error) {
+      console.error('Error in handleUpdateName:', error);
+      setUpdateError('Failed to update event name');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -148,7 +195,7 @@ export default function AccountsPage() {
             <LoadingAnim />
           </div>
         ) : undefined}
-         {events && events.length != 0 ? (
+        {events && events.length != 0 ? (
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
             {events
               .filter(
@@ -163,47 +210,47 @@ export default function AccountsPage() {
                 >
                   <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
                     {editingId === event.id ? (
-                      <input
-                        type="text"
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const updatedEvents = events.map((evt) =>
-                              evt.id === event.id
-                                ? { ...evt, name: editedName }
-                                : evt
-                            );
-                            setEvents(updatedEvents);
-                            setEditingId(null);
-                          } else if (e.key === 'Escape') {
-                            setEditingId(null);
-                          }
-                        }}
-                        onBlur={() => {
-                          if (editedName.trim()) {
-                            const updatedEvents = events.map((evt) =>
-                              evt.id === event.id
-                                ? { ...evt, name: editedName }
-                                : evt
-                            );
-                            setEvents(updatedEvents);
-                          }
-                          setEditingId(null);
-                        }}
-                        autoFocus
-                        className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark bg-transparent border-b border-slate-300 focus:border-primary outline-none"
-                      />
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={editedName}
+                          onChange={(e) => setEditedName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !isUpdating) {
+                              handleUpdateName(event, editedName);
+                            } else if (e.key === 'Escape') {
+                              setEditingId(null);
+                              setUpdateError(null);
+                            }
+                          }}
+                          onBlur={() => {
+                            if (!isUpdating) {
+                              handleUpdateName(event, editedName);
+                            }
+                          }}
+                          disabled={isUpdating}
+                          autoFocus
+                          className="w-full md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark bg-transparent border-b border-slate-300 focus:border-primary outline-none disabled:opacity-50"
+                        />
+                        {updateError && (
+                          <p className="text-red-500 text-sm mt-1">{updateError}</p>
+                        )}
+                      </div>
                     ) : (
                       <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark">
                         {event.name}
                       </h3>
                     )}
                     <IconEdit
-                      className="inline-block w-4 md:w-5 text-slate-400 hover:text-slate-500 cursor-pointer transition-colors active:text-slate-600"
+                      className={`inline-block w-4 md:w-5 text-slate-400 hover:text-slate-500 cursor-pointer transition-colors active:text-slate-600 ${
+                        isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                       onClick={() => {
-                        setEditingId(event.id);
-                        setEditedName(event.name);
+                        if (!isUpdating) {
+                          setEditingId(event.id);
+                          setEditedName(event.name);
+                          setUpdateError(null);
+                        }
                       }}
                     />
                   </div>
@@ -234,7 +281,6 @@ export default function AccountsPage() {
                       onClick={() => {
                         deleteEvent(event.id)
                           .then(() => {
-                            // delete it locally
                             setEvents(events.filter((e) => e.id != event.id));
                           })
                           .catch((err) => {});
