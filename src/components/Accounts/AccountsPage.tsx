@@ -208,9 +208,9 @@ export default function AccountsPage() {
           </div>
         ) : events !== undefined ? (
           getAccountId() === '' ? (
-            <div>You are logged in as a guest. </div>
+            <div className='text-slate-700 dark:text-text-dark'>You are logged in as a guest.</div>
           ) : (
-            <div>You have no events.</div>
+            <div className='text-slate-700 dark:text-text-dark'>You have no events.</div>
           )
         ) : undefined}
 
