@@ -2,7 +2,14 @@
 
 import React from 'react';
 import no_person from './anon.jpeg';
-import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+// import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
+
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconLink,
+} from '@tabler/icons-react';
+
 import group from './ymeetsgroupimage.png';
 import ETHAN from './ethan.png';
 import NICK from './NicholasRibeiero.jpg';
@@ -14,10 +21,67 @@ import JIAKANG from './Jiakang.png';
 import ALAN from './AlanXie.jpg';
 import SHANKARA from './Shankara_Headshot.jpeg';
 
-const CONTRIBUTORS = [
+import JEET from './Jeet_Headshot.jpg';
+import RYLAN from './Rylan_Headshot.jpg';
+
+const CURR_CONTRIBUTORS = [
+  {
+    name: 'Jeet Parikh',
+    title: ['Product Lead', 'Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/parikhjeet/',
+    github: 'https://github.com/jeet-parikh',
+    image: JEET,
+  },
+
+  {
+    name: 'Rylan Yang',
+    title: ['Product Lead', 'Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/rylan-yang/',
+    github: 'https://github.com/rylany27',
+    image: RYLAN,
+  },
+
+  {
+    name: 'Julien Toussaint Dang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
+    github: 'https://github.com/JulienTD23',
+    image: no_person,
+  },
+
+  {
+    name: 'Nikita Saitov',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
+    github: 'https://github.com/niksaitov',
+    image: no_person,
+  },
+
+  {
+    name: 'Hawa Khalif',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
+    github: 'https://github.com/hawakhalif',
+    image: no_person,
+  },
+
+  {
+    name: 'Jack McCain',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/jack-mccain-49bab41a1/',
+    github: 'https://github.com/jackmccain',
+    image: no_person,
+  },
+
   {
     name: 'Nicholas Ribeiro',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Senior Advisor'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
     portfolio: 'http://www.nicholasjribeiro.com/',
@@ -27,13 +91,15 @@ const CONTRIBUTORS = [
 
   {
     name: 'Ethan Mathieu',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Senior Advisor'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
     github: 'https://github.com/emath12',
     image: ETHAN,
   },
+];
 
+const PAST_CONTRIBUTORS = [
   {
     name: 'Rome Thorstenson',
     title: ['Software Engineer'],
@@ -131,7 +197,7 @@ function ContributorCard({
 }: ContributorCardProps) {
   return (
     <div
-      className="rounded-lg border min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
+      className="rounded-lg min-w-fit bg-white dark:bg-secondary_background-dark dark:text-text-dark mr-6 mb-6 shadow-lg \
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
@@ -144,9 +210,10 @@ function ContributorCard({
           <h1 className="text-xl mb-3 font-bold font-mono">{name}</h1>
           {title?.map((subtitle) => {
             const style: Record<string, string> = {
-              'Software Engineer': 'text-primary border-primary',
-              'UI/UX Designer': 'text-pink-500 border-pink-500',
-              'Product Lead': 'text-amber-500 border-amber-500',
+              'Software Engineer': 'text-blue-400 border-blue-400',
+              'UI/UX Designer': 'text-pink-400 border-pink-400',
+              'Product Lead': 'text-amber-600 border-amber-600',
+              'Senior Advisor': 'text-purple-400 border-purple-400',
             };
             return (
               <h3
@@ -167,21 +234,21 @@ function ContributorCard({
           <div className="pr-1 hover:text-primary">
             {github && (
               <a href={github}>
-                <FaGithubSquare size={30} />
+                <IconBrandGithub size={30} />
               </a>
             )}
           </div>
           <div className="pr-1 hover:text-primary">
             {linkedin && (
               <a href={linkedin}>
-                <FaLinkedin size={30} />
+                <IconBrandLinkedin size={30} />
               </a>
             )}
           </div>
           <div className="pr-1 hover:text-primary">
             {portfolio && (
               <a href={portfolio}>
-                <FaLink size={30} />
+                <IconLink size={30} />
               </a>
             )}
           </div>
@@ -236,7 +303,26 @@ export default function AboutUsPage() {
         <h1 className="text-5xl font-bold">Our Team</h1>
         <br />
         <div className="grid lg:grid-cols-4 md:grid-cols-2">
-          {CONTRIBUTORS.map((c) => {
+          {CURR_CONTRIBUTORS.map((c) => {
+            return (
+              <ContributorCard
+                name={c.name}
+                title={c.title}
+                founding={c.founding}
+                linkedin={c.linkedin}
+                portfolio={c.portfolio}
+                github={c.github}
+                image={c.image}
+              />
+            );
+          })}
+        </div>
+        <br />
+        <br />
+        <h1 className="text-5xl font-bold">Past Contributors</h1>
+        <br />
+        <div className="grid lg:grid-cols-4 md:grid-cols-2">
+          {PAST_CONTRIBUTORS.map((c) => {
             return (
               <ContributorCard
                 name={c.name}

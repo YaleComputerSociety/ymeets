@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { checkIfAdmin } from '../../firebase/events';
 import { Location } from '../../types';
-import { IoIosCheckmarkCircle } from 'react-icons/io';
+
+// import { IoIosCheckmarkCircle } from 'react-icons/io';
+import { IconCircleCheckFilled } from '@tabler/icons-react';
 
 interface LocationChartProps {
   theSelectedLocation?:
@@ -180,7 +182,7 @@ export default function LocationChart({
                   type="submit"
                   className="bg-primary text-white p-2 rounded"
                 >
-                  <IoIosCheckmarkCircle />
+                  <IconCircleCheckFilled />
                 </button>
               </div>
             </form>
