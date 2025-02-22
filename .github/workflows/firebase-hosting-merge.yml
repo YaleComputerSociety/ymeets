@@ -37,6 +37,6 @@ jobs:
           REACT_APP_CLIENT_ID_GAPI: ${{ secrets.REACT_APP_CLIENT_ID_GAPI }}
 
       - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --project studybuddy-392c7
+        run: firebase deploy --only hosting --token "$FIREBASE_TOKEN"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STUDYBUDDY_392C7 }}
