@@ -113,7 +113,7 @@ export default function NavBar() {
               <button className="menu-button" onClick={handleGearClick}>
                 <IconMenu2
                   className="text-text dark:text-text-dark mt-1"
-                  size={25}
+                  size={30}
                 />
               </button>
               {menuState !== 'closed' && (
