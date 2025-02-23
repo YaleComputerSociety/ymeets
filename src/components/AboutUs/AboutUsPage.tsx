@@ -62,15 +62,6 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
-    name: 'Hawa Khalif',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
-    github: 'https://github.com/hawakhalif',
-    image: no_person,
-  },
-
-  {
     name: 'Jack McCain',
     title: ['Software Engineer'],
     founding: false,
@@ -81,7 +72,7 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Nicholas Ribeiro',
-    title: ['Senior Advisor'],
+    title: ['Senior Software Engineer', 'Former Lead'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
     portfolio: 'http://www.nicholasjribeiro.com/',
@@ -91,7 +82,7 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Ethan Mathieu',
-    title: ['Senior Advisor'],
+    title: ['Senior Software Engineer', 'Former Lead'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
     github: 'https://github.com/emath12',
@@ -213,7 +204,8 @@ function ContributorCard({
               'Software Engineer': 'text-blue-400 border-blue-400',
               'UI/UX Designer': 'text-pink-400 border-pink-400',
               'Product Lead': 'text-amber-600 border-amber-600',
-              'Senior Advisor': 'text-purple-400 border-purple-400',
+              'Senior Software Engineer': 'text-purple-400 border-purple-400',
+              'Former Lead': 'text-red-400 border-red-400',
             };
             return (
               <h3
