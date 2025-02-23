@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Popup } from './Popup';
-import { IoSparkles } from 'react-icons/io5';
+import { IconSparkles } from '@tabler/icons-react';
+// import { IoSparkles } from 'react-icons/io5';
 
 export const AddGoogleCalendarPopup = ({
   isOpen,
@@ -48,7 +49,7 @@ export const AddGoogleCalendarPopup = ({
               className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 
                           group-hover:opacity-20 transition-opacity duration-300"
             ></div>
-            <IoSparkles className="mr-2 text-lg animate-pulse text-white" />
+            <IconSparkles className="mr-2 text-lg animate-pulse text-white" /> 
             {isAutofillSubmitted
               ? 'Submit and Update Autofill Availabilities'
               : 'Submit and Autofill Availabilities'}

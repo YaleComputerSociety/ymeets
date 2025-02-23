@@ -565,10 +565,10 @@ function TimeSelectPage() {
           className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3 text-text dark:text-text-dark"
         >
-          <div className="text-4xl font-bold text-center lg:text-left">
+          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left">
+          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {eventDescription}
           </div>
           {locationOptions.length > 0 && (
@@ -689,6 +689,7 @@ function TimeSelectPage() {
         <LoginPopup
           onClose={endPromptUserForLogin}
           enableAnonymousSignIn={true}
+          code={code || ''}
         />
       )}
     </div>

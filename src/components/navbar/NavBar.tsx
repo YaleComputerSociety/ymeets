@@ -8,18 +8,25 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
-import { FaBars } from 'react-icons/fa';
+
 import { logout } from '../../firebase/auth';
 
 import {
-  FaInfoCircle,
-  FaCalendarAlt,
-  FaSignInAlt,
-  FaSignOutAlt,
-} from 'react-icons/fa';
-import { MdFeedback, MdDarkMode, MdOutlineDarkMode } from 'react-icons/md';
+  IconMenu2,
+  IconInfoCircleFilled,
+  IconInfoCircle,
+  IconCalendarWeek,
+  IconCalendarFilled,
+  IconCalendarEvent,
+  IconLogin2,
+  IconLogout,
+  IconMessageReport,
+  IconMoonFilled,
+  IconMoon,
+  IconSun,
+} from '@tabler/icons-react';
+
 import { useTheme } from '../../contexts/ThemeContext';
-import { TiWeatherSunny } from 'react-icons/ti';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
@@ -30,10 +37,6 @@ export default function NavBar() {
   const nav = useNavigate();
 
   const { gapi, handleIsSignedIn } = useContext(GAPIContext);
-
-  // const handleGearClick = () => {
-  //     setIsOpen(!isOpen)
-  // };
 
   const handleMouseLeave = () => {
     setIsOpen(false);
@@ -68,15 +71,13 @@ export default function NavBar() {
           <div className="flex items-center space-x-4">
             <div onClick={toggleTheme}>
               {theme === 'dark' ? (
-                <MdDarkMode
-                  className="cursor-pointer"
-                  color={'#f8f9fa'}
+                <IconMoonFilled
+                  className="cursor-pointer text-text dark:text-text-dark"
                   size={25}
                 />
               ) : (
-                <TiWeatherSunny
-                  className="cursor-pointer"
-                  color={'#595e69'}
+                <IconSun
+                  className="cursor-pointer text-text dark:text-text-dark"
                   size={25}
                 />
               )}
@@ -93,22 +94,26 @@ export default function NavBar() {
                 </div>
               )}
             </div>
-            {/* Change by Julien Dang, 2/15/25; relocated Events to navbar */}
             <div>
-              <a href="#"
-                 className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
-                 onClick={() => {
-                 nav('/useraccount');
+              <a
+                href="#"
+                className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
+                onClick={() => {
+                  nav('/useraccount');
                 }}
-                    >
-                      <FaCalendarAlt size={25} className="py-0.5"/> <span className="text-sm hidden sm:block ml-2">My Events</span>
-                    </a>
+              >
+                <IconCalendarEvent size={25} className="py-0.5" />{' '}
+                <span className="text-sm hidden sm:block ml-2">My Events</span>
+              </a>
             </div>
             <div className="relative">
-              <button className="menu-button flex items-center" onClick={handleGearClick}>
-                <FaBars
-                  className="text-text dark:text-text-dark"
-                  size={25}
+              <button
+                className="menu-button flex items-center"
+                onClick={handleGearClick}
+              >
+                <IconMenu2
+                  className="text-text dark:text-text-dark mt-1"
+                  size={30}
                 />
               </button>
               {menuState !== 'closed' && (
@@ -130,20 +135,9 @@ export default function NavBar() {
                         setMenuState('closed');
                       }}
                     >
-                      <FaInfoCircle className="mr-2" /> About Us
+                      <IconInfoCircle className="mr-2" size={17} /> About Us
                     </a>
-                    {/* Change by Julien Dang, 2/15/25; removed Events from hamburger menu
-                    <div className="border-t border-gray-200"></div>
-                    <a
-                      href="#"
-                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                      onClick={() => {
-                        nav('/useraccount');
-                        setMenuState('closed');
-                      }}
-                    >
-                      <FaCalendarAlt className="mr-2" /> Events
-                    </a> */}
+
                     <div className="border-t border-gray-200"></div>
                     <a
                       href="https://ymeets.canny.io"
@@ -154,7 +148,7 @@ export default function NavBar() {
                         setMenuState('closed');
                       }}
                     >
-                      <MdFeedback className="mr-2" /> Feedback
+                      <IconMessageReport className="mr-2" size={17} /> Feedback
                     </a>
                     <div className="border-t border-gray-200"></div>
                     {checkIfLoggedIn() ? (
@@ -167,7 +161,7 @@ export default function NavBar() {
                           nav('/');
                         }}
                       >
-                        <FaSignOutAlt className="mr-2" /> Logout
+                        <IconLogout className="mr-2" size={17} /> Logout
                       </a>
                     ) : (
                       <a
@@ -186,7 +180,7 @@ export default function NavBar() {
                           setMenuState('closed');
                         }}
                       >
-                        <FaSignInAlt className="mr-2" /> Login
+                        <IconLogin2 className="mr-2" size={17} /> Login
                       </a>
                     )}
                   </div>

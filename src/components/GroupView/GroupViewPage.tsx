@@ -35,6 +35,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import { connectFirestoreEmulator } from 'firebase/firestore';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -240,14 +241,14 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
-          <div className="text-4xl font-bold text-center lg:text-left">
+          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left">
+          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {eventDescription}
           </div>
 
-          <CopyCodeButton />
+          <CopyCodeButton/>
 
           {locationOptions.length > 0 && (
             <div className="hidden lg:block">

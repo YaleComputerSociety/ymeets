@@ -7,9 +7,18 @@ import graphic from './calendargraphic.png';
 import LoginPopup from '../utils/components/LoginPopup';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
-import { SiGooglecalendar } from 'react-icons/si';
-import { FaLock } from 'react-icons/fa';
-import { CiLocationOn } from 'react-icons/ci';
+
+// import { SiGooglecalendar } from 'react-icons/si';
+// import { FaLock } from 'react-icons/fa';
+// import { CiLocationOn } from 'react-icons/ci';
+
+import {
+  IconMapPinFilled,
+  IconMapPin,
+  IconBrandGoogle,
+  IconLockAccessOff,
+  IconLock,
+} from '@tabler/icons-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -80,11 +89,11 @@ export default function HomePage() {
               <h3 className="md:block text-text dark:text-text-dark text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
                 <div className="hidden lg:flex flex-col gap-1 text-[90%]">
                   <div className="flex flex-row text-md gap-3 items-center">
-                    <SiGooglecalendar />
+                    <IconBrandGoogle />
                     <p>GCal integration</p>
                   </div>
                   <div className="flex flex-row text-md gap-3 items-center">
-                    <CiLocationOn />
+                    <IconMapPinFilled />
                     <p className="hidden md:block">
                       Vote on a preferred campus meeting place
                     </p>
@@ -93,7 +102,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <div className="flex flex-row text-md gap-3 items-center">
-                    <FaLock />
+                    <IconLock />
                     <p>
                       Lock in the best time and place to gather with a selection
                     </p>
@@ -168,6 +177,7 @@ export default function HomePage() {
           <LoginPopup
             onClose={handleLoginPopupClose}
             enableAnonymousSignIn={true}
+            code={eventCode}
           />
         )}
         <Footer />
