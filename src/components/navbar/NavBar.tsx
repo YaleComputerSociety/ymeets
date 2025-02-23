@@ -11,17 +11,6 @@ import { useContext } from 'react';
 
 import { logout } from '../../firebase/auth';
 
-// import { FaBars } from 'react-icons/fa';
-// import {
-//   FaInfoCircle,
-//   FaCalendarAlt,
-//   FaSignInAlt,
-//   FaSignOutAlt,
-// } from 'react-icons/fa';
-
-// import { MdFeedback, MdDarkMode, MdOutlineDarkMode } from 'react-icons/md';
-// import { TiWeatherSunny } from 'react-icons/ti';
-
 import {
   IconMenu2,
   IconInfoCircleFilled,
@@ -48,10 +37,6 @@ export default function NavBar() {
   const nav = useNavigate();
 
   const { gapi, handleIsSignedIn } = useContext(GAPIContext);
-
-  // const handleGearClick = () => {
-  //     setIsOpen(!isOpen)
-  // };
 
   const handleMouseLeave = () => {
     setIsOpen(false);
@@ -109,20 +94,23 @@ export default function NavBar() {
                 </div>
               )}
             </div>
-            {/* Change by Julien Dang, 2/15/25; relocated Events to navbar */}
             <div>
-              <a href="#"
-                 className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
-                 onClick={() => {
-                 nav('/useraccount');
+              <a
+                href="#"
+                className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
+                onClick={() => {
+                  nav('/useraccount');
                 }}
-                    >
-                      <FaCalendarAlt size={25} className="py-0.5"/> <span className="text-sm hidden sm:block ml-2">My Events</span>
-                    </a>
+              >
+                <IconCalendarEvent size={25} className="py-0.5" />{' '}
+                <span className="text-sm hidden sm:block ml-2">My Events</span>
+              </a>
             </div>
             <div className="relative">
-
-              <button className="menu-button flex items-center" onClick={handleGearClick}>
+              <button
+                className="menu-button flex items-center"
+                onClick={handleGearClick}
+              >
                 <IconMenu2
                   className="text-text dark:text-text-dark mt-1"
                   size={30}
