@@ -40,8 +40,9 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
         run: |
-          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > $HOME/firebase-key.json
+          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > "$HOME/firebase-key.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-key.json" >> $GITHUB_ENV
-
+          firebase use --add
+          
       - name: Deploy to Firebase
         run: firebase deploy --only hosting
