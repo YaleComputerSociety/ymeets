@@ -177,6 +177,7 @@ export default function HomePage() {
           <LoginPopup
             onClose={handleLoginPopupClose}
             enableAnonymousSignIn={true}
+            code={eventCode}
           />
         )}
         <Footer />
@@ -184,3 +185,6 @@ export default function HomePage() {
     </>
   );
 }
+
+
+/* Hello, this is Julien! */
