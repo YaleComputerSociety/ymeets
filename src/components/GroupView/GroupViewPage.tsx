@@ -35,6 +35,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { connectFirestoreEmulator } from 'firebase/firestore';
 
 interface GroupViewProps {
@@ -248,7 +249,13 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             {eventDescription}
           </div>
 
-          <CopyCodeButton/>
+          <CopyCodeButton />
+          {isAdmin && (
+            <AutoDraftEmailButton
+              eventTitle={eventName}
+              yourName={getAccountName()}
+            />
+          )}
 
           {locationOptions.length > 0 && (
             <div className="hidden lg:block">
