@@ -24,6 +24,7 @@ import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
+import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 interface AccountsPageEvent {
   name: string;
@@ -159,7 +160,7 @@ export default function AccountsPage() {
                   className="bg-white dark:bg-secondary_background-dark dark:text-text-dark rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
                 >
                   <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
-                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark">
+                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                       {event.name}
                     </h3>
                     {/* Do we want to enable users to edit their events? */}
@@ -168,7 +169,8 @@ export default function AccountsPage() {
                   <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
                     <hr />
                     <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
-                      <button
+                      <CopyCodeButton customEventCode={event.id}/>
+                      {/* <button
                         onClick={() => {
                           copy(event.id);
                         }}
@@ -176,7 +178,7 @@ export default function AccountsPage() {
                       >
                         {event.id}
                         <IconCopy className="inline-block w-4 lg:w-5" />
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => {
                           nav('/groupview/' + event.id);
@@ -208,9 +210,9 @@ export default function AccountsPage() {
           </div>
         ) : events !== undefined ? (
           getAccountId() === '' ? (
-            <div>You are logged in as a guest. </div>
+            <div className="text-slate-700 dark:text-white">You are logged in as a guest.</div>
           ) : (
-            <div>You have no events.</div>
+            <div className="text-slate-700 dark:text-white">You have no events.</div>
           )
         ) : undefined}
 

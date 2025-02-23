@@ -1,4 +1,5 @@
-import { MdOutlineClose } from 'react-icons/md';
+// import { MdOutlineClose } from 'react-icons/md';
+import { IconX } from '@tabler/icons-react';
 import { useState } from 'react';
 
 interface Props {
@@ -23,7 +24,7 @@ export default function Banner({ title, text }: Props) {
               }}
               className="mr-3 text-lg"
             >
-              <MdOutlineClose size={28} />
+              <IconX size={28} />
             </button>
 
             <p className="font-bold mr-1">{title} - </p>
