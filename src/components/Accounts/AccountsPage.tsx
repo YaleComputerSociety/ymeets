@@ -113,30 +113,39 @@ export default function AccountsPage() {
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-full pt-2 sm:pt-4 md:pt-6 lg:pt-8 xl:pt-10 pb-10 sm:pb-14 md:pb-17 lg:pb-20 xl:pb-24 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
-        <div className="flex flex-col sm:flex-row justify-between lg:items-center gap-6 sm:gap-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
           <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-text-dark">
             Your Events
           </h2>
-          <div className="flex flex-col items-start sm:items-stretch sm:flex-row gap-4 sm:gap-4.5 md:gap-5 lg:gap-6 xl:gap-7">
-            <div className="flex">
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 w-full sm:w-auto">
+            <div className="relative flex-1 min-w-[250px]">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              </div>
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Search events..."
                 onChange={handleInputChange}
-                className="text-sm lg:text-base outline-none bg-white text-slate-700 border border-slate-300 dark:bg-secondary_background-dark dark:text-text-dark font-medium py-1 sm:py-1.5 md:py-2 px-3 rounded-l-lg transition-all focus:border-sky-600 focus:ring-4 focus:ring-sky-300/20"
+                className="w-full pl-10 pr-4 py-2.5 md:py-4 text-sm md:text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
+                  focus:border-primary focus:ring-2 focus:ring-primary/20
+                  hover:border-gray-400 dark:hover:border-gray-500
+                  placeholder-gray-400 dark:placeholder-gray-500
+                  dark:text-white min-h-[40px] md:min-h-[60px]"
               />
-              <div className="bg-slate-500 flex items-center gap-2 text-white font-semibold py-1 sm:py-1.5 md:py-2 px-4 rounded-r-lg transition-colors">
-                <IconSearch className="inline-block w-4 md:w-5" />
-              </div>
             </div>
+
             <button
-              className="font-bold text-white bg-primary rounded-full bg-primary text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-              onClick={() => {
-                nav('/dayselect');
-              }}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark hover:to-primary/90
+                 text-white font-semibold rounded-lg transition-all
+                 transform hover:-translate-y-0.5 active:translate-y-0
+                 shadow-md hover:shadow-lg
+                 focus:outline-none focus:ring-2 focus:ring-primary/30
+                 whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
+              onClick={() => nav('/dayselect')}
             >
-              <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
-              Create Event
+              <IconPlus className="w-5 h-5 md:w-6 md:h-6" />
+              <span>Create Event</span>
             </button>
           </div>
         </div>
@@ -166,7 +175,16 @@ export default function AccountsPage() {
                       </h3>
                       {event.iAmCreator && (
                         <button
-                          onClick={() => deleteEvent(event.id)}
+                          onClick={() => {
+                            deleteEvent(event.id)
+                              .then(() => {
+                                // delete it locally
+                                setEvents(
+                                  events.filter((e) => e.id != event.id)
+                                );
+                              })
+                              .catch((err) => {});
+                          }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                           aria-label="Delete event"
                         >
