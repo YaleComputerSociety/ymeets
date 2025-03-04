@@ -534,7 +534,6 @@ function getZoomLink (): string | undefined {
   return workingEvent.details.zoomLink || undefined
 }
 
-
 function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
@@ -585,9 +584,6 @@ function getDates(): Date[] {
 }
 
 
-
-
-
 function getStartAndEndTimes (): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
@@ -604,7 +600,7 @@ function getEventObjectForGCal (startDate: Date, endDate: Date, location?: strin
   return {
     summary: workingEvent.details.name,
     location: location == undefined ? "" : location,
-    description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
+    description: workingEvent.details.description,
     start: {
       dateTime: startDate,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
