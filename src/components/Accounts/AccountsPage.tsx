@@ -113,30 +113,39 @@ export default function AccountsPage() {
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-full pt-2 sm:pt-4 md:pt-6 lg:pt-8 xl:pt-10 pb-10 sm:pb-14 md:pb-17 lg:pb-20 xl:pb-24 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
-        <div className="flex flex-col sm:flex-row justify-between lg:items-center gap-6 sm:gap-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
           <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-text-dark">
             Your Events
           </h2>
-          <div className="flex flex-col items-start sm:items-stretch sm:flex-row gap-4 sm:gap-4.5 md:gap-5 lg:gap-6 xl:gap-7">
-            <div className="flex">
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 w-full sm:w-auto">
+            <div className="relative flex-1 min-w-[250px]">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              </div>
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Search events..."
                 onChange={handleInputChange}
-                className="text-sm lg:text-base outline-none bg-white text-slate-700 border border-slate-300 dark:bg-secondary_background-dark dark:text-text-dark font-medium py-1 sm:py-1.5 md:py-2 px-3 rounded-l-lg transition-all focus:border-sky-600 focus:ring-4 focus:ring-sky-300/20"
+                className="w-full pl-10 pr-4 py-2.5 md:py-4 text-sm md:text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
+                  focus:border-primary focus:ring-2 focus:ring-primary/20
+                  hover:border-gray-400 dark:hover:border-gray-500
+                  placeholder-gray-400 dark:placeholder-gray-500
+                  dark:text-white min-h-[40px] md:min-h-[60px]"
               />
-              <div className="bg-slate-500 flex items-center gap-2 text-white font-semibold py-1 sm:py-1.5 md:py-2 px-4 rounded-r-lg transition-colors">
-                <IconSearch className="inline-block w-4 md:w-5" />
-              </div>
             </div>
+
             <button
-              className="font-bold text-white bg-primary rounded-full bg-primary text-white py-3 px-5 text-md w-fit transform transition-transform drop-shadow-sm hover:scale-90 active:scale-100e disabled:bg-gray-500 disabled:opacity-70"
-              onClick={() => {
-                nav('/dayselect');
-              }}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark hover:to-primary/90
+                 text-white font-semibold rounded-lg transition-all
+                 transform hover:-translate-y-0.5 active:translate-y-0
+                 shadow-md hover:shadow-lg
+                 focus:outline-none focus:ring-2 focus:ring-primary/30
+                 whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
+              onClick={() => nav('/dayselect')}
             >
-              <IconPlus size={30} className="inline-block w-4 md:w-5 mr-2" />
-              Create Event
+              <IconPlus className="w-5 h-5 md:w-6 md:h-6" />
+              <span>Create Event</span>
             </button>
           </div>
         </div>
@@ -157,63 +166,59 @@ export default function AccountsPage() {
               .map((event) => (
                 <div
                   key={event.id}
-                  className="bg-white dark:bg-secondary_background-dark dark:text-text-dark rounded-xl lg:rounded-2xl border shadow-sm grid gap-2 sm:gap-2.5 md:gap-3 lg:gap-3.5 xl:gap-4 p-6 sm:p-7 md:p-8 lg:p-9 xl:p-10"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md"
                 >
-                  <div className="flex justify-between items-center gap-4 sm:gap-4.5 md:gap-5 lg:gap-5.5 xl:gap-6">
-                    <h3 className="md:text-lg lg:text-xl font-medium text-slate-800 dark:text-text-dark" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                      {event.name}
-                    </h3>
-                    {/* Do we want to enable users to edit their events? */}
-                    {/* <IconEdit className="inline-block w-4 md:w-5 text-slate-400 hover:text-slate-500 cursor-pointer transition-colors active:text-slate-600" /> */}
-                  </div>
-                  <div className="grid gap-5 sm:gap-5.5 md:gap-6 lg:gap-7 xl:gap-8">
-                    <hr />
-                    <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-5 xl:gap-6">
-                      <CopyCodeButton customEventCode={event.id}/>
-                      {/* <button
-                        onClick={() => {
-                          copy(event.id);
-                        }}
-                        className="text-sm lg:text-base flex items-center gap-2 justify-center bg-slate-100 text-slate-700 border border-slate-300 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-slate-200 active:bg-slate-300 acttransition-colors"
-                      >
-                        {event.id}
-                        <IconCopy className="inline-block w-4 lg:w-5" />
-                      </button> */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-start gap-3">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
+                        {event.name}
+                      </h3>
+                      {event.iAmCreator && (
+                        <button
+                          onClick={() => {
+                            deleteEvent(event.id)
+                              .then(() => {
+                                // delete it locally
+                                setEvents(
+                                  events.filter((e) => e.id != event.id)
+                                );
+                              })
+                              .catch((err) => {});
+                          }}
+                          className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
+                          aria-label="Delete event"
+                        >
+                          <IconTrash className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex flex-row gap-2">
                       <button
-                        onClick={() => {
-                          nav('/groupview/' + event.id);
-                        }}
-                        className="text-sm lg:text-base bg-primary flex items-center justify-center gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
+                        onClick={() => nav(`/groupview/${event.id}`)}
+                        className="flex-1 bg-primary hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
                       >
-                        Open
+                        Open Event
                       </button>
+
+                      <CopyCodeButton
+                        customEventCode={event.id}
+                        className="flex-shrink-0 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
+                      />
                     </div>
                   </div>
-                  {event.iAmCreator && (
-                    <button
-                      onClick={() => {
-                        deleteEvent(event.id)
-                          .then(() => {
-                            // delete it locally
-                            setEvents(events.filter((e) => e.id != event.id));
-                          })
-                          .catch((err) => {});
-                      }}
-                      className="text-sm lg:text-base flex items-center gap-2 justify-center border border-red-400 text-red-500 font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-red-700 hover:text-white active:bg-red-500 transition-colors"
-                    >
-                      Delete
-                      <IconTrash className="inline-block w-4 lg:w-5" />
-                    </button>
-                  )}
                 </div>
               ))}
           </div>
         ) : events !== undefined ? (
           getAccountId() === '' ? (
-            <div className='text-slate-700 dark:text-text-dark'>You are logged in as a guest.</div>
+            <div className="text-slate-700 dark:text-text-dark">
+              You are logged in as a guest.
+            </div>
           ) : (
-            <div className='text-slate-700 dark:text-text-dark'>You have no events.</div>
-
+            <div className="text-slate-700 dark:text-text-dark">
+              You have no events.
+            </div>
           )
         ) : undefined}
 
