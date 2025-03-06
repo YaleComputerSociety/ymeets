@@ -34,7 +34,10 @@ export default function Button({
         themeGradient
           ? `bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600`
           : `bg-${bgColor}`
-      } ${textSizeClass} text-${textColor} ${borderRadius}`}
+      } 
+      ${textSizeClass} text-${textColor} ${borderRadius}
+      ${bgColor === `primary` ? `dark:bg-blue-700` : ``}
+      `}
       onClick={onClick}
       disabled={disabled}
     >
