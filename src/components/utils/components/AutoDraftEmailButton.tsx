@@ -28,7 +28,7 @@ export default function AutoDraftEmailButton({
 
         window.open(mailToUrl, '_blank', 'noopener,noreferrer');
       }}
-      className={`text-sm lg:text-base flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative `}
+      className={`text-sm lg:text-base flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 border border-slate-300 dark:border-gray-600 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative`}
     >
       {<IconMail className="inline-block w-4 lg:w-5 mr-2" />}
       AutoDraft Email
