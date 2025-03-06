@@ -23,6 +23,7 @@ import {
   getLocationOptions,
   getParticipantIndex,
   getChosenDayAndTime,
+  getTimezone,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
@@ -38,6 +39,7 @@ import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
 
 /**
  *
@@ -589,22 +591,102 @@ function TimeSelectPage() {
         </div>
         <div className="lg:col-span-3">
           <div className="w-full">
-            <Calendar
-              theShowUserChart={undefined}
-              onClick={() => {}}
-              theCalendarState={[calendarState, setCalendarState]}
-              user={getCurrentUserIndex()}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              draggable={true}
-              chartedUsersData={undefined}
-              theDragState={[dragState, setDragState]}
-              isAdmin={false}
-              theGoogleCalendarEvents={[
-                googleCalendarEvents,
-                setGoogleCalendarEvents,
-              ]}
-              isGeneralDays={isGeneralDays}
-            />
+            <div className="flex flex-col space-y-0 mb-2">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+                <div className="flex items-center w-full max-w-full justify-between space-x-5">
+
+                  <div className="flex-grow">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
+                      }
+                    />
+                  </div>
+
+                  {getAccountId() !== '' ? (
+                    <div className="z-60 mb-4 lg:mb-0">
+                      <div className="hidden lg:flex">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                      <div className="lg:hidden flex">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-4 lg:mb-0">
+                      <button
+                        className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
+                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                        onClick={() => {
+                          signInWithGoogle(
+                            undefined,
+                            gapi,
+                            handleIsSignedIn
+                          ).then((loginSuccessful) => {
+                            if (loginSuccessful) {
+                              window.location.reload();
+                            } else {
+                              console.error('login failed');
+                            }
+                          });
+                        }}
+                      >
+                        <img
+                          src={LOGO}
+                          alt="Logo"
+                          className="mr-2 h-5 lg:h-6"
+                        />
+                        Sign in with Google to access GCal
+                      </button>
+                    </div>
+                  )}
+
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    themeGradient={false}
+                    onClick={handleSubmitAvailability}
+                  >
+                    Next <span className="ml-1">&#8594;</span>
+                  </ButtonSmall>
+                </div>
+              </div>
+
+              <Calendar
+                theShowUserChart={undefined}
+                onClick={() => {}}
+                theCalendarState={[calendarState, setCalendarState]}
+                user={getCurrentUserIndex()}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                draggable={true}
+                chartedUsersData={undefined}
+                theDragState={[dragState, setDragState]}
+                isAdmin={false}
+                theGoogleCalendarEvents={[
+                  googleCalendarEvents,
+                  setGoogleCalendarEvents,
+                ]}
+                isGeneralDays={isGeneralDays}
+              />
+            </div>
           </div>
           <div className="flex flex-row justify-between mb-3">
             {getAccountId() !== '' ? (
