@@ -593,8 +593,72 @@ function TimeSelectPage() {
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
-                <div className="flex items-center w-full max-w-full justify-between space-x-5">
+                {/* Mobile layout */}
+                <div className="w-full flex flex-col md:hidden">
+                  <div className="w-full">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
+                      }
+                    />
+                  </div>
 
+                  <div className="flex justify-around mt-3 align-middle">
+                    {getAccountId() !== '' ? (
+                      <div className="z-60 mb-4">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                    ) : (
+                      <div className="mb-4">
+                        <button
+                          className="w-full font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                          onClick={() => {
+                            signInWithGoogle(
+                              undefined,
+                              gapi,
+                              handleIsSignedIn
+                            ).then((loginSuccessful) => {
+                              if (loginSuccessful) {
+                                window.location.reload();
+                              } else {
+                                console.error('login failed');
+                              }
+                            });
+                          }}
+                        >
+                          <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                          Sign in to access GCal
+                        </button>
+                      </div>
+                    )}
+                    <div className="z-60 mb-4">
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        themeGradient={false}
+                        onClick={handleSubmitAvailability}
+                      >
+                        Next <span className="ml-1">&#8594;</span>
+                      </ButtonSmall>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop layout */}
+                <div className="hidden md:flex items-center w-full max-w-full justify-between space-x-5">
                   <div className="flex-grow">
                     <TimezoneChanger
                       theCalendarFramework={[
@@ -634,7 +698,7 @@ function TimeSelectPage() {
                     <div className="mb-4 lg:mb-0">
                       <button
                         className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
-                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+              flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                         onClick={() => {
                           signInWithGoogle(
                             undefined,
@@ -654,7 +718,7 @@ function TimeSelectPage() {
                           alt="Logo"
                           className="mr-2 h-5 lg:h-6"
                         />
-                        Sign in with Google to access GCal
+                        Sign in to access GCal
                       </button>
                     </div>
                   )}
@@ -686,61 +750,6 @@ function TimeSelectPage() {
                 ]}
                 isGeneralDays={isGeneralDays}
               />
-            </div>
-          </div>
-          <div className="flex flex-row justify-between mb-3">
-            {getAccountId() !== '' ? (
-              <div className="pl-5 z-60 mb-4 lg:mb-0">
-                <div className="hidden lg:flex">
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    onClick={handleToggleGCalAvailabilitiesClick}
-                  >
-                    Show GCal Events
-                  </ButtonSmall>
-                </div>
-                <div className="lg:hidden flex">
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    onClick={handleToggleGCalAvailabilitiesClick}
-                  >
-                    Show GCal Events
-                  </ButtonSmall>
-                </div>
-              </div>
-            ) : (
-              <div className="lg:pl-4 mb-4 lg:mb-0">
-                <button
-                  className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
-                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={() => {
-                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                      (loginSuccessful) => {
-                        if (loginSuccessful) {
-                          window.location.reload();
-                        } else {
-                          console.error('login failed');
-                        }
-                      }
-                    );
-                  }}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
-                  Sign in with Google to access GCal
-                </button>
-              </div>
-            )}
-            <div className="pr-5">
-              <ButtonSmall
-                bgColor="primary"
-                textColor="white"
-                themeGradient={false}
-                onClick={handleSubmitAvailability}
-              >
-                Next <span className="ml-1">&#8594;</span>
-              </ButtonSmall>
             </div>
           </div>
         </div>
