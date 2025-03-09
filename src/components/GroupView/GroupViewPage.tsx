@@ -248,7 +248,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {eventDescription}
           </div>
-
+          
           <CopyCodeButton />
           {isAdmin && (
             <AutoDraftEmailButton
