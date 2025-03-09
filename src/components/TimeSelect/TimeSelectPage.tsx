@@ -580,7 +580,7 @@ function TimeSelectPage() {
             {eventDescription}
           </div>
           {locationOptions.length > 0 && (
-            <div className="w-full z-[9999]">
+            <div className="w-full z-50">
               <LocationSelectionComponent
                 locations={locationOptions}
                 update={updateSelectedLocations}
