@@ -658,7 +658,7 @@ function TimeSelectPage() {
                 </div>
 
                 {/* Desktop layout */}
-                <div className="hidden md:flex items-center w-full max-w-full justify-between space-x-5">
+                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-5">
                   <div className="flex-grow">
                     <TimezoneChanger
                       theCalendarFramework={[
@@ -674,7 +674,7 @@ function TimeSelectPage() {
                   </div>
 
                   {getAccountId() !== '' ? (
-                    <div className="z-60 mb-4 lg:mb-0">
+                    <div className="z-60">
                       <div className="hidden lg:flex">
                         <ButtonSmall
                           bgColor="primary"
@@ -695,7 +695,6 @@ function TimeSelectPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mb-4 lg:mb-0">
                       <button
                         className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
               flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
@@ -720,7 +719,6 @@ function TimeSelectPage() {
                         />
                         Sign in to access GCal
                       </button>
-                    </div>
                   )}
 
                   <ButtonSmall
