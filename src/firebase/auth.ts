@@ -4,22 +4,45 @@ import { MouseEventHandler, useContext } from 'react';
 import {
   getAccountId,
   getAccountName,
+  getAccountEmail,
+  checkIfLoggedIn,
   updateAnonymousUserToAuthUser,
 } from './events';
 
-import { auth, googleProvider } from './firebase';
+import { db, auth, googleProvider } from './firebase';
 import {
   onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
   signOut,
 } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { GAPIContext } from './gapiContext';
 import { get } from 'http';
 
+const handleAddingUserToDB = async () => {
+  try {
+    const userId = getAccountId();
+    const userEmail = getAccountEmail();
+    const userDocRef = doc(db, 'users', userId);
+
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        email: userEmail, // Set email from Google profile
+        name: getAccountName() || '', // Set first name from Google profile
+        selectedCalendarIDs: [userEmail], // Defaul value in user's email (primary cal)
+        uid: userId, // Set the UID
+        userEvents: [], // Initialize as empty array
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // Google sign in
 // returns error message
-
 const signInWithGoogle = async (
   clickEvent?: any,
   gapi?: any,
@@ -46,13 +69,29 @@ const signInWithGoogle = async (
             if (formerName !== '') {
               updateAnonymousUserToAuthUser(formerName)
                 .then(() => {
-                  resolve(true);
+                  // Add user to database after successful sign-in
+                  handleAddingUserToDB()
+                    .then(() => {
+                      resolve(true);
+                    })
+                    .catch((dbError) => {
+                      console.error('Error adding user to database:', dbError);
+                      resolve(true); // Still resolve true since login succeeded
+                    });
                 })
                 .catch((updateError) => {
                   reject(updateError);
                 });
             } else {
-              resolve(true);
+              // Add user to database after successful sign-in
+              handleAddingUserToDB()
+                .then(() => {
+                  resolve(true);
+                })
+                .catch((dbError) => {
+                  console.error('Error adding user to database:', dbError);
+                  resolve(true); // Still resolve true since login succeeded
+                });
             }
           })
           .catch((error: any) => {
@@ -71,13 +110,32 @@ const signInWithGoogle = async (
               if (formerName !== '') {
                 updateAnonymousUserToAuthUser(formerName)
                   .then(() => {
-                    resolve(true);
+                    // Add user to database after successful sign-in
+                    handleAddingUserToDB()
+                      .then(() => {
+                        resolve(true);
+                      })
+                      .catch((dbError) => {
+                        console.error(
+                          'Error adding user to database:',
+                          dbError
+                        );
+                        resolve(true); // Still resolve true since login succeeded
+                      });
                   })
                   .catch((updateError) => {
                     resolve(false);
                   });
               } else {
-                resolve(true);
+                // Add user to database after successful sign-in
+                handleAddingUserToDB()
+                  .then(() => {
+                    resolve(true);
+                  })
+                  .catch((dbError) => {
+                    console.error('Error adding user to database:', dbError);
+                    resolve(true); // Still resolve true since login succeeded
+                  });
               }
             })
             .catch((error) => {
@@ -95,34 +153,6 @@ const signInWithGoogle = async (
     }
   });
 };
-
-// useEffect(() => {
-//     if (!authInstance) {
-//         return;
-
-//     }
-//     if (authInstance.isSignedIn.get()) {
-//         setUser(authInstance.currentUser.get());
-
-//     } else {
-//         const signInButton = document.getElementById('auth');
-//         authInstance.attachClickHandler(
-//             signInButton,
-//             {},
-//             (googleUser) => {
-//                 if (signInButton && signInButton.id == 'auth') {
-//                     setUser(googleUser);
-//                     createCalendarEvent(getEventObjectForGCal());
-//                     signInButton.id = 'sync';
-//                 }
-//             },
-//             (error) => {
-//                 console.log("Error: ", error);
-//                 // alert('[GCAL]: Error signing in to Google Calendar: ' + error);
-//             },
-//         );
-//     }
-// }, [authInstance, user, createCalendarEvent]);
 
 // logout
 const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
