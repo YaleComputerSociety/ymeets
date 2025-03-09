@@ -115,18 +115,6 @@ export default function Calendar({
 
   return (
     <div className="flex flex-col space-y-0 mb-2">
-      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
-        <div className="w-full max-w-full">
-          <TimezoneChanger
-            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            initialTimezone={
-              getTimezone()
-                ? getTimezone()
-                : Intl.DateTimeFormat().resolvedOptions().timeZone
-            }
-          />
-        </div>
-      </div>
       <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-50 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft

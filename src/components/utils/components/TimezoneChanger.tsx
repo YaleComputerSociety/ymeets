@@ -145,7 +145,7 @@ const TimezoneChanger = ({
       <select
         value={selectedTimezone}
         onChange={handleTimezoneChange}
-        className="w-full p-2 border rounded-md dark:bg-secondary_background-dark max-h-40 overflow-y-auto"
+        className="w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md dark:bg-secondary_background-dark max-h-40 overflow-y-auto"
       >
         {timezones.map((timezone) => (
           <option key={timezone} value={timezone}>
