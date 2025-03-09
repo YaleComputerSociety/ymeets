@@ -1,11 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import {
   IconPlus,
-  IconCopy,
   IconSearch,
-  IconCalendarEvent,
-  IconClock,
-  IconMapPin,
   IconTrash,
 } from '@tabler/icons-react';
 
@@ -176,14 +172,16 @@ export default function AccountsPage() {
                       {event.iAmCreator && (
                         <button
                           onClick={() => {
+                          if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
                             deleteEvent(event.id)
-                              .then(() => {
-                                // delete it locally
-                                setEvents(
-                                  events.filter((e) => e.id != event.id)
-                                );
-                              })
-                              .catch((err) => {});
+                            .then(() => {
+                              // delete it locally
+                              setEvents(
+                              events.filter((e) => e.id != event.id)
+                              );
+                            })
+                            .catch((err) => {});
+                          }
                           }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                           aria-label="Delete event"
