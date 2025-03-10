@@ -336,6 +336,59 @@ async function saveEventDetails(eventDetails: EventDetails) {
   });
 }
 
+async function updateUserCollectionEventsWith(accountId: string) {
+  console.log("Here's the account ID:", accountId);
+  const userRef = doc(db, 'users', accountId);
+
+  // First, get the current user document to check existing events
+  getDoc(userRef)
+    .then((docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const userEvents = userData.userEvents || [];
+
+        let existingEventIndex = -1;
+        // Check if an event with the same code already exists
+        userEvents.forEach((event: { code: string }) => {
+          if (event.code === workingEvent.publicId) {
+            existingEventIndex = userEvents.indexOf(event);
+          }
+        });
+
+        if (existingEventIndex !== -1) {
+          console.log('Event exists, updating timestamp');
+          // Event exists, update its timestamp
+          userEvents[existingEventIndex].timestamp = new Date();
+
+          // Update the document with the modified array
+          updateDoc(userRef, {
+            userEvents: userEvents,
+          }).catch((err) => {
+            console.error('Error updating event timestamp:', err);
+          });
+        } else {
+          // Event doesn't exist, add it to the array
+          const eventDetailsForUser = {
+            code: workingEvent.publicId,
+            timestamp: new Date(),
+            isAdmin: false, // safe assumtion, since admins always already event saved on creation
+          };
+
+          updateDoc(userRef, {
+            userEvents: arrayUnion(eventDetailsForUser),
+          }).catch((err) => {
+            console.error('Error adding new event:', err);
+          });
+        }
+      } else {
+        console.error("User document doesn't exist");
+      }
+    })
+    .catch((err) => {
+      console.error('Error getting user document:', err);
+    });
+}
+
 // For internal use
 // Updates the participants list of the working event
 // with the participant passed in, overwriting if they already exist
@@ -354,11 +407,14 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
       flag = true;
     }
   });
+
+  const accountId = getAccountId();
+
+  // !flag = participant does not exists in that event
   if (!flag) {
     workingEvent.participants.push(participant);
 
     // Update Backend: add user uid to particpants list of event object
-    const accountId = getAccountId();
     if (accountId && accountId !== '') {
       const eventsRef = collection(db, 'events');
       updateDoc(doc(eventsRef, workingEvent.publicId), {
@@ -367,6 +423,11 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
         console.error(err.msg);
       });
     }
+  }
+
+  // Add or update event in user collection's userEvents field
+  if (accountId && accountId !== '') {
+    updateUserCollectionEventsWith(accountId);
   }
 
   // Update backend
@@ -447,6 +508,8 @@ async function updateAnonymousUserToAuthUser(name: string) {
     batch.update(doc(eventsRef, workingEvent.publicId), {
       participants: arrayUnion(getAccountId()),
     });
+
+    updateUserCollectionEventsWith(accountId);
 
     await batch.commit();
     return;
