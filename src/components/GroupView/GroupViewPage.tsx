@@ -256,6 +256,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               eventTitle={eventName}
               yourName={getAccountName()}
               senderEmail={getAccountEmail()}
+              customEventCode={code}
             />
           )}
 
