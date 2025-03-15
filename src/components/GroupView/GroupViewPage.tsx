@@ -242,10 +242,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
-          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-4xl font-bold text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-xl text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventDescription}
           </div>
 
@@ -293,65 +299,68 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
         <div className="col-span-3">
           <div className="w-full">
-            <Calendar
-              theShowUserChart={[showUserChart, setShowUserChart]}
-              onClick={() => {
-                if (showUserChart === true) {
-                  return;
-                }
-                setShowUserChart(true);
-                setTimeout(() => setShowUserChart(false), 3000);
-              }}
-              theCalendarState={[calendarState, setCalendarState]}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={[chartedUsers, setChartedUsers]}
-              draggable={
-                isAdmin &&
-                calendarFramework?.dates?.[0][0].date instanceof Date &&
-                (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                  2000
-              }
-              user={getCurrentUserIndex()}
-              isAdmin={isAdmin}
-              theDragState={[dragState, setDragState]}
-              theGoogleCalendarEvents={[[], () => {}]}
-              isGeneralDays={false}
-            />
-          </div>
+            <div className="flex flex-col space-y-0 mb-2">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+                <div className="flex flex-row items-center justify-between w-full space-x-2">
 
-          <div className="flex flex-row justify-between space-x-2  ">
-            <div className="lg:pl-5 lg:ml-0 ml-3 mt-2">
-              <ButtonSmall
-                bgColor={'primary'}
-                textColor={'white'}
-                onClick={() => {
-                  nav('/timeselect/' + code);
-                }}
-              >
-                <span>&#8592;</span> Edit Your Availability
-              </ButtonSmall>
-            </div>
+                  <div className="flex-grow ml-5">
+                    {locationOptions.length === 0 ? (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                    ) : (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                    )}
+                  </div>
 
-            {isAdmin &&
-              calendarFramework?.dates?.[0][0].date instanceof Date &&
-              (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                2000 &&
-              isAdmin && (
-                <div className="lg:pr-5 lg:mr-0 mr-10">
-                  <AddToGoogleCalendarButton
-                    onClick={handleSelectionSubmission}
-                  />
+
+                  <div className="flex items-center justify-end space-x-2">
+                    <ButtonSmall
+                      bgColor={'primary'}
+                      textColor={'white'}
+                      onClick={() => {
+                        nav('/timeselect/' + code);
+                      }}
+                    >
+                      <span>&#8592;</span> Edit Your Availability
+                    </ButtonSmall>
+
+                    {isAdmin &&
+                      calendarFramework?.dates?.[0][0].date instanceof Date &&
+                      (
+                        calendarFramework.dates[0][0].date as Date
+                      ).getFullYear() !== 2000 &&
+                      isAdmin && (
+                        <AddToGoogleCalendarButton
+                          onClick={handleSelectionSubmission}
+                        />
+                      )}
+                  </div>
                 </div>
-              )}
-          </div>
+              </div>
 
-          <div className="pl-5 mt-2">
-            <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm">
-              {locationOptions.length === 0 ? (
-                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
-              ) : (
-                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
-              )}
+              <Calendar
+                theShowUserChart={[showUserChart, setShowUserChart]}
+                onClick={() => {
+                  if (showUserChart === true) {
+                    return;
+                  }
+                  setShowUserChart(true);
+                  setTimeout(() => setShowUserChart(false), 3000);
+                }}
+                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                chartedUsersData={[chartedUsers, setChartedUsers]}
+                draggable={
+                  isAdmin &&
+                  calendarFramework?.dates?.[0][0].date instanceof Date &&
+                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                    2000
+                }
+                user={getCurrentUserIndex()}
+                isAdmin={isAdmin}
+                theDragState={[dragState, setDragState]}
+                theGoogleCalendarEvents={[[], () => {}]}
+                isGeneralDays={false}
+              />
             </div>
           </div>
 
