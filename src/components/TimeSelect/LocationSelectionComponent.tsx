@@ -71,7 +71,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = (
           <div className="p-2 text-center">No location options set :(</div>
         )}
         style={{
-          zIndex: 9999,
+          zIndex: 50,
         }}
       />
     </div>
