@@ -20,6 +20,7 @@ import {
   getLocationsVotes,
   getLocationOptions,
   getAccountName,
+  getAccountEmail,
   getChosenLocation,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -254,12 +255,14 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           >
             {eventDescription}
           </div>
-
+          
           <CopyCodeButton />
           {isAdmin && (
             <AutoDraftEmailButton
               eventTitle={eventName}
               yourName={getAccountName()}
+              senderEmail={getAccountEmail()}
+              customEventCode={code}
             />
           )}
 
