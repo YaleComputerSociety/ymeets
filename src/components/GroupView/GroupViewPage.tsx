@@ -20,6 +20,7 @@ import {
   getLocationsVotes,
   getLocationOptions,
   getAccountName,
+  getAccountEmail,
   getChosenLocation,
   getTimezone,
 } from '../../firebase/events';
@@ -256,12 +257,14 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           >
             {eventDescription}
           </div>
-
+          
           <CopyCodeButton />
           {isAdmin && (
             <AutoDraftEmailButton
               eventTitle={eventName}
               yourName={getAccountName()}
+              senderEmail={getAccountEmail()}
+              customEventCode={code}
             />
           )}
 
