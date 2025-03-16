@@ -658,7 +658,7 @@ function TimeSelectPage() {
                 </div>
 
                 {/* Desktop layout */}
-                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-5">
+                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
                   <div className="flex-grow">
                     <TimezoneChanger
                       theCalendarFramework={[

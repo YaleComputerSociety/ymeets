@@ -9,6 +9,7 @@ import { getTimezone } from '../../firebase/events';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 import { dragProperties } from '../../types';
+import InformationPopup from '../utils/components/InformationPopup';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -125,6 +126,7 @@ export default function Calendar({
         ) : (
           <div className="p-3 h-11"></div>
         )}
+
         {currentStartPage + numberOfColumnsPerPage <
         calendarFramework.dates.flat().length ? (
           <IconArrowRight

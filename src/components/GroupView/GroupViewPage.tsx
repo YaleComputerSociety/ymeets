@@ -21,6 +21,7 @@ import {
   getLocationOptions,
   getAccountName,
   getChosenLocation,
+  getTimezone,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -37,6 +38,7 @@ import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { connectFirestoreEmulator } from 'firebase/firestore';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -301,16 +303,20 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
-                <div className="flex flex-row items-center justify-between w-full space-x-2">
-
-                  <div className="flex-grow ml-5">
-                    {locationOptions.length === 0 ? (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
-                    ) : (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
-                    )}
+                <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:space-x-2">
+                  <div className="w-full sm:flex-grow mb-2 sm:mb-0">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
+                      }
+                    />
                   </div>
-
 
                   <div className="flex items-center justify-end space-x-2">
                     <ButtonSmall
@@ -333,6 +339,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                           onClick={handleSelectionSubmission}
                         />
                       )}
+
+                    {locationOptions.length === 0 ? (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                    ) : (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                    )}
                   </div>
                 </div>
               </div>
