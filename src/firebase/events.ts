@@ -188,35 +188,107 @@ async function deleteEvent(id: EventId): Promise<void> {
   });
 }
 
+// Structure of the userEvents array in the user document
+interface UserEvent {
+  code: string;
+  timestamp: any; // This could be Timestamp or Date
+  isAdmin: boolean;
+}
+
+async function getEventCodesSortedByTimestamp(
+  userID: string
+): Promise<string[]> {
+  try {
+    const userRef = doc(db, 'users', userID);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      console.log(
+        'User document not found: User does not exist in the database'
+      );
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const userEvents: UserEvent[] = userData.userEvents || [];
+
+    const sortedEvents = [...userEvents].sort((a, b) => {
+      const aTime = a.timestamp?.toMillis
+        ? a.timestamp.toMillis()
+        : a.timestamp?.getTime?.() || 0;
+      const bTime = b.timestamp?.toMillis
+        ? b.timestamp.toMillis()
+        : b.timestamp?.getTime?.() || 0;
+      return bTime - aTime; // Descending order (newest first)
+    });
+
+    const eventCodes = sortedEvents.map((event) => event.code);
+
+    return eventCodes;
+  } catch (error) {
+    console.error('Error getting sorted event codes:', error);
+    return [];
+  }
+}
+
 // Retrieves all events that this user has submitted availability for
 async function getAllEventsForUser(accountID: string): Promise<Event[]> {
+  const sortedEventCodes = await getEventCodesSortedByTimestamp(accountID);
+  console.log('Event codes sorted by timestamp:', sortedEventCodes);
+
   const eventsRef = collection(db, 'events');
+
   return await new Promise(async (resolve, reject) => {
-    const q = query(
-      eventsRef,
-      where('participants', 'array-contains', accountID)
-    );
-    const querySnapshot = await getDocs(q);
+    // const q = query(
+    //   eventsRef,
+    //   where('participants', 'array-contains', accountID)
+    // );
+    // const querySnapshot = await getDocs(q);
 
     const eventsList: Event[] = [];
-    querySnapshot.forEach((doc) => {
-      const result = doc.data();
-      result.details.startTime = result.details.startTime
-        ? (result.details.startTime as unknown as Timestamp).toDate()
-        : result.details.startTime;
-      result.details.endTime = result.details.endTime
-        ? (result.details.endTime as unknown as Timestamp).toDate()
-        : result.details.endTime;
-      result.details.chosenStartDate = result.details.chosenStartDate
-        ? (result.details.chosenStartDate as unknown as Timestamp).toDate()
-        : result.details.chosenStartDate;
-      result.details.chosenEndDate = result.details.chosenEndDate
-        ? (result.details.chosenEndDate as unknown as Timestamp).toDate()
-        : result.details.chosenEndDate;
-      result.details.dates = dateToArray(result.details.dates);
 
-      eventsList.push(result as unknown as Event);
-    });
+    for (const eventCode of sortedEventCodes) {
+      const eventDoc = await getDoc(doc(eventsRef, eventCode));
+      if (eventDoc.exists()) {
+        const event = eventDoc.data();
+        event.details.startTime = event.details.startTime
+          ? (event.details.startTime as unknown as Timestamp).toDate()
+          : event.details.startTime;
+        event.details.endTime = event.details.endTime
+          ? (event.details.endTime as unknown as Timestamp).toDate()
+          : event.details.endTime;
+        event.details.chosenStartDate = event.details.chosenStartDate
+          ? (event.details.chosenStartDate as unknown as Timestamp).toDate()
+          : event.details.chosenStartDate;
+        event.details.chosenEndDate = event.details.chosenEndDate
+          ? (event.details.chosenEndDate as unknown as Timestamp).toDate()
+          : event.details.chosenEndDate;
+        event.details.dates = dateToArray(event.details.dates);
+
+        eventsList.push(event as unknown as Event);
+      } else {
+        // if it doesn't exist (might have been deleted by admin), then it just won't load
+      }
+    }
+
+    // querySnapshot.forEach((doc) => {
+    //   const result = doc.data();
+    //   result.details.startTime = result.details.startTime
+    //     ? (result.details.startTime as unknown as Timestamp).toDate()
+    //     : result.details.startTime;
+    //   result.details.endTime = result.details.endTime
+    //     ? (result.details.endTime as unknown as Timestamp).toDate()
+    //     : result.details.endTime;
+    //   result.details.chosenStartDate = result.details.chosenStartDate
+    //     ? (result.details.chosenStartDate as unknown as Timestamp).toDate()
+    //     : result.details.chosenStartDate;
+    //   result.details.chosenEndDate = result.details.chosenEndDate
+    //     ? (result.details.chosenEndDate as unknown as Timestamp).toDate()
+    //     : result.details.chosenEndDate;
+    //   result.details.dates = dateToArray(result.details.dates);
+
+    //   eventsList.push(result as unknown as Event);
+    // });
 
     resolve(eventsList);
   });
