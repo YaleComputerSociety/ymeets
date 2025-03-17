@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -91,6 +91,15 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     lastPosition: null,
   });
 
+  const [allPeople, setAllPeople] = useState<string[]>([]);
+  const [peopleStatus, setPeopleStatus] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  useEffect(() => {
+    setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
+  }, [allPeople]);
+
   const nav = useNavigate();
 
   const createCalendarEventUrl = useCallback((event: any) => {
@@ -138,6 +147,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             const dates = eventAPI.getCalendarDimensions();
 
             setChartedUsers(participants);
+            setAllPeople(participants.users.map((user) => user.name));
+            setPeopleStatus(
+              Object.fromEntries(
+                participants.users.map((user) => [user.name, true])
+              )
+            );
             setCalendarState(availabilities);
             setCalendarFramework(dates);
 
@@ -243,13 +258,19 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
-          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-4xl font-bold text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-xl text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventDescription}
           </div>
-          
+
           <CopyCodeButton />
           {isAdmin && (
             <AutoDraftEmailButton
@@ -275,7 +296,26 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
           <div className="hidden lg:block w-full">
             {chartedUsers !== undefined && !showLocationChart && (
-              <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+              <>
+                <UserChart
+                  chartedUsersData={[
+                    {
+                      users: chartedUsers.users?.filter(
+                        (user) => peopleStatus[user.name] === true
+                      ),
+                      available: chartedUsers.available?.filter(
+                        (user) => peopleStatus[user.name]
+                      ),
+                      unavailable: chartedUsers.unavailable?.filter(
+                        (user) => peopleStatus[user.name]
+                      ),
+                    },
+                    setChartedUsers,
+                  ]}
+                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                  allPeople={allPeople}
+                />
+              </>
             )}
 
             {locationOptions.length > 0 && showLocationChart && (
@@ -305,9 +345,31 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 setShowUserChart(true);
                 setTimeout(() => setShowUserChart(false), 3000);
               }}
-              theCalendarState={[calendarState, setCalendarState]}
+              theCalendarState={[
+                calendarState.filter((_, i) =>
+                  chartedUsers.users.some(
+                    (user) =>
+                      peopleStatus[user.name] === true &&
+                      getParticipantIndex(user.name) === i
+                  )
+                ),
+                setCalendarState,
+              ]}
               theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={[chartedUsers, setChartedUsers]}
+              chartedUsersData={[
+                {
+                  users: chartedUsers.users?.filter(
+                    (user) => peopleStatus[user.name] === true
+                  ),
+                  available: chartedUsers.available?.filter(
+                    (user) => peopleStatus[user.name]
+                  ),
+                  unavailable: chartedUsers.unavailable?.filter(
+                    (user) => peopleStatus[user.name]
+                  ),
+                },
+                setChartedUsers,
+              ]}
               draggable={
                 isAdmin &&
                 calendarFramework?.dates?.[0][0].date instanceof Date &&
@@ -393,7 +455,24 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                   ✕
                 </button>
 
-                <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+                <UserChart
+                  chartedUsersData={[
+                    {
+                      users: chartedUsers.users?.filter(
+                        (user) => peopleStatus[user.name] === true
+                      ),
+                      available: chartedUsers.available?.filter(
+                        (user) => peopleStatus[user.name]
+                      ),
+                      unavailable: chartedUsers.unavailable?.filter(
+                        (user) => peopleStatus[user.name]
+                      ),
+                    },
+                    setChartedUsers,
+                  ]}
+                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                  allPeople={allPeople}
+                />
               </div>
             </div>
           )}

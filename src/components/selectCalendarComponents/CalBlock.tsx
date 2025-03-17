@@ -260,6 +260,8 @@ export default function CalBlock({
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
 
+    console.log(chartedUsers);
+
     chartedUsers.users.forEach((user) => {
       if (calendarState[user.id]?.[columnID]?.[blockID] === true) {
         availableUsers.push(user);
