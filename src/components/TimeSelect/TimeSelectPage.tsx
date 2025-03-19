@@ -24,6 +24,7 @@ import {
   getParticipantIndex,
   getChosenDayAndTime,
   getTimezone,
+  updateAnonymousUserToAuthUser,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
@@ -628,19 +629,19 @@ function TimeSelectPage() {
                           onClick={() => {
                             signInWithGoogle(
                               undefined,
-                              gapi,
+                              undefined,
                               handleIsSignedIn
                             ).then((loginSuccessful) => {
                               if (loginSuccessful) {
-                                window.location.reload();
-                              } else {
-                                console.error('login failed');
+                                console.log('hi there');
+                                updateAnonymousUserToAuthUser(getAccountName());
+                                // window.location.reload();
                               }
                             });
                           }}
                         >
                           <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                          Sign in to access GCal
+                          Sign in to access GCal M
                         </button>
                       </div>
                     )}
@@ -695,30 +696,26 @@ function TimeSelectPage() {
                       </div>
                     </div>
                   ) : (
-                      <button
-                        className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
-              flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                        onClick={() => {
-                          signInWithGoogle(
-                            undefined,
-                            gapi,
-                            handleIsSignedIn
-                          ).then((loginSuccessful) => {
-                            if (loginSuccessful) {
-                              window.location.reload();
-                            } else {
-                              console.error('login failed');
-                            }
-                          });
-                        }}
-                      >
-                        <img
-                          src={LOGO}
-                          alt="Logo"
-                          className="mr-2 h-5 lg:h-6"
-                        />
-                        Sign in to access GCal
-                      </button>
+                    <button
+                      className="w-full font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+          flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                      onClick={() => {
+                        signInWithGoogle(
+                          undefined,
+                          undefined,
+                          handleIsSignedIn
+                        ).then((loginSuccessful) => {
+                          if (loginSuccessful) {
+                            console.log('hi there');
+                            updateAnonymousUserToAuthUser(getAccountName());
+                            // window.location.reload();
+                          }
+                        });
+                      }}
+                    >
+                      <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                      Sign in to access GCal
+                    </button>
                   )}
 
                   <ButtonSmall
