@@ -101,6 +101,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }, [allPeople]);
 
   const nav = useNavigate();
+  const allUsers = chartedUsers?.users;
 
   const createCalendarEventUrl = useCallback((event: any) => {
     const startDateTime = new Date(event.start.dateTime)
@@ -246,6 +247,14 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     return user;
   };
 
+  const filteredChartedUsers = useMemo(
+    () => ({
+      ...chartedUsers,
+      users: allUsers?.filter((user) => peopleStatus[user.name] === true),
+    }),
+    [chartedUsers, peopleStatus]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center">
@@ -300,14 +309,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 <UserChart
                   chartedUsersData={[
                     {
+                      ...chartedUsers,
                       users: chartedUsers.users?.filter(
                         (user) => peopleStatus[user.name] === true
-                      ),
-                      available: chartedUsers.available?.filter(
-                        (user) => peopleStatus[user.name]
-                      ),
-                      unavailable: chartedUsers.unavailable?.filter(
-                        (user) => peopleStatus[user.name]
                       ),
                     },
                     setChartedUsers,
@@ -345,31 +349,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 setShowUserChart(true);
                 setTimeout(() => setShowUserChart(false), 3000);
               }}
-              theCalendarState={[
-                calendarState.filter((_, i) =>
-                  chartedUsers.users.some(
-                    (user) =>
-                      peopleStatus[user.name] === true &&
-                      getParticipantIndex(user.name) === i
-                  )
-                ),
-                setCalendarState,
-              ]}
+              theCalendarState={[calendarState, setCalendarState]}
+              chartedUsersData={[filteredChartedUsers, setChartedUsers]}
               theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={[
-                {
-                  users: chartedUsers.users?.filter(
-                    (user) => peopleStatus[user.name] === true
-                  ),
-                  available: chartedUsers.available?.filter(
-                    (user) => peopleStatus[user.name]
-                  ),
-                  unavailable: chartedUsers.unavailable?.filter(
-                    (user) => peopleStatus[user.name]
-                  ),
-                },
-                setChartedUsers,
-              ]}
               draggable={
                 isAdmin &&
                 calendarFramework?.dates?.[0][0].date instanceof Date &&
@@ -458,14 +440,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 <UserChart
                   chartedUsersData={[
                     {
+                      ...chartedUsers,
                       users: chartedUsers.users?.filter(
                         (user) => peopleStatus[user.name] === true
-                      ),
-                      available: chartedUsers.available?.filter(
-                        (user) => peopleStatus[user.name]
-                      ),
-                      unavailable: chartedUsers.unavailable?.filter(
-                        (user) => peopleStatus[user.name]
                       ),
                     },
                     setChartedUsers,

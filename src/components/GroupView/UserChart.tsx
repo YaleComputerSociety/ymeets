@@ -122,12 +122,19 @@ const UserChart: React.FC<UserChartProps> = ({
                 ) : (
                   <IconSquareFilled
                     className="cursor-pointer"
-                    onClick={() =>
+                    onClick={() => {
+                      if (
+                        allPeople.filter((person) => peoepleStatus[person])
+                          .length === 1 &&
+                        peoepleStatus[name]
+                      ) {
+                        return;
+                      }
                       setPeopleStatus((prev) => ({
                         ...prev,
                         [name]: !prev[name],
-                      }))
-                    }
+                      }));
+                    }}
                   />
                 )}
               </div>
