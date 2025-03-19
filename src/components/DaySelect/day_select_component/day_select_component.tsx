@@ -119,6 +119,7 @@ export const DaySelectComponent = () => {
 
   // New, 2/18/25 - used to check if eventName or eventDescription are blank spaces or invisible characters
   const isBlankspaceOrInvisible = (str: string): boolean => {
+    // eslint-disable-next-line no-control-regex
     const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
     return str.replace(invisibleChars, '').trim().length === 0;
   }
@@ -132,13 +133,11 @@ export const DaySelectComponent = () => {
       endDate.getMinutes() === 0 &&
       endDate.getSeconds() === 0
     ) {
-      // alert('Make sure to enter times!');
       alert('Make sure to enter times!');
       return;
     }
 
     if (startDate >= endDate) {
-      // alert('Make sure your end time is after your start time!');
       alert('Make sure your end time is after your start time!');
       return;
     }
@@ -146,7 +145,6 @@ export const DaySelectComponent = () => {
     // Optional; backend supports an empty string for name
     // Change, 2/18/25 - Name is not optional; make sure it's not a blank space or just invisible characters.
     if (isBlankspaceOrInvisible(eventName)) {
-      // alert('Make sure to name your event!');
       alert('Make sure to name your event!');
       return;
     }
@@ -194,7 +192,6 @@ export const DaySelectComponent = () => {
         });
     } else {
       if (selectedDates.length == 0) {
-        // alert('Make sure to enter dates!');
         alert('Make sure to enter dates!');
         return;
       }
@@ -296,7 +293,7 @@ export const DaySelectComponent = () => {
               </div>
             </div>
 
-            <div className="mt-2 mb-6 z-50">
+            <div className="mt-2 mb-6 z-50 flex justify-start">
               <InformationPopup
                 content="
                 Type and click ENTER to add locations for your group to vote on for the meeting
