@@ -296,7 +296,7 @@ export const DaySelectComponent = () => {
               </div>
             </div>
 
-            <div className="mt-2 mb-6 z-50">
+            <div className="mt-2 mb-6 z-50 flex justify-start">
               <InformationPopup
                 content="
                 Type and click ENTER to add locations for your group to vote on for the meeting

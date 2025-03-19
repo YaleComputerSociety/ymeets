@@ -64,6 +64,7 @@ const ToggleGoogleCalendarButton = () => {
   return (
     <ButtonSmall
       bgColor="primary"
+      themeGradient={true}
       textColor="white"
       onClick={handleGoogleSignIn}
     >

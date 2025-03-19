@@ -9,6 +9,7 @@ import { getTimezone } from '../../firebase/events';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 import { dragProperties } from '../../types';
+import InformationPopup from '../utils/components/InformationPopup';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -115,19 +116,7 @@ export default function Calendar({
 
   return (
     <div className="flex flex-col space-y-0 mb-2">
-      <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
-        <div className="w-full max-w-full">
-          <TimezoneChanger
-            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            initialTimezone={
-              getTimezone()
-                ? getTimezone()
-                : Intl.DateTimeFormat().resolvedOptions().timeZone
-            }
-          />
-        </div>
-      </div>
-      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-50 p-0">
+      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
             onClick={handlePrev}
@@ -137,6 +126,7 @@ export default function Calendar({
         ) : (
           <div className="p-3 h-11"></div>
         )}
+
         {currentStartPage + numberOfColumnsPerPage <
         calendarFramework.dates.flat().length ? (
           <IconArrowRight
@@ -154,12 +144,12 @@ export default function Calendar({
       >
         <div
           style={{ width: '3.00rem', height: '2.50rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-40"
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-30"
         ></div>
 
         <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0">
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
-          <div className="sticky left-0 z-30 bg-white dark:bg-secondary_background-dark">
+          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark">
             {/* handles aligning it with the cal */}
 
             <>
