@@ -117,6 +117,12 @@ export const DaySelectComponent = () => {
 
   const navigate = useNavigate();
 
+  // New, 2/18/25 - used to check if eventName or eventDescription are blank spaces or invisible characters
+  const isBlankspaceOrInvisible = (str: string): boolean => {
+    const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
+    return str.replace(invisibleChars, '').trim().length === 0;
+  }
+
   const verifyNextAndSubmitEvent = () => {
     if (
       startDate.getHours() === 0 &&
@@ -138,9 +144,21 @@ export const DaySelectComponent = () => {
     }
 
     // Optional; backend supports an empty string for name
-    if (eventName.length == 0) {
+    // Change, 2/18/25 - Name is not optional; make sure it's not a blank space or just invisible characters.
+    if (isBlankspaceOrInvisible(eventName)) {
       // alert('Make sure to name your event!');
       alert('Make sure to name your event!');
+      return;
+    }
+
+    // Change, 2/18/25 - Description is by default optional; however, if they enter something, make sure it's not a blank space or just invisible characters.
+    if (eventDescription.length > 0 && isBlankspaceOrInvisible(eventDescription)) {
+      alert('Did you mean to enter an event description? Please enter a valid description, if so.');
+      return;
+    }
+    
+    if (locations.some(isBlankspaceOrInvisible)) {
+      alert("Looks like you left one of your event locations blank. Please remove it before proceeding!");
       return;
     }
 

@@ -33,5 +33,6 @@
     "@typescript-eslint/no-unused-vars": "off",
     "eqeqeq": "off",
     "react-hooks/exhaustive-deps": "off"
+
   }
 }

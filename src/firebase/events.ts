@@ -59,34 +59,18 @@ const getAccountEmail = (): string => {
   return auth.currentUser?.email ? auth.currentUser.email : ''
 }
 
-// https://firebase.google.com/docs/firestore/manage-data/add-data
-// may have better way to generate id (Firestore can do it automatically)
-const generateUniqueId = (): string => {
-  // new method will generate a random string indexing [0,9,a,b,c...,z] - [i,l,0,o]
-  // to generate a 6-character code. Not currently checking if already in the database
-  // else would generate a new string, check again. Appox: 1.07 billion
-  let id = ''
-  const valid_chars = 'abcdefghjkmnpqrstuvwxyz123456789'
-  for (let i = 0; i < 6; i++) {
-    id += valid_chars[(Math.floor(Math.random() * (valid_chars.length)))].toUpperCase()
-  }
-  return id
-}
-
-// Wraps generateUniqueId, checks Firebase to confirm key does not exist
-// otherwise will regenerate until unique key is found
 async function generateUniqueEventKey(): Promise<string> {
   let uniqueKeyFound = false;
-  let newKey = generateUniqueId(); // doubled-up first time to avoid newKey undefined
+  let newKey = "";
 
   while (!uniqueKeyFound) {
-      newKey = generateUniqueId();
-      const docRef = doc(db, 'events', newKey);
-      const possibleConflict = await getDoc(docRef);
+    newKey = doc(collection(db, "events")).id.substring(0, 6).toUpperCase();
+    const docRef = doc(db, "events", newKey);
+    const existingDoc = await getDoc(docRef);
 
-      if (!possibleConflict.exists()) {
-          uniqueKeyFound = true;
-      }
+    if (!existingDoc.exists()) { // possible race conditions (with this along with previous iteration)
+      uniqueKeyFound = true;
+    }
   }
 
   return newKey;
@@ -550,7 +534,6 @@ function getZoomLink (): string | undefined {
   return workingEvent.details.zoomLink || undefined
 }
 
-
 function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
@@ -601,9 +584,6 @@ function getDates(): Date[] {
 }
 
 
-
-
-
 function getStartAndEndTimes (): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
@@ -620,7 +600,7 @@ function getEventObjectForGCal (startDate: Date, endDate: Date, location?: strin
   return {
     summary: workingEvent.details.name,
     location: location == undefined ? "" : location,
-    description: workingEvent.details.description + "\n" + "\n" + "Video Conference Link (if provided):" + "\n" + workingEvent.details.zoomLink,
+    description: workingEvent.details.description,
     start: {
       dateTime: startDate,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
