@@ -247,7 +247,6 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
-      // new user => last availability
       user =
         calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
