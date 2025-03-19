@@ -13,8 +13,9 @@ import {
 } from '../../firebase/events';
 import { logout } from '../../firebase/auth';
 
-import { useNavigate } from 'react-router-dom';
 import copy from 'clipboard-copy';
+import { isMobile } from 'react-device-detect'
+import { useNavigate } from 'react-router-dom';
 import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
@@ -220,8 +221,8 @@ export default function AccountsPage() {
           )
         ) : undefined}
 
-        <div className="flex items-center justify-end">
-          {checkIfLoggedIn() ? (
+        <div className="flex items-center justify-start">
+          {(checkIfLoggedIn() && isMobile) ? (
             <button
               onClick={() => {
                 logout(gapi);
@@ -232,7 +233,7 @@ export default function AccountsPage() {
               Logout
             </button>
           ) : (
-            <LoginButton />
+            <div />
           )}
         </div>
       </div>
