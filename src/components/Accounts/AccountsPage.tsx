@@ -1,9 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import {
-  IconPlus,
-  IconSearch,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
@@ -13,14 +9,12 @@ import {
 } from '../../firebase/events';
 import { logout } from '../../firebase/auth';
 
-import copy from 'clipboard-copy';
-import { isMobile } from 'react-device-detect'
+import { isMobile } from 'react-device-detect';
 import { useNavigate } from 'react-router-dom';
 import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
-import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 interface AccountsPageEvent {
@@ -173,16 +167,20 @@ export default function AccountsPage() {
                       {event.iAmCreator && (
                         <button
                           onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-                            deleteEvent(event.id)
-                            .then(() => {
-                              // delete it locally
-                              setEvents(
-                              events.filter((e) => e.id != event.id)
-                              );
-                            })
-                            .catch((err) => {});
-                          }
+                            if (
+                              window.confirm(
+                                'Are you sure you want to delete this event? This action cannot be undone.'
+                              )
+                            ) {
+                              deleteEvent(event.id)
+                                .then(() => {
+                                  // delete it locally
+                                  setEvents(
+                                    events.filter((e) => e.id != event.id)
+                                  );
+                                })
+                                .catch((err) => {});
+                            }
                           }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                           aria-label="Delete event"
@@ -222,7 +220,7 @@ export default function AccountsPage() {
         ) : undefined}
 
         <div className="flex items-center justify-start">
-          {(checkIfLoggedIn() && isMobile) ? (
+          {checkIfLoggedIn() && isMobile ? (
             <button
               onClick={() => {
                 logout(gapi);
