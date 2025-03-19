@@ -139,7 +139,6 @@ export default function CalBlock({
   const getGroupPercentageColor = useCallback(() => {
     let selectedCount = 0;
     const totalUsers = chartedUsers?.users.length || 0;
-    console.log(totalUsers);
 
     for (let i = 0; i < calendarState.length; i++) {
       if (
@@ -263,9 +262,6 @@ export default function CalBlock({
 
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
-
-    console.log(chartedUsers.users);
-    console.log(calendarState);
 
     chartedUsers.users.forEach((user) => {
       if (calendarState[user.id]?.[columnID]?.[blockID] === true) {
