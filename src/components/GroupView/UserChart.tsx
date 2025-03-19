@@ -19,6 +19,10 @@ interface UserChartProps {
     Record<string, boolean>,
     React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
   ];
+  theParticipantToggleClicked: [
+    boolean,
+    React.Dispatch<React.SetStateAction<boolean>>,
+  ];
 }
 
 /**
@@ -32,6 +36,7 @@ const UserChart: React.FC<UserChartProps> = ({
   chartedUsersData,
   allPeople,
   thePeopleStatus,
+  theParticipantToggleClicked,
 }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData || [
     { available: [], unavailable: [] },
@@ -40,10 +45,8 @@ const UserChart: React.FC<UserChartProps> = ({
 
   const [peoepleStatus, setPeopleStatus] = thePeopleStatus;
 
-  console.log(chartedUsers);
-
   const [participantToggleClicked, setParticipantToggleClicked] =
-    React.useState(false);
+    theParticipantToggleClicked;
 
   const numRows = Math.max(
     chartedUsers.available.length,
@@ -60,23 +63,6 @@ const UserChart: React.FC<UserChartProps> = ({
 
   return (
     <div className="relative">
-      {participantToggleClicked ? (
-        <IconAdjustments
-          size={40}
-          onClick={() => {
-            setParticipantToggleClicked(!participantToggleClicked);
-          }}
-          className="absolute -top-10 right-2 p-2"
-        />
-      ) : (
-        <IconAdjustmentsFilled
-          size={40}
-          onClick={() => {
-            setParticipantToggleClicked(!participantToggleClicked);
-          }}
-          className="absolute -top-10 right-2 p-2"
-        />
-      )}
       <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
         {participantToggleClicked ? (
           <table className="table-fixed border-collapse w-full">

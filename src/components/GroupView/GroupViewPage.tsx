@@ -38,8 +38,9 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { connectFirestoreEmulator } from 'firebase/firestore';
+import { IconPencil } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -64,6 +65,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const { code } = useParams();
 
   const [showUserChart, setShowUserChart] = useState(false);
+  const [participantToggleClicked, setParticipantToggleClicked] =
+    useState(true);
 
   const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
   const [eventName, setEventName] = useState('');
@@ -305,9 +308,27 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             </div>
           )}
 
-          <div className="hidden lg:block w-full">
+          <div className="hidden lg:block w-full relative">
             {chartedUsers !== undefined && !showLocationChart && (
               <>
+                {participantToggleClicked ? (
+                  <IconAdjustments
+                    size={40}
+                    onClick={() => {
+                      setParticipantToggleClicked(!participantToggleClicked);
+                    }}
+                    className="absolute -top-10 right-2 p-2"
+                  />
+                ) : (
+                  <IconAdjustmentsFilled
+                    size={40}
+                    onClick={() => {
+                      setParticipantToggleClicked(!participantToggleClicked);
+                    }}
+                    className="absolute -top-10 right-2 p-2"
+                  />
+                )}
+
                 <UserChart
                   chartedUsersData={[
                     {
@@ -320,6 +341,10 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                   ]}
                   thePeopleStatus={[peopleStatus, setPeopleStatus]}
                   allPeople={allPeople}
+                  theParticipantToggleClicked={[
+                    participantToggleClicked,
+                    setParticipantToggleClicked,
+                  ]}
                 />
               </>
             )}
@@ -359,7 +384,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                     />
                   </div>
 
-                  <div className="flex items-center justify-end space-x-2">
+                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
                     <ButtonSmall
                       bgColor={'primary'}
                       textColor={'white'}
@@ -367,7 +392,10 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                         nav('/timeselect/' + code);
                       }}
                     >
-                      <span>&#8592;</span> Edit Your Availability
+                      <div className="flex flex-row items-center justify-center space-x-1">
+                        <IconPencil />
+                        <p>Edit Your Availability</p>
+                      </div>
                     </ButtonSmall>
 
                     {isAdmin &&
@@ -380,6 +408,30 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                           onClick={handleSelectionSubmission}
                         />
                       )}
+
+                    <div className="lg:hidden">
+                      {!participantToggleClicked ? (
+                        <IconAdjustmentsFilled
+                          size={30}
+                          onClick={() => {
+                            setParticipantToggleClicked(
+                              !participantToggleClicked
+                            );
+                            setShowUserChart(false);
+                          }}
+                        />
+                      ) : (
+                        <IconAdjustments
+                          size={30}
+                          onClick={() => {
+                            setParticipantToggleClicked(
+                              !participantToggleClicked
+                            );
+                            setShowUserChart(true);
+                          }}
+                        />
+                      )}
+                    </div>
 
                     {locationOptions.length === 0 ? (
                       <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
@@ -401,7 +453,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 }}
                 theCalendarState={[calendarState, setCalendarState]}
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                chartedUsersData={[chartedUsers, setChartedUsers]}
+                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                 draggable={
                   isAdmin &&
                   calendarFramework?.dates?.[0][0].date instanceof Date &&
@@ -435,36 +487,56 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           )}
 
           {chartedUsers !== undefined && (
-            <div
-              className={`
-            z-[9999] lg:hidden fixed bottom-0 left-0 right-0 
-            transform transition-transform duration-300 ease-in-out
+            <div className="lg:hidden">
+              {!participantToggleClicked ? (
+                <IconAdjustments
+                  size={30}
+                  onClick={() => {
+                    setParticipantToggleClicked(!participantToggleClicked);
+                  }}
+                />
+              ) : (
+                <IconAdjustmentsFilled
+                  size={30}
+                  onClick={() => {
+                    setParticipantToggleClicked(!participantToggleClicked);
+                  }}
+                />
+              )}
+              <div
+                className={`
+            z-[9999]  fixed bottom-0 left-0 right-0 
+            transform transition-transform ${!participantToggleClicked ? 'duration-300' : ''} ease-in-out
             bg-white dark:bg-secondary_background-dark shadow-lg
             ${showUserChart ? 'translate-y-0' : 'translate-y-full'}
-          `}
-            >
-              <div className="p-4 rounded-t-xl">
-                {/* Add a close button for mobile */}
-                <button
-                  onClick={() => setShowUserChart(false)}
-                  className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  ✕
-                </button>
+            `}
+              >
+                <div className="p-4 rounded-t-xl">
+                  <button
+                    onClick={() => setShowUserChart(false)}
+                    className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    &times;
+                  </button>
 
-                <UserChart
-                  chartedUsersData={[
-                    {
-                      ...chartedUsers,
-                      users: chartedUsers.users?.filter(
-                        (user) => peopleStatus[user.name] === true
-                      ),
-                    },
-                    setChartedUsers,
-                  ]}
-                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                  allPeople={allPeople}
-                />
+                  <UserChart
+                    chartedUsersData={[
+                      {
+                        ...chartedUsers,
+                        users: chartedUsers.users?.filter(
+                          (user) => peopleStatus[user.name] === true
+                        ),
+                      },
+                      setChartedUsers,
+                    ]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                  />
+                </div>
               </div>
             </div>
           )}
