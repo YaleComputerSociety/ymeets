@@ -29,8 +29,6 @@ import {
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
-import { time } from 'console';
-import { start } from 'repl';
 import { DateTime } from 'luxon';
 
 // ASSUME names are unique within an event
@@ -186,6 +184,8 @@ async function deleteEvent(id: EventId): Promise<void> {
   await batch.commit().catch((err) => {
     console.log('Error: ', err);
   });
+
+  removeEventFromUserCollection(getAccountId(), id);
 }
 
 // Structure of the userEvents array in the user document
@@ -231,6 +231,30 @@ async function getEventCodesSortedByTimestamp(
   }
 }
 
+async function removeEventFromUserCollection(
+  userID: string,
+  eventCode: string
+) {
+  const userRef = doc(db, 'users', userID);
+  const userDoc = await getDoc(userRef);
+
+  if (!userDoc.exists()) {
+    console.log('User document not found: User does not exist in the database');
+    return;
+  }
+
+  const userData = userDoc.data();
+  const userEvents: UserEvent[] = userData.userEvents || [];
+
+  const updatedEvents = userEvents.filter((event) => event.code !== eventCode);
+
+  await updateDoc(userRef, {
+    userEvents: updatedEvents,
+  }).catch((err) => {
+    console.error('Error updating user document:', err);
+  });
+}
+
 // Retrieves all events that this user has submitted availability for
 async function getAllEventsForUser(accountID: string): Promise<Event[]> {
   const sortedEventCodes = await getEventCodesSortedByTimestamp(accountID);
@@ -239,12 +263,6 @@ async function getAllEventsForUser(accountID: string): Promise<Event[]> {
   const eventsRef = collection(db, 'events');
 
   return await new Promise(async (resolve, reject) => {
-    // const q = query(
-    //   eventsRef,
-    //   where('participants', 'array-contains', accountID)
-    // );
-    // const querySnapshot = await getDocs(q);
-
     const eventsList: Event[] = [];
 
     for (const eventCode of sortedEventCodes) {
@@ -267,28 +285,10 @@ async function getAllEventsForUser(accountID: string): Promise<Event[]> {
 
         eventsList.push(event as unknown as Event);
       } else {
-        // if it doesn't exist (might have been deleted by admin), then it just won't load
+        // won't load if it doesn't exist (has been deleted by admin)
+        removeEventFromUserCollection(accountID, eventCode);
       }
     }
-
-    // querySnapshot.forEach((doc) => {
-    //   const result = doc.data();
-    //   result.details.startTime = result.details.startTime
-    //     ? (result.details.startTime as unknown as Timestamp).toDate()
-    //     : result.details.startTime;
-    //   result.details.endTime = result.details.endTime
-    //     ? (result.details.endTime as unknown as Timestamp).toDate()
-    //     : result.details.endTime;
-    //   result.details.chosenStartDate = result.details.chosenStartDate
-    //     ? (result.details.chosenStartDate as unknown as Timestamp).toDate()
-    //     : result.details.chosenStartDate;
-    //   result.details.chosenEndDate = result.details.chosenEndDate
-    //     ? (result.details.chosenEndDate as unknown as Timestamp).toDate()
-    //     : result.details.chosenEndDate;
-    //   result.details.dates = dateToArray(result.details.dates);
-
-    //   eventsList.push(result as unknown as Event);
-    // });
 
     resolve(eventsList);
   });
@@ -1012,6 +1012,7 @@ export {
   setNewEndTimes,
   setNewDates,
   getParticipantIndex,
+  removeEventFromUserCollection,
 };
 
 function dateToObject(dateArray: number[][]): Record<number, number[]> {
