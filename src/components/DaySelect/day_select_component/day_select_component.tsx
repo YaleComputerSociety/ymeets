@@ -4,8 +4,7 @@ import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../firebase/eventAPI';
 import { getAccountId, getAccountName } from '../../../firebase/events';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-dropdown-select';
-import Creatable from 'react-select/creatable';
+import LimitedSelect from './limited_select_component'
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
@@ -246,69 +245,10 @@ export const DaySelectComponent = () => {
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
               <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
-                {/* <Select
-                  className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
-                  multi
-                  create
-                  options={locationOptions}
-                  clearOnSelect={false}
-                  values={[]}
-                  
-                  onChange={(values) => {
-                    const selectedValues = values.map((val) => val.value);
-                    updateLocationsState(selectedValues);
-                  }}
-                  placeholder="Location Options (Optional)"
-                  noDataRenderer={() => (
-                    <div className="p-2 text-center">
-                      No matching preset locations :(
-                    </div>
-                  )}
-                  onDropdownOpen={() => {
-                    const handle = document.querySelector(
-                      '.react-dropdown-select-dropdown-handle'
-                    );
-                    if (handle) handle.classList.add('open');
-                  }}
-                  onDropdownClose={() => {
-                    const handle = document.querySelector(
-                      '.react-dropdown-select-dropdown-handle'
-                    );
-                    if (handle) handle.classList.remove('open');
-                  }}
-                /> */}
-                <Creatable
-                  className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
-                  isMulti={false}
-                  options={locationOptions}
-                  isClearable
-                  value={locations.map(loc => ({ label: loc, value: loc }))}
-                  onChange={(newValue: any) => {
-                    const selectedValue = newValue ? [newValue.value] : [];
-                    updateLocationsState(selectedValue);
-                  }}
-                  onInputChange={(inputValue: string) => {
-                    if (inputValue.length > 32) {
-                      return inputValue.slice(0, 32);
-                    }
-                    return inputValue;
-                  }}
-                  placeholder="Location Options (Optional)"
-                  noOptionsMessage={() => "No matching preset locations :("}
-                  classNames={{
-                    control: (state) => 
-                      "react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark",
-                    option: (state) =>
-                      "p-2 hover:bg-gray-100",
-                    menu: () => 
-                      "mt-1 bg-white dark:bg-secondary_background-dark shadow-lg",
-                    singleValue: () =>
-                      "text-text dark:text-text-dark",
-                    input: () =>
-                      "text-text dark:text-text-dark"
-                  }}
-                  maxMenuHeight={150}
-                />
+              <LimitedSelect
+                locationOptions={locationOptions}
+                updateLocationsState={updateLocationsState}
+              />
               </div>
             </div>
 
