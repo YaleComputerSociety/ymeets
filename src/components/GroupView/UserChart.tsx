@@ -114,6 +114,7 @@ const UserChart: React.FC<UserChartProps> = ({
                           .length === 1 &&
                         peoepleStatus[name]
                       ) {
+                        alert("You can't remove the last participant");
                         return;
                       }
                       setPeopleStatus((prev) => ({

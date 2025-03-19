@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -41,6 +41,7 @@ import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { IconPencil } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
+import { filter } from 'lodash';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -100,13 +101,13 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const [peopleStatus, setPeopleStatus] = useState<{
     [key: string]: boolean;
   }>({});
+  const [allUsers, setAllUsers] = useState<userData>({} as userData);
 
   useEffect(() => {
     setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
   }, [allPeople]);
 
   const nav = useNavigate();
-  const allUsers = chartedUsers?.users;
 
   const createCalendarEventUrl = useCallback((event: any) => {
     const startDateTime = new Date(event.start.dateTime)
@@ -154,6 +155,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
             setChartedUsers(participants);
             setAllPeople(participants.users.map((user) => user.name));
+            setAllUsers(participants);
             setPeopleStatus(
               Object.fromEntries(
                 participants.users.map((user) => [user.name, true])
@@ -255,7 +257,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const filteredChartedUsers = useMemo(
     () => ({
       ...chartedUsers,
-      users: allUsers?.filter((user) => peopleStatus[user.name] === true),
+      users: allUsers?.users?.filter(
+        (user) => peopleStatus[user.name] === true
+      ),
     }),
     [chartedUsers, peopleStatus]
   );
@@ -330,15 +334,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 )}
 
                 <UserChart
-                  chartedUsersData={[
-                    {
-                      ...chartedUsers,
-                      users: chartedUsers.users?.filter(
-                        (user) => peopleStatus[user.name] === true
-                      ),
-                    },
-                    setChartedUsers,
-                  ]}
+                  chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                   thePeopleStatus={[peopleStatus, setPeopleStatus]}
                   allPeople={allPeople}
                   theParticipantToggleClicked={[
@@ -520,15 +516,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                   </button>
 
                   <UserChart
-                    chartedUsersData={[
-                      {
-                        ...chartedUsers,
-                        users: chartedUsers.users?.filter(
-                          (user) => peopleStatus[user.name] === true
-                        ),
-                      },
-                      setChartedUsers,
-                    ]}
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                     thePeopleStatus={[peopleStatus, setPeopleStatus]}
                     allPeople={allPeople}
                     theParticipantToggleClicked={[
