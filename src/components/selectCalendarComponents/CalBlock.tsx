@@ -138,10 +138,13 @@ export default function CalBlock({
 
   const getGroupPercentageColor = useCallback(() => {
     let selectedCount = 0;
-    const totalUsers = Object.keys(calendarState).length;
+    const totalUsers = chartedUsers?.users.length || 0;
 
-    for (let i = 0; i < totalUsers; i++) {
-      if (calendarState[i]?.[columnID]?.[blockID] === true) {
+    for (let i = 0; i < calendarState.length; i++) {
+      if (
+        calendarState[i]?.[columnID]?.[blockID] === true &&
+        chartedUsers?.users.some((u) => u.id === i)
+      ) {
         selectedCount += 1;
       }
     }
@@ -152,7 +155,7 @@ export default function CalBlock({
 
     const percentageSelected = selectedCount / totalUsers;
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
-  }, [calendarState, columnID, blockID, getDefaultColor]);
+  }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
 
   const [shadeColor, setShadeColor] = useState(getDefaultColor);
 

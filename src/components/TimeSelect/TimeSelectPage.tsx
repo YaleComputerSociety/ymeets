@@ -374,7 +374,6 @@ function TimeSelectPage() {
       const dateObj = dates[columnID];
       for (let blockID = 0; blockID < totalBlocks; blockID++) {
         const timeString = times[blockID];
-        console.log(timeString);
         const [hours, minutes] = timeString
           ? timeString.split(':').map(Number)
           : [0, 0];
@@ -695,30 +694,26 @@ function TimeSelectPage() {
                       </div>
                     </div>
                   ) : (
-                      <button
-                        className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
+                    <button
+                      className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
               flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                        onClick={() => {
-                          signInWithGoogle(
-                            undefined,
-                            gapi,
-                            handleIsSignedIn
-                          ).then((loginSuccessful) => {
-                            if (loginSuccessful) {
-                              window.location.reload();
-                            } else {
-                              console.error('login failed');
-                            }
-                          });
-                        }}
-                      >
-                        <img
-                          src={LOGO}
-                          alt="Logo"
-                          className="mr-2 h-5 lg:h-6"
-                        />
-                        Sign in to access GCal
-                      </button>
+                      onClick={() => {
+                        signInWithGoogle(
+                          undefined,
+                          gapi,
+                          handleIsSignedIn
+                        ).then((loginSuccessful) => {
+                          if (loginSuccessful) {
+                            window.location.reload();
+                          } else {
+                            console.error('login failed');
+                          }
+                        });
+                      }}
+                    >
+                      <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
+                      Sign in to access GCal
+                    </button>
                   )}
 
                   <ButtonSmall
