@@ -7,6 +7,7 @@ import {
   IconAdjustments,
   IconAdjustmentsFilled,
   IconSquare,
+  IconSquareCheck,
   IconSquareFilled,
 } from '@tabler/icons-react';
 
@@ -86,9 +87,11 @@ const UserChart: React.FC<UserChartProps> = ({
           </table>
         ) : (
           <div className="flex flex-col">
-            <div className="m-2 text-md font-bold">Edit Participants</div>
+            <div className="m-2 text-md font-bold dark:text-text-dark">
+              Edit Participants
+            </div>
             {allPeople?.map((name, idx) => (
-              <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-row justify-between items-center dark:text-text-dark">
                 <div
                   key={idx}
                   className={`p-2 ${peoepleStatus[name] === true ? 'opacity-100' : 'opacity-50'}`}
@@ -106,7 +109,7 @@ const UserChart: React.FC<UserChartProps> = ({
                     }
                   />
                 ) : (
-                  <IconSquareFilled
+                  <IconSquareCheck
                     className="cursor-pointer"
                     onClick={() => {
                       if (

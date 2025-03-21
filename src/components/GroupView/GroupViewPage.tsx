@@ -320,7 +320,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                     onClick={() => {
                       setParticipantToggleClicked(!participantToggleClicked);
                     }}
-                    className="absolute -top-10 right-2 p-2"
+                    className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
                 ) : (
                   <IconAdjustmentsFilled
@@ -328,7 +328,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                     onClick={() => {
                       setParticipantToggleClicked(!participantToggleClicked);
                     }}
-                    className="absolute -top-10 right-2 p-2"
+                    className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
                 )}
 
@@ -408,6 +408,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                       {!participantToggleClicked ? (
                         <IconAdjustmentsFilled
                           size={30}
+                          className="cursor-pointer dark:text-text-dark"
                           onClick={() => {
                             setParticipantToggleClicked(
                               !participantToggleClicked
@@ -418,6 +419,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                       ) : (
                         <IconAdjustments
                           size={30}
+                          className="cursor-pointer dark:text-text-dark"
                           onClick={() => {
                             setParticipantToggleClicked(
                               !participantToggleClicked
@@ -483,21 +485,6 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
           {chartedUsers !== undefined && (
             <div className="lg:hidden">
-              {!participantToggleClicked ? (
-                <IconAdjustments
-                  size={30}
-                  onClick={() => {
-                    setParticipantToggleClicked(!participantToggleClicked);
-                  }}
-                />
-              ) : (
-                <IconAdjustmentsFilled
-                  size={30}
-                  onClick={() => {
-                    setParticipantToggleClicked(!participantToggleClicked);
-                  }}
-                />
-              )}
               <div
                 className={`
             z-[9999]  fixed bottom-0 left-0 right-0 
