@@ -7,6 +7,7 @@ import { generateTimeBlocks } from '../components/utils/functions/generateTimeBl
 import { time } from 'console'
 import { start } from 'repl'
 import { DateTime } from "luxon";
+import { runTransaction } from 'firebase/firestore'
 
 // ASSUME names are unique within an event
 
@@ -302,55 +303,58 @@ async function saveParticipantDetails (participant: Participant): Promise<void> 
   })
 }
 
-async function updateAnonymousUserToAuthUser (name: string) {
+async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName()
   const accountId = getAccountId()
 
   try {
-    if (accountName === '') Promise.reject('User is not signed in')
-    const eventsRef = collection(db, 'events')
-    const participantsRef = collection(doc(eventsRef, workingEvent.publicId), 'participants')
-
-    const anonymousPartRef = doc(participantsRef, name)
-    const authedPartRef = doc(participantsRef, accountId)
-
-    // Update local
-    let availability
+    if (accountName === '') throw new Error('User is not signed in')
+    
+    let availability: any;
     workingEvent.participants.forEach((part, index) => {
       if (part.name == name && part.accountId == '') {
-        workingEvent.participants[index].accountId = accountName
+        workingEvent.participants[index].name = accountName
         workingEvent.participants[index].accountId = accountId
         availability = workingEvent.participants[index].availability
       }
     })
 
-    // Anonymous user has not submitted their availability yet
-    // So nothing to update.
     if (availability === undefined) return
 
-    // Update Backend
-    const batch = writeBatch(db)
+    const eventsRef = collection(db, 'events')
+    const eventDocRef = doc(eventsRef, workingEvent.publicId)
+    const participantsRef = collection(eventDocRef, 'participants')
+    const anonymousPartRef = doc(participantsRef, name)
+    const authedPartRef = doc(participantsRef, accountId)
 
-    // Delete old anonymous doc
-    batch.delete(anonymousPartRef)
-
-    // Create (update) new authed doc with old availability
-    batch.set(authedPartRef, {
-      name: accountName,
-      email: getAccountEmail(),
-      accountId,
-      availability: JSON.stringify(availability)
+    await runTransaction(db, async (transaction) => {
+      const anonymousDoc = await transaction.get(anonymousPartRef)
+      
+      if (!anonymousDoc.exists()) {
+        console.log('Anonymous document not found:', name)
+        return
+      }
+      
+      transaction.set(authedPartRef, {
+        name: accountName,
+        email: getAccountEmail(),
+        accountId,
+        availability: JSON.stringify(availability)
+      })
+      
+      transaction.update(eventDocRef, {
+        participants: arrayUnion(accountId)
+      })
+      
+      transaction.delete(anonymousPartRef)
     })
-
-    // This updates the participants list in the event details object
-    batch.update(doc(eventsRef, workingEvent.publicId), {
-      participants: arrayUnion(getAccountId())
-    })
-
-    await batch.commit(); return
+    
+    console.log('User updated successfully')
+    return
   } catch (err) {
-    console.error(err)
-  };
+    console.error('Error in updating user:', err)
+    throw err
+  }
 }
 
 async function wrappedSaveParticipantDetails (availability: Availability, locations: Location[] | undefined): Promise<void> {
