@@ -60,6 +60,9 @@ function TimeSelectPage() {
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
   );
+  const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(
+    getAccountId() !== ''
+  );
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
     useState<calendarDimensions>({
@@ -611,7 +614,7 @@ function TimeSelectPage() {
                   </div>
 
                   <div className="flex justify-around mt-3 align-middle">
-                    {getAccountId() !== '' ? (
+                    {isGoogleLoggedIn ? (
                       <div className="z-60 mb-4">
                         <ButtonSmall
                           bgColor="primary"
@@ -635,13 +638,13 @@ function TimeSelectPage() {
                               if (loginSuccessful) {
                                 console.log('hi there');
                                 updateAnonymousUserToAuthUser(getAccountName());
-                                // window.location.reload();
+                                setIsGoogleLoggedIn(true);
                               }
                             });
                           }}
                         >
                           <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                          Sign in to access GCal M
+                          Sign in to access GCal
                         </button>
                       </div>
                     )}
@@ -674,7 +677,7 @@ function TimeSelectPage() {
                     />
                   </div>
 
-                  {getAccountId() !== '' ? (
+                  {isGoogleLoggedIn ? (
                     <div className="z-60">
                       <div className="hidden lg:flex">
                         <ButtonSmall
@@ -706,9 +709,9 @@ function TimeSelectPage() {
                           handleIsSignedIn
                         ).then((loginSuccessful) => {
                           if (loginSuccessful) {
-                            console.log('hi there');
+                            console.log('finished');
                             updateAnonymousUserToAuthUser(getAccountName());
-                            // window.location.reload();
+                            setIsGoogleLoggedIn(true);
                           }
                         });
                       }}
