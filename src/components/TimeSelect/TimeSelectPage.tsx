@@ -627,7 +627,7 @@ function TimeSelectPage() {
                     ) : (
                       <div className="mb-4">
                         <button
-                          className="w-full font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                 flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
                             signInWithGoogle(
@@ -700,7 +700,7 @@ function TimeSelectPage() {
                     </div>
                   ) : (
                     <button
-                      className="w-full font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                      className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                       onClick={() => {
                         signInWithGoogle(
