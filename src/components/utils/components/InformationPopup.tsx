@@ -29,7 +29,7 @@ export default function InformationPopup({ content }: Props) {
         className={`absolute bg-black dark:bg-secondary_background-dark text-white dark:text-text-dark  z-10 p-2 rounded-lg transition-opacity duration-500 ${
           opacity ? 'opacity-100' : 'opacity-0'
         } pointer-events-none max-w-xs w-auto`}
-        style={{ transitionDelay: `${opacity ? '0ms' : '1000ms'}` }}
+        /* style={{ transitionDelay: `${opacity ? '0ms' : '1000ms'}` }} */
       >
         {content}
       </div>

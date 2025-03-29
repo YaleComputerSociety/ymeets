@@ -112,55 +112,59 @@ function TimeSelectPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (code && code.length === 6) {
-        await getEventOnPageload(code).then(() => {
-          const { availabilities, participants } = eventAPI.getCalendar();
-          const dim = eventAPI.getCalendarDimensions();
+        await getEventOnPageload(code)
+          .then(() => {
+            const { availabilities, participants } = eventAPI.getCalendar();
+            const dim = eventAPI.getCalendarDimensions();
 
-          if (dim == undefined) {
-            nav('/notfound');
-          }
+            if (dim == undefined) {
+              nav('/notfound');
+            }
 
-          const accountName = getAccountName();
-          if (accountName === null) {
-            return;
-          }
+            const accountName = getAccountName();
+            if (accountName === null) {
+              return;
+            }
 
-          let avail: Availability | undefined =
-            getAccountId() !== ''
-              ? getAvailabilityByAccountId(getAccountId())
-              : getAvailabilityByName(accountName);
+            let avail: Availability | undefined =
+              getAccountId() !== ''
+                ? getAvailabilityByAccountId(getAccountId())
+                : getAvailabilityByName(accountName);
 
-          if (avail === undefined) {
-            avail = eventAPI.getEmptyAvailability(dim);
-          } else {
-            setHasAvailability(true);
-          }
+            if (avail === undefined) {
+              avail = eventAPI.getEmptyAvailability(dim);
+            } else {
+              setHasAvailability(true);
+            }
 
-          setChartedUsers(participants);
+            setChartedUsers(participants);
 
-          setEventName(getEventName());
-          setEventDescription(getEventDescription());
-          setLocationOptions(getLocationOptions());
+            setEventName(getEventName());
+            setEventDescription(getEventDescription());
+            setLocationOptions(getLocationOptions());
 
-          const theRange = getChosenDayAndTime();
-          setIsGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() === 2000 &&
-              theRange === undefined
-          );
+            const theRange = getChosenDayAndTime();
+            setIsGeneralDays(
+              dim?.dates[0][0].date?.getFullYear() === 2000 &&
+                theRange === undefined
+            );
 
-          setCalendarState([...availabilities, avail]);
-          setCalendarFramework(dim);
+            setCalendarState([...availabilities, avail]);
+            setCalendarFramework(dim);
 
-          /* The first date having a year be 2000 means that it was a general days selection */
-          setAreSelectingGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() == 2000 &&
-              theRange === undefined
-          );
+            /* The first date having a year be 2000 means that it was a general days selection */
+            setAreSelectingGeneralDays(
+              dim?.dates[0][0].date?.getFullYear() == 2000 &&
+                theRange === undefined
+            );
 
-          // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
-          if (theRange != undefined && theRange[0].getFullYear() != 1970) {
-            nav('/groupview/' + code);
-          }
+            // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
+            if (theRange != undefined && theRange[0].getFullYear() != 1970) {
+              nav('/groupview/' + code);
+            }
+        })
+        .catch(() => {
+          nav('/notfound');
         });
       } else {
         console.error("The event code in the URL doesn't exist");
