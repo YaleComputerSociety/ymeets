@@ -24,6 +24,7 @@ import {
   getParticipantIndex,
   getChosenDayAndTime,
   getTimezone,
+  updateAnonymousUserToAuthUser,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
@@ -58,6 +59,9 @@ function TimeSelectPage() {
   const navigate = useNavigate();
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
+  );
+  const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(
+    getAccountId() !== ''
   );
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
@@ -609,7 +613,7 @@ function TimeSelectPage() {
                   </div>
 
                   <div className="flex justify-around mt-3 align-middle">
-                    {getAccountId() !== '' ? (
+                    {isGoogleLoggedIn ? (
                       <div className="z-60 mb-4">
                         <ButtonSmall
                           bgColor="primary"
@@ -622,18 +626,18 @@ function TimeSelectPage() {
                     ) : (
                       <div className="mb-4">
                         <button
-                          className="w-full font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                 flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
                             signInWithGoogle(
                               undefined,
-                              gapi,
+                              undefined,
                               handleIsSignedIn
                             ).then((loginSuccessful) => {
                               if (loginSuccessful) {
-                                window.location.reload();
-                              } else {
-                                console.error('login failed');
+                                console.log('hi there');
+                                updateAnonymousUserToAuthUser(getAccountName());
+                                setIsGoogleLoggedIn(true);
                               }
                             });
                           }}
@@ -672,7 +676,7 @@ function TimeSelectPage() {
                     />
                   </div>
 
-                  {getAccountId() !== '' ? (
+                  {isGoogleLoggedIn ? (
                     <div className="z-60">
                       <div className="hidden lg:flex">
                         <ButtonSmall
@@ -695,23 +699,23 @@ function TimeSelectPage() {
                     </div>
                   ) : (
                     <button
-                      className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
-              flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                      className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+          flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                       onClick={() => {
                         signInWithGoogle(
                           undefined,
-                          gapi,
+                          undefined,
                           handleIsSignedIn
                         ).then((loginSuccessful) => {
                           if (loginSuccessful) {
-                            window.location.reload();
-                          } else {
-                            console.error('login failed');
+                            console.log('finished');
+                            updateAnonymousUserToAuthUser(getAccountName());
+                            setIsGoogleLoggedIn(true);
                           }
                         });
                       }}
                     >
-                      <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
+                      <img src={LOGO} alt="Logo" className="mr-2 h-5" />
                       Sign in to access GCal
                     </button>
                   )}
