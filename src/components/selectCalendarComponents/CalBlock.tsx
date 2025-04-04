@@ -78,6 +78,7 @@ export default function CalBlock({
     if (chartedUsers && setChartedUsers) {
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
       });
@@ -273,6 +274,7 @@ export default function CalBlock({
 
     setChartedUsers({
       users: chartedUsers.users,
+      userIDs: chartedUsers.userIDs,
       available: availableUsers,
       unavailable: unavailableUsers,
     });
@@ -314,6 +316,7 @@ export default function CalBlock({
 
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: availableUsers,
         unavailable: unavailableUsers,
       });
@@ -325,6 +328,7 @@ export default function CalBlock({
     if (chartedUsers && setChartedUsers) {
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
       });
