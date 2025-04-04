@@ -378,7 +378,6 @@ function TimeSelectPage() {
       const dateObj = dates[columnID];
       for (let blockID = 0; blockID < totalBlocks; blockID++) {
         const timeString = times[blockID];
-        console.log(timeString);
         const [hours, minutes] = timeString
           ? timeString.split(':').map(Number)
           : [0, 0];
