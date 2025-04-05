@@ -119,20 +119,18 @@ export default function HomePage() {
                 textColor="white"
                 onClick={() => navigate('/dayselect')}
               >
-                I'm a Host
+                Create Event
               </Button>
-              <button
-                className={
-                  !showInput
-                    ? 'hidden'
-                    : 'font-bold rounded-full bg-white text-black py-4 px-7 text-md transform transition-transform hover:scale-90 active:scale-100 mb-4'
-                }
-                onClick={() => {
-                  showEventInput();
-                }}
+
+              <Button
+                bgColor="white"
+                textColor="black"
+                themeGradient={false}
+                onClick={() => navigate('/useraccount')}
               >
-                I'm a Participant
-              </button>
+                View My Events
+              </Button>
+
               <div
                 className={showInput ? 'hidden' : 'flex flex-nowrap relative'}
               >
