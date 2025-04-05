@@ -123,7 +123,7 @@ export default function HomePage() {
               >
                 Create Event
               </Button>
-
+              
               <Button
                 bgColor="white"
                 textColor="black"
@@ -132,39 +132,6 @@ export default function HomePage() {
               >
                 View My Events
               </Button>
-
-              {/* jeet: this was from legacy im a participant */}
-              
-              {/* <div
-                className={showInput ? 'hidden' : 'flex flex-nowrap relative'}
-              >
-                <label className="hidden" htmlFor="eventCode">
-                  Event Code
-                </label>
-                <input
-                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-primary"
-                  placeholder="Enter your event code"
-                  name="eventCode"
-                  onInput={updateEventCode}
-                  onKeyDown={handleKeyPress}
-                  autoComplete="off"
-                />
-                <button
-                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-primary"
-                  onClick={validateAndGoToEvent}
-                >
-                  Join
-                </button>
-                <div
-                  className={
-                    !showFormValidation
-                      ? 'hidden'
-                      : 'text-primary absolute -bottom-10 mb-2 text-center w-full'
-                  }
-                >
-                  Try Again: {formErrorMessage}
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
