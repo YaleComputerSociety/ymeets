@@ -33,6 +33,7 @@ export default function HomePage() {
     setShowFormValidation(true);
     setFormErrorMessage(message);
   }
+
   const showEventInput = () => {
     setShowInput(!showInput);
   };
@@ -44,6 +45,7 @@ export default function HomePage() {
       validateAndGoToEvent();
     }
   };
+
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
@@ -131,7 +133,9 @@ export default function HomePage() {
                 View My Events
               </Button>
 
-              <div
+              {/* jeet: this was from legacy im a participant */}
+              
+              {/* <div
                 className={showInput ? 'hidden' : 'flex flex-nowrap relative'}
               >
                 <label className="hidden" htmlFor="eventCode">
@@ -160,7 +164,7 @@ export default function HomePage() {
                 >
                   Try Again: {formErrorMessage}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
