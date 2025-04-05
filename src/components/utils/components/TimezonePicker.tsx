@@ -12,7 +12,7 @@ function TimezonePicker({ theTimezone }: TimezonePickerProps) {
     'Europe/London',
     'Europe/Paris',
     'Asia/Tokyo',
-    'Asia/Kolkata',
+    'Asia/Calcutta',
     'Australia/Sydney',
   ];
 
