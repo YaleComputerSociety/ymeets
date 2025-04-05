@@ -7,14 +7,13 @@ import {
   getAllEventsForUser,
   deleteEvent,
 } from '../../firebase/events';
-import { logout } from '../../firebase/auth';
 
-import { isMobile } from 'react-device-detect';
 import { useNavigate } from 'react-router-dom';
 import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
+import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 
 interface AccountsPageEvent {
@@ -87,9 +86,25 @@ export default function AccountsPage() {
       }
     };
 
-    return auth.onAuthStateChanged(() => {
+    // determine isMobile on initial load
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+    updateIsMobile();
+    // listen to changes to respond to resize (if we even want to do this)
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    const updatEvents = auth.onAuthStateChanged(() => {
       retrieveAndSetEvents();
     });
+
+    const removeResizeListener = () => {
+      mediaQuery.removeEventListener('change', updateIsMobile);
+    };
+
+    return () => {
+      removeResizeListener();
+      updatEvents();
+    };
   }, []);
 
   const nav = useNavigate();
@@ -100,6 +115,8 @@ export default function AccountsPage() {
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
   };
+
+  const [isMobile, setIsMobile] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -220,19 +237,7 @@ export default function AccountsPage() {
         ) : undefined}
 
         <div className="flex items-center justify-start">
-          {checkIfLoggedIn() && isMobile ? (
-            <button
-              onClick={() => {
-                logout(gapi);
-                nav('/');
-              }}
-              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
-            >
-              Logout
-            </button>
-          ) : (
-            <div />
-          )}
+          {!checkIfLoggedIn() && isMobile ? <LoginButton /> : <div />}
         </div>
       </div>
     </div>
