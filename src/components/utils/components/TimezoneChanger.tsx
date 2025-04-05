@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { calendarDimensions } from '../../../types';
-import getShorterTimezonesList from '../functions/getShorterListofTimezones';
 import { getDates } from '../../../firebase/events';
 import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
@@ -21,8 +20,16 @@ const TimezoneChanger = ({
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [currentTime, setCurrentTime] = useState('');
 
-  // Get list of all timezones
-  const timezones = Intl.supportedValuesOf('timeZone');
+  const timezones = [
+    'UTC',
+    'America/New_York',
+    'America/Los_Angeles',
+    'Europe/London',
+    'Europe/Paris',
+    'Asia/Tokyo',
+    'Asia/Calcutta',
+    'Australia/Sydney',
+  ];
 
   // Update time when timezone changes
   const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
