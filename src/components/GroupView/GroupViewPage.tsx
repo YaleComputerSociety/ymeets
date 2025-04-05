@@ -38,7 +38,7 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { IconPencil } from '@tabler/icons-react';
+import { IconPencil, IconPlus } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import { filter } from 'lodash';
@@ -103,6 +103,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }>({});
   const [allUsers, setAllUsers] = useState<userData>({} as userData);
 
+  const [userHasFilled, setUserHasFilled] = useState(false);
+
   useEffect(() => {
     setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
   }, [allPeople]);
@@ -161,6 +163,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 participants.users.map((user) => [user.name, true])
               )
             );
+
+            setUserHasFilled(participants.userIDs.includes(getAccountId()));
+
             setCalendarState(availabilities);
             setCalendarFramework(dates);
 
@@ -388,8 +393,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                       }}
                     >
                       <div className="flex flex-row items-center justify-center space-x-1">
-                        <IconPencil />
-                        <p>Edit Your Availability</p>
+                        {userHasFilled ? <IconPencil /> : <IconPlus />}
+                        <p>
+                          {userHasFilled
+                            ? 'Edit Your Availability'
+                            : 'Add Your Availability'}
+                        </p>
                       </div>
                     </ButtonSmall>
 
