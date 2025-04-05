@@ -220,7 +220,7 @@ export default function AccountsPage() {
           )
         ) : undefined}
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-center">
           {checkIfLoggedIn() ? (
             <button
               onClick={() => {

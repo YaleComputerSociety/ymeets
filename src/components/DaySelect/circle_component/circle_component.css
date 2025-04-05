@@ -46,3 +46,7 @@ button.active-circle:hover {
   border-radius: 12px;
   @apply dark:bg-primary !important;
 }
+
+button.circle-button {
+  @apply dark:text-white !important;
+}

@@ -230,7 +230,7 @@ export const DaySelectComponent = () => {
             {/* Intentionally made these not Input components since I dont want the expand feature on all */}
             <input
               id="event-name"
-              type="text"
+              type="text" 
               className={inputClasses}
               placeholder="Event Name"
               value={eventName}
@@ -250,7 +250,7 @@ export const DaySelectComponent = () => {
               onChange={(e) => {
                 setEventDescription(e.target.value);
               }}
-              rows={1}
+              rows={3}
               maxLength={100}
             />
           </div>
