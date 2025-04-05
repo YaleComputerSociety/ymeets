@@ -1,9 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import {
-  IconPlus,
-  IconSearch,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
@@ -11,10 +7,8 @@ import {
   getAllEventsForUser,
   deleteEvent,
 } from '../../firebase/events';
-import { logout } from '../../firebase/auth';
 
 import { useNavigate } from 'react-router-dom';
-import copy from 'clipboard-copy';
 import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
 import { GAPIContext } from '../../firebase/gapiContext';
@@ -92,9 +86,25 @@ export default function AccountsPage() {
       }
     };
 
-    return auth.onAuthStateChanged(() => {
+    // determine isMobile on initial load
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+    updateIsMobile();
+    // listen to changes to respond to resize (if we even want to do this)
+    mediaQuery.addEventListener('change', updateIsMobile);
+
+    const updatEvents = auth.onAuthStateChanged(() => {
       retrieveAndSetEvents();
     });
+
+    const removeResizeListener = () => {
+      mediaQuery.removeEventListener('change', updateIsMobile);
+    };
+
+    return () => {
+      removeResizeListener();
+      updatEvents();
+    };
   }, []);
 
   const nav = useNavigate();
@@ -105,6 +115,8 @@ export default function AccountsPage() {
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
   };
+
+  const [isMobile, setIsMobile] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -172,16 +184,20 @@ export default function AccountsPage() {
                       {event.iAmCreator && (
                         <button
                           onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-                            deleteEvent(event.id)
-                            .then(() => {
-                              // delete it locally
-                              setEvents(
-                              events.filter((e) => e.id != event.id)
-                              );
-                            })
-                            .catch((err) => {});
-                          }
+                            if (
+                              window.confirm(
+                                'Are you sure you want to delete this event? This action cannot be undone.'
+                              )
+                            ) {
+                              deleteEvent(event.id)
+                                .then(() => {
+                                  // delete it locally
+                                  setEvents(
+                                    events.filter((e) => e.id != event.id)
+                                  );
+                                })
+                                .catch((err) => {});
+                            }
                           }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                           aria-label="Delete event"
@@ -220,20 +236,8 @@ export default function AccountsPage() {
           )
         ) : undefined}
 
-        <div className="flex items-center justify-end">
-          {checkIfLoggedIn() ? (
-            <button
-              onClick={() => {
-                logout(gapi);
-                nav('/');
-              }}
-              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
-            >
-              Logout
-            </button>
-          ) : (
-            <LoginButton />
-          )}
+        <div className="flex items-center justify-start">
+          {!checkIfLoggedIn() && isMobile ? <LoginButton /> : <div />}
         </div>
       </div>
     </div>
