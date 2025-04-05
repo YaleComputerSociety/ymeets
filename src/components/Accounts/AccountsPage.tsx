@@ -17,7 +17,6 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
-import { set } from 'lodash';
 
 interface AccountsPageEvent {
   name: string;
