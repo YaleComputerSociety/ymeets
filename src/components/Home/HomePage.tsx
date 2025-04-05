@@ -187,5 +187,3 @@ export default function HomePage() {
     </>
   );
 }
-
-/* Hello, this is Julien! */
