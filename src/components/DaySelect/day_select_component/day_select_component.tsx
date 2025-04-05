@@ -262,7 +262,7 @@ export const DaySelectComponent = () => {
           </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
-              <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
+              <div className="w-full border rounded-md sm:w-[80%] md:w-full custom-select-wrapper z-69">
                 <Select
                   className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
                   multi
@@ -274,7 +274,7 @@ export const DaySelectComponent = () => {
                     const selectedValues = values.map((val) => val.value);
                     updateLocationsState(selectedValues);
                   }}
-                  placeholder="Location Options (Optional)"
+                  placeholder="Locations (Optional)"
                   noDataRenderer={() => (
                     <div className="p-2 text-center">
                       No matching preset locations :(

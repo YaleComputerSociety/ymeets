@@ -22,11 +22,11 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
 
   return (
     <div className="w-full p-3 dark:text-text-dark">
-      <div className="flex flex-row mt-12">
+      <div className="flex flex-row justify-around mt-12 text-sm">
         {DAYS.map((day) => (
           <div
             key={day}
-            className="mr-1 sm:w-1/7 md:w-1/7 lg:w-1/7 w-full sm:w-1/4 md:w-1/8 lg:w-1/10"
+            className="w-[13%] grow-0 shrink-0"
           >
             <p className="text-grey mb-2">{day}</p>
             <div
@@ -39,7 +39,7 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
                   },
                 }));
               }}
-              className={`h-32 sm:h-48 border border-black rounded-md ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'dark:bg-text-dark bg-white'}`}
+              className={`h-32 sm:h-48 border border-black rounded-md cursor-pointer  ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'dark:bg-text-dark bg-white'}`}
             ></div>
           </div>
         ))}

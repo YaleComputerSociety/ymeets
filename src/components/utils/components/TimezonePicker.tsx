@@ -15,7 +15,7 @@ function TimezonePicker({ theTimezone }: TimezonePickerProps) {
         onChange={(e) => {
           setTimzeone(e.target.value);
         }}
-        className="w-full p-3 border rounded-md dark:bg-secondary_background-dark max-h-40 overflow-y-auto"
+        className="w-full p-3 border rounded-md dark:bg-secondary_background-dark max-h-40 overflow-y-auto cursor-pointer"
       >
         {timezones.map((timezone) => (
           <option key={timezone} value={timezone}>
