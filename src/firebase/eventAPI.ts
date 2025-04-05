@@ -12,6 +12,7 @@ import {
   createEvent,
   getAllAvailabilities,
   getAllAvailabilitiesNames,
+  getAllAvailabilitiesIDs,
   getDates,
   getStartAndEndTimes,
 } from './events';
@@ -91,6 +92,7 @@ export default class FrontendEventAPI {
         plausibleLocations, // TODO admin creator is not being added; maybe should be done on time select?
         zoomLink: zoomLink,
         timeZone: timeZone,
+        participants: [],
       });
 
       return ev;
@@ -248,9 +250,11 @@ export default class FrontendEventAPI {
   static getCalendar(): calendar {
     const avails = getAllAvailabilities();
     const names = getAllAvailabilitiesNames();
+    const ids = getAllAvailabilitiesIDs();
 
     const userData: userData = {
       users: [],
+      userIDs: [],
       available: [],
       unavailable: [],
     };
@@ -260,6 +264,10 @@ export default class FrontendEventAPI {
         name: names[i],
         id: i,
       });
+    }
+
+    for (let i = 0; i < ids.length; i++) {
+      userData.userIDs.push(ids[i]);
     }
 
     const availMatrix: calanderState = [];
@@ -279,6 +287,7 @@ export default class FrontendEventAPI {
 
     const userData: userData = {
       users: [],
+      userIDs: [],
       available: [],
       unavailable: [],
     };

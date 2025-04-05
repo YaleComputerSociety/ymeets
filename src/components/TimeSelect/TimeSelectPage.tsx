@@ -23,6 +23,8 @@ import {
   getLocationOptions,
   getParticipantIndex,
   getChosenDayAndTime,
+  getTimezone,
+  updateAnonymousUserToAuthUser,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
@@ -38,6 +40,7 @@ import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
 
 /**
  *
@@ -56,6 +59,9 @@ function TimeSelectPage() {
   const navigate = useNavigate();
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
+  );
+  const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(
+    getAccountId() !== ''
   );
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
@@ -376,7 +382,6 @@ function TimeSelectPage() {
       const dateObj = dates[columnID];
       for (let blockID = 0; blockID < totalBlocks; blockID++) {
         const timeString = times[blockID];
-        console.log(timeString);
         const [hours, minutes] = timeString
           ? timeString.split(':').map(Number)
           : [0, 0];
@@ -569,14 +574,20 @@ function TimeSelectPage() {
           className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3 text-text dark:text-text-dark"
         >
-          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-4xl font-bold text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-xl text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventDescription}
           </div>
           {locationOptions.length > 0 && (
-            <div className="w-full z-[9999]">
+            <div className="w-full z-50">
               <LocationSelectionComponent
                 locations={locationOptions}
                 update={updateSelectedLocations}
@@ -587,75 +598,159 @@ function TimeSelectPage() {
         </div>
         <div className="lg:col-span-3">
           <div className="w-full">
-            <Calendar
-              theShowUserChart={undefined}
-              onClick={() => {}}
-              theCalendarState={[calendarState, setCalendarState]}
-              user={getCurrentUserIndex()}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              draggable={true}
-              chartedUsersData={undefined}
-              theDragState={[dragState, setDragState]}
-              isAdmin={false}
-              theGoogleCalendarEvents={[
-                googleCalendarEvents,
-                setGoogleCalendarEvents,
-              ]}
-              isGeneralDays={isGeneralDays}
-            />
-          </div>
-          <div className="flex flex-row justify-between mb-3">
-            {getAccountId() !== '' ? (
-              <div className="pl-5 z-60 mb-4 lg:mb-0">
-                <div className="hidden lg:flex">
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    onClick={handleToggleGCalAvailabilitiesClick}
-                  >
-                    Show GCal Events
-                  </ButtonSmall>
-                </div>
-                <div className="lg:hidden flex">
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    onClick={handleToggleGCalAvailabilitiesClick}
-                  >
-                    Show GCal Events
-                  </ButtonSmall>
-                </div>
-              </div>
-            ) : (
-              <div className="lg:pl-4 mb-4 lg:mb-0">
-                <button
-                  className="w-full lg:w-auto font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm lg:text-base
-                            flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={() => {
-                    signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
-                      (loginSuccessful) => {
-                        if (loginSuccessful) {
-                          window.location.reload();
-                        } else {
-                          console.error('login failed');
-                        }
+            <div className="flex flex-col space-y-0 mb-2">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+                {/* Mobile layout */}
+                <div className="w-full flex flex-col md:hidden">
+                  <div className="w-full">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
                       }
-                    );
-                  }}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-5 lg:h-6" />
-                  Sign in with Google to access GCal
-                </button>
+                    />
+                  </div>
+
+                  <div className="flex justify-around mt-3 align-middle">
+                    {isGoogleLoggedIn ? (
+                      <div className="z-60 mb-4">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                    ) : (
+                      <div className="mb-4">
+                        <button
+                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                          onClick={() => {
+                            signInWithGoogle(
+                              undefined,
+                              undefined,
+                              handleIsSignedIn
+                            ).then((loginSuccessful) => {
+                              if (loginSuccessful) {
+                                console.log('hi there');
+                                updateAnonymousUserToAuthUser(getAccountName());
+                                setIsGoogleLoggedIn(true);
+                              }
+                            });
+                          }}
+                        >
+                          <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                          Sign in to access GCal
+                        </button>
+                      </div>
+                    )}
+                    <div className="z-60 mb-4">
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        themeGradient={false}
+                        onClick={handleSubmitAvailability}
+                      >
+                        <span>&nbsp;</span> Save <span>&nbsp;</span>
+                      </ButtonSmall>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop layout */}
+                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
+                  <div className="flex-grow">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
+                      }
+                    />
+                  </div>
+
+                  {isGoogleLoggedIn ? (
+                    <div className="z-60">
+                      <div className="hidden lg:flex">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                      <div className="lg:hidden flex">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+          flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                      onClick={() => {
+                        signInWithGoogle(
+                          undefined,
+                          undefined,
+                          handleIsSignedIn
+                        ).then((loginSuccessful) => {
+                          if (loginSuccessful) {
+                            console.log('finished');
+                            updateAnonymousUserToAuthUser(getAccountName());
+                            setIsGoogleLoggedIn(true);
+                          }
+                        });
+                      }}
+                    >
+                      <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                      Sign in to access GCal
+                    </button>
+                  )}
+
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    themeGradient={false}
+                    onClick={handleSubmitAvailability}
+                  >
+                    <span>&nbsp;</span> Save <span>&nbsp;</span>
+                  </ButtonSmall>
+                </div>
               </div>
-            )}
-            <div className="pr-5">
-              <ButtonSmall
-                bgColor="primary"
-                textColor="white"
-                onClick={handleSubmitAvailability}
-              >
-                Next <span className="ml-1">&#8594;</span>
-              </ButtonSmall>
+
+              <Calendar
+                theShowUserChart={undefined}
+                onClick={() => {}}
+                theCalendarState={[calendarState, setCalendarState]}
+                user={getCurrentUserIndex()}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                draggable={true}
+                chartedUsersData={undefined}
+                theDragState={[dragState, setDragState]}
+                isAdmin={false}
+                theGoogleCalendarEvents={[
+                  googleCalendarEvents,
+                  setGoogleCalendarEvents,
+                ]}
+                isGeneralDays={isGeneralDays}
+              />
             </div>
           </div>
         </div>
