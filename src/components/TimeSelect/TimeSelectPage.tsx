@@ -654,7 +654,7 @@ function TimeSelectPage() {
                         themeGradient={false}
                         onClick={handleSubmitAvailability}
                       >
-                        Next <span className="ml-1">&#8594;</span>
+                        <span>&nbsp;</span> Save <span>&nbsp;</span>
                       </ButtonSmall>
                     </div>
                   </div>
@@ -726,7 +726,7 @@ function TimeSelectPage() {
                     themeGradient={false}
                     onClick={handleSubmitAvailability}
                   >
-                    Next <span className="ml-1">&#8594;</span>
+                    <span>&nbsp;</span> Save <span>&nbsp;</span>
                   </ButtonSmall>
                 </div>
               </div>

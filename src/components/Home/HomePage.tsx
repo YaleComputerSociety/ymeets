@@ -41,27 +41,27 @@ export default function HomePage() {
   };
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
-      signInAndGoToEvent();
+      validateAndGoToEvent();
     }
   };
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
-        navigate('/timeselect/' + eventCode);
+        navigate('/groupview/' + eventCode);
       })
       .catch((err) => {
         formValidationPopup('Code is invalid.');
       });
   };
-  const signInAndGoToEvent = () => {
+
+  const validateAndGoToEvent = () => {
     if (eventCode.length != 6) {
       formValidationPopup('Codes are 6 characters long.');
-    } else if (checkIfLoggedIn()) {
-      goToEvent();
     } else {
-      setShowLoginPopup(true);
+      goToEvent();
     }
   };
+
   const handleLoginPopupClose = (successFlag?: boolean) => {
     setShowLoginPopup(false);
     if (successFlag) {
@@ -149,7 +149,7 @@ export default function HomePage() {
                 />
                 <button
                   className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-primary"
-                  onClick={signInAndGoToEvent}
+                  onClick={validateAndGoToEvent}
                 >
                   Join
                 </button>
@@ -185,6 +185,5 @@ export default function HomePage() {
     </>
   );
 }
-
 
 /* Hello, this is Julien! */
