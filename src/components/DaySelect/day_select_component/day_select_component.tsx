@@ -354,7 +354,7 @@ export const DaySelectComponent = () => {
               </div>
             </div>
 
-            <div className="max-w-[500px] mx-auto mt-4 dark:text-white">
+            <div className="mx-auto rounded-xl border border-gray-300 dark:border-gray-600 mt-4">
               <CalanderComponent
                 theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
                 theGeneralDays={[selectedDays, setSelectedDays]}
