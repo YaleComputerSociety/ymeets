@@ -229,7 +229,7 @@ export const DaySelectComponent = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row justify-center gap-8">
         {/* Left Column - Event Details */}
         <div className="md:w-1/2">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
@@ -308,7 +308,7 @@ export const DaySelectComponent = () => {
         </div>
 
         {/* Right Column - Calendar */}
-        <div className="md:w-1/2">
+        <div className="md:w-2/5">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-2">
               <div className="relative bg-white dark:bg-gray-800 rounded-md">
