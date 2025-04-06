@@ -8,6 +8,7 @@ import LimitedSelect from './limited_select_component';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -267,16 +268,17 @@ export const DaySelectComponent = () => {
                 >
                   Event Description
                 </label>
-                <textarea
+                <TextareaAutosize
                   id="event-description"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
-                               bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
-                               focus:ring-2 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent"
+               bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
+               focus:ring-2 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent
+               resize-none overflow-hidden"
                   placeholder="Describe your event (Optional)"
                   value={eventDescription}
                   onChange={(e) => setEventDescription(e.target.value)}
-                  rows={3}
-                  maxLength={100}
+                  maxLength={300}
+                  minRows={2}
                 />
               </div>
 
@@ -284,16 +286,14 @@ export const DaySelectComponent = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Timezone
                 </label>
-                <div className="dark:bg-gray-700 dark:border-gray-600 rounded-lg">
-                  <TimezonePicker theTimezone={[timezone, setTimezone]} />
-                </div>
+                <TimezonePicker theTimezone={[timezone, setTimezone]} />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Locations
                 </label>
-                <div className="z-40">
+                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600">
                   <LimitedSelect
                     locationOptions={locationOptions}
                     updateLocationsState={updateLocationsState}
