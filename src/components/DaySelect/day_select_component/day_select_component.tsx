@@ -227,9 +227,6 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days');
   };
 
-  const inputClasses =
-    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
@@ -252,8 +249,8 @@ export const DaySelectComponent = () => {
                   id="event-name"
                   type="text"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
-                               bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
-                               focus:ring-2 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent"
+                             bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
+                             focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200"
                   placeholder="Enter event name"
                   value={eventName}
                   onChange={(e) => setEventName(e.target.value)}
@@ -271,9 +268,8 @@ export const DaySelectComponent = () => {
                 <TextareaAutosize
                   id="event-description"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
-               bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
-               focus:ring-2 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent
-               resize-none overflow-hidden"
+                             bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
+                             focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200 resize-none overflow-hidden"
                   placeholder="Describe your event (Optional)"
                   value={eventDescription}
                   onChange={(e) => setEventDescription(e.target.value)}
@@ -293,7 +289,7 @@ export const DaySelectComponent = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Locations
                 </label>
-                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600">
+                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
                   <LimitedSelect
                     locationOptions={locationOptions}
                     updateLocationsState={updateLocationsState}
@@ -367,18 +363,16 @@ export const DaySelectComponent = () => {
               />
             </div>
           </div>
+          <div className="mt-6 flex justify-end">
+            <Button
+              onClick={verifyNextAndSubmitEvent}
+              bgColor="primary"
+              textColor="white"
+            >
+              Continue to Next Step
+            </Button>
+          </div>
         </div>
-      </div>
-
-      {/* Action Button - Positioned at right */}
-      <div className="mt-6 flex justify-end">
-        <Button
-          onClick={verifyNextAndSubmitEvent}
-          bgColor="primary"
-          textColor="white"
-        >
-          Continue to Next Step
-        </Button>
       </div>
     </div>
   );
