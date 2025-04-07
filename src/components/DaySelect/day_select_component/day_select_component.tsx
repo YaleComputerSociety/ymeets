@@ -371,7 +371,7 @@ export const DaySelectComponent = () => {
               bgColor="primary"
               textColor="white"
             >
-              Continue to Next Step
+              Create
             </Button>
           </div>
         </div>
