@@ -158,7 +158,7 @@ export const CalanderComponent = ({
   };
 
   return (
-    <div className="calendar-wrapper bg-secondary_background ">
+    <div className="calendar-wrapper">
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
