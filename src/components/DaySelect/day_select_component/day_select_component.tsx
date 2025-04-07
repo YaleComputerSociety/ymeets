@@ -248,6 +248,7 @@ export const DaySelectComponent = () => {
                 <input
                   id="event-name"
                   type="text"
+                  autoComplete="off"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
                              bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
                              focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200"
@@ -267,6 +268,7 @@ export const DaySelectComponent = () => {
                 </label>
                 <TextareaAutosize
                   id="event-description"
+                  autoComplete="off"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
                              bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
                              focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200 resize-none overflow-hidden"
