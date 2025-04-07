@@ -9,6 +9,7 @@ import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -298,7 +299,7 @@ export const DaySelectComponent = () => {
                 </div>
 
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <InformationPopup content="Type and click ENTER to add locations for your group to vote on for the meeting" />
+                  <IconInfoCircle></IconInfoCircle>
                   <span className="ml-2">
                     Type and press ENTER to add locations
                   </span>
