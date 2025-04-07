@@ -228,9 +228,8 @@ export const DaySelectComponent = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-4">
       <div className="flex flex-col md:flex-row justify-center gap-8">
-        {/* Left Column - Event Details */}
         <div className="md:w-1/2">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
             <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-slate-200 mb-6">
@@ -309,21 +308,20 @@ export const DaySelectComponent = () => {
           </div>
         </div>
 
-        {/* Right Column - Calendar */}
         <div className="md:w-2/5">
-          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-2">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl px-6 border border-gray-100 dark:border-gray-700">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-1 mt-6 mb-3">
               <div className="relative bg-white dark:bg-gray-800 rounded-md">
                 <div className="grid grid-cols-2 overflow-hidden rounded-md">
                   <button
                     onClick={() => handleTabChange('Specific Days')}
-                    className="py-3 px-4 relative z-10 focus:outline-none transition-colors duration-300"
+                    className="py-2 px-2 relative z-10 focus:outline-none transition-colors duration-300"
                   >
                     <span
                       className={
                         selectGeneralDays
-                          ? 'text-gray-700 dark:text-gray-300'
-                          : 'text-white dark:text-white'
+                          ? 'text-gray-700 dark:text-gray-300 text-sm'
+                          : 'text-white dark:text-white text-sm'
                       }
                     >
                       Specific Days
@@ -331,13 +329,13 @@ export const DaySelectComponent = () => {
                   </button>
                   <button
                     onClick={() => handleTabChange('General Days')}
-                    className="py-3 px-4 relative z-10 focus:outline-none transition-colors duration-300"
+                    className="py-2 px-2 relative z-10 focus:outline-none transition-colors duration-300"
                   >
                     <span
                       className={
                         selectGeneralDays
-                          ? 'text-white dark:text-white'
-                          : 'text-gray-700 dark:text-gray-300'
+                          ? 'text-white dark:text-white text-sm'
+                          : 'text-gray-700 dark:text-gray-300 text-sm'
                       }
                     >
                       General Days
@@ -352,7 +350,7 @@ export const DaySelectComponent = () => {
               </div>
             </div>
 
-            <div className="mx-auto rounded-xl border border-gray-300 dark:border-gray-600 mt-4">
+            <div className="mx-auto rounded-lg border border-gray-300 dark:border-gray-600">
               <CalanderComponent
                 theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
                 theGeneralDays={[selectedDays, setSelectedDays]}
@@ -364,15 +362,15 @@ export const DaySelectComponent = () => {
                 popUpMessage={[popUpMessage, setPopupMessage]}
               />
             </div>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button
-              onClick={verifyNextAndSubmitEvent}
-              bgColor="primary"
-              textColor="white"
-            >
-              Create
-            </Button>
+            <div className="mt-4 mb-4 flex justify-center">
+              <Button
+                onClick={verifyNextAndSubmitEvent}
+                bgColor="primary"
+                textColor="white"
+              >
+                Create
+              </Button>
+            </div>
           </div>
         </div>
       </div>
