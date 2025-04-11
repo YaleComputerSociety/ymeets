@@ -119,7 +119,8 @@ export default function CalRow({
                 const startTime = new Date(gEvent.start.dateTime);
                 const checkTime = new Date(gEvent.start.dateTime);
                 checkTime.setHours(hours, minutes, 0, 0);
-                return startTime.getTime() === checkTime.getTime();
+                const timeDifference = checkTime.getTime() - startTime.getTime();
+                return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
               }
               return false;
             });
