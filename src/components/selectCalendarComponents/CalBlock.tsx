@@ -34,6 +34,9 @@ interface CalBlockProps {
   associatedEvents?: calendar_v3.Schema$Event[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  isEventStart: boolean;
+  eventName: string | null;
+  additionalEventCount: number;
 }
 
 interface BoundingBox {
@@ -58,6 +61,9 @@ export default function CalBlock({
   is30Minute,
   chartedUsersData,
   theShowUserChart,
+  isEventStart,
+  eventName,
+  additionalEventCount,
 }: CalBlockProps) {
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
@@ -629,6 +635,19 @@ export default function CalBlock({
         lastDragPoint.current = null;
       }}
     >
+
+      {isEventStart && eventName && (
+        <div
+          className="absolute top-0 left-0 text-xs font-bold text-black"
+          style={{
+            zIndex: 10,
+          }}
+        >
+          {eventName.length > 25 ? `${eventName.slice(0, 25)}...` : eventName}
+          {additionalEventCount > 0 && ` +${additionalEventCount}`}
+        </div>
+      )}
+
       {showTooltip && associatedEvents && associatedEvents.length > 0 && (
         <div
           className={`
