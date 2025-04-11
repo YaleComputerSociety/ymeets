@@ -1,12 +1,20 @@
-import getShorterTimezonesList from '../functions/getShorterListofTimezones';
-
 interface TimezonePickerProps {
   theTimezone: [string, React.Dispatch<React.SetStateAction<string>>];
 }
 
 function TimezonePicker({ theTimezone }: TimezonePickerProps) {
   const [timezone, setTimzeone] = theTimezone;
-  const timezones = Intl.supportedValuesOf('timeZone');
+
+  const timezones = [
+    'UTC',
+    'America/New_York',
+    'America/Los_Angeles',
+    'Europe/London',
+    'Europe/Paris',
+    'Asia/Tokyo',
+    'Asia/Calcutta',
+    'Australia/Sydney',
+  ];
 
   return (
     <div className="text-primary w-full">

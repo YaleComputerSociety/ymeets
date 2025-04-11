@@ -71,6 +71,16 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
+    name: 'Lily Lin',
+    title: ['UI/UX Designer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
+    portfolio: undefined,
+    github: undefined,
+    image: LILY,
+  },
+
+  {
     name: 'Nicholas Ribeiro',
     title: ['Senior Software Engineer', 'Former Lead'],
     founding: true,
@@ -128,16 +138,6 @@ const PAST_CONTRIBUTORS = [
     github: 'https://github.com/gr4d13nt',
     image: ALAN,
     portfolio: undefined,
-  },
-
-  {
-    name: 'Lily Lin',
-    title: ['UI/UX Designer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
-    portfolio: undefined,
-    github: undefined,
-    image: LILY,
   },
 
   {
