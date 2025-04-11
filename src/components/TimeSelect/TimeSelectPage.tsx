@@ -544,6 +544,14 @@ function TimeSelectPage() {
     }
   };
 
+  const handleAutofillAvailabilityClick = async () => {
+    setShouldFillAvailability(true);
+    setIsFillingAvailability(true);
+
+    // Proceed with autofill even if no GCals are selected
+    await getGoogleCalData(googleCalIds.length > 0 ? googleCalIds : [], true);
+  };
+
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
@@ -681,25 +689,21 @@ function TimeSelectPage() {
                   </div>
 
                   {isGoogleLoggedIn ? (
-                    <div className="z-60">
-                      <div className="hidden lg:flex">
-                        <ButtonSmall
-                          bgColor="primary"
-                          textColor="white"
-                          onClick={handleToggleGCalAvailabilitiesClick}
-                        >
-                          Show GCal Events
-                        </ButtonSmall>
-                      </div>
-                      <div className="lg:hidden flex">
-                        <ButtonSmall
-                          bgColor="primary"
-                          textColor="white"
-                          onClick={handleToggleGCalAvailabilitiesClick}
-                        >
-                          Show GCal Events
-                        </ButtonSmall>
-                      </div>
+                    <div className="z-60 flex space-x-2">
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        onClick={handleToggleGCalAvailabilitiesClick}
+                      >
+                        Show GCal Events
+                      </ButtonSmall>
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        onClick={handleAutofillAvailabilityClick}
+                      >
+                        Autofill Availability
+                      </ButtonSmall>
                     </div>
                   ) : (
                     <button
