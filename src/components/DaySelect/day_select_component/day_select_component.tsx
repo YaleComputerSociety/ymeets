@@ -4,7 +4,7 @@ import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../firebase/eventAPI';
 import { getAccountId, getAccountName } from '../../../firebase/events';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-dropdown-select';
+import LimitedSelect from './limited_select_component'
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
@@ -119,6 +119,7 @@ export const DaySelectComponent = () => {
 
   // New, 2/18/25 - used to check if eventName or eventDescription are blank spaces or invisible characters
   const isBlankspaceOrInvisible = (str: string): boolean => {
+    // eslint-disable-next-line no-control-regex
     const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
     return str.replace(invisibleChars, '').trim().length === 0;
   }
@@ -132,13 +133,11 @@ export const DaySelectComponent = () => {
       endDate.getMinutes() === 0 &&
       endDate.getSeconds() === 0
     ) {
-      // alert('Make sure to enter times!');
       alert('Make sure to enter times!');
       return;
     }
 
     if (startDate >= endDate) {
-      // alert('Make sure your end time is after your start time!');
       alert('Make sure your end time is after your start time!');
       return;
     }
@@ -146,7 +145,6 @@ export const DaySelectComponent = () => {
     // Optional; backend supports an empty string for name
     // Change, 2/18/25 - Name is not optional; make sure it's not a blank space or just invisible characters.
     if (isBlankspaceOrInvisible(eventName)) {
-      // alert('Make sure to name your event!');
       alert('Make sure to name your event!');
       return;
     }
@@ -194,7 +192,6 @@ export const DaySelectComponent = () => {
         });
     } else {
       if (selectedDates.length == 0) {
-        // alert('Make sure to enter dates!');
         alert('Make sure to enter dates!');
         return;
       }
@@ -233,7 +230,7 @@ export const DaySelectComponent = () => {
             {/* Intentionally made these not Input components since I dont want the expand feature on all */}
             <input
               id="event-name"
-              type="text"
+              type="text" 
               className={inputClasses}
               placeholder="Event Name"
               value={eventName}
@@ -253,7 +250,7 @@ export const DaySelectComponent = () => {
               onChange={(e) => {
                 setEventDescription(e.target.value);
               }}
-              rows={1}
+              rows={3}
               maxLength={100}
             />
           </div>
@@ -262,7 +259,7 @@ export const DaySelectComponent = () => {
           </div>
           <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
             <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
-              <div className="w-full sm:w-[80%] md:w-full custom-select-wrapper z-69">
+              <div className="w-full border rounded-md sm:w-[80%] md:w-full custom-select-wrapper z-69">
                 <Select
                   className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
                   multi
@@ -274,7 +271,7 @@ export const DaySelectComponent = () => {
                     const selectedValues = values.map((val) => val.value);
                     updateLocationsState(selectedValues);
                   }}
-                  placeholder="Location Options (Optional)"
+                  placeholder="Locations (Optional)"
                   noDataRenderer={() => (
                     <div className="p-2 text-center">
                       No matching preset locations :(
@@ -296,7 +293,7 @@ export const DaySelectComponent = () => {
               </div>
             </div>
 
-            <div className="mt-2 mb-6 z-50">
+            <div className="mt-2 mb-6 z-50 flex justify-start">
               <InformationPopup
                 content="
                 Type and click ENTER to add locations for your group to vote on for the meeting

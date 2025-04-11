@@ -78,6 +78,7 @@ export default function CalBlock({
     if (chartedUsers && setChartedUsers) {
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
       });
@@ -138,10 +139,13 @@ export default function CalBlock({
 
   const getGroupPercentageColor = useCallback(() => {
     let selectedCount = 0;
-    const totalUsers = Object.keys(calendarState).length;
+    const totalUsers = chartedUsers?.users.length || 0;
 
-    for (let i = 0; i < totalUsers; i++) {
-      if (calendarState[i]?.[columnID]?.[blockID] === true) {
+    for (let i = 0; i < calendarState.length; i++) {
+      if (
+        calendarState[i]?.[columnID]?.[blockID] === true &&
+        chartedUsers?.users.some((u) => u.id === i)
+      ) {
         selectedCount += 1;
       }
     }
@@ -152,7 +156,7 @@ export default function CalBlock({
 
     const percentageSelected = selectedCount / totalUsers;
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
-  }, [calendarState, columnID, blockID, getDefaultColor]);
+  }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
 
   const [shadeColor, setShadeColor] = useState(getDefaultColor);
 
@@ -270,6 +274,7 @@ export default function CalBlock({
 
     setChartedUsers({
       users: chartedUsers.users,
+      userIDs: chartedUsers.userIDs,
       available: availableUsers,
       unavailable: unavailableUsers,
     });
@@ -311,6 +316,7 @@ export default function CalBlock({
 
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: availableUsers,
         unavailable: unavailableUsers,
       });
@@ -322,6 +328,7 @@ export default function CalBlock({
     if (chartedUsers && setChartedUsers) {
       setChartedUsers({
         users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
       });
@@ -536,10 +543,12 @@ export default function CalBlock({
       className={`
         cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
         border-r border-[#7E7E7E]
-        ${is30Minute ? 'border-t border-dotted border-t-[#7E7E7E]' : ''}
+        ${is30Minute ? 'border-t border-dashed border-t-[#7E7E7E]' : ''}
+        ${isInSelection() && is30Minute ? 'border-t-white' : ''}
         transition-colors duration-200 ease-in-out
       `}
       style={{
+        borderTopStyle: is30Minute ? 'dashed' : 'solid',
         backgroundColor: shadeColor,
       }}
       draggable={draggable}

@@ -111,6 +111,7 @@ export default function AccountsPage() {
   const [filter, setFilter] = useState('');
 
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
+  const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
@@ -144,9 +145,9 @@ export default function AccountsPage() {
             </div>
 
             <button
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark hover:to-primary/90
-                 text-white font-semibold rounded-lg transition-all
-                 transform hover:-translate-y-0.5 active:translate-y-0
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600
+                 text-white font-semibold rounded-lg transition-all transition-transform duration-300
+                 transform hover:scale-102 active:translate-y-0
                  shadow-md hover:shadow-lg
                  focus:outline-none focus:ring-2 focus:ring-primary/30
                  whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
@@ -185,13 +186,14 @@ export default function AccountsPage() {
                         <button
                           onClick={() => {
                             if (
+                              hasDeletedEvent ||
                               window.confirm(
                                 'Are you sure you want to delete this event? This action cannot be undone.'
                               )
                             ) {
                               deleteEvent(event.id)
                                 .then(() => {
-                                  // delete it locally
+                                  setHasDeletedEvent(true);
                                   setEvents(
                                     events.filter((e) => e.id != event.id)
                                   );
@@ -210,7 +212,7 @@ export default function AccountsPage() {
                     <div className="flex flex-row gap-2">
                       <button
                         onClick={() => nav(`/groupview/${event.id}`)}
-                        className="flex-1 bg-primary hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+                        className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
                       >
                         Open Event
                       </button>

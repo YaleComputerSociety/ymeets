@@ -33,6 +33,7 @@ export default function HomePage() {
     setShowFormValidation(true);
     setFormErrorMessage(message);
   }
+
   const showEventInput = () => {
     setShowInput(!showInput);
   };
@@ -41,27 +42,28 @@ export default function HomePage() {
   };
   const handleKeyPress = (e: any) => {
     if (e.key == 'Enter') {
-      signInAndGoToEvent();
+      validateAndGoToEvent();
     }
   };
+
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
-        navigate('/timeselect/' + eventCode);
+        navigate('/groupview/' + eventCode);
       })
       .catch((err) => {
         formValidationPopup('Code is invalid.');
       });
   };
-  const signInAndGoToEvent = () => {
+
+  const validateAndGoToEvent = () => {
     if (eventCode.length != 6) {
       formValidationPopup('Codes are 6 characters long.');
-    } else if (checkIfLoggedIn()) {
-      goToEvent();
     } else {
-      setShowLoginPopup(true);
+      goToEvent();
     }
   };
+
   const handleLoginPopupClose = (successFlag?: boolean) => {
     setShowLoginPopup(false);
     if (successFlag) {
@@ -81,7 +83,7 @@ export default function HomePage() {
           className="flex-col-reverse justify-center \ 
                             md:flex-row flex md:h-1/2 mb-10"
         >
-          <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
+          <div className="justify-center self-center space-y-5 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
               <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
                 A cleaner, faster way to schedule meetings on Yale's campus.
@@ -119,50 +121,17 @@ export default function HomePage() {
                 textColor="white"
                 onClick={() => navigate('/dayselect')}
               >
-                I'm a Host
+                Create Event
               </Button>
-              <button
-                className={
-                  !showInput
-                    ? 'hidden'
-                    : 'font-bold rounded-full bg-white text-black py-4 px-7 text-md transform transition-transform hover:scale-90 active:scale-100 mb-4'
-                }
-                onClick={() => {
-                  showEventInput();
-                }}
+              
+              <Button
+                bgColor="white"
+                textColor="black"
+                themeGradient={false}
+                onClick={() => navigate('/useraccount')}
               >
-                I'm a Participant
-              </button>
-              <div
-                className={showInput ? 'hidden' : 'flex flex-nowrap relative'}
-              >
-                <label className="hidden" htmlFor="eventCode">
-                  Event Code
-                </label>
-                <input
-                  className="rounded-l-full text-center py-4 px-4 text-lg focus:outline-primary"
-                  placeholder="Enter your event code"
-                  name="eventCode"
-                  onInput={updateEventCode}
-                  onKeyDown={handleKeyPress}
-                  autoComplete="off"
-                />
-                <button
-                  className="rounded-r-full font-bold bg-white text-black py-4 px-4 text-lg hover:text-primary"
-                  onClick={signInAndGoToEvent}
-                >
-                  Join
-                </button>
-                <div
-                  className={
-                    !showFormValidation
-                      ? 'hidden'
-                      : 'text-primary absolute -bottom-10 mb-2 text-center w-full'
-                  }
-                >
-                  Try Again: {formErrorMessage}
-                </div>
-              </div>
+                View My Events
+              </Button>
             </div>
           </div>
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
@@ -185,6 +154,3 @@ export default function HomePage() {
     </>
   );
 }
-
-
-/* Hello, this is Julien! */

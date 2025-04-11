@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -22,6 +22,7 @@ import {
   getAccountName,
   getAccountEmail,
   getChosenLocation,
+  getTimezone,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -37,7 +38,10 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { connectFirestoreEmulator } from 'firebase/firestore';
+import { IconPencil, IconPlus } from '@tabler/icons-react';
+import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
+import { filter } from 'lodash';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -62,6 +66,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const { code } = useParams();
 
   const [showUserChart, setShowUserChart] = useState(false);
+  const [participantToggleClicked, setParticipantToggleClicked] =
+    useState(true);
 
   const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
   const [eventName, setEventName] = useState('');
@@ -90,6 +96,18 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     selectionMode: false, // true for selecting, false for deselecting
     lastPosition: null,
   });
+
+  const [allPeople, setAllPeople] = useState<string[]>([]);
+  const [peopleStatus, setPeopleStatus] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [allUsers, setAllUsers] = useState<userData>({} as userData);
+
+  const [userHasFilled, setUserHasFilled] = useState(false);
+
+  useEffect(() => {
+    setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
+  }, [allPeople]);
 
   const nav = useNavigate();
 
@@ -138,6 +156,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             const dates = eventAPI.getCalendarDimensions();
 
             setChartedUsers(participants);
+            setAllPeople(participants.users.map((user) => user.name));
+            setAllUsers(participants);
+            setPeopleStatus(
+              Object.fromEntries(
+                participants.users.map((user) => [user.name, true])
+              )
+            );
+
+            setUserHasFilled(participants.userIDs.includes(getAccountId()));
+
             setCalendarState(availabilities);
             setCalendarFramework(dates);
 
@@ -224,12 +252,21 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
-      // new user => last availability
       user =
         calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
     return user;
   };
+
+  const filteredChartedUsers = useMemo(
+    () => ({
+      ...chartedUsers,
+      users: allUsers?.users?.filter(
+        (user) => peopleStatus[user.name] === true
+      ),
+    }),
+    [chartedUsers, peopleStatus]
+  );
 
   if (loading) {
     return (
@@ -243,13 +280,19 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
-          <div className="text-4xl font-bold text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-4xl font-bold text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventName}
           </div>
-          <div className="text-xl text-center lg:text-left" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <div
+            className="text-xl text-center lg:text-left"
+            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+          >
             {eventDescription}
           </div>
-          
+
           <CopyCodeButton />
           {isAdmin && (
             <AutoDraftEmailButton
@@ -273,9 +316,37 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             </div>
           )}
 
-          <div className="hidden lg:block w-full">
+          <div className="hidden lg:block w-full relative">
             {chartedUsers !== undefined && !showLocationChart && (
-              <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+              <>
+                {participantToggleClicked ? (
+                  <IconAdjustments
+                    size={40}
+                    onClick={() => {
+                      setParticipantToggleClicked(!participantToggleClicked);
+                    }}
+                    className="cursor-pointer absolute -top-10 right-2 p-2"
+                  />
+                ) : (
+                  <IconAdjustmentsFilled
+                    size={40}
+                    onClick={() => {
+                      setParticipantToggleClicked(!participantToggleClicked);
+                    }}
+                    className="cursor-pointer absolute -top-10 right-2 p-2"
+                  />
+                )}
+
+                <UserChart
+                  chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                  allPeople={allPeople}
+                  theParticipantToggleClicked={[
+                    participantToggleClicked,
+                    setParticipantToggleClicked,
+                  ]}
+                />
+              </>
             )}
 
             {locationOptions.length > 0 && showLocationChart && (
@@ -296,65 +367,111 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
         <div className="col-span-3">
           <div className="w-full">
-            <Calendar
-              theShowUserChart={[showUserChart, setShowUserChart]}
-              onClick={() => {
-                if (showUserChart === true) {
-                  return;
-                }
-                setShowUserChart(true);
-                setTimeout(() => setShowUserChart(false), 3000);
-              }}
-              theCalendarState={[calendarState, setCalendarState]}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={[chartedUsers, setChartedUsers]}
-              draggable={
-                isAdmin &&
-                calendarFramework?.dates?.[0][0].date instanceof Date &&
-                (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                  2000
-              }
-              user={getCurrentUserIndex()}
-              isAdmin={isAdmin}
-              theDragState={[dragState, setDragState]}
-              theGoogleCalendarEvents={[[], () => {}]}
-              isGeneralDays={false}
-            />
-          </div>
+            <div className="flex flex-col space-y-0 mb-2">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+                <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:space-x-2">
+                  <div className="w-full sm:flex-grow mb-2 sm:mb-0">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={
+                        getTimezone()
+                          ? getTimezone()
+                          : Intl.DateTimeFormat().resolvedOptions().timeZone
+                      }
+                    />
+                  </div>
 
-          <div className="flex flex-row justify-between space-x-2  ">
-            <div className="lg:pl-5 lg:ml-0 ml-3 mt-2">
-              <ButtonSmall
-                bgColor={'primary'}
-                textColor={'white'}
-                onClick={() => {
-                  nav('/timeselect/' + code);
-                }}
-              >
-                <span>&#8592;</span> Edit Your Availability
-              </ButtonSmall>
-            </div>
+                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
+                    <ButtonSmall
+                      bgColor={'primary'}
+                      textColor={'white'}
+                      onClick={() => {
+                        nav('/timeselect/' + code);
+                      }}
+                    >
+                      <div className="flex flex-row items-center justify-center space-x-1">
+                        {userHasFilled ? <IconPencil /> : <IconPlus />}
+                        <p>
+                          {userHasFilled
+                            ? 'Edit Your Availability'
+                            : 'Add Your Availability'}
+                        </p>
+                      </div>
+                    </ButtonSmall>
 
-            {isAdmin &&
-              calendarFramework?.dates?.[0][0].date instanceof Date &&
-              (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                2000 &&
-              isAdmin && (
-                <div className="lg:pr-5 lg:mr-0 mr-10">
-                  <AddToGoogleCalendarButton
-                    onClick={handleSelectionSubmission}
-                  />
+                    {isAdmin &&
+                      calendarFramework?.dates?.[0][0].date instanceof Date &&
+                      (
+                        calendarFramework.dates[0][0].date as Date
+                      ).getFullYear() !== 2000 &&
+                      isAdmin && (
+                        <AddToGoogleCalendarButton
+                          onClick={handleSelectionSubmission}
+                        />
+                      )}
+
+                    <div className="lg:hidden">
+                      {!participantToggleClicked ? (
+                        <IconAdjustmentsFilled
+                          size={30}
+                          className="cursor-pointer dark:text-text-dark"
+                          onClick={() => {
+                            setParticipantToggleClicked(
+                              !participantToggleClicked
+                            );
+                            setShowUserChart(false);
+                          }}
+                        />
+                      ) : (
+                        <IconAdjustments
+                          size={30}
+                          className="cursor-pointer dark:text-text-dark"
+                          onClick={() => {
+                            setParticipantToggleClicked(
+                              !participantToggleClicked
+                            );
+                            setShowUserChart(true);
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    {locationOptions.length === 0 ? (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                    ) : (
+                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                    )}
+                  </div>
                 </div>
-              )}
-          </div>
+              </div>
 
-          <div className="pl-5 mt-2">
-            <div className="p-1 flex-shrink w-full lg:w-[80%] text-gray-500 text-left text-sm">
-              {locationOptions.length === 0 ? (
-                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press submit selection to GCAl" />
-              ) : (
-                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press submit selection." />
-              )}
+              <Calendar
+                theShowUserChart={[showUserChart, setShowUserChart]}
+                onClick={() => {
+                  if (showUserChart === true) {
+                    return;
+                  }
+                  setShowUserChart(true);
+                  setTimeout(() => setShowUserChart(false), 3000);
+                }}
+                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                draggable={
+                  isAdmin &&
+                  calendarFramework?.dates?.[0][0].date instanceof Date &&
+                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
+                    2000
+                }
+                user={getCurrentUserIndex()}
+                isAdmin={isAdmin}
+                theDragState={[dragState, setDragState]}
+                theGoogleCalendarEvents={[[], () => {}]}
+                isGeneralDays={false}
+              />
             </div>
           </div>
 
@@ -376,24 +493,33 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           )}
 
           {chartedUsers !== undefined && (
-            <div
-              className={`
-            z-[9999] lg:hidden fixed bottom-0 left-0 right-0 
-            transform transition-transform duration-300 ease-in-out
+            <div className="lg:hidden">
+              <div
+                className={`
+            z-[9999]  fixed bottom-0 left-0 right-0 
+            transform transition-transform ${!participantToggleClicked ? 'duration-300' : ''} ease-in-out
             bg-white dark:bg-secondary_background-dark shadow-lg
             ${showUserChart ? 'translate-y-0' : 'translate-y-full'}
-          `}
-            >
-              <div className="p-4 rounded-t-xl">
-                {/* Add a close button for mobile */}
-                <button
-                  onClick={() => setShowUserChart(false)}
-                  className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  ✕
-                </button>
+            `}
+              >
+                <div className="p-4 rounded-t-xl">
+                  <button
+                    onClick={() => setShowUserChart(false)}
+                    className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    &times;
+                  </button>
 
-                <UserChart chartedUsersData={[chartedUsers, setChartedUsers]} />
+                  <UserChart
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                  />
+                </div>
               </div>
             </div>
           )}

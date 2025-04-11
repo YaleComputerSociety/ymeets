@@ -19,18 +19,18 @@ export default function CopyCodeButton({
   return (
     <button
       onClick={() => {
-        copy(`${window.location.origin}/timeselect/${usedCode}`);
+        copy(`${window.location.origin}/groupview/${usedCode}`);
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
       className={`text-sm lg:text-base flex items-center justify-center truncate max-w-[160px] ${
         copied
-          ? 'bg-green-500 text-white dark:bg-green-600' // Remove hover from copied state
-          : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
-      } border border-slate-300 dark:border-gray-600 font-medium py-0.5 sm:py-1 lg:py-1.5 px-5 rounded-lg transition-colors relative ${className}`}
+          ? 'bg-green-500 hover:bg-green-500 border-green-500 hover:border-green-500 text-white'
+          : 'bg-slate-100 hover:bg-slate-200 border-slate-300 hover:border-slate-300 text-slate-700'
+      } border font-medium py-0.5 sm:py-1 lg:py-1.5 px-3 rounded-lg transition-colors relative`}
     >
-      <IconCopy className="inline-block w-4 lg:w-5 mr-2" />
-      {copied ? 'Copied Link' : `${usedCode}`}
+      {<IconCopy className="inline-block w-4 lg:w-5 mr-2" />}
+      {copied ? 'Copied!' : `${usedCode}`}
     </button>
   );
 }

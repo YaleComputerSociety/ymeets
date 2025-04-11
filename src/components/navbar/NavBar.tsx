@@ -102,7 +102,7 @@ export default function NavBar() {
                   nav('/useraccount');
                 }}
               >
-                <IconCalendarEvent size={25} className="py-0.5" />{' '}
+                <IconCalendarEvent size={25} className="opacity-80 dark:opacity-100" />{' '}
                 <span className="text-sm hidden sm:block ml-2">My Events</span>
               </a>
             </div>
@@ -112,7 +112,7 @@ export default function NavBar() {
                 onClick={handleGearClick}
               >
                 <IconMenu2
-                  className="text-text dark:text-text-dark mt-1"
+                  className="text-text dark:text-text-dark"
                   size={30}
                 />
               </button>
