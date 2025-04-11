@@ -83,7 +83,7 @@ export default function HomePage() {
           className="flex-col-reverse justify-center \ 
                             md:flex-row flex md:h-1/2 mb-10"
         >
-          <div className="justify-center self-center space-y-10 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
+          <div className="justify-center self-center space-y-5 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
               <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
                 A cleaner, faster way to schedule meetings on Yale's campus.

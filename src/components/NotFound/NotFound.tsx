@@ -6,7 +6,7 @@ export default function NotFound() {
   const [changeIcon, setChangeIcon] = React.useState(false);
   const nav = useNavigate();
   return (
-    <div className="flex items-start justify-center h-[80%] bg-sky-100">
+    <div className="flex items-start justify-center h-[80%] bg-background dark:bg-background-dark dark:text-text-dark">
       <div className="flex md:flex-row flex-col text-center justify-center items-center">
         <div
           className="flex w-fit"
@@ -230,7 +230,7 @@ export default function NotFound() {
         </div>
         <div className="px-8 md:text-left md:w-[60%] mb-10">
           <p className="text-6xl font-bold mb-3">404 Error: Not Found</p>
-          <p className="text-2xl mb-10 text-gray-600">
+          <p className="text-2xl mb-10 text-gray-600 dark:text-text-dark">
             Unfortunately, this page does not exist. Please check your code or
             URL and make sure it is valid.
           </p>
