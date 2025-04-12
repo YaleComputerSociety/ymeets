@@ -233,9 +233,9 @@ export const DaySelectComponent = () => {
       <div className="flex flex-col md:flex-row justify-center gap-8">
         <div className="md:w-1/2">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-            <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-slate-200 mb-6">
+            {/* <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-slate-200 mb-6">
               Event Details
-            </h2>
+            </h2> */}
 
             <div className="space-y-6">
               <div className="space-y-2">
@@ -299,10 +299,11 @@ export const DaySelectComponent = () => {
                 </div>
 
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <IconInfoCircle></IconInfoCircle>
+                  Type and press ENTER to add locations
+                  {/* <IconInfoCircle stroke={1.25} />
                   <span className="ml-2">
                     Type and press ENTER to add locations
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>

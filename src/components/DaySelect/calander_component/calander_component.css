@@ -45,6 +45,7 @@
 
 .react-calendar__month-view__weekdays__weekday {
   @apply dark:text-text-dark !important;
+  text-align: center;
 }
 
 .react-calendar__navigation__label {
