@@ -56,7 +56,7 @@ const LimitedInputSelect: React.FC<LimitedInputSelectProps> = ({
           const selectedValues = values.map((val) => val.value);
           updateLocationsState(selectedValues);
         }}
-        placeholder="Location Options (Optional)"
+        placeholder="Locations (Optional)"
         noDataRenderer={() => (
           <div className="p-2 text-center">No matching preset locations :(</div>
         )}
