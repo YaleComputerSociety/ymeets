@@ -508,6 +508,8 @@ async function setChosenLocation(
   await saveEventDetails(workingEvent.details);
 }
 
+// insert \n here?
+
 // Retrieves the list of locations to be considered for the event
 function getLocationOptions(): Location[] {
   return workingEvent.details.plausibleLocations;
