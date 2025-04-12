@@ -5,6 +5,7 @@ import frontendEventAPI from '../../../firebase/eventAPI';
 import { getAccountId, getAccountName } from '../../../firebase/events';
 import { useNavigate } from 'react-router-dom';
 import LimitedSelect from './limited_select_component';
+import Select from 'react-dropdown-select';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
