@@ -115,3 +115,8 @@ for event_doc in db.collection("events").limit(MAX_N_EVENTS).stream():
         # danger! this will override existing user data, 
         # use merge=True option for soft merge
         user_ref.set(user_data)
+
+
+# skip if no participant subc
+# if code not 6 digits
+# if Date is not DateTime
