@@ -643,7 +643,7 @@ export default function CalBlock({
             zIndex: 10,
           }}
         >
-          {eventName.length > 25 ? `${eventName.slice(0, 25)}...` : eventName}
+          {eventName.length > 15 ? `${eventName.slice(0, 15)}...` : eventName}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
