@@ -9,6 +9,7 @@ interface Props {
   px?: string; // Padding-left and padding-right
   py?: string; // Padding-top and padding-bottom
   themeGradient?: boolean;
+  bolded?: boolean; // Font weight
 }
 
 export default function Button({
@@ -20,6 +21,7 @@ export default function Button({
   rounded = 'full',
   textSize = 'lg',
   themeGradient = true,
+  bolded = true,
 }: Props) {
   const borderRadius = rounded === 'full' ? 'rounded-full' : 'rounded-lg';
   const textSizeClass =
@@ -27,7 +29,7 @@ export default function Button({
 
   return (
     <button
-      className={`drop-shadow-sm transform transition-transform hover:scale-90 py-4 px-7 active:scale-100 text-center font-bold w-fit disabled:hover:scale-100 disabled:bg-gray-500 disabled:opacity-70 
+      className={`drop-shadow-sm transform transition-transform hover:scale-90 py-4 px-7 active:scale-100 text-center w-fit disabled:hover:scale-100 disabled:bg-gray-500 disabled:opacity-70 
       ${
         themeGradient
           ? `bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600`
@@ -35,6 +37,7 @@ export default function Button({
       } 
       ${textSizeClass} text-${textColor} ${borderRadius}
       ${bgColor === `primary` ? `dark:bg-blue-700` : ``}
+      ${bolded ? `font-bold` : `font-semibold`}
       `}
       onClick={onClick}
       disabled={disabled}

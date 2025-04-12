@@ -97,7 +97,7 @@ export default function NavBar() {
             <div>
               <a
                 href="#"
-                className="flex items-center px-4 text-gray-700 dark:text-text-dark hover:text-primary transition hover:scale-105"
+                className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
                 onClick={() => {
                   nav('/useraccount');
                 }}
