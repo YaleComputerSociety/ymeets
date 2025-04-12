@@ -129,6 +129,7 @@ export default function HomePage() {
                 textColor="black"
                 themeGradient={false}
                 onClick={() => navigate('/useraccount')}
+                bolded={false}
               >
                 View My Events
               </Button>

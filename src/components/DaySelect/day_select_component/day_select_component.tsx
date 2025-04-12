@@ -299,7 +299,7 @@ export const DaySelectComponent = () => {
                   />
                 </div>
 
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">
                   Type and press ENTER to add locations
                   {/* <IconInfoCircle stroke={1.25} />
                   <span className="ml-2">
