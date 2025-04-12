@@ -151,38 +151,26 @@ export default function LocationChart({
           {showInput && (
             <form
               onSubmit={handleInputSubmit}
-              className="absolute top-4 right-4 flex flex-col items-center bg-white border rounded p-4 shadow-lg"
+              className="absolute top-4 right-4 flex flex-col items-center bg-white border border-gray-200 rounded-lg p-5 shadow-lg max-w-xs"
             >
               <button
                 type="button"
                 onClick={handleClose}
-                className="absolute top-2 right-2 text-steelgray hover:text-gray-800"
+                className="absolute top-2 right-2 text-gray-700 transition-colors duration-200 text-xl font-medium w-6 h-6 flex items-center justify-center rounded-full bg-gray-100"
+                aria-label="Close"
               >
                 &times;
               </button>
-              <input
-                type="text"
-                value={roomNumber}
-                onChange={handleInputChange}
-                placeholder={`Enter ${building} room number`}
-                className="border text-black p-2 rounded mb-2"
-                maxLength={10}
-              />
-              <div className="flex flex-row gap-2">
+
+              <div className="flex flex-row gap-3 w-full">
                 <button
-                  className="bg-primary gp text-white p-2 rounded"
+                  className="bg-primary text-white py-2 px-4 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 flex items-center justify-center"
                   type="button"
                   onClick={() => {
                     window.open(getBookingLink(building), '_blank');
                   }}
                 >
-                  Book Room
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary text-white p-2 rounded"
-                >
-                  <IconCircleCheckFilled />
+                  <span>Book Room</span>
                 </button>
               </div>
             </form>

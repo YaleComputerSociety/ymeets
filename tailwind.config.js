@@ -17,7 +17,7 @@ module.exports = {
       colors: {
         background: "#e1e8f7", // Light mode background
         secondary_background: "#ffffff", // Light mode secondary background
-        text: "#595e69", // Light mode text color
+        text: "#000000", // Light mode text color
         outline: "#7E7E7E", // Light mode outline
         primary: "#5191F2", // Light mode primary color
         secondary: "#609CF6", // Light mode secondary color

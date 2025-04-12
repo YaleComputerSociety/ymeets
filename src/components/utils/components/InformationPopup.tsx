@@ -8,10 +8,10 @@ interface Props {
   width?: string;
 }
 
-export default function InformationPopup({ 
-  content, 
+export default function InformationPopup({
+  content,
   delay = 300,
-  width = 'md'
+  width = 'md',
 }: Props) {
   const [isVisible, setIsVisible] = useState(false);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -22,12 +22,12 @@ export default function InformationPopup({
 
   // Width classes mapped to Tailwind classes
   const widthClasses = {
-    'sm': 'w-64',
-    'md': 'w-80',
-    'lg': 'w-96',
-    'xl': 'w-120'
+    sm: 'w-64',
+    md: 'w-80',
+    lg: 'w-96',
+    xl: 'w-120',
   };
-  
+
   const widthClass = widthClasses[width as keyof typeof widthClasses] || 'w-80';
 
   // Determine the best position for the popup based on available space
@@ -35,15 +35,16 @@ export default function InformationPopup({
     if (isVisible && iconRef.current) {
       const iconRect = iconRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
-      
+
       // Get numeric width value from the width class
-      const widthValue = {
-        'sm': 256,
-        'md': 320,
-        'lg': 384,
-        'xl': 480
-      }[width as keyof typeof widthClasses] || 320;
-      
+      const widthValue =
+        {
+          sm: 256,
+          md: 320,
+          lg: 384,
+          xl: 480,
+        }[width as keyof typeof widthClasses] || 320;
+
       // If there's not enough space to the left, position to the right instead
       if (iconRect.left < widthValue + 20) {
         setPopupPosition('right');
@@ -77,7 +78,7 @@ export default function InformationPopup({
   }, []);
 
   return (
-    <div 
+    <div
       className="relative inline-block"
       ref={iconRef}
       onMouseEnter={handleMouseEnter}
@@ -91,7 +92,7 @@ export default function InformationPopup({
         color={theme === 'dark' ? '#f8f9fa' : 'black'}
         aria-label="More information"
       />
-      
+
       {/* Popup positioned below and to the left or right based on available space */}
       <div
         ref={popupRef}
@@ -100,7 +101,7 @@ export default function InformationPopup({
           ${popupPosition === 'left' ? 'right-0' : 'left-0'}
           bg-black dark:bg-secondary_background-dark
           text-white dark:text-text-dark
-          z-50 p-4 rounded-lg shadow-lg
+          z-[999] p-4 rounded-lg shadow-lg
           transition-all duration-300 ${widthClass}
           ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
         `}
