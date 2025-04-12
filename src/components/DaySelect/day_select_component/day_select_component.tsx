@@ -8,6 +8,8 @@ import Select from 'react-dropdown-select';
 import Button from '../../utils/components/Button';
 import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
+import TextareaAutosize from 'react-textarea-autosize';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -122,7 +124,7 @@ export const DaySelectComponent = () => {
     // eslint-disable-next-line no-control-regex
     const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
     return str.replace(invisibleChars, '').trim().length === 0;
-  }
+  };
 
   const verifyNextAndSubmitEvent = () => {
     if (
@@ -150,13 +152,20 @@ export const DaySelectComponent = () => {
     }
 
     // Change, 2/18/25 - Description is by default optional; however, if they enter something, make sure it's not a blank space or just invisible characters.
-    if (eventDescription.length > 0 && isBlankspaceOrInvisible(eventDescription)) {
-      alert('Did you mean to enter an event description? Please enter a valid description, if so.');
+    if (
+      eventDescription.length > 0 &&
+      isBlankspaceOrInvisible(eventDescription)
+    ) {
+      alert(
+        'Did you mean to enter an event description? Please enter a valid description, if so.'
+      );
       return;
     }
-    
+
     if (locations.some(isBlankspaceOrInvisible)) {
-      alert("Looks like you left one of your event locations blank. Please remove it before proceeding!");
+      alert(
+        'Looks like you left one of your event locations blank. Please remove it before proceeding!'
+      );
       return;
     }
 
@@ -219,150 +228,152 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days');
   };
 
-  const inputClasses =
-    'p-3 px-4 text-base border rounded-lg w-full md:w-[80%] bg-white dark:bg-secondary_background-dark dark:text-text-dark text-text';
-
   return (
-    <div className="flex flex-col justify-center items-center sm:items-start md:flex-row md:w-[80%] sm:w-[90%] xl:w-[65%] mx-auto px-2 text-center">
-      <div className="flex flex-col flex-wrap justify-start w-[100%] md:content-start mt-6 z-69">
-        <div className="space-y-3 mb-2 md:w-[90%] md:space-y-8 md:mt-12 flex flex-col items-center md:items-start">
-          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            {/* Intentionally made these not Input components since I dont want the expand feature on all */}
-            <input
-              id="event-name"
-              type="text" 
-              className={inputClasses}
-              placeholder="Event Name"
-              value={eventName}
-              onChange={(e) => {
-                setEventName(e.target.value);
-              }}
-              maxLength={40}
-            />
-          </div>
-          <div className="w-[80%] md:w-[100%] flex flex-row justify-center md:justify-start">
-            {/* Intentionally made these not Input components since I dont want the expand feature on all */}
-            <textarea
-              id="event-description"
-              className={inputClasses}
-              placeholder="Event Description (Optional)"
-              value={eventDescription}
-              onChange={(e) => {
-                setEventDescription(e.target.value);
-              }}
-              rows={3}
-              maxLength={100}
-            />
-          </div>
-          <div className="w-[80%]  flex flex-row justify-center md:justify-start">
-            <TimezonePicker theTimezone={[timezone, setTimezone]} />
-          </div>
-          <div className="mt-0 w-[80%] md:w-[100%] justify-center items-center z-69">
-            <div className="w-[100%] md:w-[80%] flex flex-row justify-center items-center md:justify-start z-69">
-              <div className="w-full border rounded-md sm:w-[80%] md:w-full custom-select-wrapper z-69">
-                <Select
-                  className="react-dropdown-select z-69 bg-secondary_background dark:bg-secondary_background-dark"
-                  multi
-                  create
-                  options={locationOptions}
-                  clearOnSelect={true}
-                  values={[]}
-                  onChange={(values) => {
-                    const selectedValues = values.map((val) => val.value);
-                    updateLocationsState(selectedValues);
-                  }}
-                  placeholder="Locations (Optional)"
-                  noDataRenderer={() => (
-                    <div className="p-2 text-center">
-                      No matching preset locations :(
-                    </div>
-                  )}
-                  onDropdownOpen={() => {
-                    const handle = document.querySelector(
-                      '.react-dropdown-select-dropdown-handle'
-                    );
-                    if (handle) handle.classList.add('open');
-                  }}
-                  onDropdownClose={() => {
-                    const handle = document.querySelector(
-                      '.react-dropdown-select-dropdown-handle'
-                    );
-                    if (handle) handle.classList.remove('open');
-                  }}
+    <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="flex flex-col md:flex-row justify-center gap-8">
+        <div className="md:w-1/2">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+            {/* <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-slate-200 mb-6">
+              Event Details
+            </h2> */}
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label
+                  htmlFor="event-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Event Name
+                </label>
+                <input
+                  id="event-name"
+                  type="text"
+                  autoComplete="off"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                             bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
+                             focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200"
+                  placeholder="Enter event name"
+                  value={eventName}
+                  onChange={(e) => setEventName(e.target.value)}
+                  maxLength={40}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="event-description"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Event Description
+                </label>
+                <TextareaAutosize
+                  id="event-description"
+                  autoComplete="off"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                             bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white
+                             focus:outline-none focus:ring-1 focus:ring-primary dark:focus:ring-primary-400 focus:border-transparent transition-colors duration-200 resize-none overflow-hidden"
+                  placeholder="Describe your event (Optional)"
+                  value={eventDescription}
+                  onChange={(e) => setEventDescription(e.target.value)}
+                  maxLength={300}
+                  minRows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Timezone
+                </label>
+                <TimezonePicker theTimezone={[timezone, setTimezone]} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Locations
+                </label>
+                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
+                  <LimitedSelect
+                    locationOptions={locationOptions}
+                    updateLocationsState={updateLocationsState}
+                  />
+                </div>
+
+                <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">
+                  Type and press ENTER to add locations
+                  {/* <IconInfoCircle stroke={1.25} />
+                  <span className="ml-2">
+                    Type and press ENTER to add locations
+                  </span> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="md:w-2/5">
+          <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl px-6 border border-gray-100 dark:border-gray-700">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-1 mt-6 mb-3">
+              <div className="relative bg-white dark:bg-gray-800 rounded-md">
+                <div className="grid grid-cols-2 overflow-hidden rounded-md">
+                  <button
+                    onClick={() => handleTabChange('Specific Days')}
+                    className="py-2 px-2 relative z-10 focus:outline-none transition-colors duration-300"
+                  >
+                    <span
+                      className={
+                        selectGeneralDays
+                          ? 'text-gray-700 dark:text-gray-300 text-sm'
+                          : 'text-white dark:text-white text-sm'
+                      }
+                    >
+                      Specific Days
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('General Days')}
+                    className="py-2 px-2 relative z-10 focus:outline-none transition-colors duration-300"
+                  >
+                    <span
+                      className={
+                        selectGeneralDays
+                          ? 'text-white dark:text-white text-sm'
+                          : 'text-gray-700 dark:text-gray-300 text-sm'
+                      }
+                    >
+                      General Days
+                    </span>
+                  </button>
+                  <div
+                    className={`absolute inset-0 w-1/2 h-full bg-primary dark:bg-primary-600 rounded-md transition-transform duration-300 ${
+                      selectGeneralDays ? 'translate-x-full' : 'translate-x-0'
+                    }`}
+                  ></div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-2 mb-6 z-50 flex justify-start">
-              <InformationPopup
-                content="
-                Type and click ENTER to add locations for your group to vote on for the meeting
-              "
+            <div className="mx-auto rounded-lg border border-gray-300 dark:border-gray-600">
+              <CalanderComponent
+                theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
+                theGeneralDays={[selectedDays, setSelectedDays]}
+                theEventName={[eventName, setEventName]}
+                selectedStartDate={[startDate, setStartDate]}
+                selectedEndDate={[endDate, setEndDate]}
+                theSelectedDates={[selectedDates, setSelectedDates]}
+                popUpOpen={[popUpIsOpen, setPopupIsOpen]}
+                popUpMessage={[popUpMessage, setPopupMessage]}
               />
             </div>
+            <div className="mt-4 mb-4 flex justify-center">
+              <Button
+                onClick={verifyNextAndSubmitEvent}
+                bgColor="primary"
+                textColor="white"
+              >
+                Create
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col flex-wrap space-y-2 mb-6 w-[90%] sm:w-[85%]">
-        <div className="mb-4 flex space-x-4 p-2 bg-white dark:bg-secondary_background-dark rounded-lg shadow-md relative">
-          <button
-            onClick={() => {
-              handleTabChange('Specific Days');
-            }}
-            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative specific-days-button ${
-              selectGeneralDays
-                ? 'text-black dark:text-text-dark'
-                : 'text-white'
-            }`}
-          >
-            <span className="relative z-10">Specific Days</span>
-            <div
-              className={`absolute rounded-md transition-transform duration-300 ${
-                selectGeneralDays ? 'translate-x-[110%]' : 'translate-x-0'
-              } bg-primary`}
-            />
-          </button>
-          <button
-            onClick={() => {
-              handleTabChange('General Days');
-            }}
-            className={`flex-1 px-4 rounded-md focus:outline-none transition-all duration-300 relative general-days-button ${
-              selectGeneralDays
-                ? 'text-white'
-                : 'text-black dark:text-text-dark'
-            }`}
-          >
-            <span className="relative z-10">General Days</span>
-            <div
-              className={`absolute md:left-0.5 inset-0 rounded-md transition-transform duration-300 ${
-                selectGeneralDays ? 'translate-x-0' : '-translate-x-[110%]'
-              } bg-primary`}
-            />
-          </button>
-        </div>
-
-        <div className="w-full h-2/4 xs:mb-2 md:mb-0">
-          <CalanderComponent
-            theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
-            theGeneralDays={[selectedDays, setSelectedDays]}
-            theEventName={[eventName, setEventName]}
-            selectedStartDate={[startDate, setStartDate]}
-            selectedEndDate={[endDate, setEndDate]}
-            theSelectedDates={[selectedDates, setSelectedDates]}
-            popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-            popUpMessage={[popUpMessage, setPopupMessage]}
-          />
-        </div>
-        <div className="mt-2"></div>
-        <div className="flex items-center justify-center">
-          <Button
-            textColor="white"
-            bgColor="primary"
-            onClick={verifyNextAndSubmitEvent}
-          >
-            Next
-          </Button>
         </div>
       </div>
     </div>
