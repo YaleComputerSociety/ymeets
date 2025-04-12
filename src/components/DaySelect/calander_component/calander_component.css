@@ -191,10 +191,12 @@ button.react-calendar__tile div {
   max-height: 22px !important;
   min-width: 88px !important;
   padding-left: 9px !important;
+  @apply dark:text-text-dark !important;
 }
 
 .dark .time-select-container > div > .react-dropdown-select {
   background-color: #1F2937 !important; 
+  
 }
 
 .time-select-container > div > div > .react-dropdown-select-dropdown-handle {
