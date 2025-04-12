@@ -543,10 +543,12 @@ export default function CalBlock({
       className={`
         cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
         border-r border-[#7E7E7E]
-        ${is30Minute ? 'border-t border-dotted border-t-[#7E7E7E]' : ''}
+        ${is30Minute ? 'border-t border-dashed border-t-[#7E7E7E]' : ''}
+        ${isInSelection() && is30Minute ? 'border-t-white' : ''}
         transition-colors duration-200 ease-in-out
       `}
       style={{
+        borderTopStyle: is30Minute ? 'dashed' : 'solid',
         backgroundColor: shadeColor,
       }}
       draggable={draggable}

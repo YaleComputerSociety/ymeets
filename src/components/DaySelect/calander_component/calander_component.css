@@ -63,10 +63,16 @@
 
 .react-calendar__navigation {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 22px;
   min-width: 190px;
   @apply dark:bg-secondary_background-dark;
+}
+
+@media (min-width: 1024px) {
+  .react-calendar__navigation {
+    justify-content: center;
+  }
 }
 
 .react-calendar__navigation__label__labelText--from {

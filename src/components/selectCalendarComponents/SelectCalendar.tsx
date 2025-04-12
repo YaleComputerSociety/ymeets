@@ -118,7 +118,7 @@ function SelectCalander({
                 {hour.map((time: string, blockID) => (
                   <div
                     key={time}
-                    className={`border-outline border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
+                    className={`border-x-outline border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
                   >
                     <CalRow
                       theShowUserChart={theShowUserChart}
