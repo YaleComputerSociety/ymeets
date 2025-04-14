@@ -641,7 +641,7 @@ function TimeSelectPage() {
                         textColor="white"
                         themeGradient={false}
                         onClick={handleToggleGCalAvailabilitiesClick}
-                        className="flex-1"
+                        className="flex-1 !rounded-lg" // Changed from rounded-full to rounded-lg
                       >
                         Show GCal Events
                       </ButtonSmall>
@@ -650,7 +650,7 @@ function TimeSelectPage() {
                         textColor="white"
                         themeGradient={false}
                         onClick={handleAutofillAvailabilityClick}
-                        className="flex-1"
+                        className="flex-1 !rounded-lg" // Changed from rounded-full to rounded-lg
                       >
                         Autofill Availability
                       </ButtonSmall>
@@ -689,6 +689,7 @@ function TimeSelectPage() {
                             textColor="white"
                             themeGradient={false}
                             onClick={handleToggleGCalAvailabilitiesClick}
+                            className="!rounded-lg"
                           >
                             Show GCal Events
                           </ButtonSmall>
@@ -697,6 +698,7 @@ function TimeSelectPage() {
                             textColor="white"
                             themeGradient={false}
                             onClick={handleAutofillAvailabilityClick}
+                            className="!rounded-lg"
                           >
                             Autofill Availability
                           </ButtonSmall>
