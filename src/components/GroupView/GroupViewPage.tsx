@@ -439,11 +439,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                       )}
                     </div>
 
-                    {locationOptions.length === 0 ? (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
-                    ) : (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
-                    )}
+                    {isAdmin &&
+                      (locationOptions.length === 0 ? (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                      ) : (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      ))}
                   </div>
                 </div>
               </div>
