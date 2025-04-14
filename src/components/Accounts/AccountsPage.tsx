@@ -17,6 +17,7 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import Button from '../utils/components/Button';
 
 interface AccountsPageEvent {
   name: string;
@@ -107,12 +108,24 @@ export default function AccountsPage() {
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
-          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark">
-            Your Events
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark">
+              Your Events
+            </h2>
+            <Button
+              onClick={() => nav('/dayselect')}
+              textColor="white"
+              bgColor="primary"
+              className="sm:hidden"
+            >
+              <span className="flex items-center justify-center">
+                <IconPlus className="w-5 h-5" />
+              </span>
+            </Button>
+          </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 w-full sm:w-auto">
-            <div className="relative flex-1 min-w-[250px]">
+          <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto flex-1 min-w-[250px]">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                 <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               </div>
@@ -128,18 +141,17 @@ export default function AccountsPage() {
               />
             </div>
 
-            <button
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600
-                 text-white font-semibold rounded-lg transition-all transition-transform duration-300
-                 transform hover:scale-102 active:translate-y-0
-                 shadow-md hover:shadow-lg
-                 focus:outline-none focus:ring-2 focus:ring-primary/30
-                 whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
+            <Button
               onClick={() => nav('/dayselect')}
+              textColor="white"
+              bgColor="primary"
+              className="hidden sm:block"
             >
-              <IconPlus className="w-5 h-5 md:w-6 md:h-6" />
-              <span>Create Event</span>
-            </button>
+              <span className="flex items-center justify-center gap-2">
+                <IconPlus className="w-5 h-5 md:w-6 md:h-6" />
+                Create Event
+              </span>
+            </Button>
           </div>
         </div>
 
