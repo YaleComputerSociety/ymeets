@@ -5,7 +5,7 @@ interface Props {
   children: React.ReactNode;
   disabled?: boolean;
   themeGradient?: boolean;
-  className?: string;  // Add className prop
+  className?: string; // Add className prop
 }
 
 export default function ButtonSmall({
@@ -15,7 +15,7 @@ export default function ButtonSmall({
   children,
   disabled = false,
   themeGradient = true,
-  className = '',  // Add default value
+  className = '', // Add default value
 }: Props) {
   return (
     <button
