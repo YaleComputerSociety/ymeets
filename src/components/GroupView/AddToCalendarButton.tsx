@@ -19,7 +19,7 @@ function AddToGoogleCalendarButton({
 
   return (
     <button
-      className={`mr-3 lg:mr-0 flex items-center justify-center font-bold rounded-full  py-3 px-4 lg:py-3 lg:px-5 text-sm md:text-md w-fit transform transition-transform whitespace-nowrap
+      className={`mr-3 lg:mr-0 flex items-center justify-center font-bold rounded-full py-3 px-6 lg:py-3 lg:px-8 text-sm md:text-md w-fit transform transition-transform whitespace-nowrap
         ${loading ? 'bg-gray-200 text-gray-500' : 'bg-white text-black'} 
         ${!loading ? 'hover:scale-95 active:scale-100' : ''}`}
       onClick={onClick}
@@ -30,17 +30,13 @@ function AddToGoogleCalendarButton({
           <img
             src={googleCalLogo}
             alt="Google Calendar Logo"
-            className="ml-1 mr-1 lg:mr-2 h-4 sm:h-6"
+            className="mr-3 h-4 sm:h-6"
           />
           {'Export to GCal'}
         </>
       ) : (
         <>
-          <img
-            src={googleLogo}
-            alt="Google Logo"
-            className="ml-1 mr-1 lg:mr-2 h-4 sm:h-6"
-          />
+          <img src={googleLogo} alt="Google Logo" className="mr-3 h-4 sm:h-6" />
           {'Sign in to View GCals'}
         </>
       )}
