@@ -607,7 +607,7 @@ function TimeSelectPage() {
         <div className="lg:col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
-              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
                   <div className="flex items-center gap-3 w-full">

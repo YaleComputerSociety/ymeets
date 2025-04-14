@@ -368,23 +368,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
         <div className="col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
-              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:space-x-2">
-                  <div className="w-full sm:flex-grow mb-2 sm:mb-0">
-                    <TimezoneChanger
-                      theCalendarFramework={[
-                        calendarFramework,
-                        setCalendarFramework,
-                      ]}
-                      initialTimezone={
-                        getTimezone()
-                          ? getTimezone()
-                          : Intl.DateTimeFormat().resolvedOptions().timeZone
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
+                  <div className="flex items-center gap-2 w-full">
                     <ButtonSmall
                       bgColor={'primary'}
                       textColor={'white'}
@@ -402,6 +388,22 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                       </div>
                     </ButtonSmall>
 
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={
+                          getTimezone()
+                            ? getTimezone()
+                            : Intl.DateTimeFormat().resolvedOptions().timeZone
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
                     {isAdmin &&
                       calendarFramework?.dates?.[0][0].date instanceof Date &&
                       (
