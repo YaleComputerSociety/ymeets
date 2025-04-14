@@ -5,6 +5,7 @@ interface Props {
   children: React.ReactNode;
   disabled?: boolean;
   themeGradient?: boolean;
+  className?: string;  // Add className prop
 }
 
 export default function ButtonSmall({
@@ -14,6 +15,7 @@ export default function ButtonSmall({
   children,
   disabled = false,
   themeGradient = true,
+  className = '',  // Add default value
 }: Props) {
   return (
     <button
@@ -22,6 +24,7 @@ export default function ButtonSmall({
           ? `bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600`
           : `bg-${bgColor}`
       } ${bgColor === `primary` ? `dark:bg-blue-700` : ``}
+      ${className}
       `}
       onClick={onClick}
       disabled={disabled}
