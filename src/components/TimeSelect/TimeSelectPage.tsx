@@ -25,6 +25,8 @@ import {
   getChosenDayAndTime,
   getTimezone,
   updateAnonymousUserToAuthUser,
+  getSelectedCalendarIDsByUserID,
+  setUserSelectedCalendarIDs,
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
@@ -122,6 +124,7 @@ function TimeSelectPage() {
           .then(() => {
             const { availabilities, participants } = eventAPI.getCalendar();
             const dim = eventAPI.getCalendarDimensions();
+            const uid = getAccountId();
 
             if (dim == undefined) {
               nav('/notfound');
@@ -133,8 +136,8 @@ function TimeSelectPage() {
             }
 
             let avail: Availability | undefined =
-              getAccountId() !== ''
-                ? getAvailabilityByAccountId(getAccountId())
+              uid !== ''
+                ? getAvailabilityByAccountId(uid)
                 : getAvailabilityByName(accountName);
 
             if (avail === undefined) {
@@ -168,10 +171,18 @@ function TimeSelectPage() {
             if (theRange != undefined && theRange[0].getFullYear() != 1970) {
               nav('/groupview/' + code);
             }
-        })
-        .catch(() => {
-          nav('/notfound');
-        });
+
+            // autofill last-selected gcal preferences
+            getSelectedCalendarIDsByUserID(uid).then(
+              async (lastSelectedGCalIds) => {
+                setGoogleCalIds(lastSelectedGCalIds);
+                setSelectedPopupIds(lastSelectedGCalIds);
+              }
+            );
+          })
+          .catch(() => {
+            nav('/notfound');
+          });
       } else {
         console.error("The event code in the URL doesn't exist");
         nav('/notfound');
@@ -336,18 +347,19 @@ function TimeSelectPage() {
       return;
     }
     setGoogleCalIds(selectedPopupIds);
+    setUserSelectedCalendarIDs(getAccountId(), selectedPopupIds);
     setGcalPopupOpen(false);
   };
 
-  const onPopupCloseAutofillAndSubmit = async () => {
-    setShouldFillAvailability(true);
-    setIsFillingAvailability(true);
-    if (selectedPopupIds === googleCalIds) {
-      await getGoogleCalData(selectedPopupIds, true);
-    } else {
-      setGoogleCalIds(selectedPopupIds);
-    }
-  };
+  // const onPopupCloseAutofillAndSubmit = async () => {
+  //   setShouldFillAvailability(true);
+  //   setIsFillingAvailability(true);
+  //   if (selectedPopupIds === googleCalIds) {
+  //     await getGoogleCalData(selectedPopupIds, true);
+  //   } else {
+  //     setGoogleCalIds(selectedPopupIds);
+  //   }
+  // };
 
   const fillAvailabilityNotInGCalEvents = (
     parsedEvents: any[],
@@ -539,6 +551,7 @@ function TimeSelectPage() {
       fetchUserCalendars();
     } else {
       requestAdditionalScopes().then(() => {
+        setGoogleCalIds([]); // Reset the selected calendar IDs
         fetchUserCalendars();
       });
     }
@@ -647,7 +660,6 @@ function TimeSelectPage() {
                               handleIsSignedIn
                             ).then((loginSuccessful) => {
                               if (loginSuccessful) {
-                                console.log('hi there');
                                 updateAnonymousUserToAuthUser(getAccountName());
                                 setIsGoogleLoggedIn(true);
                               }
@@ -716,7 +728,6 @@ function TimeSelectPage() {
                           handleIsSignedIn
                         ).then((loginSuccessful) => {
                           if (loginSuccessful) {
-                            console.log('finished');
                             updateAnonymousUserToAuthUser(getAccountName());
                             setIsGoogleLoggedIn(true);
                           }
@@ -763,7 +774,7 @@ function TimeSelectPage() {
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
         onCloseAndSubmit={onPopupCloseAndSubmit}
-        onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
+        // onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
       >
         <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
