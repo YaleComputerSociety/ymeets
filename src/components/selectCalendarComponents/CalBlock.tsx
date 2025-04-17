@@ -140,7 +140,13 @@ export default function CalBlock({
   }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
 
   const getDefaultColor = useCallback(() => {
-    return isOnGcal ? '#6B7280' : theme === 'light' ? 'white' : '#2d3748';
+    return isOnGcal 
+      ? theme === 'light' 
+        ? '#b3b4bd'  // Light mode color
+        : '#4a4d55'  // Dark mode color
+      : theme === 'light' 
+        ? 'white' 
+        : '#2d3748';
   }, [isOnGcal, theme]);
 
   const getGroupPercentageColor = useCallback(() => {
