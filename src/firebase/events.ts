@@ -49,6 +49,7 @@ let workingEvent: Event = {
     plausibleLocations: ['HH17', 'Sterling'],
     timeZone: 'America/New_York',
     participants: [],
+    dateCreated: new Date(),
   },
   participants: [],
 };
