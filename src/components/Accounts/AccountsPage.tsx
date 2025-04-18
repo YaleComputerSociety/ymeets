@@ -5,6 +5,7 @@ import {
   IconTrash,
   IconClock,
   IconCalendar,
+  IconChevronDown,
 } from '@tabler/icons-react';
 
 import {
@@ -24,6 +25,8 @@ import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
+import Button from '../utils/components/Button';
+import ButtonSmall from '../utils/components/ButtonSmall';
 
 export interface AccountsPageEvent {
   name: string;
@@ -101,66 +104,78 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
-        <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
-          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark">
+      <div className="w-full max-w-[1400px] pt-4 pb-10 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 flex flex-col gap-4">
+        {/* Header with Title */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-white">
             Your Events
           </h2>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 w-full sm:w-auto">
-            <div className="flex items-center gap-3 w-full">
-              <div className="relative flex-1 min-w-[250px]">
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                  <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-2.5 md:py-4 text-sm md:text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
-                    focus:border-primary focus:ring-2 focus:ring-primary/20
-                    hover:border-gray-400 dark:hover:border-gray-500
-                    placeholder-gray-400 dark:placeholder-gray-500
-                    dark:text-white min-h-[40px] md:min-h-[60px]"
-                />
-              </div>
-
-              <button
-                onClick={() =>
-                  setSortBy(
-                    sortBy === 'dateCreated' ? 'lastModified' : 'dateCreated'
-                  )
-                }
-                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 md:py-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
-                  hover:border-gray-400 dark:hover:border-gray-500 text-sm md:text-base text-gray-700 dark:text-white"
-                aria-label="Toggle sort"
-              >
-                {sortBy === 'lastModified' ? (
-                  <>
-                    <IconClock className="w-5 h-5 text-gray-400" />
-                    <span>Last Modified</span>
-                  </>
-                ) : (
-                  <>
-                    <IconCalendar className="w-5 h-5 text-gray-400" />
-                    <span>Date Created</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <button
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600
-                 text-white font-semibold rounded-lg transition-all transition-transform duration-300
-                 transform hover:scale-102 active:translate-y-0
-                 shadow-md hover:shadow-lg
-                 focus:outline-none focus:ring-2 focus:ring-primary/30
-                 whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
+          {/* Desktop Button */}
+          <div className="hidden sm:block">
+            <Button
               onClick={() => nav('/dayselect')}
+              bgColor="primary"
+              textColor="white"
+              className="inline-flex items-center gap-2"
             >
-              <IconPlus className="w-5 h-5 md:w-6 md:h-6" />
-              <span>Create Event</span>
-            </button>
+              <IconPlus />
+              Create Event
+            </Button>
+          </div>
+
+          {/* Mobile Button */}
+          <div className="sm:hidden">
+            <ButtonSmall
+              onClick={() => nav('/dayselect')}
+              bgColor="primary"
+              textColor="white"
+              className="inline-flex items-center gap-2"
+            >
+              <IconPlus />
+              Create
+            </ButtonSmall>
+          </div>
+        </div>
+
+        {/* Controls Row */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <IconSearch className="w-4 h-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search events..."
+              onChange={handleInputChange}
+              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-800 
+              border border-gray-200 dark:border-gray-700 rounded-lg text-sm
+              transition-all hover:border-gray-300 dark:hover:border-gray-600
+              focus:border-primary/50 focus:ring-2 focus:ring-primary/20
+              text-gray-900 dark:text-white"
+            />
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="relative min-w-[160px]">
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as 'dateCreated' | 'lastModified')
+              }
+              className="w-full appearance-none pl-3 pr-8 py-2 bg-white dark:bg-gray-800 
+              border border-gray-200 dark:border-gray-700 rounded-lg text-sm
+              text-gray-600 dark:text-gray-300 cursor-pointer transition-all
+              hover:border-gray-300 dark:hover:border-gray-600
+              focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="lastModified">Last Modified</option>
+              <option value="dateCreated">Date Created</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <IconChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
           </div>
         </div>
 
@@ -170,7 +185,7 @@ export default function AccountsPage() {
           </div>
         ) : undefined}
         {events && events.length != 0 ? (
-          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
+          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 pt-4 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
             {getSortedEvents(events)
               .filter(
                 (e) =>

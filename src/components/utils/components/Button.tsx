@@ -10,6 +10,7 @@ interface Props {
   py?: string; // Padding-top and padding-bottom
   themeGradient?: boolean;
   bolded?: boolean; // Font weight
+  className?: string; // Add this line
 }
 
 export default function Button({
@@ -22,6 +23,7 @@ export default function Button({
   textSize = 'lg',
   themeGradient = true,
   bolded = true,
+  className = '',
 }: Props) {
   const borderRadius = rounded === 'full' ? 'rounded-full' : 'rounded-lg';
   const textSizeClass =
@@ -38,6 +40,7 @@ export default function Button({
       ${textSizeClass} text-${textColor} ${borderRadius}
       ${bgColor === `primary` ? `dark:bg-blue-700` : ``}
       ${bolded ? `font-bold` : `font-semibold`}
+      ${className}
       `}
       onClick={onClick}
       disabled={disabled}
