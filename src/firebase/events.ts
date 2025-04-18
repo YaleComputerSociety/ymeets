@@ -30,8 +30,6 @@ import {
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 
-import { time } from 'console';
-import { start } from 'repl';
 import { DateTime } from 'luxon';
 import { runTransaction } from 'firebase/firestore';
 import { AccountsPageEvent } from '../components/Accounts/AccountsPage';
@@ -208,43 +206,6 @@ interface UserEvent {
   isAdmin: boolean;
 }
 
-async function getEventCodesSortedByLastModified(
-  userID: string,
-  sortBy: 'lastModified' | 'dateCreated' = 'lastModified'
-): Promise<string[]> {
-  try {
-    const userRef = doc(db, 'users', userID);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      console.log(
-        'User document not found: User does not exist in the database'
-      );
-      return [];
-    }
-
-    const userData = userDoc.data();
-    const userEvents: UserEvent[] = userData.userEvents || [];
-
-    const sortedEvents = [...userEvents].sort((a, b) => {
-      const aTime = a[sortBy]?.toMillis
-        ? a[sortBy].toMillis()
-        : a[sortBy]?.getTime?.() || 0;
-      const bTime = b[sortBy]?.toMillis
-        ? b[sortBy].toMillis()
-        : b[sortBy]?.getTime?.() || 0;
-      return bTime - aTime; // Descending order (newest first)
-    });
-
-    const eventCodes = sortedEvents.map((event) => event.code);
-
-    return eventCodes;
-  } catch (error) {
-    console.error('Error getting sorted event codes:', error);
-    return [];
-  }
-}
-
 async function removeEventFromUserCollection(
   userID: string,
   eventCode: string
@@ -266,45 +227,6 @@ async function removeEventFromUserCollection(
     userEvents: updatedEvents,
   }).catch((err) => {
     console.error('Error updating user document:', err);
-  });
-}
-
-// Retrieves all events that this user has submitted availability for
-async function getAllEventsForUser(accountID: string): Promise<Event[]> {
-  const sortedEventCodes = await getEventCodesSortedByLastModified(accountID);
-  console.log('Event codes sorted by timestamp:', sortedEventCodes);
-
-  const eventsRef = collection(db, 'events');
-
-  return await new Promise(async (resolve, reject) => {
-    const eventsList: Event[] = [];
-
-    for (const eventCode of sortedEventCodes) {
-      const eventDoc = await getDoc(doc(eventsRef, eventCode));
-      if (eventDoc.exists()) {
-        const event = eventDoc.data();
-        event.details.startTime = event.details.startTime
-          ? (event.details.startTime as unknown as Timestamp).toDate()
-          : event.details.startTime;
-        event.details.endTime = event.details.endTime
-          ? (event.details.endTime as unknown as Timestamp).toDate()
-          : event.details.endTime;
-        event.details.chosenStartDate = event.details.chosenStartDate
-          ? (event.details.chosenStartDate as unknown as Timestamp).toDate()
-          : event.details.chosenStartDate;
-        event.details.chosenEndDate = event.details.chosenEndDate
-          ? (event.details.chosenEndDate as unknown as Timestamp).toDate()
-          : event.details.chosenEndDate;
-        event.details.dates = dateToArray(event.details.dates);
-
-        eventsList.push(event as unknown as Event);
-      } else {
-        // won't load if it doesn't exist (has been deleted by admin)
-        removeEventFromUserCollection(accountID, eventCode);
-      }
-    }
-
-    resolve(eventsList);
   });
 }
 
@@ -1049,9 +971,6 @@ export {
   getAccountEmail,
   checkIfLoggedIn,
   checkIfAdmin,
-
-  // Misc
-  getAllEventsForUser,
 
   // High Level (Async)
   getEventOnPageload,

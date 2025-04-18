@@ -3,15 +3,12 @@ import {
   IconPlus,
   IconSearch,
   IconTrash,
-  IconClock,
-  IconCalendar,
   IconChevronDown,
 } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
   getAccountId,
-  getAllEventsForUser,
   deleteEvent,
   getParsedAccountPageEventsForUser,
 } from '../../firebase/events';
