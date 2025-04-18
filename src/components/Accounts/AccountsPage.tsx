@@ -1,11 +1,18 @@
 import { useContext, useState, useEffect } from 'react';
-import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconSearch,
+  IconTrash,
+  IconClock,
+  IconCalendar,
+} from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
   getAccountId,
   getAllEventsForUser,
   deleteEvent,
+  getParsedAccountPageEventsForUser,
 } from '../../firebase/events';
 import { logout } from '../../firebase/auth';
 
@@ -18,7 +25,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 
-interface AccountsPageEvent {
+export interface AccountsPageEvent {
   name: string;
   id: string;
   dates: string;
@@ -26,45 +33,9 @@ interface AccountsPageEvent {
   endTime: string;
   location: string;
   iAmCreator: boolean;
+  dateCreated: Date;
+  lastModified: Date;
 }
-
-/**
- * Parses the backend event object into a type that the AccountsPage component understands.
- * @param events Event[]
- * @returns AccountsPageEvent[]
- */
-const parseEventObjectForAccountsPage = (
-  events: Event[]
-): AccountsPageEvent[] => {
-  const accountPageEvents: AccountsPageEvent[] = [];
-  events.forEach((event) => {
-    accountPageEvents.push({
-      name: event.details.name,
-      id: event.publicId,
-      dates: event.details.chosenStartDate
-        ? event.details.chosenStartDate?.toLocaleDateString()
-        : 'TBD',
-      startTime: event.details.chosenStartDate
-        ? event.details.chosenStartDate?.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          })
-        : 'TBD',
-      endTime: event.details.chosenEndDate
-        ? event.details.chosenEndDate?.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          })
-        : 'TBD',
-      location: event.details.chosenLocation || 'TBD',
-      iAmCreator: event.details.adminAccountId === getAccountId(),
-    });
-  });
-
-  return accountPageEvents;
-};
 
 /**
  * Page Component. Renders the events associated with a logged in Google account.
@@ -80,9 +51,11 @@ export default function AccountsPage() {
       const accountID = getAccountId();
 
       if (accountID && accountID !== '') {
-        await getAllEventsForUser(getAccountId()).then((eventsUnparsed) => {
-          setEvents(parseEventObjectForAccountsPage(eventsUnparsed) || []);
-        });
+        await getParsedAccountPageEventsForUser(accountID).then(
+          (parsedEvents) => {
+            setEvents(parsedEvents);
+          }
+        );
       } else {
         setEvents([]);
       }
@@ -95,12 +68,35 @@ export default function AccountsPage() {
 
   const nav = useNavigate();
   const [filter, setFilter] = useState('');
-
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
   const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<'dateCreated' | 'lastModified'>(
+    'lastModified'
+  );
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
+  };
+
+  const getSortedEvents = (events: AccountsPageEvent[]) => {
+    // return events; // remove later
+
+    console.log(events);
+
+    return [...events].sort((a, b) => {
+      let dateA = sortBy === 'dateCreated' ? a.dateCreated : a.lastModified;
+      let dateB = sortBy === 'dateCreated' ? b.dateCreated : b.lastModified;
+
+      dateA = new Date(dateA);
+      dateB = new Date(dateB);
+
+      console.log(dateA, dateB);
+      if (dateA === undefined || dateB === undefined) {
+        console.log('Date is undefined');
+        return 0;
+      }
+      return dateB.getTime() - dateA.getTime();
+    });
   };
 
   return (
@@ -112,20 +108,45 @@ export default function AccountsPage() {
           </h2>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 w-full sm:w-auto">
-            <div className="relative flex-1 min-w-[250px]">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <div className="flex items-center gap-3 w-full">
+              <div className="relative flex-1 min-w-[250px]">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-2.5 md:py-4 text-sm md:text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
+                    focus:border-primary focus:ring-2 focus:ring-primary/20
+                    hover:border-gray-400 dark:hover:border-gray-500
+                    placeholder-gray-400 dark:placeholder-gray-500
+                    dark:text-white min-h-[40px] md:min-h-[60px]"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search events..."
-                onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2.5 md:py-4 text-sm md:text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
-                  focus:border-primary focus:ring-2 focus:ring-primary/20
-                  hover:border-gray-400 dark:hover:border-gray-500
-                  placeholder-gray-400 dark:placeholder-gray-500
-                  dark:text-white min-h-[40px] md:min-h-[60px]"
-              />
+
+              <button
+                onClick={() =>
+                  setSortBy(
+                    sortBy === 'dateCreated' ? 'lastModified' : 'dateCreated'
+                  )
+                }
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 md:py-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all
+                  hover:border-gray-400 dark:hover:border-gray-500 text-sm md:text-base text-gray-700 dark:text-white"
+                aria-label="Toggle sort"
+              >
+                {sortBy === 'lastModified' ? (
+                  <>
+                    <IconClock className="w-5 h-5 text-gray-400" />
+                    <span>Last Modified</span>
+                  </>
+                ) : (
+                  <>
+                    <IconCalendar className="w-5 h-5 text-gray-400" />
+                    <span>Date Created</span>
+                  </>
+                )}
+              </button>
             </div>
 
             <button
@@ -150,7 +171,7 @@ export default function AccountsPage() {
         ) : undefined}
         {events && events.length != 0 ? (
           <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
-            {events
+            {getSortedEvents(events)
               .filter(
                 (e) =>
                   e.id.toLowerCase().includes(filter) ||

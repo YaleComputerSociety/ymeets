@@ -34,6 +34,7 @@ import { time } from 'console';
 import { start } from 'repl';
 import { DateTime } from 'luxon';
 import { runTransaction } from 'firebase/firestore';
+import { AccountsPageEvent } from '../components/Accounts/AccountsPage';
 
 // ASSUME names are unique within an event
 
@@ -202,12 +203,14 @@ async function deleteEvent(id: EventId): Promise<void> {
 // Structure of the userEvents array in the user document
 interface UserEvent {
   code: string;
-  timestamp: any; // This could be Timestamp or Date
+  lastModified: any; // This could be Timestamp or Date
+  dateCreated: any; // This could be Timestamp or Date
   isAdmin: boolean;
 }
 
-async function getEventCodesSortedByTimestamp(
-  userID: string
+async function getEventCodesSortedByLastModified(
+  userID: string,
+  sortBy: 'lastModified' | 'dateCreated' = 'lastModified'
 ): Promise<string[]> {
   try {
     const userRef = doc(db, 'users', userID);
@@ -224,12 +227,12 @@ async function getEventCodesSortedByTimestamp(
     const userEvents: UserEvent[] = userData.userEvents || [];
 
     const sortedEvents = [...userEvents].sort((a, b) => {
-      const aTime = a.timestamp?.toMillis
-        ? a.timestamp.toMillis()
-        : a.timestamp?.getTime?.() || 0;
-      const bTime = b.timestamp?.toMillis
-        ? b.timestamp.toMillis()
-        : b.timestamp?.getTime?.() || 0;
+      const aTime = a[sortBy]?.toMillis
+        ? a[sortBy].toMillis()
+        : a[sortBy]?.getTime?.() || 0;
+      const bTime = b[sortBy]?.toMillis
+        ? b[sortBy].toMillis()
+        : b[sortBy]?.getTime?.() || 0;
       return bTime - aTime; // Descending order (newest first)
     });
 
@@ -268,7 +271,7 @@ async function removeEventFromUserCollection(
 
 // Retrieves all events that this user has submitted availability for
 async function getAllEventsForUser(accountID: string): Promise<Event[]> {
-  const sortedEventCodes = await getEventCodesSortedByTimestamp(accountID);
+  const sortedEventCodes = await getEventCodesSortedByLastModified(accountID);
   console.log('Event codes sorted by timestamp:', sortedEventCodes);
 
   const eventsRef = collection(db, 'events');
@@ -305,6 +308,69 @@ async function getAllEventsForUser(accountID: string): Promise<Event[]> {
   });
 }
 
+// returns array of
+async function getParsedAccountPageEventsForUser(
+  accountID: string
+): Promise<AccountsPageEvent[]> {
+  // get event ids and lastModified info
+  const userRef = doc(db, 'users', accountID);
+  const userDoc = await getDoc(userRef);
+
+  if (!userDoc.exists()) {
+    console.log('User document not found: User does not exist in the database');
+    return [];
+  }
+
+  const userData = userDoc.data();
+  const userEvents: UserEvent[] = userData.userEvents || [];
+
+  const eventCodes = userEvents.map((event) => event.code);
+  const lastModified = userEvents.map((event) => event.lastModified);
+
+  const accountPageEvents: AccountsPageEvent[] = [];
+
+  const eventsRef = collection(db, 'events');
+
+  for (const eventCode of eventCodes) {
+    const eventDoc = await getDoc(doc(eventsRef, eventCode));
+    if (eventDoc.exists()) {
+      const event = eventDoc.data();
+      console.log('Firestore Event:', event);
+
+      accountPageEvents.push({
+        name: event.details.name,
+        id: event.publicId,
+        dates: event.details.chosenStartDate
+          ? event.details.chosenStartDate?.toLocaleDateString()
+          : 'TBD',
+        startTime: event.details.chosenStartDate
+          ? event.details.chosenStartDate?.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+            })
+          : 'TBD',
+        endTime: event.details.chosenEndDate
+          ? event.details.chosenEndDate?.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+            })
+          : 'TBD',
+        location: event.details.chosenLocation || 'TBD',
+        iAmCreator: event.details.adminAccountId === getAccountId(),
+        dateCreated: event.details.dateCreated.toDate(),
+        lastModified: lastModified[eventCodes.indexOf(eventCode)].toDate(),
+      });
+    } else {
+      // won't load if it doesn't exist (has been deleted by admin)
+      removeEventFromUserCollection(accountID, eventCode);
+    }
+  }
+
+  return accountPageEvents;
+}
+
 // Stores a new event passed in as a parameter to the backend
 async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
   const id = await generateUniqueEventKey();
@@ -334,7 +400,8 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
         const userRef = doc(db, 'users', eventDetails.adminAccountId); // Reference to the user's document
         const eventDetailsForUser = {
           code: id, // Using event ID as the event code
-          timestamp: new Date(), // Timestamp when the event is added
+          lastModified: new Date(), // Timestamp when the event is added
+          dateCreated: new Date(),
           isAdmin: true, // Admin status for this event
         };
         updateDoc(userRef, {
@@ -439,21 +506,21 @@ async function updateUserCollectionEventsWith(accountId: string) {
         });
 
         if (existingEventIndex !== -1) {
-          console.log('Event exists, updating timestamp');
+          console.log('Event exists, updating lastModified');
           // Event exists, update its timestamp
-          userEvents[existingEventIndex].timestamp = new Date();
-
+          userEvents[existingEventIndex].lastModified = new Date();
           // Update the document with the modified array
           updateDoc(userRef, {
             userEvents: userEvents,
           }).catch((err) => {
-            console.error('Error updating event timestamp:', err);
+            console.error('Error updating events lastModified field:', err);
           });
         } else {
           // Event doesn't exist, add it to the array
           const eventDetailsForUser = {
             code: workingEvent.publicId,
-            timestamp: new Date(),
+            lastModified: new Date(),
+            dateCreated: workingEvent.details.dateCreated,
             isAdmin: false, // safe assumtion, since admins always already event saved on creation
           };
 
@@ -990,6 +1057,7 @@ export {
   getEventOnPageload,
   getEventById,
   createEvent,
+  getParsedAccountPageEventsForUser,
 
   // Getters (Sync)
   getDates,
