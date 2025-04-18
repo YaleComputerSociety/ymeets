@@ -195,7 +195,8 @@ export const DaySelectComponent = () => {
           startDate,
           endDate,
           zoomLink,
-          timezone
+          timezone,
+          new Date() // dateCreated
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
@@ -217,7 +218,8 @@ export const DaySelectComponent = () => {
           startDate,
           endDate,
           zoomLink,
-          timezone
+          timezone,
+          new Date() // dateCreated
         )
         .then((ev) => {
           navigate('/timeselect/' + ev?.publicId);
