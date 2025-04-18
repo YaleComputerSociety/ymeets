@@ -23,6 +23,8 @@ export interface EventDetails {
   chosenEndDate?: Date | undefined; // minutes
   zoomLink?: string | undefined;
   timeZone: string;
+  participants: string[]; // firebase uids
+  dateCreated: Date;
 }
 
 export interface Participant {
@@ -94,6 +96,7 @@ export interface user {
 
 export interface userData {
   users: user[];
+  userIDs: string[];
   available: user[];
   unavailable: user[];
 }

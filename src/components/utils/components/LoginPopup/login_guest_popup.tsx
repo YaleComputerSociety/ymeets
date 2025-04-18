@@ -11,6 +11,7 @@ import { auth } from '../../../../firebase/firebase';
 import LOGO from './googlelogo.png';
 import ButtonSmall from '../ButtonSmall';
 import { useParams } from 'react-router-dom';
+import { IconArrowLeft } from '@tabler/icons-react';
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
@@ -87,39 +88,56 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     };
   }, []);
   return (
-    <div className="popup-overlay active">
-      <div className="popup-content p-10 mx-10 w-100">
-        {/* <p className="mb-5 text-xl text-center">Please sign in.</p> */}
+    <div className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6">
+      <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
+        <button
+          onClick={() => {
+            navigate('/groupview/' + code);
+          }}
+          className="absolute top-4 left-4 p-2 flex items-center text-gray-500 hover:text-gray-800 transition-colors duration-200"
+          aria-label="Go back"
+        >
+          <IconArrowLeft className="h-5 w-5" />
+        </button>
 
-        <div className="flex flex-col items-center mb-1">
+        <div className="flex flex-col items-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 sm:mb-8">
+            Sign In
+          </h2>
+
           <button
-            className="sm:font-bold rounded-full shadow-md bg-white text-gray-600 py-4 px-6 sm:px-8 text-md sm:text-lg w-fit \
-                          transform transition-transform hover:scale-90 active:scale-100e flex items-center"
+            className="w-full font-medium rounded-full shadow-md bg-white text-gray-700 py-3 px-4 sm:px-6 text-sm sm:text-base
+                      border border-gray-200 hover:border-gray-300 transform transition-all duration-200 hover:shadow-lg 
+                      active:scale-95 flex items-center justify-center"
             onClick={handleSignInWithGoogle}
           >
-            <img src={LOGO} alt="Logo" className="mr-3 h-9" /> Continue with
-            Google
+            <img src={LOGO} alt="Logo" className="mr-2 sm:mr-3 h-5 sm:h-6" />
+            <span>Continue with Google</span>
           </button>
 
-          <span className="mx-10 my-8 font-bold text-md sm:text-lg">
-            — OR —
-          </span>
+          <div className="flex items-center w-full my-6 sm:my-8">
+            <div className="flex-1 h-px bg-gray-200"></div>
+            <span className="px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-500">
+              OR
+            </span>
+            <div className="flex-1 h-px bg-gray-200"></div>
+          </div>
 
-          <span className="mx-4 text-sm sm:text-lg">
+          <p className="text-center text-sm sm:text-base text-gray-600 mb-3">
             Enter Name to Continue as Guest
-          </span>
+          </p>
 
           {enableAnonymousSignIn && (
-            <div className="flex items-center mt-3">
+            <div className="flex items-center w-full">
               <input
-                className={`rounded-l-md py-2 px-4 text-md bg-white text-left border-2 ${
-                  isValidInput ? 'border-gray-300' : 'border-red-500'
-                }`}
+                className="rounded-l-lg py-2.5 sm:py-3 px-3 sm:px-4 text-sm sm:text-base bg-white text-left 
+                          border border-gray-300 focus:border-blue-400 focus:outline-none focus:ring-2 
+                          focus:ring-blue-100 w-full transition-all duration-200"
                 placeholder="Your Name"
                 name="name"
                 type="text"
                 onChange={(event) => {
-                  const newValue = event.target.value.slice(0, 25); // Cap at 25 characters
+                  const newValue = event.target.value.slice(0, 25);
                   setInputName(newValue);
                   setIsValidInput(validateInput(newValue));
                 }}
@@ -130,12 +148,12 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
               />
               <button
                 className={`
-                  rounded-r-md font-semibold
-                  py-2 px-4 min-w-[48px]
+                  rounded-r-lg font-medium
+                  py-2.5 sm:py-3 px-3 sm:px-4 min-w-[44px] sm:min-w-[48px]
                   transition-all duration-200 ease-in-out
                   ${
                     isValidInput && inputName.trim().length > 0
-                      ? 'bg-primary hover:bg-blue-500 text-white'
+                      ? 'bg-primary hover:bg-blue-600 text-white'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }
                   focus:outline-none focus:ring-2 focus:ring-blue-300
@@ -144,21 +162,10 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
                 onClick={handleSignInWithoutGoogle}
                 disabled={!isValidInput || inputName.trim().length === 0}
               >
-                <span className="text-xl">&rarr;</span>
+                <span className="text-lg sm:text-xl">&rarr;</span>
               </button>
             </div>
           )}
-          <div className="mt-4">
-            <ButtonSmall
-              onClick={() => {
-                navigate('/groupview/' + code);
-              }}
-              bgColor="primary"
-              textColor="white"
-            >
-              Enter Availability Later
-            </ButtonSmall>
-          </div>
         </div>
       </div>
     </div>

@@ -44,75 +44,29 @@
 }
 
 .react-calendar__month-view__weekdays__weekday {
-  @apply dark:text-text-dark !important;
+  @apply text-sm font-medium text-gray-500 dark:text-gray-400 pb-2;
+  text-align: center;
 }
-
-.react-calendar__navigation__label {
-  flex-grow: 0 !important;
-  background-color: white !important;
+/* Navigation */
+.react-calendar__navigation {
+  @apply mb-6 flex justify-between items-center gap-5 w-full dark:bg-secondary_background-dark;
 }
 
 .react-calendar__navigation button {
-  min-width: 10px !important;
-  font-size: 2rem;
-  color: #c3c3c3;
-  @apply dark:bg-secondary_background-dark;
-  @apply dark:text-text-dark !important;
-}
-
-.react-calendar__navigation {
-  display: flex;
-  justify-content: center;
-  gap: 22px;
-  min-width: 190px;
-  @apply dark:bg-secondary_background-dark;
-}
-
-.react-calendar__navigation__label__labelText--from {
-  font-weight: 250 !important;
-}
-
-.react-calendar__navigation__arrow {
-  font-size: 22px !important;
-  color: black !important;
-  /* @apply dark:bg-secondary_background-dark !important; */
-}
-
-.react-calendar__navigation__label {
-  /* Adjust these styles as needed */
-  flex-grow: 1;
-  @apply bg-secondary_background-dark;
-}
-
-.react-calendar__navigation__arrow.react-calendar__navigation__next2-button {
-  /* Set a fixed width or any other desired styles */
-  width: 20px;
-  /* Ensure the arrow stays on the right */
-  margin-left: auto;
-  @apply dark:bg-secondary_background-dark !important;
+  @apply text-2xl font-semibold text-gray-600 dark:text-gray-300 transition-colors min-w-[10px];
 }
 
 .react-calendar__navigation button:enabled:hover,
 .react-calendar__navigation button:enabled:focus {
-  background-color: white !important;
-  @apply dark:bg-secondary_background-dark !important;
+  @apply text-black dark:text-white;
 }
 
-.react-calendar__navigation:hover {
-  background-color: white !important;
-  @apply dark:bg-secondary_background-dark !important;
+.react-calendar__navigation__label {
+  @apply flex-grow-0 bg-white dark:bg-secondary_background-dark;
 }
 
-.react-calendar__navigation button:hover {
-  background-color: none !important;
-  @apply dark:bg-secondary_background-dark !important;
-}
-
-.react-calendar__navigation__label__labelText {
-  font-size: 2rem;
-  font-weight: bold;
-  color: black;
-  /* padding: 0px, 50px, 0px, 50px; */
+.react-calendar__navigation__arrow {
+  @apply text-black dark:text-gray-300 text-xl;
 }
 
 abbr {
@@ -180,10 +134,16 @@ button.react-calendar__tile div {
 .time-select-container > div > .react-dropdown-select {
   border: none !important;
   border-radius: 8px !important;
-  background-color: rgb(216, 216, 216) !important;
+  background-color: #E0E8F7 !important;
   max-height: 22px !important;
   min-width: 88px !important;
   padding-left: 9px !important;
+  @apply dark:text-text-dark !important;
+}
+
+.dark .time-select-container > div > .react-dropdown-select {
+  background-color: #1F2937 !important; 
+  
 }
 
 .time-select-container > div > div > .react-dropdown-select-dropdown-handle {

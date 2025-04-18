@@ -68,7 +68,7 @@ export const TimeSelectComponent = (props: any) => {
       />
       <div className="grid items-center pl-4 px-1 sm:px-2">
         <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base pl-2">
-          &nbsp; to:{' '}
+          &nbsp; To:{' '}
         </p>
       </div>
       <Select

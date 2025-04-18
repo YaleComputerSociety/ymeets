@@ -1,13 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import {
-  IconPlus,
-  IconCopy,
-  IconSearch,
-  IconCalendarEvent,
-  IconClock,
-  IconMapPin,
-  IconTrash,
-} from '@tabler/icons-react';
+import { useContext, useState, useEffect } from 'react';
+import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
@@ -105,6 +97,7 @@ export default function AccountsPage() {
   const [filter, setFilter] = useState('');
 
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
+  const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
@@ -112,9 +105,9 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <div className="w-full max-w-full pt-2 sm:pt-4 md:pt-6 lg:pt-8 xl:pt-10 pb-10 sm:pb-14 md:pb-17 lg:pb-20 xl:pb-24 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 md:gap-12 lg:gap-14 xl:gap-16 flex-grow w-full">
+      <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
-          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-700 dark:text-text-dark">
+          <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark">
             Your Events
           </h2>
 
@@ -136,9 +129,9 @@ export default function AccountsPage() {
             </div>
 
             <button
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark hover:to-primary/90
-                 text-white font-semibold rounded-lg transition-all
-                 transform hover:-translate-y-0.5 active:translate-y-0
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2 md:py-4 bg-gradient-to-r from-primary to-primary-dark dark:from-blue-900 dark:to-blue-600
+                 text-white font-semibold rounded-lg transition-all transition-transform duration-300
+                 transform hover:scale-102 active:translate-y-0
                  shadow-md hover:shadow-lg
                  focus:outline-none focus:ring-2 focus:ring-primary/30
                  whitespace-nowrap min-h-[40px] md:min-h-[60px] text-sm md:text-base"
@@ -176,14 +169,21 @@ export default function AccountsPage() {
                       {event.iAmCreator && (
                         <button
                           onClick={() => {
-                            deleteEvent(event.id)
-                              .then(() => {
-                                // delete it locally
-                                setEvents(
-                                  events.filter((e) => e.id != event.id)
-                                );
-                              })
-                              .catch((err) => {});
+                            if (
+                              hasDeletedEvent ||
+                              window.confirm(
+                                'Are you sure you want to delete this event? This action cannot be undone.'
+                              )
+                            ) {
+                              deleteEvent(event.id)
+                                .then(() => {
+                                  setHasDeletedEvent(true);
+                                  setEvents(
+                                    events.filter((e) => e.id != event.id)
+                                  );
+                                })
+                                .catch((err) => {});
+                            }
                           }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                           aria-label="Delete event"
@@ -196,7 +196,7 @@ export default function AccountsPage() {
                     <div className="flex flex-row gap-2">
                       <button
                         onClick={() => nav(`/groupview/${event.id}`)}
-                        className="flex-1 bg-primary hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+                        className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
                       >
                         Open Event
                       </button>
@@ -222,7 +222,7 @@ export default function AccountsPage() {
           )
         ) : undefined}
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-center">
           {checkIfLoggedIn() ? (
             <button
               onClick={() => {

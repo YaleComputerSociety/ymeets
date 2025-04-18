@@ -29,7 +29,11 @@ import {
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
+
+import { time } from 'console';
+import { start } from 'repl';
 import { DateTime } from 'luxon';
+import { runTransaction } from 'firebase/firestore';
 
 // ASSUME names are unique within an event
 
@@ -45,6 +49,8 @@ let workingEvent: Event = {
     endTime: new Date(), // minutes; min: 0, max 24*60 = 1440
     plausibleLocations: ['HH17', 'Sterling'],
     timeZone: 'America/New_York',
+    participants: [],
+    dateCreated: new Date(),
   },
   participants: [],
 };
@@ -143,6 +149,11 @@ async function getEventById(id: EventId): Promise<void> {
             .catch((err) => {
               reject(err);
             });
+
+          workingEvent.details.participants = workingEvent.participants
+            .filter((part) => part.accountId !== undefined)
+            .map((part) => part.accountId!);
+
           resolve();
         } else {
           reject('Document not found');
@@ -538,55 +549,52 @@ async function updateAnonymousUserToAuthUser(name: string) {
   const accountId = getAccountId();
 
   try {
-    if (accountName === '') Promise.reject('User is not signed in');
-    const eventsRef = collection(db, 'events');
-    const participantsRef = collection(
-      doc(eventsRef, workingEvent.publicId),
-      'participants'
-    );
+    if (accountName === '') throw new Error('User is not signed in');
 
-    const anonymousPartRef = doc(participantsRef, name);
-    const authedPartRef = doc(participantsRef, accountId);
-
-    // Update local
-    let availability;
+    let availability: any;
     workingEvent.participants.forEach((part, index) => {
       if (part.name == name && part.accountId == '') {
-        workingEvent.participants[index].accountId = accountName;
+        workingEvent.participants[index].name = accountName;
         workingEvent.participants[index].accountId = accountId;
         availability = workingEvent.participants[index].availability;
       }
     });
 
-    // Anonymous user has not submitted their availability yet
-    // So nothing to update.
     if (availability === undefined) return;
 
-    // Update Backend
-    const batch = writeBatch(db);
+    const eventsRef = collection(db, 'events');
+    const eventDocRef = doc(eventsRef, workingEvent.publicId);
+    const participantsRef = collection(eventDocRef, 'participants');
+    const anonymousPartRef = doc(participantsRef, name);
+    const authedPartRef = doc(participantsRef, accountId);
 
-    // Delete old anonymous doc
-    batch.delete(anonymousPartRef);
+    await runTransaction(db, async (transaction) => {
+      const anonymousDoc = await transaction.get(anonymousPartRef);
 
-    // Create (update) new authed doc with old availability
-    batch.set(authedPartRef, {
-      name: accountName,
-      email: getAccountEmail(),
-      accountId,
-      availability: JSON.stringify(availability),
+      if (!anonymousDoc.exists()) {
+        console.log('Anonymous document not found:', name);
+        return;
+      }
+
+      transaction.set(authedPartRef, {
+        name: accountName,
+        email: getAccountEmail(),
+        accountId,
+        availability: JSON.stringify(availability),
+      });
+
+      transaction.update(eventDocRef, {
+        participants: arrayUnion(accountId),
+      });
+
+      transaction.delete(anonymousPartRef);
     });
 
-    // This updates the participants list in the event details object
-    batch.update(doc(eventsRef, workingEvent.publicId), {
-      participants: arrayUnion(getAccountId()),
-    });
-
-    updateUserCollectionEventsWith(accountId);
-
-    await batch.commit();
+    console.log('User updated successfully');
     return;
   } catch (err) {
-    console.error(err);
+    console.error('Error in updating user:', err);
+    throw err;
   }
 }
 
@@ -714,6 +722,14 @@ function getAllAvailabilitiesNames(): string[] {
     names.push(workingEvent.participants[i].name);
   }
   return names;
+}
+
+function getAllAvailabilitiesIDs(): string[] {
+  const ids: string[] = [];
+  for (let i = 0; i < workingEvent.details.participants.length; i++) {
+    ids.push(workingEvent.details.participants[i]);
+  }
+  return ids;
 }
 
 // Retrieves the list of availabilities
@@ -982,6 +998,7 @@ export {
   getChosenDayAndTime,
   getAllAvailabilities,
   getAllAvailabilitiesNames,
+  getAllAvailabilitiesIDs,
   getAvailabilityByAccountId,
   getAvailabilityByName,
   getLocationVotesByName,
