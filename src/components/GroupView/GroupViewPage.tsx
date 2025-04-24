@@ -371,7 +371,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 <div className="flex flex-col sm:flex-row items-center justify-between w-full">
                   <div className="w-full flex flex-col sm:flex-row items-center sm:space-x-2">
-                    <div className="flex w-full sm:w-auto justify-between mb-2 space-x-2 sm:mb-0">
+                    <div className="flex w-full sm:w-auto justify-center sm:justify-between mb-2 space-x-2 sm:mb-0">
                       <ButtonSmall
                         bgColor={'primary'}
                         textColor={'white'}
