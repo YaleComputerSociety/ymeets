@@ -421,7 +421,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                           />
                         </div>
 
-                        <div className="hidden sm:block">
+                        <div className="hidden sm:flex items-center justify-center">
                           {isAdmin &&
                             calendarFramework?.dates?.[0][0].date instanceof
                               Date &&
