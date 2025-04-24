@@ -389,7 +389,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                         </div>
                       </ButtonSmall>
 
-                      <div className="sm:hidden ml-2">
+                      <div className="sm:hidden flex items-center justify-center space-x-0">
                         {isAdmin &&
                           calendarFramework?.dates?.[0][0].date instanceof
                             Date &&
@@ -405,68 +405,85 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                     </div>
 
                     <div className="w-full sm:flex-1 flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <TimezoneChanger
-                          theCalendarFramework={[
-                            calendarFramework,
-                            setCalendarFramework,
-                          ]}
-                          initialTimezone={
-                            getTimezone()
-                              ? getTimezone()
-                              : Intl.DateTimeFormat().resolvedOptions().timeZone
-                          }
-                        />
-                      </div>
+                      <div className="w-full flex items-center justify-between gap-2">
+                        <div className="flex-1">
+                          <TimezoneChanger
+                            theCalendarFramework={[
+                              calendarFramework,
+                              setCalendarFramework,
+                            ]}
+                            initialTimezone={
+                              getTimezone()
+                                ? getTimezone()
+                                : Intl.DateTimeFormat().resolvedOptions()
+                                    .timeZone
+                            }
+                          />
+                        </div>
 
-                      <div className="hidden sm:block ml-2">
-                        {isAdmin &&
-                          calendarFramework?.dates?.[0][0].date instanceof
-                            Date &&
-                          (
-                            calendarFramework.dates[0][0].date as Date
-                          ).getFullYear() !== 2000 &&
-                          isAdmin && (
-                            <AddToGoogleCalendarButton
-                              onClick={handleSelectionSubmission}
+                        <div className="hidden sm:block">
+                          {isAdmin &&
+                            calendarFramework?.dates?.[0][0].date instanceof
+                              Date &&
+                            (
+                              calendarFramework.dates[0][0].date as Date
+                            ).getFullYear() !== 2000 &&
+                            isAdmin && (
+                              <AddToGoogleCalendarButton
+                                onClick={handleSelectionSubmission}
+                              />
+                            )}
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <div className="lg:hidden">
+                            {!participantToggleClicked ? (
+                              <IconAdjustmentsFilled
+                                size={30}
+                                className="cursor-pointer dark:text-text-dark"
+                                onClick={() => {
+                                  setParticipantToggleClicked(
+                                    !participantToggleClicked
+                                  );
+                                  setShowUserChart(false);
+                                }}
+                              />
+                            ) : (
+                              <IconAdjustments
+                                size={30}
+                                className="cursor-pointer dark:text-text-dark"
+                                onClick={() => {
+                                  setParticipantToggleClicked(
+                                    !participantToggleClicked
+                                  );
+                                  setShowUserChart(true);
+                                }}
+                              />
+                            )}
+                          </div>
+
+                          <div className="block sm:hidden">
+                            <InformationPopup
+                              content={
+                                locationOptions.length === 0
+                                  ? 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal'
+                                  : 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
+                              }
                             />
-                          )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
-                    <div className="lg:hidden">
-                      {!participantToggleClicked ? (
-                        <IconAdjustmentsFilled
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(
-                              !participantToggleClicked
-                            );
-                            setShowUserChart(false);
-                          }}
-                        />
-                      ) : (
-                        <IconAdjustments
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(
-                              !participantToggleClicked
-                            );
-                            setShowUserChart(true);
-                          }}
-                        />
-                      )}
-                    </div>
-
-                    {locationOptions.length === 0 ? (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
-                    ) : (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
-                    )}
+                  <div className="hidden sm:flex items-center justify-end space-x-2">
+                    <InformationPopup
+                      content={
+                        locationOptions.length === 0
+                          ? 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal'
+                          : 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
+                      }
+                    />
                   </div>
                 </div>
               </div>
