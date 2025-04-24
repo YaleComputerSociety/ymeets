@@ -370,51 +370,72 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:space-x-2">
-                  <div className="flex items-center gap-2 w-full">
-                    <ButtonSmall
-                      bgColor={'primary'}
-                      textColor={'white'}
-                      onClick={() => {
-                        nav('/timeselect/' + code);
-                      }}
-                    >
-                      <div className="flex flex-row items-center justify-center space-x-1">
-                        {userHasFilled ? <IconPencil /> : <IconPlus />}
-                        <p>
-                          {userHasFilled
-                            ? 'Edit Your Availability'
-                            : 'Add Your Availability'}
-                        </p>
-                      </div>
-                    </ButtonSmall>
+                  <div className="w-full flex flex-col sm:flex-row items-center sm:space-x-2">
+                    <div className="flex w-full sm:w-auto justify-between mb-2 sm:mb-0">
+                      <ButtonSmall
+                        bgColor={'primary'}
+                        textColor={'white'}
+                        onClick={() => {
+                          nav('/timeselect/' + code);
+                        }}
+                      >
+                        <div className="flex flex-row items-center justify-center space-x-1">
+                          {userHasFilled ? <IconPencil /> : <IconPlus />}
+                          <p>
+                            {userHasFilled
+                              ? 'Edit Your Availability'
+                              : 'Add Your Availability'}
+                          </p>
+                        </div>
+                      </ButtonSmall>
 
-                    <div className="flex-1">
-                      <TimezoneChanger
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
-                        initialTimezone={
-                          getTimezone()
-                            ? getTimezone()
-                            : Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }
-                      />
+                      <div className="sm:hidden ml-2">
+                        {isAdmin &&
+                          calendarFramework?.dates?.[0][0].date instanceof
+                            Date &&
+                          (
+                            calendarFramework.dates[0][0].date as Date
+                          ).getFullYear() !== 2000 &&
+                          isAdmin && (
+                            <AddToGoogleCalendarButton
+                              onClick={handleSelectionSubmission}
+                            />
+                          )}
+                      </div>
+                    </div>
+
+                    <div className="w-full sm:flex-1 flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <TimezoneChanger
+                          theCalendarFramework={[
+                            calendarFramework,
+                            setCalendarFramework,
+                          ]}
+                          initialTimezone={
+                            getTimezone()
+                              ? getTimezone()
+                              : Intl.DateTimeFormat().resolvedOptions().timeZone
+                          }
+                        />
+                      </div>
+
+                      <div className="hidden sm:block ml-2">
+                        {isAdmin &&
+                          calendarFramework?.dates?.[0][0].date instanceof
+                            Date &&
+                          (
+                            calendarFramework.dates[0][0].date as Date
+                          ).getFullYear() !== 2000 &&
+                          isAdmin && (
+                            <AddToGoogleCalendarButton
+                              onClick={handleSelectionSubmission}
+                            />
+                          )}
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
-                    {isAdmin &&
-                      calendarFramework?.dates?.[0][0].date instanceof Date &&
-                      (
-                        calendarFramework.dates[0][0].date as Date
-                      ).getFullYear() !== 2000 &&
-                      isAdmin && (
-                        <AddToGoogleCalendarButton
-                          onClick={handleSelectionSubmission}
-                        />
-                      )}
-
                     <div className="lg:hidden">
                       {!participantToggleClicked ? (
                         <IconAdjustmentsFilled
