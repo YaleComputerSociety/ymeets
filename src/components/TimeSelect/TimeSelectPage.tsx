@@ -610,30 +610,6 @@ function TimeSelectPage() {
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="flex-1">
-                      <TimezoneChanger
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
-                        initialTimezone={
-                          getTimezone()
-                            ? getTimezone()
-                            : Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }
-                      />
-                    </div>
-                    <ButtonSmall
-                      bgColor="primary"
-                      textColor="white"
-                      themeGradient={true}
-                      onClick={handleSubmitAvailability}
-                    >
-                      Save
-                    </ButtonSmall>
-                  </div>
-
                   {isGoogleLoggedIn ? (
                     <div className="flex gap-2 w-full">
                       <ButtonSmall
@@ -641,7 +617,7 @@ function TimeSelectPage() {
                         textColor="white"
                         themeGradient={false}
                         onClick={handleToggleGCalAvailabilitiesClick}
-                        className="flex-1 !rounded-lg" // Changed from rounded-full to rounded-lg
+                        className="flex-1 !rounded-lg"
                       >
                         Show GCal Events
                       </ButtonSmall>
@@ -650,7 +626,7 @@ function TimeSelectPage() {
                         textColor="white"
                         themeGradient={false}
                         onClick={handleAutofillAvailabilityClick}
-                        className="flex-1 !rounded-lg" // Changed from rounded-full to rounded-lg
+                        className="flex-1 !rounded-lg"
                       >
                         Autofill Availability
                       </ButtonSmall>
@@ -676,9 +652,32 @@ function TimeSelectPage() {
                       Sign in to access GCal
                     </button>
                   )}
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={
+                          getTimezone()
+                            ? getTimezone()
+                            : Intl.DateTimeFormat().resolvedOptions().timeZone
+                        }
+                      />
+                    </div>
+                    <ButtonSmall
+                      bgColor="primary"
+                      textColor="white"
+                      themeGradient={true}
+                      onClick={handleSubmitAvailability}
+                    >
+                      <span>&nbsp;</span> Save <span>&nbsp;</span>
+                    </ButtonSmall>
+                  </div>
                 </div>
 
-                {/* Desktop layout */}
+                {/* Desktop layout - unchanged */}
                 <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
                   <div className="flex items-center gap-2 flex-1">
                     <div className="flex items-center gap-2">
