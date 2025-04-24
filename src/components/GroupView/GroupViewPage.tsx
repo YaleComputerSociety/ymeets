@@ -463,13 +463,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                           </div>
 
                           <div className="block sm:hidden flex items-center justify-center">
-                            <InformationPopup
-                              content={
-                                locationOptions.length === 0
-                                  ? 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal'
-                                  : 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
-                              }
-                            />
+                            {isAdmin &&
+                              (locationOptions.length === 0 ? (
+                                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                              ) : (
+                                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                              ))}
                           </div>
                         </div>
                       </div>
@@ -477,13 +476,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                   </div>
 
                   <div className="hidden sm:flex items-center justify-end space-x-2">
-                    <InformationPopup
-                      content={
-                        locationOptions.length === 0
-                          ? 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal'
-                          : 'NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
-                      }
-                    />
+                    {isAdmin &&
+                      (locationOptions.length === 0 ? (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                      ) : (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      ))}
                   </div>
                 </div>
               </div>
