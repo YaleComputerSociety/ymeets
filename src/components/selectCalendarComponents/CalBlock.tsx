@@ -644,7 +644,7 @@ export default function CalBlock({
 
       {isEventStart && eventName && (
         <div
-          className="absolute top-0 left-0 text-xs font-bold text-black"
+          className="absolute top-0 left-0 text-xs font-bold text-black dark:text-white"
           style={{
             zIndex: 10,
           }}
