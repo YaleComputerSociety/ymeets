@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         any way. The only information we store associated with an account are
         active scheduling events, including all the event details; each time you
         exit a scheduling event, we do not persist the GCal data we pulled. It
-        is repulled once you revist that scheduling event.
+        is repulled once you revisit that scheduling event. Additionally, we store the last selected calendar ID(s) for each user to improve the user experience.
         <br></br>
         <br></br>
         Cookies are used for login purposes. No information is given to other
