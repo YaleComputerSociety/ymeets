@@ -24,7 +24,7 @@ firebase_admin.initialize_app(cred)
 
 API_KEY = os.getenv("FIREBASE_API_KEY", "BAD_API_KEY") 
 PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "BAD_PROJECT_ID")
-MAX_N_EVENTS = 15
+MAX_N_EVENTS = 50
 
 db = firestore.client()
 
@@ -79,12 +79,16 @@ for event_doc in db.collection("events").limit(MAX_N_EVENTS).stream():
             # check we have email
             user_email = id_to_email_map.get(participant_id, "")
             # can replace with continue to skip bad participant_ids
-            assert(user_email != "") 
+            # assert(user_email != "")
+            if user_email == "":
+                continue 
             
             # check we have name
             user_name = id_to_name_map.get(participant_id, "")
             # can replace with continue to skip bad participant_ids
-            assert(user_name != "")
+            # assert(user_name != "")
+            if user_name == "":
+                continue
 
             # construct user
             user_data = {
@@ -108,7 +112,8 @@ for event_doc in db.collection("events").limit(MAX_N_EVENTS).stream():
             event_entry = {
                 "code": event_id,
                 "idAdmin": is_admin,
-                "timestamp": datetime.now()
+                "dateCreated": datetime.now(),
+                "lastModified": datetime.now()
             }
             user_data["userEvents"].append(event_entry)
 
