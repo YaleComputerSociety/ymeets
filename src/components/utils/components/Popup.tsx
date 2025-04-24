@@ -6,6 +6,7 @@ export const Popup = ({
   children,
   onCloseAndSubmit,
   buttonText = 'Submit', // Default text for the button
+  showSubmitButton = true,
 }: any) => {
   return (
     <>
@@ -25,14 +26,16 @@ export const Popup = ({
               </span>
               {children}
               <br />
-              <ButtonSmall
-                bgColor="primary"
-                textColor="white"
-                themeGradient={false}
-                onClick={onCloseAndSubmit}
-              >
-                {buttonText}
-              </ButtonSmall>
+              {showSubmitButton && (
+                <ButtonSmall
+                  bgColor="primary"
+                  textColor="white"
+                  themeGradient={false}
+                  onClick={onCloseAndSubmit}
+                >
+                  {buttonText}
+                </ButtonSmall>
+              )}
             </div>
           </div>
         </div>

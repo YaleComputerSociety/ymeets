@@ -1,22 +1,18 @@
 /* eslint-disable */
 import * as React from 'react';
-// import background from '../landingpage/landingbackground.jpg'
 import { useNavigate } from 'react-router-dom';
-import { checkIfLoggedIn, getEventById } from '../../firebase/events';
+import { getEventById } from '../../firebase/events';
 import graphic from './calendargraphic.png';
 import LoginPopup from '../utils/components/LoginPopup';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
-
-// import { SiGooglecalendar } from 'react-icons/si';
-// import { FaLock } from 'react-icons/fa';
-// import { CiLocationOn } from 'react-icons/ci';
+import EventTypePopup from '../poll/EventTypePopup';
+import { IconChartBar } from '@tabler/icons-react';
+import { IconClock } from '@tabler/icons-react';
 
 import {
   IconMapPinFilled,
-  IconMapPin,
   IconBrandGoogle,
-  IconLockAccessOff,
   IconLock,
 } from '@tabler/icons-react';
 
@@ -25,6 +21,7 @@ export default function HomePage() {
   const [showInput, setShowInput] = React.useState(true);
   const [eventCode, setEventCode] = React.useState('');
   const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
+  const [showDoodlePopup, setShowDoodlePopup] = React.useState<boolean>(false);
   const [showFormValidation, setShowFormValidation] =
     React.useState<boolean>(false);
   const [formErrorMessage, setFormErrorMessage] = React.useState('');
@@ -67,9 +64,12 @@ export default function HomePage() {
   const handleLoginPopupClose = (successFlag?: boolean) => {
     setShowLoginPopup(false);
     if (successFlag) {
-      // instead of checkIfLoggedIn because login is async
       goToEvent();
     }
+  };
+
+  const handleDoodlePopupClose = () => {
+    setShowDoodlePopup(false);
   };
 
   return (
@@ -119,11 +119,15 @@ export default function HomePage() {
               <Button
                 bgColor="primary"
                 textColor="white"
-                onClick={() => navigate('/dayselect')}
+                onClick={() => {
+                  console.log('clicked');
+                  setShowDoodlePopup(true);
+                }}
+                // onClick={() => navigate('/dayselect')}
               >
                 Create Event
               </Button>
-              
+
               <Button
                 bgColor="white"
                 textColor="black"
@@ -149,6 +153,55 @@ export default function HomePage() {
             enableAnonymousSignIn={true}
             code={eventCode}
           />
+        )}
+        {showDoodlePopup && (
+          <EventTypePopup
+            isOpen={showDoodlePopup}
+            onClose={handleDoodlePopupClose}
+          >
+            <div className="flex flex-col items-center justify-center space-y-8 py-8 px-4">
+              <h2 className="text-3xl font-bold text-text dark:text-text-dark mb-2">
+                Choose Your Event Type
+              </h2>
+
+              <div
+                onClick={() => navigate('/dayselect')}
+                className="w-full max-w-md rounded-lg p-6 transition-all duration-200
+                border-2 border-primary hover:scale-102 cursor-pointer
+                hover:bg-primary hover:text-white group"
+              >
+                <div className="flex items-center gap-4">
+                  <IconClock className="w-12 h-12 group-hover:text-white" />
+                  <div>
+                    <h3 className="text-xl font-semibold mb-1">
+                      Standard ymeet
+                    </h3>
+                    <p className="text-gray-600 group-hover:text-gray-200">
+                      Find the perfect meeting time with an enhanced when2meet
+                      experience
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                onClick={() => navigate('/poll/create')}
+                className="w-full max-w-md rounded-lg p-6 transition-all duration-200
+                border-2 border-primary hover:scale-102 cursor-pointer
+                hover:bg-primary hover:text-white group"
+              >
+                <div className="flex items-center gap-4">
+                  <IconChartBar className="w-12 h-12 group-hover:text-white" />
+                  <div>
+                    <h3 className="text-xl font-semibold mb-1">Quick Poll</h3>
+                    <p className="text-gray-600 group-hover:text-gray-200">
+                      Create a poll with custom options for quick decisions
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </EventTypePopup>
         )}
         <Footer />
       </div>
