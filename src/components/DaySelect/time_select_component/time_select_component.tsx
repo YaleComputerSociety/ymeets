@@ -52,7 +52,7 @@ export const TimeSelectComponent = (props: any) => {
 
   return (
     <div
-      className={`time-select-container absolute z-50 ${props.paddingClass} flex flex-row items-center justify-center`}
+      className={`time-select-container absolute z-10 ${props.paddingClass} flex flex-row items-center justify-center`}
     >
       <div className="grid items-center sm:px-2">
         <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base">

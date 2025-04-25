@@ -18,7 +18,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
-import AlertPopup from '../utils/components/AlertPopup';
+import DeletePopup from '../utils/components/DeletePopup';
 
 interface AccountsPageEvent {
   name: string;
@@ -110,8 +110,8 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <AlertPopup
-        title="Delete Event"
+      <DeletePopup
+        title="Confirm Deletion"
         message="Are you sure you want to delete this event? This action cannot be undone."
         isOpen={selectedEventToDelete !== null && !dontAskAgain}
         onConfirm={() => {
