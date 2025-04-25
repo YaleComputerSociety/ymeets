@@ -20,7 +20,9 @@ import LAILAH from './lailah.jpeg';
 import JIAKANG from './Jiakang.png';
 import ALAN from './AlanXie.jpg';
 import SHANKARA from './Shankara_Headshot.jpeg';
-
+import HAWA from './Hawa.jpeg';
+import JULIEN from './Julien.jpeg';
+import NIKITA from './Nikita.jpeg';
 import JEET from './Jeet_Headshot.jpg';
 import RYLAN from './Rylan_Headshot.jpg';
 
@@ -49,7 +51,7 @@ const CURR_CONTRIBUTORS = [
     founding: false,
     linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
     github: 'https://github.com/JulienTD23',
-    image: no_person,
+    image: JULIEN,
   },
 
   {
@@ -58,16 +60,16 @@ const CURR_CONTRIBUTORS = [
     founding: false,
     linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
     github: 'https://github.com/niksaitov',
-    image: no_person,
+    image: NIKITA,
   },
 
   {
-    name: 'Jack McCain',
+    name: 'Hawa Khalif',
     title: ['Software Engineer'],
     founding: false,
-    linkedin: 'https://www.linkedin.com/in/jack-mccain-49bab41a1/',
-    github: 'https://github.com/jackmccain',
-    image: no_person,
+    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
+    github: 'https://github.com/hawakhalif',
+    image: HAWA,
   },
 
   {
