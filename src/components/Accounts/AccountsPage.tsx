@@ -18,6 +18,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
+import AlertPopup from '../utils/components/AlertPopup';
 
 interface AccountsPageEvent {
   name: string;
@@ -99,6 +100,9 @@ export default function AccountsPage() {
 
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
   const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
+  const [selectedEventToDelete, setSelectedEventToDelete] =
+    useState<AccountsPageEvent | null>(null);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
@@ -106,6 +110,27 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center">
+      <AlertPopup
+        title="Delete Event"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        isOpen={selectedEventToDelete !== null && !dontAskAgain}
+        onConfirm={() => {
+          if (selectedEventToDelete) {
+            deleteEvent(selectedEventToDelete.id)
+              .then(() => {
+                setHasDeletedEvent(true);
+                setEvents(
+                  events?.filter((e) => e.id !== selectedEventToDelete.id)
+                );
+              })
+              .catch((err) => {});
+            setSelectedEventToDelete(null);
+          }
+        }}
+        onCancel={() => setSelectedEventToDelete(null)}
+        showCheckbox={true}
+        onCheckboxChange={() => setDontAskAgain(true)}
+      />
       <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
           <div className="flex justify-between items-center">
@@ -181,20 +206,17 @@ export default function AccountsPage() {
                       {event.iAmCreator && (
                         <button
                           onClick={() => {
-                            if (
-                              hasDeletedEvent ||
-                              window.confirm(
-                                'Are you sure you want to delete this event? This action cannot be undone.'
-                              )
-                            ) {
+                            if (dontAskAgain) {
                               deleteEvent(event.id)
                                 .then(() => {
                                   setHasDeletedEvent(true);
                                   setEvents(
-                                    events.filter((e) => e.id != event.id)
+                                    events?.filter((e) => e.id !== event.id)
                                   );
                                 })
                                 .catch((err) => {});
+                            } else {
+                              setSelectedEventToDelete(event);
                             }
                           }}
                           className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
