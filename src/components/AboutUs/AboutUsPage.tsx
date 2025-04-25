@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react';
 
 import group from './ymeetsgroupimage.png';
+
 import ETHAN from './ethan.png';
 import NICK from './NicholasRibeiero.jpg';
 import RON from './RonCheng.png';
