@@ -689,101 +689,26 @@ function TimeSelectPage() {
         <div className="lg:col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
-              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
-                <div className="w-full flex flex-col md:hidden">
-                  <div className="w-full">
-                    <TimezoneChanger
-                      theCalendarFramework={[
-                        calendarFramework,
-                        setCalendarFramework,
-                      ]}
-                      initialTimezone={
-                        getTimezone()
-                          ? getTimezone()
-                          : Intl.DateTimeFormat().resolvedOptions().timeZone
-                      }
-                    />
-                  </div>
-
-                  <div className="flex justify-around mt-3 align-middle">
-                    {isGoogleLoggedIn ? (
-                      <div className="z-60 mb-4">
-                        <ButtonSmall
-                          bgColor="primary"
-                          textColor="white"
-                          onClick={handleToggleGCalAvailabilitiesClick}
-                        >
-                          Show GCal Events
-                        </ButtonSmall>
-                      </div>
-                    ) : (
-                      <div className="mb-4">
-                        <button
-                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
-                flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                          onClick={() => {
-                            signInWithGoogle(
-                              undefined,
-                              undefined,
-                              handleIsSignedIn
-                            ).then((loginSuccessful) => {
-                              if (loginSuccessful) {
-                                updateAnonymousUserToAuthUser(getAccountName());
-                                setIsGoogleLoggedIn(true);
-                              }
-                            });
-                          }}
-                        >
-                          <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                          Sign in to access GCal
-                        </button>
-                      </div>
-                    )}
-                    <div className="z-60 mb-4">
+                <div className="w-full flex flex-col gap-4 md:hidden">
+                  {isGoogleLoggedIn ? (
+                    <div className="flex gap-2 w-full">
                       <ButtonSmall
                         bgColor="primary"
                         textColor="white"
                         themeGradient={false}
-                        onClick={handleSubmitAvailability}
+                        onClick={handleToggleGCalAvailabilitiesClick}
+                        className="flex-1 !rounded-lg"
                       >
-                        <span>&nbsp;</span> Save <span>&nbsp;</span>
+                        Show GCal Events
                       </ButtonSmall>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Desktop layout */}
-                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
-                  <div className="flex-grow">
-                    <TimezoneChanger
-                      theCalendarFramework={[
-                        calendarFramework,
-                        setCalendarFramework,
-                      ]}
-                      initialTimezone={
-                        getTimezone()
-                          ? getTimezone()
-                          : Intl.DateTimeFormat().resolvedOptions().timeZone
-                      }
-                    />
-                  </div>
-
-                  {isGoogleLoggedIn ? (
-                    <div className="z-60 flex space-x-2">
-                      <div className="lg:hidden">
-                        <ButtonSmall
-                          bgColor="primary"
-                          textColor="white"
-                          onClick={handleToggleGCalAvailabilitiesClick}
-                        >
-                          Show GCal Events
-                        </ButtonSmall>
-                      </div>
                       <ButtonSmall
                         bgColor="primary"
                         textColor="white"
+                        themeGradient={false}
                         onClick={handleAutofillAvailabilityClick}
+                        className="flex-1 !rounded-lg"
                       >
                         Autofill Availability
                       </ButtonSmall>
@@ -791,7 +716,7 @@ function TimeSelectPage() {
                   ) : (
                     <button
                       className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
-          flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                      flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                       onClick={() => {
                         signInWithGoogle(
                           undefined,
@@ -809,11 +734,98 @@ function TimeSelectPage() {
                       Sign in to access GCal
                     </button>
                   )}
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={
+                          getTimezone()
+                            ? getTimezone()
+                            : Intl.DateTimeFormat().resolvedOptions().timeZone
+                        }
+                      />
+                    </div>
+                    <ButtonSmall
+                      bgColor="primary"
+                      textColor="white"
+                      themeGradient={true}
+                      onClick={handleSubmitAvailability}
+                    >
+                      <span>&nbsp;</span> Save <span>&nbsp;</span>
+                    </ButtonSmall>
+                  </div>
+                </div>
+
+                {/* Desktop layout - unchanged */}
+                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-2">
+                      {isGoogleLoggedIn ? (
+                        <>
+                          <ButtonSmall
+                            bgColor="primary"
+                            textColor="white"
+                            themeGradient={false}
+                            onClick={handleToggleGCalAvailabilitiesClick}
+                            className="!rounded-lg"
+                          >
+                            Show GCal Events
+                          </ButtonSmall>
+                          <ButtonSmall
+                            bgColor="primary"
+                            textColor="white"
+                            themeGradient={false}
+                            onClick={handleAutofillAvailabilityClick}
+                            className="!rounded-lg"
+                          >
+                            Autofill Availability
+                          </ButtonSmall>
+                        </>
+                      ) : (
+                        <button
+                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                          flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                          onClick={() => {
+                            signInWithGoogle(
+                              undefined,
+                              undefined,
+                              handleIsSignedIn
+                            ).then((loginSuccessful) => {
+                              if (loginSuccessful) {
+                                updateAnonymousUserToAuthUser(getAccountName());
+                                setIsGoogleLoggedIn(true);
+                              }
+                            });
+                          }}
+                        >
+                          <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                          Sign in to access GCal
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={
+                          getTimezone()
+                            ? getTimezone()
+                            : Intl.DateTimeFormat().resolvedOptions().timeZone
+                        }
+                      />
+                    </div>
+                  </div>
 
                   <ButtonSmall
                     bgColor="primary"
                     textColor="white"
-                    themeGradient={false}
+                    themeGradient={true}
                     onClick={handleSubmitAvailability}
                   >
                     <span>&nbsp;</span> Save <span>&nbsp;</span>
