@@ -44,6 +44,7 @@ import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { set } from 'lodash';
+import { auth } from '../../firebase/firebase';
 
 /**
  *
@@ -629,50 +630,77 @@ function TimeSelectPage() {
 
           <div className="hidden lg:flex flex-col w-full">
             <h2 className="text-sm font-medium text-gray-600">My calendars</h2>
-            <ul className="space-y-1">
-              {googleCalendars.map((cal) => (
-                <li
-                  key={cal.id}
-                  className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+            {isGoogleLoggedIn ? (
+              <ul className="space-y-1">
+                {googleCalendars.map((cal) => (
+                  <li
+                    key={cal.id}
+                    className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                    onClick={() => {
+                      setGoogleCalIds((prevState) => {
+                        if (prevState?.includes(cal.id)) {
+                          return prevState.filter((id) => id !== cal.id);
+                        } else {
+                          return [...(prevState || []), cal.id];
+                        }
+                      });
+                    }}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                        googleCalIds?.includes(cal.id)
+                          ? 'bg-blue-500'
+                          : 'bg-transparent'
+                      } border border-gray-400`}
+                    >
+                      {googleCalIds?.includes(cal.id) && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-800 truncate">
+                      {cal.summary}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center space-y-3">
+                <p className="text-gray-600 text-sm">
+                  Sign in with Google to import your calendars.
+                </p>
+                <button
+                  className="font-bold rounded-full shadow-md bg-white text-gray-600 py-2 px-4 text-sm
+                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                   onClick={() => {
-                    setGoogleCalIds((prevState) => {
-                      if (prevState?.includes(cal.id)) {
-                        return prevState.filter((id) => id !== cal.id);
-                      } else {
-                        return [...(prevState || []), cal.id];
+                    signInWithGoogle(
+                      undefined,
+                      undefined,
+                      handleIsSignedIn
+                    ).then((loginSuccessful) => {
+                      if (loginSuccessful) {
+                        updateAnonymousUserToAuthUser(getAccountName());
+                        setIsGoogleLoggedIn(true);
                       }
                     });
                   }}
                 >
-                  <div
-                    className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
-                      googleCalIds?.includes(cal.id)
-                        ? 'bg-blue-500'
-                        : 'bg-transparent'
-                    } border border-gray-400`}
-                  >
-                    {googleCalIds?.includes(cal.id) && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="10"
-                        height="10"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-sm text-gray-800 truncate">
-                    {cal.summary}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                  <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                  Sign in to access GCal
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -776,7 +804,7 @@ function TimeSelectPage() {
                         </>
                       ) : (
                         <button
-                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                          className="lg:hidden font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
                             signInWithGoogle(
@@ -849,16 +877,13 @@ function TimeSelectPage() {
         // onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
       >
-        <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
-        <FormGroup>
-          {googleCalendars.map((cal: any) => (
-            <FormControlLabel
+        <h2 className="text-xl font-bold mb-4">My Calendars</h2>
+        <ul className="space-y-1">
+          {googleCalendars.map((cal) => (
+            <li
               key={cal.id}
-              control={
-                <Checkbox checked={googleCalIds?.includes(cal.id)} />
-              }
-              label={cal.summary}
-              onChange={() => {
+              className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+              onClick={() => {
                 setGoogleCalIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
@@ -867,9 +892,36 @@ function TimeSelectPage() {
                   }
                 });
               }}
-            />
+            >
+              <div
+                className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                  googleCalIds?.includes(cal.id)
+                    ? 'bg-blue-500'
+                    : 'bg-transparent'
+                } border border-gray-400`}
+              >
+                {googleCalIds?.includes(cal.id) && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                )}
+              </div>
+              <span className="text-sm text-gray-800 truncate">
+                {cal.summary}
+              </span>
+            </li>
           ))}
-        </FormGroup>
+        </ul>
       </AddGoogleCalendarPopup>
       {promptUserForLogin && (
         <LoginPopup
