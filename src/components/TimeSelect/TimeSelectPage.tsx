@@ -1,5 +1,5 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
-import { calendar_v3 } from 'googleapis';
+import { calendar_v3, google } from 'googleapis';
 import { useState, useEffect } from 'react';
 import {
   calanderState,
@@ -109,7 +109,7 @@ function TimeSelectPage() {
   // const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
   const [googleCalIds, setGoogleCalIds] = useState<string[]>([]); // still easy for user to specify primary cal?
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
-  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>([]);
+  // const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>([]);
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
@@ -178,7 +178,6 @@ function TimeSelectPage() {
             getSelectedCalendarIDsByUserID(uid).then(
               async (lastSelectedGCalIds) => {
                 setGoogleCalIds(lastSelectedGCalIds);
-                setSelectedPopupIds(lastSelectedGCalIds);
               }
             );
           })
@@ -342,16 +341,6 @@ function TimeSelectPage() {
     };
     fetchData();
   }, [gapi, googleCalIds, isGeneralDays]);
-
-  const onPopupCloseAndSubmit = async () => {
-    if (selectedPopupIds === googleCalIds) {
-      setGcalPopupOpen(false);
-      return;
-    }
-    setGoogleCalIds(selectedPopupIds);
-    setUserSelectedCalendarIDs(getAccountId(), selectedPopupIds);
-    setGcalPopupOpen(false);
-  };
 
   // const onPopupCloseAutofillAndSubmit = async () => {
   //   setShouldFillAvailability(true);
@@ -601,11 +590,12 @@ function TimeSelectPage() {
       ? (calendarState[user] ?? [])
       : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
-    navigate(`/groupview/${code}`);
   };
 
   const handleSubmitAvailability = () => {
     saveAvailAndLocationChanges();
+    setUserSelectedCalendarIDs(getAccountId(), googleCalIds);
+    navigate(`/groupview/${code}`);
   };
 
   return (
@@ -770,7 +760,7 @@ function TimeSelectPage() {
                             textColor="white"
                             themeGradient={false}
                             onClick={handleToggleGCalAvailabilitiesClick}
-                            className="!rounded-lg"
+                            className="lg:hidden !rounded-lg"
                           >
                             Show GCal Events
                           </ButtonSmall>
@@ -856,7 +846,6 @@ function TimeSelectPage() {
       <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
-        onCloseAndSubmit={onPopupCloseAndSubmit}
         // onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
       >
@@ -866,11 +855,11 @@ function TimeSelectPage() {
             <FormControlLabel
               key={cal.id}
               control={
-                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
+                <Checkbox checked={googleCalIds?.includes(cal.id)} />
               }
               label={cal.summary}
               onChange={() => {
-                setSelectedPopupIds((prevState) => {
+                setGoogleCalIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
                   } else {
