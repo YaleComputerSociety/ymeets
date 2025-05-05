@@ -629,13 +629,15 @@ function TimeSelectPage() {
           <CopyCodeButton />
 
           <div className="hidden lg:flex flex-col w-full">
-            <h2 className="text-sm font-medium text-gray-600">My calendars</h2>
+            <h2 className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              My calendars
+            </h2>
             {isGoogleLoggedIn ? (
               <ul className="space-y-1">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
-                    className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
                     onClick={() => {
                       setGoogleCalIds((prevState) => {
                         if (prevState?.includes(cal.id)) {
@@ -651,7 +653,7 @@ function TimeSelectPage() {
                         googleCalIds?.includes(cal.id)
                           ? 'bg-blue-500'
                           : 'bg-transparent'
-                      } border border-gray-400`}
+                      } border border-gray-400 dark:border-gray-600`}
                     >
                       {googleCalIds?.includes(cal.id) && (
                         <svg
@@ -669,7 +671,7 @@ function TimeSelectPage() {
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-gray-800 truncate">
+                    <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
                       {cal.summary}
                     </span>
                   </li>
@@ -677,11 +679,11 @@ function TimeSelectPage() {
               </ul>
             ) : (
               <div className="flex flex-col items-center justify-center text-center space-y-3">
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Sign in with Google to import your calendars.
                 </p>
                 <button
-                  className="font-bold rounded-full shadow-md bg-white text-gray-600 py-2 px-4 text-sm
+                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
                   flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                   onClick={() => {
                     signInWithGoogle(
@@ -882,7 +884,7 @@ function TimeSelectPage() {
           {googleCalendars.map((cal) => (
             <li
               key={cal.id}
-              className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+              className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
               onClick={() => {
                 setGoogleCalIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
@@ -898,7 +900,7 @@ function TimeSelectPage() {
                   googleCalIds?.includes(cal.id)
                     ? 'bg-blue-500'
                     : 'bg-transparent'
-                } border border-gray-400`}
+                } border border-gray-400 dark:border-gray-600`}
               >
                 {googleCalIds?.includes(cal.id) && (
                   <svg
@@ -916,7 +918,7 @@ function TimeSelectPage() {
                   </svg>
                 )}
               </div>
-              <span className="text-sm text-gray-800 truncate">
+              <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
                 {cal.summary}
               </span>
             </li>
