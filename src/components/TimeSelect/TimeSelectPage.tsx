@@ -633,7 +633,7 @@ function TimeSelectPage() {
             <h2 className="text-sm font-medium text-gray-600 dark:text-gray-300">
               My calendars
             </h2>
-            {isGoogleLoggedIn ? (
+            {isGoogleLoggedIn && hasGCalScope ? (
               <ul className="space-y-1">
                 {googleCalendars.map((cal) => (
                   <li
@@ -669,26 +669,39 @@ function TimeSelectPage() {
             ) : (
               <div className="flex flex-col items-center justify-center text-center space-y-3">
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Sign in with Google to import your calendars.
+                  {!isGoogleLoggedIn
+                    ? 'Sign in with Google to import your calendars.'
+                    : 'Grant permission to import your calendars'}
                 </p>
+
                 <button
                   className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
                   flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                   onClick={() => {
-                    signInWithGoogle(
-                      undefined,
-                      undefined,
-                      handleIsSignedIn
-                    ).then((loginSuccessful) => {
-                      if (loginSuccessful) {
-                        updateAnonymousUserToAuthUser(getAccountName());
-                        setIsGoogleLoggedIn(true);
-                      }
-                    });
+                    if (isGoogleLoggedIn) {
+                      // alr logged in, need more scopes
+                      requestAdditionalScopes().then(() => {
+                        fetchGoogleCalendarsOnLoad();
+                        setGoogleCalIds([]); // triggers reload of rendered cals
+                      });
+                    } else {
+                      signInWithGoogle(
+                        undefined,
+                        undefined,
+                        handleIsSignedIn
+                      ).then((loginSuccessful) => {
+                        if (loginSuccessful) {
+                          updateAnonymousUserToAuthUser(getAccountName());
+                          setIsGoogleLoggedIn(true);
+                        }
+                      });
+                    }
                   }}
                 >
                   <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                  Sign in to access GCal
+                  {!isGoogleLoggedIn
+                    ? 'Sign in to access GCal'
+                    : 'Import your calendars'}
                 </button>
               </div>
             )}
