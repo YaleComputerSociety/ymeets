@@ -45,6 +45,7 @@ import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { set } from 'lodash';
 import { auth } from '../../firebase/firebase';
+import { IconCheck } from '@tabler/icons-react'; // Add this import
 
 /**
  *
@@ -651,24 +652,12 @@ function TimeSelectPage() {
                     <div
                       className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
                         googleCalIds?.includes(cal.id)
-                          ? 'bg-blue-500'
+                          ? 'bg-primary dark:bg-blue-700'
                           : 'bg-transparent'
                       } border border-gray-400 dark:border-gray-600`}
                     >
                       {googleCalIds?.includes(cal.id) && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
+                        <IconCheck size={12} color="white" />
                       )}
                     </div>
                     <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
@@ -884,7 +873,7 @@ function TimeSelectPage() {
           {googleCalendars.map((cal) => (
             <li
               key={cal.id}
-              className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
+              className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
               onClick={() => {
                 setGoogleCalIds((prevState) => {
                   if (prevState?.includes(cal.id)) {
@@ -898,27 +887,15 @@ function TimeSelectPage() {
               <div
                 className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
                   googleCalIds?.includes(cal.id)
-                    ? 'bg-blue-500'
+                    ? 'bg-primary dark:bg-blue-700'
                     : 'bg-transparent'
-                } border border-gray-400 dark:border-gray-600`}
+                } border border-gray-400`}
               >
                 {googleCalIds?.includes(cal.id) && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="10"
-                    height="10"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
+                  <IconCheck size={12} color="white" />
                 )}
               </div>
-              <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
+              <span className="text-sm text-gray-800 truncate">
                 {cal.summary}
               </span>
             </li>
