@@ -43,6 +43,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { set } from 'lodash';
 
 /**
  *
@@ -112,6 +113,7 @@ function TimeSelectPage() {
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
+  const [hasGCalScope, setHasGCalScope] = useState(false);
 
   const [hasAvailability, setHasAvailability] = useState(false);
   const [isGeneralDays, setIsGeneralDays] = useState(
@@ -493,15 +495,6 @@ function TimeSelectPage() {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="w-full h-[60%] flex flex-col items-center justify-center">
-        <LoadingAnim />
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
-
   const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
     const currentScopes =
       gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getGrantedScopes() ||
@@ -510,6 +503,47 @@ function TimeSelectPage() {
       'https://www.googleapis.com/auth/calendar.readonly'
     );
   };
+
+  // Fetch the user's Google Calendars
+  const fetchUserCalendars = async (openPopup: boolean = false) => {
+    try {
+      const response = await gapi?.client?.calendar?.calendarList.list();
+      const calendars = response?.result.items;
+      if (calendars !== undefined) {
+        setGoogleCalendars(calendars);
+        if (openPopup) {
+          setGcalPopupOpen(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching Google Calendars:', error);
+    }
+  };
+
+  const fetchGoogleCalendarsOnLoad = async () => {
+    if (gapi) {
+      const hasScope = await checkIfUserHasCalendarScope();
+      if (hasScope) {
+        setHasGCalScope(true);
+        fetchUserCalendars();
+      } else {
+        setHasGCalScope(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchGoogleCalendarsOnLoad();
+  }, [gapi]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-[60%] flex flex-col items-center justify-center">
+        <LoadingAnim />
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
   const requestAdditionalScopes = async () => {
     try {
@@ -532,27 +566,13 @@ function TimeSelectPage() {
     }
   };
 
-  // Fetch the user's Google Calendars
-  const fetchUserCalendars = async () => {
-    try {
-      const response = await gapi?.client?.calendar?.calendarList.list();
-      const calendars = response?.result.items;
-      if (calendars !== undefined) {
-        setGoogleCalendars(calendars);
-        setGcalPopupOpen(true);
-      }
-    } catch (error) {
-      console.error('Error fetching Google Calendars:', error);
-    }
-  };
-
   const handleToggleGCalAvailabilitiesClick = async () => {
     if (await checkIfUserHasCalendarScope()) {
-      fetchUserCalendars();
+      fetchUserCalendars(true); // openPopup set to true
     } else {
       requestAdditionalScopes().then(() => {
         setGoogleCalIds([]); // Reset the selected calendar IDs
-        fetchUserCalendars();
+        fetchUserCalendars(true); // openPopup set to true
       });
     }
   };
@@ -616,7 +636,56 @@ function TimeSelectPage() {
             </div>
           )}
           <CopyCodeButton />
+
+          <div className="hidden lg:flex flex-col w-full">
+            <h2 className="text-sm font-medium text-gray-600">My calendars</h2>
+            <ul className="space-y-1">
+              {googleCalendars.map((cal) => (
+                <li
+                  key={cal.id}
+                  className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                  onClick={() => {
+                    setGoogleCalIds((prevState) => {
+                      if (prevState?.includes(cal.id)) {
+                        return prevState.filter((id) => id !== cal.id);
+                      } else {
+                        return [...(prevState || []), cal.id];
+                      }
+                    });
+                  }}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                      googleCalIds?.includes(cal.id)
+                        ? 'bg-blue-500'
+                        : 'bg-transparent'
+                    } border border-gray-400`}
+                  >
+                    {googleCalIds?.includes(cal.id) && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm text-gray-800 truncate">
+                    {cal.summary}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
+
         <div className="lg:col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
@@ -702,13 +771,15 @@ function TimeSelectPage() {
 
                   {isGoogleLoggedIn ? (
                     <div className="z-60 flex space-x-2">
-                      <ButtonSmall
-                        bgColor="primary"
-                        textColor="white"
-                        onClick={handleToggleGCalAvailabilitiesClick}
-                      >
-                        Show GCal Events
-                      </ButtonSmall>
+                      <div className="lg:hidden">
+                        <ButtonSmall
+                          bgColor="primary"
+                          textColor="white"
+                          onClick={handleToggleGCalAvailabilitiesClick}
+                        >
+                          Show GCal Events
+                        </ButtonSmall>
+                      </div>
                       <ButtonSmall
                         bgColor="primary"
                         textColor="white"
