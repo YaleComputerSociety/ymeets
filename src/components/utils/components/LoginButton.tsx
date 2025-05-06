@@ -11,7 +11,7 @@ export default function LoginButton() {
       bgColor="primary"
       textColor="white"
       onClick={() => {
-        signInWithGoogle(undefined, gapi, handleIsSignedIn).then(
+        signInWithGoogle(undefined, undefined, handleIsSignedIn).then(
           (loginSuccessful) => {
             if (loginSuccessful) {
               window.location.reload();
