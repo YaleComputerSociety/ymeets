@@ -74,14 +74,10 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Top padding */}
       <div className="h-1 md:h-8"></div>
 
-      {/* Main content grows to fill space */}
       <div className="flex-grow w-full overflow-auto px-8 sm:p-14 pt-0 md:px-16 md:pt-14 lg:px-40 xl:px-60 mb-3">
-        {/* Your hero section */}
         <div className="flex-col-reverse justify-center md:flex-row flex md:h-1/2 mb-10">
-          {/* Text content */}
           <div className="justify-center self-center space-y-5 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
             <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
               <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
@@ -133,7 +129,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Graphic */}
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
             <img
               src={graphic}
@@ -143,7 +138,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Login popup */}
         {showLoginPopup && (
           <LoginPopup
             onClose={handleLoginPopupClose}

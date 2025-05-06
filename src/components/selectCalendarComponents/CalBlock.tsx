@@ -653,10 +653,10 @@ export default function CalBlock({
           style={{
             zIndex: 4,
             boxShadow: [
-              isEventEnd ? 'inset 0 -2px 0 0 #3b82f6' : '',
-              isEventStart ? 'inset 0 2px 0 0 #3b82f6' : '',
-              'inset -2px 0 0 0 #3b82f6',
-              'inset 2px 0 0 0 #3b82f6',
+              isEventEnd ? 'inset 0 -3px 0 0 #5191f2' : '',
+              isEventStart ? 'inset 0 3px 0 0 #5191f2' : '',
+              'inset -3px 0 0 0 #5191f2',
+              'inset 3px 0 0 0 #5191f2',
             ]
               .filter(Boolean)
               .join(', '),
