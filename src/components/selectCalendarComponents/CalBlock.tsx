@@ -140,12 +140,12 @@ export default function CalBlock({
   }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
 
   const getDefaultColor = useCallback(() => {
-    return isOnGcal 
-      ? theme === 'light' 
-        ? '#b3b4bd'  // Light mode color
-        : '#4a4d55'  // Dark mode color
-      : theme === 'light' 
-        ? 'white' 
+    return isOnGcal
+      ? theme === 'light'
+        ? '#b3b4bd' // Light mode color
+        : '#4a4d55' // Dark mode color
+      : theme === 'light'
+        ? 'white'
         : '#2d3748';
   }, [isOnGcal, theme]);
 
@@ -549,6 +549,8 @@ export default function CalBlock({
     [isAdmin, setDragState, debouncedSetDragState]
   );
 
+  // ${isInSelection() && is30Minute ? 'border-t-white' : ''}
+
   return (
     <div
       id={`${columnID}-${blockID}`}
@@ -556,7 +558,6 @@ export default function CalBlock({
         cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
         border-r border-[#7E7E7E]
         ${is30Minute ? 'border-t border-dashed border-t-[#7E7E7E]' : ''}
-        ${isInSelection() && is30Minute ? 'border-t-white' : ''}
         transition-colors duration-200 ease-in-out
       `}
       style={{
@@ -641,7 +642,6 @@ export default function CalBlock({
         lastDragPoint.current = null;
       }}
     >
-
       {isEventStart && eventName && (
         <div
           className="absolute top-0 left-0 text-xs font-bold text-black dark:text-white"
