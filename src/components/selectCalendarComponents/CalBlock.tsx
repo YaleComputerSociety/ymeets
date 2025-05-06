@@ -35,6 +35,7 @@ interface CalBlockProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   isEventStart: boolean;
+  isEventEnd: boolean;
   eventName: string | null;
   additionalEventCount: number;
 }
@@ -62,6 +63,7 @@ export default function CalBlock({
   chartedUsersData,
   theShowUserChart,
   isEventStart,
+  isEventEnd,
   eventName,
   additionalEventCount,
 }: CalBlockProps) {
@@ -78,6 +80,8 @@ export default function CalBlock({
   const lastDragPoint = useRef<[number, number] | null>(null);
   const previousBoundingBox = useRef<BoundingBox | null>(null);
   const dragStartTime = useRef<number | null>(null);
+
+  console.log(isEventEnd);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -554,15 +558,18 @@ export default function CalBlock({
   return (
     <div
       id={`${columnID}-${blockID}`}
-      className={`
-        cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
-        border-r border-[#7E7E7E]
-        ${is30Minute ? 'border-t border-dashed border-t-[#7E7E7E]' : ''}
-        transition-colors duration-200 ease-in-out
-      `}
+      className={`cursor-pointer flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
+        is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
+      } transition-colors duration-200 ease-in-out`}
       style={{
         borderTopStyle: is30Minute ? 'dashed' : 'solid',
         backgroundColor: shadeColor,
+        ...(isEventStart || isOnGcal || isEventEnd
+          ? {
+              position: 'relative',
+              zIndex: 2,
+            }
+          : {}),
       }}
       draggable={draggable}
       onClick={handleBlockClick}
@@ -586,7 +593,6 @@ export default function CalBlock({
         dragStartTime.current = Date.now();
         lastDragPoint.current = [touch.clientX, touch.clientY];
         handleMobileHoverChartedUser(e);
-        // Remove handleSelectionStart from here
         onClick(e as any);
       }}
       onTouchMove={(e) => {
@@ -600,7 +606,6 @@ export default function CalBlock({
           Math.abs(touch.clientX - startX) > 10 ||
           Math.abs(touch.clientY - startY) > 10;
 
-        // Only start drag selection if there's significant movement
         if (hasMoved && !dragState.isSelecting) {
           handleSelectionStart(e);
         }
@@ -642,9 +647,29 @@ export default function CalBlock({
         lastDragPoint.current = null;
       }}
     >
+      {(isEventStart || isOnGcal || isEventEnd) && (
+        <div
+          className="absolute top-0 left-0 w-full h-full pointer-events-none"
+          style={{
+            zIndex: 4,
+            boxShadow: [
+              isEventEnd ? 'inset 0 -2px 0 0 #3b82f6' : '',
+              isEventStart ? 'inset 0 2px 0 0 #3b82f6' : '',
+              'inset -2px 0 0 0 #3b82f6',
+              'inset 2px 0 0 0 #3b82f6',
+            ]
+              .filter(Boolean)
+              .join(', '),
+            backgroundColor: isEventStart
+              ? 'rgba(59, 130, 246, 0.1)'
+              : 'transparent',
+          }}
+        />
+      )}
+
       {isEventStart && eventName && (
         <div
-          className="absolute top-0 left-0 text-xs font-bold text-black dark:text-white"
+          className="absolute top-0 left-1 text-xs font-bold text-black dark:text-white"
           style={{
             zIndex: 10,
           }}
@@ -657,10 +682,9 @@ export default function CalBlock({
       {showTooltip && associatedEvents && associatedEvents.length > 0 && (
         <div
           className={`
-            absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
-            transform -translate-y-full transition-all duration-300 ease-in-out
-            
-          `}
+          absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
+          transform -translate-y-full transition-all duration-300 ease-in-out
+        `}
         >
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {associatedEvents.map((event, index) => (
@@ -669,7 +693,6 @@ export default function CalBlock({
               </div>
             ))}
           </div>
-          {/* <>hi there!</> */}
           <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-white dark:bg-gray-800" />
         </div>
       )}
