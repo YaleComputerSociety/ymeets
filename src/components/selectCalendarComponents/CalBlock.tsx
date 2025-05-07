@@ -144,13 +144,10 @@ export default function CalBlock({
   }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
 
   const getDefaultColor = useCallback(() => {
-    return isOnGcal
-      ? theme === 'light'
-        ? '#b3b4bd' // Light mode color
-        : '#4a4d55' // Dark mode color
-      : theme === 'light'
-        ? 'white'
-        : '#2d3748';
+    return theme === 'light' ? 'white' : '#2d3748';
+    // ? theme === 'light'
+    //   ? '#b3b4bd' // Light mode color
+    //   : '#4a4d55' // Dark mode color
   }, [isOnGcal, theme]);
 
   const getGroupPercentageColor = useCallback(() => {
@@ -653,10 +650,10 @@ export default function CalBlock({
           style={{
             zIndex: 4,
             boxShadow: [
-              isEventEnd ? 'inset 0 -3px 0 0 #5191f2' : '',
-              isEventStart ? 'inset 0 3px 0 0 #5191f2' : '',
-              'inset -3px 0 0 0 #5191f2',
-              'inset 3px 0 0 0 #5191f2',
+              isEventEnd ? 'inset 0 -2px 0 0 #5191f2' : '',
+              isEventStart ? 'inset 0 2px 0 0 #5191f2' : '',
+              'inset -2px 0 0 0 #5191f2',
+              'inset 2px 0 0 0 #5191f2',
             ]
               .filter(Boolean)
               .join(', '),
@@ -669,12 +666,12 @@ export default function CalBlock({
 
       {isEventStart && eventName && (
         <div
-          className="absolute top-0 left-1 text-xs font-bold text-black dark:text-white"
+          className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventName.length > 15 ? `${eventName.slice(0, 15)}...` : eventName}
+          {eventName}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
