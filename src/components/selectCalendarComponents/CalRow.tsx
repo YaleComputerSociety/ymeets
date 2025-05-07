@@ -69,89 +69,109 @@ export default function CalRow({
   const [googleCalendarEvents, setGoogleCalendarEvents] =
     theGoogleCalendarEvents || [];
 
-    return (
-      <div className={`grid grid-cols-${bucket.length}`}>
-        {bucket.map((d: calandarDate, columnIndex: number) => {
-          const matchedDates = googleCalendarEvents
-            ?.map((gEvent: calendar_v3.Schema$Event) => {
-              if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
-                return [
-                  new Date(gEvent.start.dateTime),
-                  new Date(gEvent.end.dateTime),
-                ];
-              }
-              return null;
-            })
-            ?.filter(
-              (dates: Date[] | null) =>
-                dates !== null &&
-                dateObjectToComparable(dates[0]) ===
-                  dateObjectToComparable(d.date)
-            );
-    
-          const isOnGcal = matchedDates?.some((dateRange) =>
-            isTimeBetweenDates(dateRange?.[0], dateRange?.[1], time)
-          );
-    
-          const matchedEvents = googleCalendarEvents?.filter(
-            (gEvent: calendar_v3.Schema$Event) =>
-              gEvent?.start?.dateTime &&
-              dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
+  return (
+    <div className={`grid grid-cols-${bucket.length}`}>
+      {bucket.map((d: calandarDate, columnIndex: number) => {
+        const matchedDates = googleCalendarEvents
+          ?.map((gEvent: calendar_v3.Schema$Event) => {
+            if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
+              return [
+                new Date(gEvent.start.dateTime),
+                new Date(gEvent.end.dateTime),
+              ];
+            }
+            return null;
+          })
+          ?.filter(
+            (dates: Date[] | null) =>
+              dates !== null &&
+              dateObjectToComparable(dates[0]) ===
                 dateObjectToComparable(d.date)
           );
-    
-          const surroundingEvents = matchedEvents?.filter(
-            (gEvent: calendar_v3.Schema$Event) =>
-              gEvent?.start?.dateTime &&
-              gEvent?.end?.dateTime &&
-              isTimeBetweenDates(
-                new Date(gEvent?.start?.dateTime),
-                new Date(gEvent?.end?.dateTime),
-                time
-              )
-          );
 
-          const eventStartMatches = matchedEvents?.filter(
-            (gEvent: calendar_v3.Schema$Event) =>
-            {
-              const [hours, minutes] = time.split(':').map(Number);
-              if (gEvent?.start?.dateTime) {
-                const startTime = new Date(gEvent.start.dateTime);
-                const checkTime = new Date(gEvent.start.dateTime);
-                checkTime.setHours(hours, minutes, 0, 0);
-                const timeDifference = checkTime.getTime() - startTime.getTime();
-                return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
-              }
-              return false;
-            });
+        const isOnGcal = matchedDates?.some((dateRange) =>
+          isTimeBetweenDates(dateRange?.[0], dateRange?.[1], time)
+        );
 
-          const eventStart = eventStartMatches?.[0] || null;
-          const isEventStart = !!eventStart;
-          const eventName = eventStart?.summary || null;
-          const additionalEventCount = eventStartMatches && eventStartMatches.length > 1 ? eventStartMatches.length - 1 : 0;
+        const matchedEvents = googleCalendarEvents?.filter(
+          (gEvent: calendar_v3.Schema$Event) =>
+            gEvent?.start?.dateTime &&
+            dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
+              dateObjectToComparable(d.date)
+        );
 
-          return (
-            <CalBlock
-              onClick={onClick}
-              theCalendarFramework={theCalendarFramework}
-              is30Minute={is30Minute}
-              theCalendarState={theCalendarState}
-              blockID={blockID}
-              columnID={columnIndex + columnIndexOffSet}
-              isAdmin={isAdmin}
-              draggable={draggable}
-              user={user}
-              theDragState={theDragState}
-              key={columnIndex + columnIndexOffSet}
-              chartedUsersData={chartedUsersData}
-              isOnGcal={isOnGcal === undefined ? false : isOnGcal}
-              associatedEvents={surroundingEvents}
-              isEventStart={isEventStart}
-              eventName={eventName}
-              additionalEventCount={additionalEventCount}
-            />
-          );
-        })}
-      </div>
-    );
+        const surroundingEvents = matchedEvents?.filter(
+          (gEvent: calendar_v3.Schema$Event) =>
+            gEvent?.start?.dateTime &&
+            gEvent?.end?.dateTime &&
+            isTimeBetweenDates(
+              new Date(gEvent?.start?.dateTime),
+              new Date(gEvent?.end?.dateTime),
+              time
+            )
+        );
+
+        const eventStartMatches = matchedEvents?.filter(
+          (gEvent: calendar_v3.Schema$Event) => {
+            const [hours, minutes] = time.split(':').map(Number);
+            if (gEvent?.start?.dateTime) {
+              const startTime = new Date(gEvent.start.dateTime);
+              const checkTime = new Date(gEvent.start.dateTime);
+              checkTime.setHours(hours, minutes, 0, 0);
+              const timeDifference = checkTime.getTime() - startTime.getTime();
+              return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
+            }
+            return false;
+          }
+        );
+
+        const eventEndMatches = matchedEvents?.filter(
+          (gEvent: calendar_v3.Schema$Event) => {
+            const [hours, minutes] = time.split(':').map(Number);
+            if (gEvent?.end?.dateTime) {
+              const endTime = new Date(gEvent.end.dateTime);
+              const checkTime = new Date(gEvent.end.dateTime);
+              checkTime.setHours(hours, minutes, 0, 0);
+              const timeDifference = endTime.getTime() - checkTime.getTime();
+              return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
+            }
+            return false;
+          }
+        );
+
+        const eventStart = eventStartMatches?.[0] || null;
+        const eventEnd = eventEndMatches?.[0] || null;
+        const isEventStart = !!eventStart;
+        const isEventEnd = !!eventEnd;
+        const eventName = eventStart?.summary || null;
+        const additionalEventCount =
+          eventStartMatches && eventStartMatches.length > 1
+            ? eventStartMatches.length - 1
+            : 0;
+
+        return (
+          <CalBlock
+            onClick={onClick}
+            theCalendarFramework={theCalendarFramework}
+            is30Minute={is30Minute}
+            theCalendarState={theCalendarState}
+            blockID={blockID}
+            columnID={columnIndex + columnIndexOffSet}
+            isAdmin={isAdmin}
+            draggable={draggable}
+            user={user}
+            theDragState={theDragState}
+            key={columnIndex + columnIndexOffSet}
+            chartedUsersData={chartedUsersData}
+            isOnGcal={isOnGcal === undefined ? false : isOnGcal}
+            associatedEvents={surroundingEvents}
+            isEventStart={isEventStart}
+            isEventEnd={isEventEnd}
+            eventName={eventName}
+            additionalEventCount={additionalEventCount}
+          />
+        );
+      })}
+    </div>
+  );
 }
