@@ -8,7 +8,7 @@ interface DateBarProps {
 export default function DateBar({ dates, isGeneralDays }: DateBarProps) {
   return (
     <div
-      className={`grid grid-cols-${dates.length} w-full text-outline dark:text-text-dark`}
+      className={`grid grid-cols-${dates.length} w-full text-outline border-[#7E7E7E] border-y-[#7E7E7E] dark:text-text-dark`}
     >
       {dates.map((d, index) => (
         <div key={index} className="flex-1">
