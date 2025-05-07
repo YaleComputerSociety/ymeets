@@ -527,6 +527,31 @@ function TimeSelectPage() {
     fetchGoogleCalendarsOnLoad();
   }, [gapi]);
 
+  const handleToggleGCalAvailabilitiesClick = async () => {
+    if (await checkIfUserHasCalendarScope()) {
+      fetchUserCalendars(true); // openPopup set to true
+    } else {
+      requestAdditionalScopes().then(() => {
+        setGoogleCalIds([]); // Reset the selected calendar IDs
+        fetchUserCalendars(true); // openPopup set to true
+      });
+    }
+  };
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const accountId = getAccountId();
+      if (accountId !== '') {
+        setIsGoogleLoggedIn(true);
+      } else {
+        console.log('Not Logged In');
+        setIsGoogleLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
   if (loading) {
     return (
       <div className="w-full h-[60%] flex flex-col items-center justify-center">
@@ -554,17 +579,6 @@ function TimeSelectPage() {
         });
     } catch (error) {
       console.error('Error during scope request:', error);
-    }
-  };
-
-  const handleToggleGCalAvailabilitiesClick = async () => {
-    if (await checkIfUserHasCalendarScope()) {
-      fetchUserCalendars(true); // openPopup set to true
-    } else {
-      requestAdditionalScopes().then(() => {
-        setGoogleCalIds([]); // Reset the selected calendar IDs
-        fetchUserCalendars(true); // openPopup set to true
-      });
     }
   };
 
@@ -783,7 +797,7 @@ function TimeSelectPage() {
 
                 {/* Desktop layout - unchanged */}
                 <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center flex-1">
                     <div className="flex items-center gap-2">
                       {isGoogleLoggedIn ? (
                         <>
@@ -801,7 +815,7 @@ function TimeSelectPage() {
                             textColor="white"
                             themeGradient={false}
                             onClick={handleAutofillAvailabilityClick}
-                            className="!rounded-lg"
+                            className="!rounded-lg mr-2"
                           >
                             Autofill Availability
                           </ButtonSmall>
