@@ -21,14 +21,11 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
   const [selectedDays, setSelectedDays] = theSelectedDays || [{}, () => {}];
 
   return (
-    <div className="w-full p-3 dark:text-text-dark">
-      <div className="flex flex-row justify-around mt-12 text-sm">
+    <div className="w-full p-6 dark:text-text-dark">
+      <div className="flex flex-row justify-between max-w-3xl mx-auto mt-8 space-x-1">
         {DAYS.map((day) => (
-          <div
-            key={day}
-            className="w-[13%] grow-0 shrink-0"
-          >
-            <p className="text-grey mb-2">{day}</p>
+          <div key={day} className="w-[3rem] text-center">
+            <p className="text-xs font-medium text-gray-500 mb-3">{day}</p>
             <div
               onClick={() => {
                 setSelectedDays((oldState: any) => ({
@@ -39,7 +36,13 @@ export default function DaysNotDates({ theSelectedDays }: DaysNotDatesProps) {
                   },
                 }));
               }}
-              className={`h-32 sm:h-48 border border-black rounded-md cursor-pointer  ${selectedDays[day]?.selected ? 'bg-[rgb(81,145,242)]' : 'dark:bg-text-dark bg-white'}`}
+              className={`h-24 cursor-pointer sm:h-32 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md  border-1 border-gray-500
+          ${
+            selectedDays[day]?.selected
+              ? 'bg-blue-500 border-blue-600'
+              : 'dark:bg-gray-800 bg-white border-gray-200'
+          } 
+          border`}
             ></div>
           </div>
         ))}
