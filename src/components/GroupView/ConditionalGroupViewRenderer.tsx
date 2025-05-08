@@ -8,7 +8,13 @@ import { useParams } from 'react-router-dom';
  *
  * @returns Page Component
  */
-export default function ConditionalGroupViewRenderer() {
+export default function ConditionalGroupViewRenderer({
+  isEditing,
+  toggleEditing,
+}: {
+  isEditing: boolean;
+  toggleEditing: () => void;
+}) {
   const [isAdmin, setIsAdmin] = useState(checkIfAdmin());
 
   const { code } = useParams();
@@ -31,11 +37,11 @@ export default function ConditionalGroupViewRenderer() {
     <>
       {isAdmin ? (
         <div>
-          <GroupViewPage isAdmin={true} />
+          <GroupViewPage isAdmin={true} isEditing={false} toggleEditing={toggleEditing}/>
         </div>
       ) : (
         <div>
-          <GroupViewPage isAdmin={false} />
+          <GroupViewPage isAdmin={false} isEditing={false} toggleEditing={toggleEditing} />
         </div>
       )}
     </>

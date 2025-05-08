@@ -31,7 +31,8 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     signInWithGoogle().then((loginSuccessful) => {
       if (loginSuccessful !== false) {
         if (code !== '') {
-          navigate(`/timeselect/${code}`);
+          // navigate(`/timeselect/${code}`);
+          navigate('/dashboard/' + code, { state: { isEditing: true } });
         }
         onClose();
         document.body.classList.remove('popup-open');
@@ -92,7 +93,8 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
       <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
         <button
           onClick={() => {
-            navigate('/groupview/' + code);
+            // navigate('/groupview/' + code);
+            navigate('/dashboard/' + code);
           }}
           className="absolute top-4 left-4 p-2 flex items-center text-gray-500 hover:text-gray-800 transition-colors duration-200"
           aria-label="Go back"

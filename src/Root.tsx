@@ -12,8 +12,11 @@ import PrivacyPage from './components/Privacy/PrivacyPage';
 import { GAPIContextWrapper } from './firebase/gapiContext';
 import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
+import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
+import { useState } from 'react';
 
 function Root() {
+  const [isEditing, setIsEditing] = useState(false);
   return (
     <ThemeProvider>
       <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
@@ -24,11 +27,12 @@ function Root() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
-              <Route path="/timeselect/:code" element={<TimeSelectPage />} />
+              <Route path="/timeselect/:code" element={<TimeSelectPage isEditing={isEditing} toggleEditing={() => setIsEditing(false)} />} />
               <Route
                 path="/groupview/:code"
-                element={<ConditionalGroupViewRenderer />}
+                element={<ConditionalGroupViewRenderer isEditing={isEditing} toggleEditing={() => setIsEditing(true)} />}
               />
+              <Route path="/dashboard/:code" element={<UnifiedAvailabilityPage />} />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />

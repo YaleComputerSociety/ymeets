@@ -43,14 +43,19 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import { filter } from 'lodash';
 
-interface GroupViewProps {
-  isAdmin: boolean;
-}
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
-export default function GroupViewPage({ isAdmin }: GroupViewProps) {
+export default function GroupViewPage({
+  isAdmin,
+  isEditing,
+  toggleEditing,
+}: {
+  isAdmin: boolean;
+  isEditing: boolean;
+  toggleEditing: () => void;
+}) {
   const { gapi, handleIsSignedIn } = useContext(GAPIContext);
 
   const [calendarState, setCalendarState] = useState<calanderState>([]);
@@ -294,6 +299,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <CopyCodeButton />
+
+          {/* View/Edit Availability Button */}
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={toggleEditing}
+          >
+            {isEditing ? 'View Availability' : 'Edit Availability'}
+          </ButtonSmall>
+
           {isAdmin && (
             <AutoDraftEmailButton
               eventTitle={eventName}
@@ -376,7 +391,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                         bgColor={'primary'}
                         textColor={'white'}
                         onClick={() => {
-                          nav('/timeselect/' + code);
+                          // nav('/timeselect/' + code);
+                          nav('/dashboard/' + code, { state: { isEditing: true } });
                         }}
                       >
                         <div className="flex flex-row items-center justify-center space-x-1">

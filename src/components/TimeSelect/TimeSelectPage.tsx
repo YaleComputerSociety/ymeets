@@ -46,7 +46,13 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
  *
  * @returns Page Component
  */
-function TimeSelectPage() {
+function TimeSelectPage({
+  isEditing,
+  toggleEditing,
+}: {
+  isEditing: boolean;
+  toggleEditing: () => void;
+}) {
   const { code } = useParams();
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
@@ -166,7 +172,8 @@ function TimeSelectPage() {
 
             // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
             if (theRange != undefined && theRange[0].getFullYear() != 1970) {
-              nav('/groupview/' + code);
+              // nav('/groupview/' + code);
+              nav('/dashboard/' + code);
             }
           })
           .catch(() => {
@@ -459,7 +466,8 @@ function TimeSelectPage() {
 
           // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
           if (theRange != undefined && theRange[0].getFullYear() != 1970) {
-            nav('/groupview/' + code);
+            // nav('/groupview/' + code);
+            nav('dashboard/' + code);
           }
         });
       } else {
@@ -568,7 +576,8 @@ function TimeSelectPage() {
       ? (calendarState[user] ?? [])
       : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
-    navigate(`/groupview/${code}`);
+    // navigate(`/groupview/${code}`);
+    toggleEditing();
   };
 
   const handleSubmitAvailability = () => {
@@ -603,6 +612,15 @@ function TimeSelectPage() {
             </div>
           )}
           <CopyCodeButton />
+
+          {/* View/Edit Availability Button */}
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={toggleEditing}
+          >
+            {isEditing ? 'View Availability' : 'Edit Availability'}
+          </ButtonSmall>
         </div>
         <div className="lg:col-span-3">
           <div className="w-full">
