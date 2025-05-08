@@ -489,6 +489,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               <Calendar
                 theShowUserChart={[showUserChart, setShowUserChart]}
                 onClick={() => {
+                  if (isAdmin) {
+                    // Reset drag selection when the calendar is clicked
+                    setDragState({
+                      isSelecting: false,
+                      startPoint: null,
+                      endPoint: null,
+                      selectionMode: false,
+                      lastPosition: null,
+                    });
+                  }
                   if (showUserChart === true) {
                     return;
                   }
