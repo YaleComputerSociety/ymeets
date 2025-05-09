@@ -9,6 +9,7 @@ import {
 import { SCOPES, auth } from './firebase';
 import { loadAuth2, loadGapiInsideDOM } from 'gapi-script';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import React from 'react';
 
 interface GAPIContextType {
   gapi: typeof globalThis.gapi | null;
@@ -55,25 +56,33 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
     gapiInstance: typeof globalThis.gapi
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
+      // Verify environment variables
+      const apiKey = process.env.REACT_APP_API_KEY_GAPI;
+      const clientId = process.env.REACT_APP_CLIENT_ID_GAPI;
+
+      if (!apiKey || !clientId) {
+        const error = new Error(
+          'Missing API key or Client ID. Check your environment variables.'
+        );
+        console.error(error);
+        setGapiError(error);
+        reject(error);
+        return;
+      }
+
       gapiInstance.load(GAPI_CLIENT_NAME, async () => {
         try {
           // Initialize the client with your API key and client ID
           await gapiInstance.client.init({
-            apiKey: process.env.REACT_APP_API_KEY_GAPI,
-            clientId: process.env.REACT_APP_CLIENT_ID_GAPI,
+            apiKey,
+            clientId,
             scope: SCOPES,
             discoveryDocs: [
-              'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
+              'https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest',
             ],
           });
 
-          // Load the calendar API specifically
-          await new Promise<void>((resolveCalendar) => {
-            gapiInstance.client.load('calendar', 'v3', () => {
-              resolveCalendar();
-            });
-          });
-
+          // No need for the second calendar load as it's included in discoveryDocs
           setIsGapiInitialized(true);
           resolve();
         } catch (error) {
@@ -95,13 +104,16 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
     try {
       console.log('Loading new GAPI instance');
       const newGapi = await loadGapiInsideDOM();
-      await loadGapiClient(newGapi);
 
+      // Load Auth2 first before initializing client
       const newAuth2 = await loadAuth2(
         newGapi,
         process.env.REACT_APP_CLIENT_ID_GAPI || '',
         SCOPES
       );
+
+      // Then load the client
+      await loadGapiClient(newGapi);
 
       setGapi(newGapi);
       setAuthInstance(newAuth2);
@@ -116,7 +128,10 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
 
   // Initial load of GAPI
   useEffect(() => {
-    initializeGapi();
+    // Add a small delay to ensure DOM is fully loaded
+    const timer = setTimeout(() => {
+      initializeGapi();
+    }, 100);
 
     // Add event listener for when page becomes visible again (tab switch, etc.)
     const handleVisibilityChange = () => {
@@ -129,6 +144,7 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      clearTimeout(timer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [initializeGapi, isGapiInitialized]);

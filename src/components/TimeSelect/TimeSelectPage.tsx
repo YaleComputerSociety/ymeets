@@ -723,7 +723,7 @@ function TimeSelectPage() {
               Your Calendars
             </h2>
             {isGoogleLoggedIn && hasGCalScope ? (
-              <ul className="space-y-1">
+              <ul className="space-y-1 max-h-80 overflow-y-auto">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
@@ -772,14 +772,6 @@ function TimeSelectPage() {
                         window.location.reload();
                       });
                     } else {
-                      // signInWithGoogle(undefined, undefined, handleIsSignedIn).then(
-                      //   (loginSuccessful) => {
-                      //     if (loginSuccessful) {
-                      //       window.location.reload();
-                      //     }
-                      //   }
-                      // );
-                      console.log('Sign in with Google');
                       signInWithGoogle(
                         undefined,
                         undefined,
@@ -809,7 +801,7 @@ function TimeSelectPage() {
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
-                  {hasGCalScope ? (
+                  {isGoogleLoggedIn && hasGCalScope ? (
                     <div className="flex gap-2 w-full">
                       <ButtonSmall
                         bgColor="primary"
@@ -834,17 +826,27 @@ function TimeSelectPage() {
                     <button
                       className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                       flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                      onClick={() => {
-                        signInWithGoogle(
-                          undefined,
-                          undefined,
-                          handleIsSignedIn
-                        ).then((loginSuccessful) => {
-                          if (loginSuccessful) {
-                            updateAnonymousUserToAuthUser(getAccountName());
-                            setIsGoogleLoggedIn(true);
-                          }
-                        });
+                      onClick={async () => {
+                        if (!hasGCalScope) {
+                          // alr logged in, need more scopes
+
+                          requestCalendarScope().then(() => {
+                            window.location.reload();
+                          });
+                        } else {
+                          signInWithGoogle(
+                            undefined,
+                            undefined,
+                            handleIsSignedIn
+                          ).then((loginSuccessful) => {
+                            if (loginSuccessful) {
+                              updateAnonymousUserToAuthUser(getAccountName());
+                              requestCalendarScope().then(() => {
+                                window.location.reload();
+                              });
+                            }
+                          });
+                        }
                       }}
                     >
                       <img src={LOGO} alt="Logo" className="mr-2 h-5" />
