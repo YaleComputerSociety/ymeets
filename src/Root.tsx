@@ -27,11 +27,6 @@ function Root() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
-              <Route path="/timeselect/:code" element={<TimeSelectPage isEditing={isEditing} toggleEditing={() => setIsEditing(false)} />} />
-              <Route
-                path="/groupview/:code"
-                element={<ConditionalGroupViewRenderer isEditing={isEditing} toggleEditing={() => setIsEditing(true)} />}
-              />
               <Route path="/dashboard/:code" element={<UnifiedAvailabilityPage />} />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
