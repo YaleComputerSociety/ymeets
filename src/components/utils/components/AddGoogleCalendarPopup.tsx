@@ -7,8 +7,8 @@ export const AddGoogleCalendarPopup = ({
   children,
 }: any) => {
   const handleContinue = () => {
-    if (onCloseAndSubmit) {
-      onCloseAndSubmit();
+    if (onClose) {
+      onClose();
     }
   };
 
