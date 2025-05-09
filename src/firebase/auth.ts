@@ -132,6 +132,7 @@ const logout = (loadedGAPI: typeof globalThis.gapi | null) => {
     const auth2 = loadedGAPI.auth2.getAuthInstance();
     auth2.signOut().then(() => {
       signOut(auth);
+      localStorage.removeItem("isGoogleLoggedIn");
     });
   }
 };
