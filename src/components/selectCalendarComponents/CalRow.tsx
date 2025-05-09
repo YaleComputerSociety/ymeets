@@ -133,7 +133,21 @@ export default function CalRow({
               const checkTime = new Date(gEvent.end.dateTime);
               checkTime.setHours(hours, minutes, 0, 0);
               const timeDifference = endTime.getTime() - checkTime.getTime();
-              return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
+
+              const isOverlapped = matchedEvents?.some(
+                (otherEvent) =>
+                  otherEvent !== gEvent &&
+                  otherEvent.end?.dateTime &&
+                  new Date(otherEvent.end.dateTime) > endTime &&
+                  otherEvent.start?.dateTime &&
+                  new Date(otherEvent.start.dateTime) < endTime
+              );
+
+              return (
+                !isOverlapped &&
+                timeDifference >= 0 &&
+                timeDifference <= 14 * 60 * 1000
+              );
             }
             return false;
           }

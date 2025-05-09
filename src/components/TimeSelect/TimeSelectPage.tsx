@@ -145,12 +145,10 @@ function TimeSelectPage() {
         // Main event loading
         await getEventOnPageload(code);
 
-        // Get event data after loading
         const { availabilities, participants } = eventAPI.getCalendar();
         const dim = eventAPI.getCalendarDimensions();
         const uid = getAccountId();
 
-        // Check calendar dimensions
         if (dim === undefined) {
           nav('/notfound');
           return false;
@@ -180,7 +178,6 @@ function TimeSelectPage() {
         setEventDescription(getEventDescription());
         setLocationOptions(getLocationOptions());
 
-        // Handle date formats and calendar states
         const theRange = getChosenDayAndTime();
         const isGeneralDaysSelection =
           dim?.dates[0][0].date?.getFullYear() === 2000 &&
@@ -197,14 +194,13 @@ function TimeSelectPage() {
           return true;
         }
 
-        // Handle Google Calendar integration
         try {
           const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
+          setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
           const hasCalendarScope = await checkIfUserHasCalendarScope();
 
           if (hasCalendarScope) {
             await fetchUserCalendars();
-            setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
           }
         } catch (calendarError) {
           console.error('Error fetching calendar data:', calendarError);
@@ -236,9 +232,7 @@ function TimeSelectPage() {
         setLoading(false);
       }
     })();
-
-    // No cleanup function needed in this useEffect
-  }, [code]); // Added code as a dependency
+  }, [code]);
 
   useEffect(() => {
     if (!isGeneralDays) return;
@@ -298,7 +292,6 @@ function TimeSelectPage() {
       // Check if we have the required scope first
       const hasScope = await checkIfUserHasCalendarScope();
       if (!hasScope) {
-        console.log('Cannot fetch calendar data - missing calendar scope');
         setGoogleCalendarEvents([]);
         return;
       }
@@ -336,6 +329,15 @@ function TimeSelectPage() {
         ).toISOString();
       }
 
+      if (!gapi || !isGapiInitialized) {
+        await initializeGapi();
+
+        // Check again after initialization attempt
+        if (!gapi || !gapi.client || !gapi.client.calendar) {
+          throw new Error('Failed to initialize Google Calendar API');
+        }
+      }
+
       for (let i = 0; i < calIds.length; i++) {
         const eventList = await gapi?.client?.calendar?.events?.list({
           calendarId: calIds[i],
@@ -370,7 +372,6 @@ function TimeSelectPage() {
       }
     } catch (error) {
       console.error('Error fetching calendar events:', error);
-      // If we get an error related to missing scopes, update the state
       if (
         error instanceof Error &&
         (error.message.includes('scope') ||
@@ -382,10 +383,16 @@ function TimeSelectPage() {
   };
 
   useEffect(() => {
-    if (gapi && hasGCalScope && idsOfCurrentlySelectedGCals.length > 0) {
+    if (gapi && hasGCalScope && idsOfCurrentlySelectedGCals?.length >= 0) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, shouldFillAvailability);
     }
-  }, [gapi, idsOfCurrentlySelectedGCals, isGeneralDays, hasGCalScope]);
+  }, [
+    gapi,
+    idsOfCurrentlySelectedGCals,
+    isGeneralDays,
+    hasGCalScope,
+    shouldFillAvailability,
+  ]);
 
   const fillAvailabilityNotInGCalEvents = (
     parsedEvents: any[],
@@ -451,44 +458,47 @@ function TimeSelectPage() {
     setGcalPopupOpen(false);
   };
 
-  /**
-   * Checks if the user has granted calendar scope permissions
-   */
   const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
-    console.log('checking if it has cal scope');
-
     if (getAccountId() === '') {
+      // checks if the user is logged into google.
       return false;
     }
-    console.log(localStorage.getItem('hasGCalScope'));
 
-    return localStorage.getItem('hasGCalScope') === 'true';
+    try {
+      const token = gapi?.auth2
+        ?.getAuthInstance()
+        ?.currentUser?.get()
+        ?.getAuthResponse();
+      if (!token) return false;
+
+      const hasScope = token.scope.includes(
+        'https://www.googleapis.com/auth/calendar.readonly'
+      );
+      localStorage.setItem('hasGCalScope', String(hasScope));
+      return hasScope;
+    } catch (error) {
+      console.error('Error checking calendar scope:', error);
+      return false;
+    }
   };
 
-  /**
-   * Requests the calendar read-only scope from the user
-   */
   const requestCalendarScope = async (): Promise<boolean> => {
     setIsRequestingCalendarScope(true);
 
     try {
-      const result = await gapi?.auth2.getAuthInstance().grantOfflineAccess({
+      // Request additional scope without full sign in
+      await gapi?.auth2.getAuthInstance().currentUser.get().grant({
         scope: 'https://www.googleapis.com/auth/calendar.readonly',
-        prompt: 'consent',
       });
 
-      if (result && result.code) {
-        // Process the auth code to get a token with the new scope
-        await signInWithGoogle(result.code, gapi, handleIsSignedIn);
+      const hasScope = await checkIfUserHasCalendarScope();
 
-        // Verify the scope was granted
-        const hasScope = await checkIfUserHasCalendarScope();
-
-        if (hasScope) {
-          await fetchUserCalendars();
-          return true;
-        }
+      if (hasScope) {
+        await fetchUserCalendars();
+        setHasGCalScope(true);
+        return true;
       }
+
       return false;
     } catch (error) {
       console.error('Error requesting calendar scope:', error);
@@ -501,10 +511,7 @@ function TimeSelectPage() {
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
     try {
-      // Check if GAPI is initialized
-      console.log('fetching them cals');
       if (!gapi || !isGapiInitialized) {
-        console.log('GAPI not initialized, attempting to initialize...');
         await initializeGapi();
 
         // Check again after initialization attempt
@@ -513,7 +520,6 @@ function TimeSelectPage() {
         }
       }
 
-      // Now we can safely call the calendar API
       const response = await gapi.client.calendar.calendarList.list();
 
       const calendars = response?.result?.items || [];
@@ -533,18 +539,8 @@ function TimeSelectPage() {
       }
 
       return [];
-    } finally {
-      // setIsLoading(false);
     }
   };
-
-  // return {
-  //   googleCalendars,
-  //   fetchUserCalendars,
-  //   isLoading: isLoading || GAPILoading,
-  //   error,
-  //   hasGCalScope
-  // };
 
   // Check and maintain state about Google login and calendar permissions
   useEffect(() => {
@@ -553,15 +549,12 @@ function TimeSelectPage() {
       const accountId = getAccountId();
       const isLoggedIn = accountId !== '';
       setIsGoogleLoggedIn(isLoggedIn);
-      localStorage.setItem('isGoogleLoggedIn', String(isLoggedIn));
 
-      // If they're logged in, check if they have calendar permissions
       if (isLoggedIn && gapi) {
         const hasScope = await checkIfUserHasCalendarScope();
         setHasGCalScope(hasScope);
         localStorage.setItem('hasGCalScope', String(hasScope));
 
-        // If they have calendar permissions, fetch calendars
         if (hasScope) {
           await fetchUserCalendars();
         }
@@ -572,9 +565,7 @@ function TimeSelectPage() {
   }, [gapi]);
 
   const handleToggleGCalAvailabilitiesClick = async () => {
-    // First check if the user is logged in
     if (!isGoogleLoggedIn) {
-      // Handle Google sign-in first
       const loginSuccessful = await signInWithGoogle(
         undefined,
         undefined,
@@ -634,21 +625,33 @@ function TimeSelectPage() {
 
     // Check if we have calendar scope
     const hasScope = await checkIfUserHasCalendarScope();
+    let justGrantedScope = false;
     if (!hasScope) {
       // Need to request calendar scope
       const scopeGranted = await requestCalendarScope();
       if (!scopeGranted) {
         return;
       }
+      justGrantedScope = true;
     }
 
     // Now we can proceed with autofill
     setShouldFillAvailability(true);
     setIsFillingAvailability(true);
 
-    // Fetch calendar data and use it for autofill
+    const lastSelectedGCalIds =
+      await getSelectedCalendarIDsByUserID(getAccountId());
+    if (justGrantedScope) {
+      setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
+    }
+
+    // Fetch calendar data and use it for
     await fetchGoogleCalEvents(
-      idsOfCurrentlySelectedGCals.length > 0 ? idsOfCurrentlySelectedGCals : [],
+      idsOfCurrentlySelectedGCals.length > 0
+        ? idsOfCurrentlySelectedGCals
+        : justGrantedScope === true
+          ? lastSelectedGCalIds
+          : [],
       true
     );
   };
@@ -755,20 +758,20 @@ function TimeSelectPage() {
             ) : (
               <div className="flex flex-col items-center justify-center text-center space-y-3">
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  {!hasGCalScope
-                    ? 'Sign in with Google to import your calendars.'
-                    : 'Grant permission to import your calendars'}
+                  Grant permission to import your calendars
                 </p>
 
                 <button
                   className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
                   flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={() => {
+                  onClick={async () => {
                     if (!hasGCalScope) {
                       // alr logged in, need more scopes
+                      const lastSelectedGCalIds =
+                        await getSelectedCalendarIDsByUserID(getAccountId());
+
                       requestCalendarScope().then(() => {
-                        setIdsOfCurrentlySelectedGCals([]); // triggers reload of rendered cals
-                        setIsGoogleLoggedIn(true);
+                        window.location.reload();
                       });
                     } else {
                       signInWithGoogle(
@@ -778,7 +781,6 @@ function TimeSelectPage() {
                       ).then((loginSuccessful) => {
                         if (loginSuccessful) {
                           updateAnonymousUserToAuthUser(getAccountName());
-                          setIsGoogleLoggedIn(true);
                         }
                       });
                     }
@@ -798,7 +800,7 @@ function TimeSelectPage() {
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
-                  {isGoogleLoggedIn ? (
+                  {hasGCalScope ? (
                     <div className="flex gap-2 w-full">
                       <ButtonSmall
                         bgColor="primary"
@@ -837,7 +839,7 @@ function TimeSelectPage() {
                       }}
                     >
                       <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                      Sign in to access GCal
+                      Grant permission to import your calendars
                     </button>
                   )}
                   <div className="flex items-center gap-3 w-full">
@@ -866,7 +868,7 @@ function TimeSelectPage() {
                 </div>
 
                 {/* Desktop layout - unchanged */}
-                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
+                <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
                   <div className="flex items-center flex-1">
                     <div className="flex items-center gap-2">
                       {isGoogleLoggedIn ? (

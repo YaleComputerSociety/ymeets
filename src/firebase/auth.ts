@@ -1,6 +1,9 @@
 /* eslint-disable */
 
 import { MouseEventHandler, useContext } from 'react';
+import { signInWithCredential } from 'firebase/auth';
+
+import { GoogleAuthProvider } from 'firebase/auth';
 import {
   getAccountId,
   getAccountName,
@@ -25,7 +28,7 @@ const signInWithGoogle = async (
   gapi?: any,
   handleIsSignedIn?: (arg0: boolean) => void
 ) => {
-  return await new Promise(async (resolve, reject) => {
+  try {
     // Check if user is already signed in (anonymously)
     // if so, remember their unauthed name, then, on login success, overwrite it in the event object.
     let formerName = '';
@@ -33,11 +36,56 @@ const signInWithGoogle = async (
       formerName = auth.currentUser.displayName || '';
     }
 
-    try {
-      if (gapi) {
+    // Define required scopes for Google Calendar
+    const calendarScopes = [
+      'https://www.googleapis.com/auth/calendar.readonly',
+    ];
+
+    if (gapi && gapi.auth2) {
+      // Using GAPI for authentication
+      try {
         const auth2 = gapi.auth2.getAuthInstance();
-        auth2
-          .signIn()
+        
+        // Configure additional scopes if needed
+        const options = {
+          scope: calendarScopes.join(' ')
+        };
+        
+        const googleUser = await auth2.signIn(options);
+        const authResponse = googleUser.getAuthResponse(true);
+        
+        // Important: Set the token in gapi.client for API calls
+        gapi.client.setToken({
+          access_token: authResponse.access_token
+        });
+        
+        // Get the ID token for Firebase authentication
+        const idToken = authResponse.id_token;
+        
+        // Sign in to Firebase with the Google credential
+        const credential = GoogleAuthProvider.credential(idToken);
+        await signInWithCredential(auth, credential);
+        
+        
+        if (handleIsSignedIn) {
+          handleIsSignedIn(true);
+        }
+        
+        // Update user info if previously anonymous
+        if (formerName !== '') {
+          await updateAnonymousUserToAuthUser(formerName);
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('GAPI sign-in error:', error);
+        throw error;
+      }
+    } else {
+      
+      try {
+        return new Promise<boolean>((resolve, reject) => {
+          signInWithPopup(auth, googleProvider)
           .then((googleUser: any) => {
             if (handleIsSignedIn) {
               handleIsSignedIn(true);
@@ -49,51 +97,26 @@ const signInWithGoogle = async (
                   resolve(true);
                 })
                 .catch((updateError) => {
-                  reject(updateError);
+                  resolve(false);
                 });
             } else {
               resolve(true);
             }
           })
-          .catch((error: any) => {
+          .catch((error) => {
             console.error(error);
             resolve(false);
           });
-      } else {
-        // try signing in with firebase (gapi not working...such as mobile???)
-        try {
-          signInWithPopup(auth, googleProvider)
-            .then((googleUser: any) => {
-              if (handleIsSignedIn) {
-                handleIsSignedIn(true);
-              }
-
-              if (formerName !== '') {
-                updateAnonymousUserToAuthUser(formerName)
-                  .then(() => {
-                    resolve(true);
-                  })
-                  .catch((updateError) => {
-                    resolve(false);
-                  });
-              } else {
-                resolve(true);
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-              resolve(false);
-            });
-        } catch (err) {
-          console.error(err);
-          resolve(false);
-        }
+        });
+      } catch (error) {
+        console.error('Firebase sign-in error:', error);
+        throw error;
       }
-    } catch (err) {
-      console.error(err);
-      resolve(false);
     }
-  });
+  } catch (err) {
+    console.error('Google sign-in failed:', err);
+    return false;
+  }
 };
 
 // useEffect(() => {

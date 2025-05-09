@@ -70,7 +70,6 @@ export const GAPIContextWrapper: FC<{ children: ReactNode }> = ({
           // Load the calendar API specifically
           await new Promise<void>((resolveCalendar) => {
             gapiInstance.client.load('calendar', 'v3', () => {
-              console.log('Calendar API loaded successfully');
               resolveCalendar();
             });
           });
