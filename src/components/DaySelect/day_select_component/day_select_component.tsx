@@ -198,7 +198,6 @@ export const DaySelectComponent = () => {
           timezone
         )
         .then((ev) => {
-          // navigate('/timeselect/' + ev?.publicId);
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     } else {
@@ -221,7 +220,6 @@ export const DaySelectComponent = () => {
           timezone
         )
         .then((ev) => {
-          // navigate('/timeselect/' + ev?.publicId);
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     }

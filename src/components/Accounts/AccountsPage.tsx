@@ -207,7 +207,6 @@ export default function AccountsPage() {
 
                     <div className="flex flex-row gap-2">
                       <button
-                        // onClick={() => nav(`/groupview/${event.id}`)}
                         onClick={() => nav(`/dashboard/${event.id}`)}
                         className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
                       >

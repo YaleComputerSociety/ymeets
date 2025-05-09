@@ -429,7 +429,6 @@ function TimeSelectPage({
       ? (calendarState[user] ?? [])
       : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
-    // navigate(`/groupview/${code}`);
     toggleEditing();
   };
 
