@@ -722,7 +722,7 @@ function TimeSelectPage() {
             <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">
               Your Calendars
             </h2>
-            {hasGCalScope ? (
+            {isGoogleLoggedIn && hasGCalScope ? (
               <ul className="space-y-1">
                 {googleCalendars.map((cal) => (
                   <li
@@ -767,13 +767,19 @@ function TimeSelectPage() {
                   onClick={async () => {
                     if (!hasGCalScope) {
                       // alr logged in, need more scopes
-                      const lastSelectedGCalIds =
-                        await getSelectedCalendarIDsByUserID(getAccountId());
 
                       requestCalendarScope().then(() => {
                         window.location.reload();
                       });
                     } else {
+                      // signInWithGoogle(undefined, undefined, handleIsSignedIn).then(
+                      //   (loginSuccessful) => {
+                      //     if (loginSuccessful) {
+                      //       window.location.reload();
+                      //     }
+                      //   }
+                      // );
+                      console.log('Sign in with Google');
                       signInWithGoogle(
                         undefined,
                         undefined,
@@ -781,6 +787,9 @@ function TimeSelectPage() {
                       ).then((loginSuccessful) => {
                         if (loginSuccessful) {
                           updateAnonymousUserToAuthUser(getAccountName());
+                          requestCalendarScope().then(() => {
+                            window.location.reload();
+                          });
                         }
                       });
                     }

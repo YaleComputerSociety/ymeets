@@ -81,10 +81,6 @@ export default function CalBlock({
   const previousBoundingBox = useRef<BoundingBox | null>(null);
   const dragStartTime = useRef<number | null>(null);
 
-  console.log(isOnGcal, 'isOnGcal');
-  console.log(isEventEnd, 'isEventEnd');
-  console.log(isEventStart, 'isEventStart');
-
   // Initialize chartedUsers
   useEffect(() => {
     if (chartedUsers && setChartedUsers) {
