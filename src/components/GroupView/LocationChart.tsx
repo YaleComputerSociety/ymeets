@@ -141,7 +141,7 @@ export default function LocationChart({
                         : 'bg-white'
                     } transition-colors duration-300`}
                   >
-                    <td className="p-3">{loc}</td>
+                    <td className="p-3 max-w-xs truncate whitespace-normal break-words">{loc}</td>
                     <td className="p-3">{locationVotes[idx]}</td>
                   </tr>
                 );
