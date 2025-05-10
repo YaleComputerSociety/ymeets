@@ -1,6 +1,4 @@
-/* eslint-disable */
-
-import React from 'react';
+import React, { useState } from 'react';
 import ChartRow from './UserChartRow';
 import { userData } from '../../types';
 import {
@@ -10,6 +8,7 @@ import {
   IconSquareCheck,
   IconSquareFilled,
 } from '@tabler/icons-react';
+import AlertPopup from '../utils/components/AlertPopup';
 
 interface UserChartProps {
   chartedUsersData:
@@ -62,8 +61,18 @@ const UserChart: React.FC<UserChartProps> = ({
     ]
   );
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
+
   return (
     <div className="relative">
+      {alertMessage && (
+        <AlertPopup
+          title="Alert"
+          message={alertMessage}
+          isOpen={!!alertMessage}
+          onClose={() => setAlertMessage(null)}
+        />
+      )}
       <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
         {participantToggleClicked ? (
           <table className="table-fixed border-collapse w-full">
@@ -79,7 +88,7 @@ const UserChart: React.FC<UserChartProps> = ({
               {rows.map(([available, unavailable], idx) => (
                 <ChartRow
                   available={available}
-                  key={idx}
+                  key={idx} // Correctly placed key
                   unavailable={unavailable}
                 />
               ))}
@@ -91,10 +100,14 @@ const UserChart: React.FC<UserChartProps> = ({
               Edit Participants
             </div>
             {allPeople?.map((name, idx) => (
-              <div className="flex flex-row justify-between items-center dark:text-text-dark">
+              <div
+                key={idx} // Move key to the outermost div
+                className="flex flex-row justify-between items-center dark:text-text-dark"
+              >
                 <div
-                  key={idx}
-                  className={`p-2 ${peoepleStatus[name] === true ? 'opacity-100' : 'opacity-50'}`}
+                  className={`p-2 ${
+                    peoepleStatus[name] === true ? 'opacity-100' : 'opacity-50'
+                  }`}
                 >
                   {name}
                 </div>
@@ -117,7 +130,9 @@ const UserChart: React.FC<UserChartProps> = ({
                           .length === 1 &&
                         peoepleStatus[name]
                       ) {
-                        alert("You can't remove the last participant");
+                        setAlertMessage(
+                          "You can't remove the last participant"
+                        ); // Replace alert with AlertPopup
                         return;
                       }
                       setPeopleStatus((prev) => ({

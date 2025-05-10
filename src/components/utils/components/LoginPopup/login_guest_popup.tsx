@@ -12,6 +12,7 @@ import LOGO from './googlelogo.png';
 import ButtonSmall from '../ButtonSmall';
 import { useParams } from 'react-router-dom';
 import { IconArrowLeft } from '@tabler/icons-react';
+import AlertPopup from '../AlertPopup'; // Import AlertPopup
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
@@ -26,6 +27,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
   const handleSignInWithGoogle = () => {
     signInWithGoogle().then((loginSuccessful) => {
@@ -42,7 +44,9 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   const handleSignInWithoutGoogle = () => {
     const trimmedName = inputName.trim();
     if (!validateInput(trimmedName)) {
-      alert('Please enter a valid name (letters, numbers, and spaces only).');
+      setAlertMessage(
+        'Please enter a valid name (letters, numbers, and spaces only).'
+      ); // Replace alert
       return;
     }
     signInAnonymously(auth).then((userCred: UserCredential) => {
@@ -54,7 +58,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           document.body.classList.remove('popup-open');
         })
         .catch(() => {
-          alert('Error setting name');
+          setAlertMessage('Error setting name'); // Replace alert
           onClose(false);
         });
     });
@@ -89,6 +93,14 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   }, []);
   return (
     <div className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6">
+      {alertMessage && (
+        <AlertPopup
+          title="Alert"
+          message={alertMessage}
+          isOpen={!!alertMessage}
+          onClose={() => setAlertMessage(null)}
+        />
+      )}
       <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
         <button
           onClick={() => {

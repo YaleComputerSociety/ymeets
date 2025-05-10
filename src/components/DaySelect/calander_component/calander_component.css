@@ -280,7 +280,7 @@ button.react-calendar__tile div {
   white-space: nowrap;
   border-radius: 5px;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 4;
   opacity: 0.8;
   font-size: 1em;
   font-family: 'Roboto', sans-serif;
