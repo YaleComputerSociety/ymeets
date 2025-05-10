@@ -156,6 +156,7 @@ const TimezoneChanger = ({
         onSelect={handleTimezoneChange}
         placeholder="Select a timezone"
         renderOption={(option) => option.replace(/_/g, ' ')}
+        className='bg-white dark:bg-secondary_background-dark'
       />
     </div>
   );

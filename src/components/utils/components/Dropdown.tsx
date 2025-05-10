@@ -7,6 +7,7 @@ interface DropdownProps<T> {
   onSelect: (option: T) => void;
   placeholder?: string;
   renderOption?: (option: T) => React.ReactNode;
+  className?: string;
 }
 
 function Dropdown<T>({
@@ -15,6 +16,7 @@ function Dropdown<T>({
   onSelect,
   placeholder = 'Select an option',
   renderOption,
+  className = '',
 }: DropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,10 +47,10 @@ function Dropdown<T>({
   }, [isOpen]);
 
   return (
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className={`relative w-full`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white text-left flex items-center justify-between"
+        className={`w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-left flex items-center justify-between ${className}`}
       >
         <span>
           {selectedOption

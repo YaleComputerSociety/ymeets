@@ -296,6 +296,7 @@ export const DaySelectComponent = () => {
                   onSelect={setTimezone}
                   placeholder="Select a timezone"
                   renderOption={(option) => option.replace(/_/g, ' ')}
+                  className='dark:bg-secondary_background-dark'
                 />
               </div>
 

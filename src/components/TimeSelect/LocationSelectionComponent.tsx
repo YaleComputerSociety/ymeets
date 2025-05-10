@@ -7,6 +7,7 @@ interface LocationSelectionProps {
   update: (selected: string[]) => void;
   create?: boolean; // Allow custom locations
   placeholder?: string;
+  className?: string;
 }
 
 const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
@@ -14,6 +15,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   update,
   create = false,
   placeholder = 'Select preferred location(s)',
+  className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -73,7 +75,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   }, [isOpen]);
 
   return (
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className={`relative w-full ${className}`} ref={dropdownRef}>
       <div className="flex flex-wrap gap-2 mb-2">
         {selectedLocations.map((location) => (
           <div
