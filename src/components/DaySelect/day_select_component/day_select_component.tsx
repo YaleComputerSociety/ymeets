@@ -4,13 +4,10 @@ import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../firebase/eventAPI';
 import { getAccountId, getAccountName } from '../../../firebase/events';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-dropdown-select';
-import LimitedSelect from './limited_select_component';
+import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
-import InformationPopup from '../../utils/components/InformationPopup';
-import TimezonePicker from '../../utils/components/TimezonePicker';
+import Dropdown from '../../utils/components/Dropdown';
 import TextareaAutosize from 'react-textarea-autosize';
-import { IconInfoCircle } from '@tabler/icons-react';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -52,35 +49,14 @@ export const DaySelectComponent = () => {
   const [popUpMessage, setPopupMessage] = useState('');
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
-  const [locationOptions, setLocationOptions] = useState<any[]>([
-    {
-      label: '17 Hillhouse',
-      value: '17 Hillhouse',
-    },
-    {
-      label: 'Bass',
-      value: 'Bass',
-    },
-    {
-      label: 'HQ',
-      value: 'HQ',
-    },
-    {
-      label: 'LC',
-      value: 'LC',
-    },
-    {
-      label: 'Sterling',
-      value: 'Sterling',
-    },
-    {
-      label: 'TSAI City',
-      value: 'TSAI City',
-    },
-    {
-      label: 'WLH',
-      value: 'WLH',
-    },
+  const [locationOptions, setLocationOptions] = useState<string[]>([
+    '17 Hillhouse',
+    'Bass',
+    'HQ',
+    'LC',
+    'Sterling',
+    'TSAI City',
+    'WLH',
   ]);
 
   const [selectedDays, setSelectedDays] = useState<
@@ -229,6 +205,35 @@ export const DaySelectComponent = () => {
     setSelectGeneralDays(tab === 'General Days');
   };
 
+  const timezoneOptions = [
+    'Etc/GMT+12',
+    'Pacific/Pago_Pago',
+    'Pacific/Honolulu',
+    'America/Anchorage',
+    'America/Los_Angeles',
+    'America/Denver',
+    'America/Chicago',
+    'America/New_York',
+    'America/Halifax',
+    'America/Argentina/Buenos_Aires',
+    'Atlantic/South_Georgia',
+    'Etc/UTC',
+    'Europe/Paris',
+    'Europe/Bucharest',
+    'Europe/Moscow',
+    'Asia/Dubai',
+    'Asia/Karachi',
+    'Asia/Dhaka',
+    'Asia/Bangkok',
+    'Asia/Shanghai',
+    'Asia/Tokyo',
+    'Australia/Sydney',
+    'Pacific/Guadalcanal',
+    'Pacific/Auckland',
+    'Pacific/Tongatapu',
+    'Pacific/Kiritimati',
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       <div className="flex flex-col md:flex-row justify-center gap-8">
@@ -285,26 +290,30 @@ export const DaySelectComponent = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Timezone
                 </label>
-                <TimezonePicker theTimezone={[timezone, setTimezone]} />
+                <Dropdown
+                  options={timezoneOptions}
+                  selectedOption={timezone}
+                  onSelect={setTimezone}
+                  placeholder="Select a timezone"
+                  renderOption={(option) => option.replace(/_/g, ' ')}
+                  className='dark:bg-secondary_background-dark'
+                />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Locations
                 </label>
-                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
-                  <LimitedSelect
-                    locationOptions={locationOptions}
-                    updateLocationsState={updateLocationsState}
+                <div className="z-40">
+                  <LocationSelectionComponent
+                    locations={locationOptions}
+                    update={updateLocationsState}
+                    create={true}
+                    placeholder="Locations (Optional)"
                   />
                 </div>
-
                 <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">
                   Type and press ENTER to add locations
-                  {/* <IconInfoCircle stroke={1.25} />
-                  <span className="ml-2">
-                    Type and press ENTER to add locations
-                  </span> */}
                 </div>
               </div>
             </div>
