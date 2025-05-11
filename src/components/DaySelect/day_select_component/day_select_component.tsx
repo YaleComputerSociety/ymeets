@@ -11,6 +11,7 @@ import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
+import AlertPopup from '../../utils/components/AlertPopup';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -127,6 +128,8 @@ export const DaySelectComponent = () => {
     return str.replace(invisibleChars, '').trim().length === 0;
   };
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
   const verifyNextAndSubmitEvent = () => {
     if (
       startDate.getHours() === 0 &&
@@ -136,35 +139,32 @@ export const DaySelectComponent = () => {
       endDate.getMinutes() === 0 &&
       endDate.getSeconds() === 0
     ) {
-      alert('Make sure to enter times!');
+      setAlertMessage('Make sure to enter times!');
       return;
     }
 
     if (startDate >= endDate) {
-      alert('Make sure your end time is after your start time!');
+      setAlertMessage('Make sure your end time is after your start time!');
       return;
     }
 
-    // Optional; backend supports an empty string for name
-    // Change, 2/18/25 - Name is not optional; make sure it's not a blank space or just invisible characters.
     if (isBlankspaceOrInvisible(eventName)) {
-      alert('Make sure to name your event!');
+      setAlertMessage('Make sure to name your event!');
       return;
     }
 
-    // Change, 2/18/25 - Description is by default optional; however, if they enter something, make sure it's not a blank space or just invisible characters.
     if (
       eventDescription.length > 0 &&
       isBlankspaceOrInvisible(eventDescription)
     ) {
-      alert(
+      setAlertMessage(
         'Did you mean to enter an event description? Please enter a valid description, if so.'
       );
       return;
     }
 
     if (locations.some(isBlankspaceOrInvisible)) {
-      alert(
+      setAlertMessage(
         'Looks like you left one of your event locations blank. Please remove it before proceeding!'
       );
       return;
@@ -180,7 +180,7 @@ export const DaySelectComponent = () => {
       });
 
       if (generallySelectedDates.length == 0) {
-        alert('You need to pick some days!');
+        setAlertMessage('You need to pick some days!');
         return;
       }
 
@@ -188,10 +188,10 @@ export const DaySelectComponent = () => {
         .createNewEvent(
           eventName,
           eventDescription,
-          getAccountName(), // admin name
-          getAccountId(), // admin ID
+          getAccountName(),
+          getAccountId(),
           generallySelectedDates,
-          locations, // plaus locs
+          locations,
           startDate,
           endDate,
           zoomLink,
@@ -202,7 +202,7 @@ export const DaySelectComponent = () => {
         });
     } else {
       if (selectedDates.length == 0) {
-        alert('Make sure to enter dates!');
+        setAlertMessage('Make sure to enter dates!');
         return;
       }
 
@@ -210,10 +210,10 @@ export const DaySelectComponent = () => {
         .createNewEvent(
           eventName,
           eventDescription,
-          getAccountName(), // admin name
-          getAccountId(), // admin ID
+          getAccountName(),
+          getAccountId(),
           selectedDates,
-          locations, // plaus locs
+          locations,
           startDate,
           endDate,
           zoomLink,
@@ -231,6 +231,14 @@ export const DaySelectComponent = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
+      {alertMessage && (
+        <AlertPopup
+          title="Alert"
+          message={alertMessage}
+          isOpen={!!alertMessage}
+          onClose={() => setAlertMessage(null)}
+        />
+      )}
       <div className="flex flex-col md:flex-row justify-center gap-8">
         <div className="md:w-1/2">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
@@ -292,7 +300,7 @@ export const DaySelectComponent = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Locations
                 </label>
-                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
+                <div className="z-20 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
                   <LimitedSelect
                     locationOptions={locationOptions}
                     updateLocationsState={updateLocationsState}
