@@ -6,12 +6,10 @@ import {
   signInAnonymously,
   updateProfile,
 } from 'firebase/auth';
-import { signInWithGoogle } from '../../../../firebase/auth';
 import { auth } from '../../../../firebase/firebase';
 import LOGO from './googlelogo.png';
-import ButtonSmall from '../ButtonSmall';
-import { useParams } from 'react-router-dom';
 import { IconArrowLeft } from '@tabler/icons-react';
+import { useAuth } from '../../../../firebase/authContext';
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
@@ -26,10 +24,11 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
+  const { login, currentUser } = useAuth();
 
   const handleSignInWithGoogle = () => {
-    signInWithGoogle().then((loginSuccessful) => {
-      if (loginSuccessful !== false) {
+    login().then((loginSuccessful) => {
+      if (loginSuccessful !== undefined) {
         if (code !== '') {
           navigate(`/timeselect/${code}`);
         }

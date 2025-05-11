@@ -7,13 +7,10 @@ import {
   getAllEventsForUser,
   deleteEvent,
 } from '../../firebase/events';
-import { logout } from '../../firebase/auth';
-
+import { useAuth } from '../../firebase/authContext';
 import { useNavigate } from 'react-router-dom';
-import copy from 'clipboard-copy';
 import { Event } from '../../types';
 import { auth } from '../../firebase/firebase';
-import { GAPIContext } from '../../firebase/gapiContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
@@ -74,7 +71,7 @@ const parseEventObjectForAccountsPage = (
  * @returns Page Component Render
  */
 export default function AccountsPage() {
-  const { gapi } = useContext(GAPIContext);
+  const { logout } = useAuth();
 
   useEffect(() => {
     const retrieveAndSetEvents = async () => {
@@ -238,7 +235,7 @@ export default function AccountsPage() {
           {checkIfLoggedIn() ? (
             <button
               onClick={() => {
-                logout(gapi);
+                logout();
                 nav('/');
               }}
               className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"

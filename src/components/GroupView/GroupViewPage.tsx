@@ -8,7 +8,6 @@ import {
 } from '../../types';
 import eventAPI from '../../firebase/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
-import { signInWithGoogle } from '../../firebase/auth';
 import { useCallback } from 'react';
 import {
   getEventOnPageload,
@@ -30,10 +29,10 @@ import UserChart from './UserChart';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
-
+import { useAuth } from '../../firebase/authContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
-import { GAPIContext } from '../../firebase/gapiContext';
+
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
@@ -51,8 +50,6 @@ interface GroupViewProps {
  * @returns Page Component
  */
 export default function GroupViewPage({ isAdmin }: GroupViewProps) {
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
-
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
     useState<calendarDimensions>({
@@ -108,6 +105,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   useEffect(() => {
     setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
   }, [allPeople]);
+
+  const { login, currentUser } = useAuth();
 
   const nav = useNavigate();
 
@@ -245,7 +244,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
         adminChosenLocation
       );
     } else {
-      signInWithGoogle(undefined, gapi, handleIsSignedIn);
+      login();
     }
   }
 

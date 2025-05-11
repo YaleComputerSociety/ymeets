@@ -1,23 +1,15 @@
-import { signInWithGoogle } from '../../../firebase/auth';
-import { useContext } from 'react';
-import { GAPIContext } from '../../../firebase/gapiContext';
+import { useAuth } from '../../../firebase/authContext';
 import Button from './Button';
 
 export default function LoginButton() {
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
+  const { login, currentUser } = useAuth();
 
   return (
     <Button
       bgColor="primary"
       textColor="white"
-      onClick={() => {
-        signInWithGoogle(undefined, undefined, handleIsSignedIn).then(
-          (loginSuccessful) => {
-            if (loginSuccessful) {
-              window.location.reload();
-            }
-          }
-        );
+      onClick={async () => {
+        await login();
       }}
     >
       Login

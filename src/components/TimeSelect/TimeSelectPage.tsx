@@ -1,6 +1,8 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3 } from 'googleapis';
 import { useState, useEffect } from 'react';
+import { GoogleAuthProvider } from 'firebase/auth';
+import { signInWithCredential } from 'firebase/auth';
 import {
   calanderState,
   userData,
@@ -30,22 +32,19 @@ import {
 } from '../../firebase/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
-import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
-import { GAPIContext } from '../../firebase/gapiContext';
+
 import { useContext } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { set } from 'lodash';
 import { auth } from '../../firebase/firebase';
-import { IconCheck, IconAlertCircle } from '@tabler/icons-react'; // Added IconAlertCircle
+import { IconCheck } from '@tabler/icons-react'; // Added IconAlertCircle
+import { useAuth } from '../../firebase/authContext';
+import { useGoogleCalendar } from '../../firebase/useGoogleCalService';
 
 /**
  *
@@ -53,6 +52,15 @@ import { IconCheck, IconAlertCircle } from '@tabler/icons-react'; // Added IconA
  */
 function TimeSelectPage() {
   const { code } = useParams();
+  const { login, currentUser } = useAuth();
+  const {
+    hasAccess,
+    initialized,
+    requestAccess,
+    getCalendars,
+    getEvents,
+    disconnect,
+  } = useGoogleCalendar();
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const nav = useNavigate();
@@ -65,9 +73,7 @@ function TimeSelectPage() {
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
   );
-  const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(
-    getAccountId() !== ''
-  );
+
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
     useState<calendarDimensions>({
@@ -102,13 +108,13 @@ function TimeSelectPage() {
     lastPosition: null,
   });
 
-  const {
-    gapi,
-    isGapiInitialized,
-    initializeGapi,
-    GAPILoading,
-    handleIsSignedIn,
-  } = useContext(GAPIContext);
+  // const {
+  //   gapi,
+  //   isGapiInitialized,
+  //   initializeGapi,
+  //   GAPILoading,
+  //   handleIsSignedIn,
+  // } = useContext(GAPIContext);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
@@ -197,9 +203,13 @@ function TimeSelectPage() {
         try {
           const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
           setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
-          const hasCalendarScope = await checkIfUserHasCalendarScope();
+          console.log(
+            'Last selected Google Calendar IDs:',
+            lastSelectedGCalIds
+          );
 
-          if (hasCalendarScope) {
+          if (hasAccess) {
+            console.log('fetching cals');
             await fetchUserCalendars();
           }
         } catch (calendarError) {
@@ -233,6 +243,10 @@ function TimeSelectPage() {
       }
     })();
   }, [code]);
+
+  // useEffect(() => {
+  //   fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, false);
+  // }, [googleCalendars, idsOfCurrentlySelectedGCals]);
 
   useEffect(() => {
     if (!isGeneralDays) return;
@@ -290,8 +304,8 @@ function TimeSelectPage() {
   ) => {
     try {
       // Check if we have the required scope first
-      const hasScope = await checkIfUserHasCalendarScope();
-      if (!hasScope) {
+
+      if (!hasAccess) {
         setGoogleCalendarEvents([]);
         return;
       }
@@ -329,32 +343,23 @@ function TimeSelectPage() {
         ).toISOString();
       }
 
-      if (!gapi || !isGapiInitialized) {
-        await initializeGapi();
-
-        // Check again after initialization attempt
-        if (!gapi || !gapi.client || !gapi.client.calendar) {
-          throw new Error('Failed to initialize Google Calendar API');
-        }
-      }
-
       for (let i = 0; i < calIds.length; i++) {
-        const eventList = await gapi?.client?.calendar?.events?.list({
-          calendarId: calIds[i],
-          timeMin,
-          timeMax,
-          singleEvents: true,
-          orderBy: 'startTime',
-        });
+        // const eventList = await gapi?.client?.calendar?.events?.list({
+        //   calendarId: calIds[i],
+        //   timeMin,
+        //   timeMax,
+        //   singleEvents: true,
+        //   orderBy: 'startTime',
+        // });
 
-        const theEvents = eventList?.result?.items || [];
+        const theEvents = await getEvents(calIds[i], timeMin, timeMax);
 
         for (let event of theEvents) {
           const startDate = new Date(
-            event?.start?.dateTime || event?.start?.date || ''
+            event?.start?.dateTime || (event.start as any)?.date || ''
           );
           const endDate = new Date(
-            event?.end?.dateTime ?? event?.end?.date ?? ''
+            event?.end?.dateTime || (event.end as any)?.date || ''
           );
 
           if (startDate.getDay() !== endDate.getDay()) {
@@ -383,14 +388,13 @@ function TimeSelectPage() {
   };
 
   useEffect(() => {
-    if (gapi && hasGCalScope && idsOfCurrentlySelectedGCals?.length >= 0) {
+    if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, shouldFillAvailability);
     }
   }, [
-    gapi,
+    googleCalendars,
     idsOfCurrentlySelectedGCals,
-    isGeneralDays,
-    hasGCalScope,
+    hasAccess,
     shouldFillAvailability,
   ]);
 
@@ -458,84 +462,163 @@ function TimeSelectPage() {
     setGcalPopupOpen(false);
   };
 
-  const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
-    if (getAccountId() === '') {
-      // checks if the user is logged into google.
-      return false;
-    }
+  // const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
+  //   if (!gapi || !isGapiInitialized) {
+  //     console.error('GAPI not initialized');
+  //     return false;
+  //   }
 
-    try {
-      const token = gapi?.auth2
-        ?.getAuthInstance()
-        ?.currentUser?.get()
-        ?.getAuthResponse();
-      if (!token) return false;
+  //   try {
+  //     const authInstance = gapi.auth2.getAuthInstance();
 
-      const hasScope = token.scope.includes(
-        'https://www.googleapis.com/auth/calendar.readonly'
-      );
-      localStorage.setItem('hasGCalScope', String(hasScope));
-      return hasScope;
-    } catch (error) {
-      console.error('Error checking calendar scope:', error);
-      return false;
-    }
-  };
+  //     if (!authInstance) {
+  //       console.error('Auth instance not initialized');
+  //       return false;
+  //     }
 
-  const requestCalendarScope = async (): Promise<boolean> => {
-    setIsRequestingCalendarScope(true);
+  //     const currentUser = authInstance.currentUser.get();
 
-    try {
-      // Request additional scope without full sign in
-      await gapi?.auth2.getAuthInstance().currentUser.get().grant({
-        scope: 'https://www.googleapis.com/auth/calendar.readonly',
-      });
+  //     if (!currentUser) {
+  //       console.error('Current user not available');
+  //       return false;
+  //     }
 
-      const hasScope = await checkIfUserHasCalendarScope();
+  //     // Check if the calendar scope is granted
+  //     const hasCalendarScope = currentUser.hasGrantedScopes(
+  //       'https://www.googleapis.com/auth/calendar.readonly'
+  //     );
 
-      if (hasScope) {
-        await fetchUserCalendars();
-        setHasGCalScope(true);
-        return true;
-      }
+  //     // As an additional verification, try to make a test call to the Calendar API
+  //     if (hasCalendarScope) {
+  //       try {
+  //         // Try to get a calendar list with a small maxResults to minimize data transfer
+  //         const response = await gapi.client.calendar.calendarList.list({
+  //           maxResults: 1,
+  //         });
 
-      return false;
-    } catch (error) {
-      console.error('Error requesting calendar scope:', error);
-      return false;
-    } finally {
-      setIsRequestingCalendarScope(false);
-    }
-  };
+  //         // If we get here, we definitely have calendar access
+  //         localStorage.setItem('hasGCalScope', 'true');
+  //         return true;
+  //       } catch (error) {
+  //         // If this fails, we might not have proper access despite what hasGrantedScopes says
+  //         console.error('Calendar API test call failed:', error);
+  //         localStorage.setItem('hasGCalScope', 'false');
+  //         return false;
+  //       }
+  //     }
+
+  //     localStorage.setItem('hasGCalScope', String(hasCalendarScope));
+  //     return hasCalendarScope;
+  //   } catch (error) {
+  //     console.error('Error checking calendar scope:', error);
+  //     localStorage.setItem('hasGCalScope', 'false');
+  //     return false;
+  //   }
+  // };
+
+  // const requestCalendarScope = async (): Promise<boolean> => {
+  //   setIsRequestingCalendarScope(true);
+
+  //   try {
+  //     if (!gapi || !isGapiInitialized) {
+  //       await initializeGapi();
+  //     }
+
+  //     const auth2 = gapi?.auth2.getAuthInstance();
+
+  //     if (!auth2) {
+  //       throw new Error('Google Auth instance not initialized');
+  //     }
+
+  //     const isSignedIn = auth2.isSignedIn.get();
+
+  //     if (!isSignedIn) {
+  //       // If not signed in, sign them in with the calendar scope included
+  //       await login();
+  //     } else {
+  //       // User is already signed in, request additional scopes
+  //       try {
+  //         // Request calendar scope specifically, force consent prompt to show
+  //         const result = await auth2.currentUser.get().grant({
+  //           scope: 'https://www.googleapis.com/auth/calendar.readonly',
+  //           prompt: 'consent',
+  //         });
+
+  //         // Get the updated token with new scopes
+  //         const authResponse = result.getAuthResponse(true);
+
+  //         // Important: Update the token in gapi.client for API calls
+  //         gapi?.client.setToken({
+  //           access_token: authResponse.access_token,
+  //         });
+
+  //         // Update Firebase credential with new tokens if using Firebase
+  //         const credential = GoogleAuthProvider.credential(
+  //           authResponse.id_token,
+  //           authResponse.access_token
+  //         );
+  //         await signInWithCredential(auth, credential);
+  //       } catch (error) {
+  //         console.error('Error granting calendar scope:', error);
+  //         return false;
+  //       }
+  //     }
+
+  //     // Verify the scope was granted
+
+  //     if (hasAccess) {
+  //       // If we got the scope, immediately fetch calendars
+  //       await fetchUserCalendars();
+  //       return true;
+  //     }
+
+  //     return false;
+  //   } catch (error) {
+  //     console.error('Error requesting calendar scope:', error);
+  //     return false;
+  //   } finally {
+  //     setIsRequestingCalendarScope(false);
+  //   }
+  // };
 
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
     try {
-      if (!gapi || !isGapiInitialized) {
-        await initializeGapi();
+      // if (!gapi || !isGapiInitialized) {
+      //   await initializeGapi();
 
-        // Check again after initialization attempt
-        if (!gapi || !gapi.client || !gapi.client.calendar) {
-          throw new Error('Failed to initialize Google Calendar API');
-        }
+      //   // Check again after initialization attempt
+      //   if (!gapi || !gapi.client || !gapi.client.calendar) {
+      //     throw new Error('Failed to initialize Google Calendar API');
+      //   }
+      // }
+
+      // Verify we have the calendar scope before attempting to fetch
+
+      if (!hasAccess) {
+        console.warn('Attempting to fetch calendars without proper scope');
+        setHasGCalScope(false);
+        return [];
       }
 
-      const response = await gapi.client.calendar.calendarList.list();
-
-      const calendars = response?.result?.items || [];
+      const calendars = await getCalendars();
+      console.log(calendars);
 
       setGoogleCalendars(calendars);
       return calendars;
     } catch (error) {
       console.error('Error fetching Google Calendars:', error);
 
-      // Check if the error is scope-related
+      // Check if the error is scope-related and handle accordingly
       if (
         error instanceof Error &&
         (error.message.includes('scope') ||
-          error.message.includes('permission'))
+          error.message.includes('permission') ||
+          error.message.includes('unauthorized') ||
+          error.message.includes('login required'))
       ) {
         setHasGCalScope(false);
+        localStorage.setItem('hasGCalScope', 'false');
       }
 
       return [];
@@ -546,44 +629,32 @@ function TimeSelectPage() {
   useEffect(() => {
     const checkGoogleAuthStatus = async () => {
       // First check if the user is logged into Google
-      const accountId = getAccountId();
-      const isLoggedIn = accountId !== '';
-      setIsGoogleLoggedIn(isLoggedIn);
 
-      if (isLoggedIn && gapi) {
-        const hasScope = await checkIfUserHasCalendarScope();
-        setHasGCalScope(hasScope);
-        localStorage.setItem('hasGCalScope', String(hasScope));
+      console.log('Checking Google Auth status...');
 
-        if (hasScope) {
-          await fetchUserCalendars();
-        }
+      if (currentUser && hasAccess) {
+        await fetchUserCalendars();
       }
     };
 
     checkGoogleAuthStatus();
-  }, [gapi]);
+  }, [currentUser, hasAccess]);
 
   const handleToggleGCalAvailabilitiesClick = async () => {
-    if (!isGoogleLoggedIn) {
-      const loginSuccessful = await signInWithGoogle(
-        undefined,
-        undefined,
-        handleIsSignedIn
-      );
+    if (!currentUser) {
+      const user = await login();
 
-      if (loginSuccessful) {
+      if (user) {
         updateAnonymousUserToAuthUser(getAccountName());
-        setIsGoogleLoggedIn(true);
 
         // After login, check if we have calendar scope
-        const hasScope = await checkIfUserHasCalendarScope();
-        if (hasScope) {
+
+        if (hasAccess) {
           await fetchUserCalendars();
           setGcalPopupOpen(true);
         } else {
           // Need to request calendar scope
-          const scopeGranted = await requestCalendarScope();
+          const scopeGranted = await requestAccess();
           if (scopeGranted) {
             setGcalPopupOpen(true);
           }
@@ -591,14 +662,14 @@ function TimeSelectPage() {
       }
     } else {
       // Already logged in, check if we have calendar scope
-      const hasScope = await checkIfUserHasCalendarScope();
-      if (hasScope) {
+
+      if (hasAccess) {
         // We have the scope, show calendar selection
         await fetchUserCalendars();
         setGcalPopupOpen(true);
       } else {
         // Need to request calendar scope
-        const scopeGranted = await requestCalendarScope();
+        const scopeGranted = await requestAccess();
         if (scopeGranted) {
           setGcalPopupOpen(true);
         }
@@ -608,27 +679,21 @@ function TimeSelectPage() {
 
   const handleAutofillAvailabilityClick = async () => {
     // Check if the user is logged into Google
-    if (!isGoogleLoggedIn) {
+    if (!currentUser) {
       // Need to sign in first
-      const loginSuccessful = await signInWithGoogle(
-        undefined,
-        undefined,
-        handleIsSignedIn
-      );
+      const user = (await login()) != undefined;
 
-      if (!loginSuccessful) {
+      if (!user) {
         return;
       }
       updateAnonymousUserToAuthUser(getAccountName());
-      setIsGoogleLoggedIn(true);
     }
 
     // Check if we have calendar scope
-    const hasScope = await checkIfUserHasCalendarScope();
     let justGrantedScope = false;
-    if (!hasScope) {
+    if (!hasAccess) {
       // Need to request calendar scope
-      const scopeGranted = await requestCalendarScope();
+      const scopeGranted = await requestAccess();
       if (!scopeGranted) {
         return;
       }
@@ -722,7 +787,7 @@ function TimeSelectPage() {
             <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">
               Your Calendars
             </h2>
-            {isGoogleLoggedIn && hasGCalScope ? (
+            {currentUser && hasAccess ? (
               <ul className="space-y-1 max-h-80 overflow-y-auto">
                 {googleCalendars.map((cal) => (
                   <li
@@ -765,23 +830,18 @@ function TimeSelectPage() {
                   className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
                   flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                   onClick={async () => {
-                    if (!hasGCalScope) {
+                    if (currentUser && !hasAccess) {
                       // alr logged in, need more scopes
 
-                      requestCalendarScope().then(() => {
-                        window.location.reload();
-                      });
+                      await requestAccess();
                     } else {
-                      signInWithGoogle(
-                        undefined,
-                        undefined,
-                        handleIsSignedIn
-                      ).then((loginSuccessful) => {
-                        if (loginSuccessful) {
+                      login().then(async (loginSuccessful) => {
+                        if (loginSuccessful !== undefined) {
                           updateAnonymousUserToAuthUser(getAccountName());
-                          requestCalendarScope().then(() => {
-                            window.location.reload();
-                          });
+                          await requestAccess();
+                          // .then(() =>
+                          //   window.location.reload()
+                          // );
                         }
                       });
                     }
@@ -801,7 +861,7 @@ function TimeSelectPage() {
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
-                  {isGoogleLoggedIn && hasGCalScope ? (
+                  {currentUser && hasAccess ? (
                     <div className="flex gap-2 w-full">
                       <ButtonSmall
                         bgColor="primary"
@@ -827,25 +887,24 @@ function TimeSelectPage() {
                       className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                       flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                       onClick={async () => {
-                        if (!hasGCalScope) {
+                        if (!hasAccess) {
                           // alr logged in, need more scopes
-
-                          requestCalendarScope().then(() => {
-                            window.location.reload();
-                          });
+                          await requestAccess();
+                          // .then(() =>
+                          //   window.location.reload()
+                          // );
                         } else {
-                          signInWithGoogle(
-                            undefined,
-                            undefined,
-                            handleIsSignedIn
-                          ).then((loginSuccessful) => {
-                            if (loginSuccessful) {
+                          login()
+                            .then((User) => {
                               updateAnonymousUserToAuthUser(getAccountName());
-                              requestCalendarScope().then(() => {
-                                window.location.reload();
-                              });
-                            }
-                          });
+                              requestAccess();
+                              // .then(() =>
+                              //   window.location.reload()
+                              // );
+                            })
+                            .catch((error) => {
+                              console.error('Error during login:', error);
+                            });
                         }
                       }}
                     >
@@ -882,7 +941,7 @@ function TimeSelectPage() {
                 <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
                   <div className="flex items-center flex-1">
                     <div className="flex items-center gap-2">
-                      {isGoogleLoggedIn ? (
+                      {currentUser ? (
                         <>
                           <ButtonSmall
                             bgColor="primary"
@@ -908,16 +967,13 @@ function TimeSelectPage() {
                           className="lg:hidden font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
-                            signInWithGoogle(
-                              undefined,
-                              undefined,
-                              handleIsSignedIn
-                            ).then((loginSuccessful) => {
-                              if (loginSuccessful) {
+                            login()
+                              .then((User) => {
                                 updateAnonymousUserToAuthUser(getAccountName());
-                                setIsGoogleLoggedIn(true);
-                              }
-                            });
+                              })
+                              .catch((error) => {
+                                console.error('Error during login:', error);
+                              });
                           }}
                         >
                           <img src={LOGO} alt="Logo" className="mr-2 h-5" />
