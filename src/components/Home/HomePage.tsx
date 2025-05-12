@@ -49,7 +49,7 @@ export default function HomePage() {
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
-        navigate('/groupview/' + eventCode);
+        navigate('/dashboard/' + eventCode);
       })
       .catch((err) => {
         formValidationPopup('Code is invalid.');
