@@ -14,7 +14,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   locations,
   update,
   create = false,
-  placeholder = 'Select preferred location(s)',
+  placeholder = '',
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -76,42 +76,41 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
 
   return (
     <div className={`relative w-full ${className}`} ref={dropdownRef}>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {selectedLocations.map((location) => (
-          <div
-            key={location}
-            className="flex items-center px-3 py-1 bg-primary dark:bg-primary-600 text-white rounded-full shadow-md"
-          >
-            <span className="mr-2">{location}</span>
-            <IconX
-              size={16}
-              className="cursor-pointer hover:text-gray-200 transition-colors"
-              onClick={() => handleRemove(location)}
-            />
-          </div>
-        ))}
-      </div>
       <div className="relative">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => create && setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          className={`w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-secondary_background-dark text-gray-900 dark:text-white ${
-            !create ? 'cursor-pointer' : ''
-          }`}
-          onClick={() => setIsOpen(!isOpen)} // Replace onFocus with onClick
-          readOnly={!create}
-        />
-        <IconChevronDown
-          className={`absolute right-3 top-1/2 -translate-y-1/2 transition-transform duration-300 
-                     text-black dark:text-white cursor-pointer ${
-                       isOpen ? 'rotate-180' : 'rotate-0'
-                     }`}
-          size={20}
-          onClick={() => setIsOpen(!isOpen)}
-        />
+        <div className="flex flex-wrap gap-2 items-center p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-secondary_background-dark">
+          {selectedLocations.map((location) => (
+            <div
+              key={location}
+              className="flex items-center px-3 py-1 bg-primary dark:bg-primary-600 text-white rounded-full shadow-md"
+            >
+              <span className="mr-2">{location}</span>
+              <IconX
+                size={16}
+                className="cursor-pointer hover:text-gray-200 transition-colors"
+                onClick={() => handleRemove(location)}
+              />
+            </div>
+          ))}
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => create && setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={selectedLocations.length == 0 ? placeholder : ''}
+            className={`flex-grow min-w-[150px] p-1 bg-transparent outline-none text-gray-900 dark:text-white ${
+              !create ? 'cursor-pointer' : ''
+            }`}
+            onClick={() => setIsOpen(!isOpen)}
+            readOnly={!create}
+          />
+          <IconChevronDown
+            className={`ml-auto transition-transform duration-300 text-black dark:text-white cursor-pointer ${
+              isOpen ? 'rotate-180' : 'rotate-0'
+            }`}
+            size={20}
+            onClick={() => setIsOpen(!isOpen)}
+          />
+        </div>
       </div>
       {isOpen && (
         <ul
