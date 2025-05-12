@@ -14,7 +14,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   locations,
   update,
   create = false,
-  placeholder = '',
+  placeholder = 'Select preferred locations',
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +83,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
               key={location}
               className="flex items-center px-3 py-1 bg-primary dark:bg-primary-600 text-white rounded-full shadow-md"
             >
-              <span className="mr-2">{location}</span>
+              <span title={location} className="mr-2 truncate max-w-[150px]">{location}</span>
               <IconX
                 size={16}
                 className="cursor-pointer hover:text-gray-200 transition-colors"
