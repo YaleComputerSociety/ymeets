@@ -196,9 +196,9 @@ export default function AccountsPage() {
               .map((event) => (
                 <div
                   key={event.id}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md flex flex-col justify-between h-full"
                 >
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 h-full">
                     <div className="flex justify-between items-start gap-3">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
                         {event.name}
@@ -227,7 +227,7 @@ export default function AccountsPage() {
                       )}
                     </div>
 
-                    <div className="flex flex-row gap-2">
+                    <div className="mt-auto flex flex-row gap-2">
                       <button
                         onClick={() => nav(`/groupview/${event.id}`)}
                         className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
@@ -257,19 +257,7 @@ export default function AccountsPage() {
         ) : undefined}
 
         <div className="flex items-center justify-center">
-          {checkIfLoggedIn() ? (
-            <button
-              onClick={() => {
-                logout(gapi);
-                nav('/');
-              }}
-              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
-            >
-              Logout
-            </button>
-          ) : (
-            <LoginButton />
-          )}
+          {!checkIfLoggedIn() && <LoginButton />}
         </div>
       </div>
     </div>

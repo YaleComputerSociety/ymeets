@@ -162,7 +162,7 @@ export const CalanderComponent = ({
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
-        paddingClass={selectGeneralDays ? 'top-6' : 'top-[92px]'}
+        paddingClass={selectGeneralDays ? 'top-6' : 'top-[80px]'}
       />
       {!selectGeneralDays ? (
         <Calendar

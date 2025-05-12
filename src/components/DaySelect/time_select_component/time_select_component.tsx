@@ -1,6 +1,11 @@
 import * as React from 'react';
 import './time_select_component.css';
-import Select from 'react-dropdown-select';
+import Dropdown from '../../utils/components/Dropdown';
+
+interface TimeOption {
+  value: number;
+  label: string;
+}
 
 export const TimeSelectComponent = (props: any) => {
   const turnToTimeString = (i: any) => {
@@ -21,63 +26,65 @@ export const TimeSelectComponent = (props: any) => {
   }));
   options.push({ value: 25, label: '12:00 AM' });
 
-  const handleStartChange = (values: any) => {
-    if (values.length > 0) {
-      let date;
-      if (values[0].value != 25) {
-        const selectedTime = values[0].label;
-        date = new Date(`January 1, 2023 ${selectedTime}`);
-      } else {
-        const selectedTime = values[0].label;
-        date = new Date('January 1, 2023 11:59 PM');
-      }
-      props.updateStart(date); // Update the date component with the Date object
+  const [selectedStart, setSelectedStart] = React.useState<TimeOption>(
+    options[9]
+  );
+  const [selectedEnd, setSelectedEnd] = React.useState<TimeOption>(options[17]);
+
+  const handleStartChange = (selected: TimeOption) => {
+    setSelectedStart(selected);
+    let date;
+    if (selected.value !== 25) {
+      date = new Date(`January 1, 2023 ${selected.label}`);
+    } else {
+      date = new Date('January 1, 2023 11:59 PM');
     }
+    props.updateStart(date);
   };
 
-  const handleEndChange = (values: any) => {
-    if (values.length > 0) {
-      let date;
-      let selectedTime;
-      if (values[0].value != 25) {
-        selectedTime = values[0].label;
-        date = new Date(`January 1, 2023 ${selectedTime}`);
-      } else {
-        selectedTime = values[0].label;
-        date = new Date('January 1, 2023 11:59 PM');
-      }
-      props.updateEnd(date); // Update the date component with the Date object
+  const handleEndChange = (selected: TimeOption) => {
+    setSelectedEnd(selected);
+    let date;
+    if (selected.value !== 25) {
+      date = new Date(`January 1, 2023 ${selected.label}`);
+    } else {
+      date = new Date('January 1, 2023 11:59 PM');
     }
+    props.updateEnd(date);
   };
 
   return (
     <div
-      className={`time-select-container absolute z-40 ${props.paddingClass} flex flex-row items-center justify-center flex-wrap`}
+      className={`time-select-container absolute z-50 ${props.paddingClass} flex flex-row items-center justify-center flex-wrap gap-2`}
     >
-      <div className="grid items-center sm:px-2">
+      <div className="grid items-center">
         <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base">
-          From:{' '}
+          From:
         </p>
       </div>
-      <Select
-        className="mx-1 calendar-time-select w-[80px] sm:w-[120px] md:w-[150px] max-w-[180px]"
-        searchable={false}
-        options={options}
-        values={[options[9]]}
-        onChange={handleStartChange}
-      />
-      <div className="grid items-center pl-4 px-1 sm:px-2">
-        <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base pl-2">
-          &nbsp; To:{' '}
+      <div className="w-[120px] sm:w-[120px]">
+        <Dropdown<TimeOption>
+          options={options}
+          selectedOption={selectedStart}
+          onSelect={handleStartChange}
+          renderOption={(option) => option.label}
+          className="bg-gray-100 dark:bg-gray-800"
+        />
+      </div>
+      <div className="grid items-center">
+        <p className="text-right dark:text-text-dark font-normal m-0 text-xs sm:text-base">
+          To:
         </p>
       </div>
-      <Select
-        className="mx-1 calendar-time-select w-[80px] sm:w-[120px] md:w-[150px] max-w-[180px]"
-        searchable={false}
-        options={options}
-        values={[options[17]]}
-        onChange={handleEndChange}
-      />
+      <div className="w-[120px] sm:w-[120px]">
+        <Dropdown<TimeOption>
+          options={options}
+          selectedOption={selectedEnd}
+          onSelect={handleEndChange}
+          renderOption={(option) => option.label}
+          className="bg-gray-100 dark:bg-gray-800"
+        />
+      </div>
     </div>
   );
 };
