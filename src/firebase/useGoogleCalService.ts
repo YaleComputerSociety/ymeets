@@ -47,9 +47,7 @@ export function useGoogleCalendar() {
       setError(null);
       
       try {
-
-        
-        // Then initialize it
+        // Initialize the API client but don't force token refresh
         const apiInitialized = await calendarService.initializeClient();
         if (!apiInitialized) {
           throw new Error("Failed to initialize Google API client");
@@ -58,10 +56,11 @@ export function useGoogleCalendar() {
         setInitialized(true);
         
         // Get the current auth state from the service
+        // This just reads the stored state but doesn't trigger any auth flows
         const serviceHasAccess = calendarService.hasCalendarAccess();
         setHasAccess(serviceHasAccess);
         
-        console.log("Calendar service initialized, access:", serviceHasAccess);
+        
       } catch (err) {
         console.error("Failed to initialize calendar service:", err);
         setError(err instanceof Error ? err.message : "Unknown error during initialization");
@@ -71,16 +70,26 @@ export function useGoogleCalendar() {
       }
     };
 
+    // Initialize but don't trigger auth flows on mount
     initCalendarService();
+    
+    // Set up listener for access changes
+    const unsubscribe = calendarService.onAccessChange((newHasAccess) => {
+      setHasAccess(newHasAccess);
+    });
+    
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  // Request calendar access
+  // Request calendar access - Only this function should trigger the popup
   const requestAccess = useCallback(async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log("Requesting calendar access...");
+      
       
       // Make sure we're initialized first
       if (!initialized) {
@@ -91,12 +100,12 @@ export function useGoogleCalendar() {
         setInitialized(true);
       }
       
-      // Now request access
+      // Now request access - this will intentionally show a popup
       const granted = await calendarService.requestCalendarAccess();
       
       // Update our state to match the service
       setHasAccess(granted);
-      console.log("Calendar access granted:", granted);
+      
       
       return granted;
     } catch (err) {
@@ -107,7 +116,6 @@ export function useGoogleCalendar() {
       setLoading(false);
     }
   }, [initialized]);
-
   // Fetch user's calendars
   const getCalendars = useCallback(async (): Promise<Calendar[]> => {
     // Sync state before checking
@@ -119,6 +127,7 @@ export function useGoogleCalendar() {
     }
 
     if (!initialized) {
+      
       calendarService.initializeClient();
     }
 

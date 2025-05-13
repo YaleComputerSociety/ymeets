@@ -62,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await signOut(auth);
       disconnect();
-      console.log('Logged out from Firebase successfully');
     } catch (error) {
       console.error('Error signing out from Firebase:', error);
       throw error;
