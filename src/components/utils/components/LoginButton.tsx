@@ -1,4 +1,4 @@
-import { useAuth } from '../../../firebase/authContext';
+import { useAuth } from '../../../backend/authContext';
 import Button from './Button';
 
 export default function LoginButton() {

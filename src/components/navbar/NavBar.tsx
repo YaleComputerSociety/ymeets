@@ -1,10 +1,10 @@
 import React from 'react';
 import NavLogo from './NavLogo';
-import { checkIfLoggedIn, getAccountName } from '../../firebase/events';
+import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
+import { auth } from '../../backend/firebase';
 
 import {
   IconMenu2,
@@ -20,7 +20,7 @@ import {
   IconMoon,
   IconSun,
 } from '@tabler/icons-react';
-import { useAuth } from '../../firebase/authContext';
+import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { log } from 'console';
 

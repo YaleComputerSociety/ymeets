@@ -1,4 +1,4 @@
-import { getAccountId } from '../../firebase/events';
+import { getAccountId } from '../../backend/events';
 import googleLogo from '../utils/components/LoginPopup/googlelogo.png';
 import googleCalLogo from './google-calendar-icon.png';
 

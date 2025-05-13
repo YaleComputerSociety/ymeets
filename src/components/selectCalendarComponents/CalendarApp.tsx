@@ -5,7 +5,7 @@ import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { useState } from 'react';
-import { getTimezone } from '../../firebase/events';
+import { getTimezone } from '../../backend/events';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 import { dragProperties } from '../../types';

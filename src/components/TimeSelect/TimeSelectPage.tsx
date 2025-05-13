@@ -11,7 +11,7 @@ import {
   calandarDate,
   dragProperties,
 } from '../../types';
-import eventAPI from '../../firebase/eventAPI';
+import eventAPI from '../../backend/eventAPI';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   getAccountId,
@@ -29,7 +29,7 @@ import {
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
-} from '../../firebase/events';
+} from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
@@ -41,10 +41,10 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { auth } from '../../firebase/firebase';
+import { auth } from '../../backend/firebase';
 import { IconCheck } from '@tabler/icons-react'; // Added IconAlertCircle
-import { useAuth } from '../../firebase/authContext';
-import { useGoogleCalendar } from '../../firebase/useGoogleCalService';
+import { useAuth } from '../../backend/authContext';
+import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 
 /**
  *

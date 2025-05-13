@@ -6,7 +6,7 @@ import {
   calendarDimensions,
   dragProperties,
 } from '../../types';
-import eventAPI from '../../firebase/eventAPI';
+import eventAPI from '../../backend/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { useCallback } from 'react';
 import {
@@ -22,14 +22,14 @@ import {
   getAccountEmail,
   getChosenLocation,
   getTimezone,
-} from '../../firebase/events';
+} from '../../backend/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
-import { useAuth } from '../../firebase/authContext';
+import { useAuth } from '../../backend/authContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
 

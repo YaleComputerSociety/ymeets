@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './general_popup_component.css';
 import LOGO from './googlelogo.png';
-import { useAuth } from '../../../firebase/authContext';
+import { useAuth } from '../../../backend/authContext';
 
 interface GeneralPopupProps {
   onClose: () => void;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Select from 'react-dropdown-select';
-import { getAccountName, getLocationVotesByName } from '../../firebase/events';
+import { getAccountName, getLocationVotesByName } from '../../backend/events';
 import './locationSelectionComponent.css';
 
 interface LocationSelectionProps {

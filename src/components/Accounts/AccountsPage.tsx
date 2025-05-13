@@ -6,11 +6,11 @@ import {
   getAccountId,
   getAllEventsForUser,
   deleteEvent,
-} from '../../firebase/events';
-import { useAuth } from '../../firebase/authContext';
+} from '../../backend/events';
+import { useAuth } from '../../backend/authContext';
 import { useNavigate } from 'react-router-dom';
 import { Event } from '../../types';
-import { auth } from '../../firebase/firebase';
+import { auth } from '../../backend/firebase';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';

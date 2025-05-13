@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { calendarDimensions } from '../../../types';
-import { getDates } from '../../../firebase/events';
+import { getDates } from '../../../backend/events';
 import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 
@@ -21,33 +21,33 @@ const TimezoneChanger = ({
   const [currentTime, setCurrentTime] = useState('');
 
   const timezones = [
-    'Etc/GMT+12',                  // UTC−12:00 - Baker Island
-    'Pacific/Pago_Pago',           // UTC−11:00 - Samoa
-    'Pacific/Honolulu',            // UTC−10:00 - Hawaii
-    'America/Anchorage',           // UTC−09:00 - Alaska
-    'America/Los_Angeles',         // UTC−08:00 - Pacific Time (US & Canada)
-    'America/Denver',              // UTC−07:00 - Mountain Time (US & Canada)
-    'America/Chicago',             // UTC−06:00 - Central Time (US & Canada)
-    'America/New_York',            // UTC−05:00 - Eastern Time (US & Canada)
-    'America/Halifax',             // UTC−04:00 - Atlantic Time (Canada)
-    'America/Sao_Paulo',           // UTC−03:00 - Brazil
-    'Atlantic/Azores',             // UTC−01:00 - Azores
-    'Etc/UTC',                     // UTC±00:00 - UTC
-    'Europe/London',               // UTC+00:00 - London
-    'Europe/Paris',                // UTC+01:00 - Central European Time
-    'Europe/Bucharest',            // UTC+02:00 - Eastern European Time
-    'Europe/Moscow',               // UTC+03:00 - Moscow
-    'Asia/Dubai',                  // UTC+04:00 - UAE
-    'Asia/Karachi',                // UTC+05:00 - Pakistan
-    'Asia/Dhaka',                  // UTC+06:00 - Bangladesh
-    'Asia/Bangkok',                // UTC+07:00 - Thailand
-    'Asia/Shanghai',               // UTC+08:00 - China
-    'Asia/Tokyo',                  // UTC+09:00 - Japan
-    'Australia/Sydney',            // UTC+10:00 - Australia (East)
-    'Pacific/Guadalcanal',         // UTC+11:00 - Solomon Islands
-    'Pacific/Auckland',            // UTC+12:00 - New Zealand
-    'Pacific/Tongatapu',           // UTC+13:00 - Tonga
-    'Pacific/Kiritimati',          // UTC+14:00 - Line Islands
+    'Etc/GMT+12', // UTC−12:00 - Baker Island
+    'Pacific/Pago_Pago', // UTC−11:00 - Samoa
+    'Pacific/Honolulu', // UTC−10:00 - Hawaii
+    'America/Anchorage', // UTC−09:00 - Alaska
+    'America/Los_Angeles', // UTC−08:00 - Pacific Time (US & Canada)
+    'America/Denver', // UTC−07:00 - Mountain Time (US & Canada)
+    'America/Chicago', // UTC−06:00 - Central Time (US & Canada)
+    'America/New_York', // UTC−05:00 - Eastern Time (US & Canada)
+    'America/Halifax', // UTC−04:00 - Atlantic Time (Canada)
+    'America/Sao_Paulo', // UTC−03:00 - Brazil
+    'Atlantic/Azores', // UTC−01:00 - Azores
+    'Etc/UTC', // UTC±00:00 - UTC
+    'Europe/London', // UTC+00:00 - London
+    'Europe/Paris', // UTC+01:00 - Central European Time
+    'Europe/Bucharest', // UTC+02:00 - Eastern European Time
+    'Europe/Moscow', // UTC+03:00 - Moscow
+    'Asia/Dubai', // UTC+04:00 - UAE
+    'Asia/Karachi', // UTC+05:00 - Pakistan
+    'Asia/Dhaka', // UTC+06:00 - Bangladesh
+    'Asia/Bangkok', // UTC+07:00 - Thailand
+    'Asia/Shanghai', // UTC+08:00 - China
+    'Asia/Tokyo', // UTC+09:00 - Japan
+    'Australia/Sydney', // UTC+10:00 - Australia (East)
+    'Pacific/Guadalcanal', // UTC+11:00 - Solomon Islands
+    'Pacific/Auckland', // UTC+12:00 - New Zealand
+    'Pacific/Tongatapu', // UTC+13:00 - Tonga
+    'Pacific/Kiritimati', // UTC+14:00 - Line Islands
   ];
   const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newTimezone = e.target.value;

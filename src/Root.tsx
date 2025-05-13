@@ -11,7 +11,7 @@ import NotFound from './components/NotFound/NotFound';
 import PrivacyPage from './components/Privacy/PrivacyPage';
 import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './firebase/authContext';
+import { AuthProvider } from './backend/authContext';
 
 function Root() {
   return (

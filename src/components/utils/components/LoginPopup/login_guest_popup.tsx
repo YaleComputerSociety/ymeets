@@ -6,10 +6,10 @@ import {
   signInAnonymously,
   updateProfile,
 } from 'firebase/auth';
-import { auth } from '../../../../firebase/firebase';
+import { auth } from '../../../../backend/firebase';
 import LOGO from './googlelogo.png';
 import { IconArrowLeft } from '@tabler/icons-react';
-import { useAuth } from '../../../../firebase/authContext';
+import { useAuth } from '../../../../backend/authContext';
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
