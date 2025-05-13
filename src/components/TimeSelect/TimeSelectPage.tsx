@@ -203,13 +203,8 @@ function TimeSelectPage() {
         try {
           const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
           setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
-          console.log(
-            'Last selected Google Calendar IDs:',
-            lastSelectedGCalIds
-          );
 
           if (hasAccess) {
-            console.log('fetching cals');
             await fetchUserCalendars();
           }
         } catch (calendarError) {
@@ -602,7 +597,6 @@ function TimeSelectPage() {
       }
 
       const calendars = await getCalendars();
-      console.log(calendars);
 
       setGoogleCalendars(calendars);
       return calendars;
@@ -629,8 +623,6 @@ function TimeSelectPage() {
   useEffect(() => {
     const checkGoogleAuthStatus = async () => {
       // First check if the user is logged into Google
-
-      console.log('Checking Google Auth status...');
 
       if (currentUser && hasAccess) {
         await fetchUserCalendars();
