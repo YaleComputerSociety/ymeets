@@ -22,7 +22,10 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
   // Access properties or functions from the context
 
   const handleSignInWithGoogle = () => {
-    login();
+    login().then(() => {
+      navigate('/dayselect');
+      onClose();
+    });
   };
 
   React.useEffect(() => {
