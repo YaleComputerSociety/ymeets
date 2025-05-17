@@ -141,40 +141,29 @@ export default function LocationChart({
                         : 'bg-white'
                     } transition-colors duration-300`}
                   >
-                    <td className="p-3">{loc}</td>
+                    <td className="p-3 align-top" style={{ wordBreak: 'break-word', whiteSpace: 'normal', maxWidth: '20rem' }}>
+                      <div className="flex flex-col items-start gap-1 w-full">
+                        <span className="break-words">{loc}</span>
+                        {showInput && building === loc && (
+                          <button
+                            className="bg-primary text-white py-1 px-3 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(getBookingLink(building), '_blank');
+                            }}
+                          >
+                            Book Room
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-3">{locationVotes[idx]}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-          {showInput && (
-            <form
-              onSubmit={handleInputSubmit}
-              className="absolute top-4 right-4 flex flex-col items-center bg-white border border-gray-200 rounded-lg p-5 shadow-lg max-w-xs"
-            >
-              <button
-                type="button"
-                onClick={handleClose}
-                className="absolute top-2 right-2 text-gray-700 transition-colors duration-200 text-xl font-medium w-6 h-6 flex items-center justify-center rounded-full bg-gray-100"
-                aria-label="Close"
-              >
-                &times;
-              </button>
-
-              <div className="flex flex-row gap-3 w-full">
-                <button
-                  className="bg-primary text-white py-2 px-4 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 flex items-center justify-center"
-                  type="button"
-                  onClick={() => {
-                    window.open(getBookingLink(building), '_blank');
-                  }}
-                >
-                  <span>Book Room</span>
-                </button>
-              </div>
-            </form>
-          )}
         </div>
       )}
     </>

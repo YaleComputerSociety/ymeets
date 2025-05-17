@@ -4,13 +4,12 @@ import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
 import { getAccountId, getAccountName } from '../../../backend/events';
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-dropdown-select';
-import LimitedSelect from './limited_select_component';
+import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
-import InformationPopup from '../../utils/components/InformationPopup';
 import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
+import AlertPopup from '../../utils/components/AlertPopup';
 
 export const DaySelectComponent = () => {
   // Default event start/end time values
@@ -52,35 +51,14 @@ export const DaySelectComponent = () => {
   const [popUpMessage, setPopupMessage] = useState('');
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
-  const [locationOptions, setLocationOptions] = useState<any[]>([
-    {
-      label: '17 Hillhouse',
-      value: '17 Hillhouse',
-    },
-    {
-      label: 'Bass',
-      value: 'Bass',
-    },
-    {
-      label: 'HQ',
-      value: 'HQ',
-    },
-    {
-      label: 'LC',
-      value: 'LC',
-    },
-    {
-      label: 'Sterling',
-      value: 'Sterling',
-    },
-    {
-      label: 'TSAI City',
-      value: 'TSAI City',
-    },
-    {
-      label: 'WLH',
-      value: 'WLH',
-    },
+  const [locationOptions, setLocationOptions] = useState<string[]>([
+    '17 Hillhouse',
+    'Bass',
+    'HQ',
+    'LC',
+    'Sterling',
+    'TSAI City',
+    'WLH',
   ]);
 
   const [selectedDays, setSelectedDays] = useState<
@@ -127,6 +105,8 @@ export const DaySelectComponent = () => {
     return str.replace(invisibleChars, '').trim().length === 0;
   };
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
   const verifyNextAndSubmitEvent = () => {
     if (
       startDate.getHours() === 0 &&
@@ -136,35 +116,32 @@ export const DaySelectComponent = () => {
       endDate.getMinutes() === 0 &&
       endDate.getSeconds() === 0
     ) {
-      alert('Make sure to enter times!');
+      setAlertMessage('Make sure to enter times!');
       return;
     }
 
     if (startDate >= endDate) {
-      alert('Make sure your end time is after your start time!');
+      setAlertMessage('Make sure your end time is after your start time!');
       return;
     }
 
-    // Optional; backend supports an empty string for name
-    // Change, 2/18/25 - Name is not optional; make sure it's not a blank space or just invisible characters.
     if (isBlankspaceOrInvisible(eventName)) {
-      alert('Make sure to name your event!');
+      setAlertMessage('Make sure to name your event!');
       return;
     }
 
-    // Change, 2/18/25 - Description is by default optional; however, if they enter something, make sure it's not a blank space or just invisible characters.
     if (
       eventDescription.length > 0 &&
       isBlankspaceOrInvisible(eventDescription)
     ) {
-      alert(
+      setAlertMessage(
         'Did you mean to enter an event description? Please enter a valid description, if so.'
       );
       return;
     }
 
     if (locations.some(isBlankspaceOrInvisible)) {
-      alert(
+      setAlertMessage(
         'Looks like you left one of your event locations blank. Please remove it before proceeding!'
       );
       return;
@@ -180,7 +157,7 @@ export const DaySelectComponent = () => {
       });
 
       if (generallySelectedDates.length == 0) {
-        alert('You need to pick some days!');
+        setAlertMessage('You need to pick some days!');
         return;
       }
 
@@ -188,10 +165,10 @@ export const DaySelectComponent = () => {
         .createNewEvent(
           eventName,
           eventDescription,
-          getAccountName(), // admin name
-          getAccountId(), // admin ID
+          getAccountName(),
+          getAccountId(),
           generallySelectedDates,
-          locations, // plaus locs
+          locations,
           startDate,
           endDate,
           zoomLink,
@@ -202,7 +179,7 @@ export const DaySelectComponent = () => {
         });
     } else {
       if (selectedDates.length == 0) {
-        alert('Make sure to enter dates!');
+        setAlertMessage('Make sure to enter dates!');
         return;
       }
 
@@ -210,10 +187,10 @@ export const DaySelectComponent = () => {
         .createNewEvent(
           eventName,
           eventDescription,
-          getAccountName(), // admin name
-          getAccountId(), // admin ID
+          getAccountName(),
+          getAccountId(),
           selectedDates,
-          locations, // plaus locs
+          locations,
           startDate,
           endDate,
           zoomLink,
@@ -231,6 +208,14 @@ export const DaySelectComponent = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
+      {alertMessage && (
+        <AlertPopup
+          title="Alert"
+          message={alertMessage}
+          isOpen={!!alertMessage}
+          onClose={() => setAlertMessage(null)}
+        />
+      )}
       <div className="flex flex-col md:flex-row justify-center gap-8">
         <div className="md:w-1/2">
           <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
@@ -285,26 +270,23 @@ export const DaySelectComponent = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Timezone
                 </label>
-                <TimezonePicker theTimezone={[timezone, setTimezone]} />
+                <TimezonePicker timezone={timezone} setTimezone={setTimezone} />
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Locations
                 </label>
-                <div className="z-40 rounded-lg border border-gray-300 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200">
-                  <LimitedSelect
-                    locationOptions={locationOptions}
-                    updateLocationsState={updateLocationsState}
+                <div className="z-40">
+                  <LocationSelectionComponent
+                    locations={locationOptions}
+                    update={updateLocationsState}
+                    create={true}
+                    placeholder="Locations (Optional)"
                   />
                 </div>
-
                 <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">
                   Type and press ENTER to add locations
-                  {/* <IconInfoCircle stroke={1.25} />
-                  <span className="ml-2">
-                    Type and press ENTER to add locations
-                  </span> */}
                 </div>
               </div>
             </div>

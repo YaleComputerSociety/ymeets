@@ -84,7 +84,7 @@ function TimeSelectPage() {
       numOfCols: 0,
     });
 
-  const [selectedLocations, updateSelectedLocations] = useState([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -665,7 +665,7 @@ function TimeSelectPage() {
             <div className="w-full z-50">
               <LocationSelectionComponent
                 locations={locationOptions}
-                update={updateSelectedLocations}
+                update={setSelectedLocations}
               />
             </div>
           )}

@@ -41,6 +41,7 @@ import { IconPencil, IconPlus } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import { filter } from 'lodash';
+import AlertPopup from '../utils/components/AlertPopup';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -189,7 +190,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
   async function handleSelectionSubmission() {
     if (!dragState.endPoint || !dragState.startPoint) {
-      alert('No new time selection made!');
+      setAlertMessage('No new time selection made!');
       return;
     }
 
@@ -197,7 +198,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     const [endCol, endBlock] = dragState.endPoint;
 
     if (startCol !== endCol) {
-      alert('You must select times that occur on the same day!');
+      setAlertMessage('You must select times that occur on the same day!');
       return;
     }
 
@@ -267,6 +268,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     [chartedUsers, peopleStatus]
   );
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+
   if (loading) {
     return (
       <div className="flex items-center justify-center">
@@ -277,6 +280,14 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
   return (
     <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+      {/* Render AlertPopup unconditionally */}
+      <AlertPopup
+        title="Alert"
+        message={alertMessage || ''}
+        isOpen={!!alertMessage}
+        onClose={() => setAlertMessage(null)}
+      />
+
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div
@@ -488,6 +499,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               <Calendar
                 theShowUserChart={[showUserChart, setShowUserChart]}
                 onClick={() => {
+                  if (isAdmin) {
+                    // Reset drag selection when the calendar is clicked
+                    setDragState({
+                      isSelecting: false,
+                      startPoint: null,
+                      endPoint: null,
+                      selectionMode: false,
+                      lastPosition: null,
+                    });
+                  }
                   if (showUserChart === true) {
                     return;
                   }
