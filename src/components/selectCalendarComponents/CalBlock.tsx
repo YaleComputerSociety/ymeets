@@ -81,8 +81,6 @@ export default function CalBlock({
   const previousBoundingBox = useRef<BoundingBox | null>(null);
   const dragStartTime = useRef<number | null>(null);
 
-  console.log(isEventEnd);
-
   // Initialize chartedUsers
   useEffect(() => {
     if (chartedUsers && setChartedUsers) {
@@ -94,20 +92,6 @@ export default function CalBlock({
       });
     }
   }, []);
-
-  const showTooltipWithTimeout = () => {
-    setShowTooltip(true);
-    setIsVisible(true);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => setShowTooltip(false), 300);
-    }, 2000);
-  };
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -650,10 +634,14 @@ export default function CalBlock({
           style={{
             zIndex: 4,
             boxShadow: [
-              isEventEnd ? 'inset 0 -2px 0 0 #5191f2' : '',
+              isEventEnd ? 'inset 0 2px 0 0 #5191f2' : '',
               isEventStart ? 'inset 0 2px 0 0 #5191f2' : '',
-              'inset -2px 0 0 0 #5191f2',
-              'inset 2px 0 0 0 #5191f2',
+              isEventStart || (isOnGcal && !isEventEnd)
+                ? 'inset -2px 0 0 0 #5191f2'
+                : '',
+              isEventStart || (isOnGcal && !isEventEnd)
+                ? 'inset 2px 0 0 0 #5191f2'
+                : '',
             ]
               .filter(Boolean)
               .join(', '),

@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import Select from 'react-dropdown-select';
+import { getAccountName, getLocationVotesByName } from '../../backend/events';
 import { IconChevronDown, IconX, IconCheck } from '@tabler/icons-react';
 import './locationSelectionComponent.css';
 

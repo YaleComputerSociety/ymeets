@@ -7,7 +7,7 @@ import TimeSelectComponent from '../time_select_component';
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import { useState, useEffect } from 'react';
-import { checkIfLoggedIn } from '../../../firebase/events';
+import { checkIfLoggedIn } from '../../../backend/events';
 import GeneralPopup from '../general_popup_component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
