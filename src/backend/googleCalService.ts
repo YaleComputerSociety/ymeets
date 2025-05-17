@@ -47,6 +47,7 @@ class GoogleCalendarService {
   }
 
   private _hasAccess: boolean = false;
+  
 
   // Add event emitter pattern for access changes
   public onAccessChange(callback: AccessChangeListener): () => void {

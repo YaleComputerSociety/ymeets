@@ -129,6 +129,16 @@ function TimeSelectPage() {
     localStorage.getItem('hasGCalScope') === 'true'
   );
 
+  const [showSlowMessage, setShowSlowMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSlowMessage(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // New state to track if calendar scope request is in progress
   const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
     useState(false);
@@ -457,125 +467,6 @@ function TimeSelectPage() {
     setGcalPopupOpen(false);
   };
 
-  // const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
-  //   if (!gapi || !isGapiInitialized) {
-  //     console.error('GAPI not initialized');
-  //     return false;
-  //   }
-
-  //   try {
-  //     const authInstance = gapi.auth2.getAuthInstance();
-
-  //     if (!authInstance) {
-  //       console.error('Auth instance not initialized');
-  //       return false;
-  //     }
-
-  //     const currentUser = authInstance.currentUser.get();
-
-  //     if (!currentUser) {
-  //       console.error('Current user not available');
-  //       return false;
-  //     }
-
-  //     // Check if the calendar scope is granted
-  //     const hasCalendarScope = currentUser.hasGrantedScopes(
-  //       'https://www.googleapis.com/auth/calendar.readonly'
-  //     );
-
-  //     // As an additional verification, try to make a test call to the Calendar API
-  //     if (hasCalendarScope) {
-  //       try {
-  //         // Try to get a calendar list with a small maxResults to minimize data transfer
-  //         const response = await gapi.client.calendar.calendarList.list({
-  //           maxResults: 1,
-  //         });
-
-  //         // If we get here, we definitely have calendar access
-  //         localStorage.setItem('hasGCalScope', 'true');
-  //         return true;
-  //       } catch (error) {
-  //         // If this fails, we might not have proper access despite what hasGrantedScopes says
-  //         console.error('Calendar API test call failed:', error);
-  //         localStorage.setItem('hasGCalScope', 'false');
-  //         return false;
-  //       }
-  //     }
-
-  //     localStorage.setItem('hasGCalScope', String(hasCalendarScope));
-  //     return hasCalendarScope;
-  //   } catch (error) {
-  //     console.error('Error checking calendar scope:', error);
-  //     localStorage.setItem('hasGCalScope', 'false');
-  //     return false;
-  //   }
-  // };
-
-  // const requestCalendarScope = async (): Promise<boolean> => {
-  //   setIsRequestingCalendarScope(true);
-
-  //   try {
-  //     if (!gapi || !isGapiInitialized) {
-  //       await initializeGapi();
-  //     }
-
-  //     const auth2 = gapi?.auth2.getAuthInstance();
-
-  //     if (!auth2) {
-  //       throw new Error('Google Auth instance not initialized');
-  //     }
-
-  //     const isSignedIn = auth2.isSignedIn.get();
-
-  //     if (!isSignedIn) {
-  //       // If not signed in, sign them in with the calendar scope included
-  //       await login();
-  //     } else {
-  //       // User is already signed in, request additional scopes
-  //       try {
-  //         // Request calendar scope specifically, force consent prompt to show
-  //         const result = await auth2.currentUser.get().grant({
-  //           scope: 'https://www.googleapis.com/auth/calendar.readonly',
-  //           prompt: 'consent',
-  //         });
-
-  //         // Get the updated token with new scopes
-  //         const authResponse = result.getAuthResponse(true);
-
-  //         // Important: Update the token in gapi.client for API calls
-  //         gapi?.client.setToken({
-  //           access_token: authResponse.access_token,
-  //         });
-
-  //         // Update Firebase credential with new tokens if using Firebase
-  //         const credential = GoogleAuthProvider.credential(
-  //           authResponse.id_token,
-  //           authResponse.access_token
-  //         );
-  //         await signInWithCredential(auth, credential);
-  //       } catch (error) {
-  //         console.error('Error granting calendar scope:', error);
-  //         return false;
-  //       }
-  //     }
-
-  //     // Verify the scope was granted
-
-  //     if (hasAccess) {
-  //       // If we got the scope, immediately fetch calendars
-  //       await fetchUserCalendars();
-  //       return true;
-  //     }
-
-  //     return false;
-  //   } catch (error) {
-  //     console.error('Error requesting calendar scope:', error);
-  //     return false;
-  //   } finally {
-  //     setIsRequestingCalendarScope(false);
-  //   }
-  // };
-
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
     try {
@@ -742,6 +633,11 @@ function TimeSelectPage() {
       <div className="w-full h-[60%] flex flex-col items-center justify-center">
         <LoadingAnim />
         <p className="text-gray-500">Loading...</p>
+        {showSlowMessage && (
+          <p className="text-center text-gray-500">
+            Your internet may be slow, or pop-ups may be disabled
+          </p>
+        )}
       </div>
     );
   }
