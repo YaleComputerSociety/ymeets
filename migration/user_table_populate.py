@@ -24,6 +24,7 @@ from datetime import datetime
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 # inclusion guard
 if __name__ == "__main__":
@@ -54,15 +55,22 @@ if __name__ == "__main__":
     # |---------- main loop ----------|
 
     last_event_doc = None
-    count = 0
+    page_count = 1
+    document_processed_count = 0
+
+    # save base query to get total document count
+    base_query = db.collection("events") \
+        .where(filter=FieldFilter("publicId", ">", "")) \
+    #     .order_by("publicId")
 
     while True:
 
-        query = db.collection("events").order_by("publicId").limit(PAGE_SIZE)
-
+        # paginate
+        query = base_query.limit(PAGE_SIZE)
         if last_event_doc:
             query = query.start_after(last_event_doc)
 
+        # convert query result into a list 
         event_docs = query.stream()
         event_docs = list(event_docs)
 
@@ -70,28 +78,35 @@ if __name__ == "__main__":
             print("SUCCESS: All documents processed")
             break
 
-        print("LOG: Fetching page #{count}")
+        print(f"LOG: Fetching page #{page_count}")
+        page_count += 1
 
-        first_event_id = event_docs[0].get("publicId", "")
-
+        # probe the first event
+        first_event_id = event_docs[0].to_dict().get("publicId", "")
         if first_event_id:
-            print(f"LOG: Processing events after {first_event_id}")
+            print(f"LOG: First event at this page has publicId {first_event_id}")
         else:
             print("ERROR: Cannot access documents in the current page")
             exit("STOP: Terminating script")
 
         # for every document in the events collection
         for event_doc in event_docs:
+
+            document_processed_count += 1
             
             event_data = event_doc.to_dict()
             event_id = event_data.get("publicId")
-            admin_id = event_data.get("adminAccountId")
             participant_ids = event_data.get("participants", [])
-            dates = event_data.get("dates")
+            details_field = event_data.get("details", {})
+            admin_id = details_field.get("adminAccountId")
+            dates = details_field.get("dates", [])
+
+            # check that dates exist
+            if len(dates) == 0: continue
 
             # check that dates are correct format
             dates_are_datetimes = True
-            for date in dates.values():
+            for date in dates:
                 if not isinstance(date, datetime):
                     dates_are_datetimes = False
                     break
@@ -180,5 +195,12 @@ if __name__ == "__main__":
                 # danger! this will override existing user data, 
                 # use merge=True option for soft merge
                 user_ref.set(user_data)
-        
+            
         last_event_doc = event_docs[-1]
+
+    agg_query = base_query.count()
+    agg_result = agg_query.get()
+    document_total_count = agg_result[0][0].value
+
+    print(f"INFO: Processed {document_processed_count} events")
+    print(f"INFO: There are {document_total_count} events that match the base query")
