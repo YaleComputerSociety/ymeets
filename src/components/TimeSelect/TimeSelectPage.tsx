@@ -727,9 +727,6 @@ function TimeSelectPage() {
                         if (loginSuccessful !== undefined) {
                           updateAnonymousUserToAuthUser(getAccountName());
                           await requestAccess();
-                          // .then(() =>
-                          //   window.location.reload()
-                          // );
                         }
                       });
                     }

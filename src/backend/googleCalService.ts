@@ -1,6 +1,9 @@
 // GoogleCalendarService.ts
 // A service to handle Google Calendar API interactions with modern authentication flow
 
+// Why we feel this is secure: https://stackoverflow.com/questions/18280827/localstorage-vs-cookies-for-oauth2-in-html5-web-app
+// combined with the fact that there is a expiration date for the token.
+
 // Configuration
 const GOOGLE_API_KEY = process.env.REACT_APP_API_KEY_GAPI;
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_CLIENT_ID_GAPI;
@@ -11,10 +14,19 @@ const DISCOVERY_DOCS = [
 
 // Store calendar access state in localStorage to persist through refreshes
 const CALENDAR_ACCESS_KEY = 'hasCalendarAccess';
-const TOKEN_EXPIRY_KEY = 'tokenExpiry';
+const LAST_AUTH_TIME_KEY = 'lastAuthTime';
+const TOKEN_KEY = 'googleCalendarToken';
+const TOKEN_EXPIRY_KEY = 'googleCalendarTokenExpiry';
 
 // Custom type for access change listeners
 type AccessChangeListener = (hasAccess: boolean) => void;
+
+// Token interface
+interface StoredToken {
+  access_token: string;
+  expires_in: number;
+  expires_at?: number;
+}
 
 class GoogleCalendarService {
   private initialized: boolean = false;
@@ -25,29 +37,70 @@ class GoogleCalendarService {
   private tokenClient: google.accounts.oauth2.TokenClient | null = null;
 
   constructor() {
-    // Check if access is already granted from previous sessions
+    // Check if access was previously granted
     const stored = localStorage.getItem(CALENDAR_ACCESS_KEY);
-    const tokenExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
     
-    // Only consider access granted if the token expiry timestamp is in the future
-    if (stored === 'true' && tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry, 10);
-      const currentTime = new Date().getTime();
+    if (stored === 'true' && storedToken && storedExpiry) {
+      const expiryTime = parseInt(storedExpiry, 10);
+      const now = Date.now();
       
-      this._hasAccess = expiryTime > currentTime;
-      
-      // Clean up expired token
-      if (!this._hasAccess && stored === 'true') {
-        localStorage.removeItem(CALENDAR_ACCESS_KEY);
-        localStorage.removeItem(TOKEN_EXPIRY_KEY);
+      // Check if token is still valid (with 5 minute buffer)
+      if (expiryTime > now + 5 * 60 * 1000) {
+        // Token is still valid
+        this._hasAccess = true;
+        
+        // Parse and set the token when GAPI is ready
+        this.restoreTokenWhenReady(storedToken);
+      } else {
+        // Token expired, clear storage
+        this.clearStoredTokenData();
+        this._hasAccess = false;
       }
     } else {
       this._hasAccess = false;
     }
   }
 
+  private clearStoredTokenData() {
+    localStorage.removeItem(CALENDAR_ACCESS_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    localStorage.removeItem(LAST_AUTH_TIME_KEY);
+  }
+
+  private async restoreTokenWhenReady(tokenString: string) {
+    try {
+      // Wait for GAPI to be loaded and initialized
+      await this.initializeClient();
+      
+      const token: StoredToken = JSON.parse(tokenString);
+      if (window.gapi?.client && token) {
+        window.gapi.client.setToken(token);
+        console.log('Restored previous Google Calendar token');
+        
+        // Verify the token is still valid by making a simple API call
+        try {
+          await window.gapi.client.calendar.calendarList.list({ maxResults: 1 });
+          console.log('Token validation successful');
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          // Token is invalid, clear it
+          this.clearStoredTokenData();
+          this._hasAccess = false;
+          this.notifyAccessChange();
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring token:', error);
+      // If restoration fails, clear the stored data
+      this.clearStoredTokenData();
+      this._hasAccess = false;
+    }
+  }
+
   private _hasAccess: boolean = false;
-  
 
   // Add event emitter pattern for access changes
   public onAccessChange(callback: AccessChangeListener): () => void {
@@ -72,21 +125,27 @@ class GoogleCalendarService {
       localStorage.setItem(CALENDAR_ACCESS_KEY, value.toString());
       
       if (value) {
-        // If we're granting access, store the token expiry time
-        try {
-          const token = gapi.client.getToken();
-          if (token && token.expires_in) {
-            // Calculate expiry time (current time + expires_in seconds)
-            //@ts-expect-error
-            const expiryTime = new Date().getTime() + (token.expires_in * 1000);
-            localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+        // Store the current time as the last auth time
+        localStorage.setItem(LAST_AUTH_TIME_KEY, new Date().getTime().toString());
+        
+        // Store the token if available
+        if (window.gapi?.client) {
+          const token = window.gapi.client.getToken();
+          if (token) {
+            // Calculate and store expiry time
+            const expiresAt = Date.now() + (token.expires_in * 1000);
+            const tokenWithExpiry: StoredToken = {
+              ...token,
+              expires_at: expiresAt
+            };
+            
+            localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenWithExpiry));
+            localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
           }
-        } catch (error) {
-          console.error('Error storing token expiry:', error);
         }
       } else {
-        // If we're revoking access, remove the token expiry
-        localStorage.removeItem(TOKEN_EXPIRY_KEY);
+        // If we're revoking access, remove the auth data
+        this.clearStoredTokenData();
       }
       
       this.notifyAccessChange();
@@ -125,20 +184,17 @@ class GoogleCalendarService {
       // Load the Google API script
       if (!window.gapi) {
         await this.loadScript('https://apis.google.com/js/api.js');
-        
       }
 
       // Load the Google Identity Services script
       if (!window.google?.accounts) {
         await this.loadScript('https://accounts.google.com/gsi/client');
-        
       }
 
       // Load the GAPI client
       await new Promise<void>((resolve, reject) => {
         window.gapi.load('client', {
           callback: () => {
-            
             resolve();
           },
           onerror: (error: any) => {
@@ -183,132 +239,141 @@ class GoogleCalendarService {
     }
   }
 
-  // Updates to the _initializeClientImpl method
+  private async _initializeClientImpl(): Promise<boolean> {
+    if (!this.apiLoaded) {
+      const loaded = await this.loadScripts();
+      if (!loaded) {
+        console.error('Failed to load necessary scripts before initializing');
+        return false;
+      }
+    }
 
-private async _initializeClientImpl(): Promise<boolean> {
-  if (!this.apiLoaded) {
-    const loaded = await this.loadScripts();
-    if (!loaded) {
-      console.error('Failed to load necessary scripts before initializing');
+    try {
+      // Initialize GAPI client with API key and discovery docs
+      await window.gapi.client.init({
+        apiKey: GOOGLE_API_KEY,
+        discoveryDocs: DISCOVERY_DOCS,
+      });
+      
+      // Initialize the token client
+      this.tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID || '',
+        scope: CALENDAR_SCOPE,
+        prompt: '', // Empty prompt means don't show UI automatically
+        callback: (tokenResponse: any) => {
+          // This callback gets triggered when you get a token
+          if (tokenResponse && !tokenResponse.error) {
+            // We have a token, so we have access
+            this.hasAccess = true;
+            
+            // Store token expiry for better tracking
+            if (tokenResponse.expires_in) {
+              const expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
+              localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
+            }
+          } else if (tokenResponse?.error && 
+                    tokenResponse.error !== 'popup_closed_by_user' && 
+                    tokenResponse.error !== 'access_denied') {
+            console.error('Token error:', tokenResponse?.error);
+            this.hasAccess = false;
+          }
+        },
+      });
+      
+      this.initialized = true;
+      return true;
+    } catch (error) {
+      console.error('Error initializing client:', error);
+      this.initialized = false;
+      this.hasAccess = false;
       return false;
     }
   }
 
-  try {
-    // Initialize GAPI client with API key and discovery docs
+  // Check if token is expired or about to expire
+  private isTokenExpired(): boolean {
+    const token = window.gapi?.client?.getToken();
+    if (!token) return true;
     
-    
-    await window.gapi.client.init({
-      apiKey: GOOGLE_API_KEY,
-      discoveryDocs: DISCOVERY_DOCS,
-    });
-    
-    // Initialize the token client with explicit settings to prevent auto-prompts
-    this.tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID || '',
-      scope: CALENDAR_SCOPE,
-      prompt: '', // Empty prompt means don't show UI automatically
-      callback: (tokenResponse: any) => {
-        // This callback gets triggered when you get a token
-        if (tokenResponse && !tokenResponse.error) {
-          // We have a token, so we have access
-          this.hasAccess = true;
-        } else if (tokenResponse?.error && 
-                  tokenResponse.error !== 'popup_closed_by_user' && 
-                  tokenResponse.error !== 'access_denied') {
-          console.error('Token error:', tokenResponse?.error);
-          this.hasAccess = false;
-        }
-      },
-    });
-
-    // If we have a stored token expiry and it's in the future,
-    // consider access already granted but DON'T try to refresh silently on init
-    const tokenExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
-    if (tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry, 10);
-      const currentTime = new Date().getTime();
+    // Check stored expiry time
+    const storedExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    if (storedExpiry) {
+      const expiryTime = parseInt(storedExpiry, 10);
+      const now = Date.now();
       
-      // Only set hasAccess=true if token is valid, but don't try to refresh it now
-      if (expiryTime > currentTime) {
-        this._hasAccess = true;
-      } else {
-        // Token expired, will need user interaction later, but don't prompt now
-        this._hasAccess = false;
-        localStorage.removeItem(CALENDAR_ACCESS_KEY);
-        localStorage.removeItem(TOKEN_EXPIRY_KEY);
-      }
+      // Consider expired if less than 5 minutes remaining
+      return expiryTime < now + 5 * 60 * 1000;
     }
     
-    this.initialized = true;
+    // If no expiry info, assume expired
     return true;
-  } catch (error) {
-    console.error('Error initializing client:', error);
-    this.initialized = false;
-    this.hasAccess = false;
-    return false;
   }
-}
 
-// Updates to the refreshTokenSilently method
-
-private async refreshTokenSilently(): Promise<boolean> {
-  return new Promise<boolean>((resolve, reject) => {
+  // Attempt to refresh token silently - expect this to often fail
+  private async attemptSilentRefresh(): Promise<boolean> {
     if (!this.tokenClient) {
-      reject(new Error('Token client not initialized'));
-      return;
+      return false;
     }
     
-    // Save the current callback
-    const originalCallback = this.tokenClient.callback;
-    
-    // Set a new callback just for this operation
-    this.tokenClient.callback = (tokenResponse) => {
-      // Restore the original callback
-      this.tokenClient!.callback = originalCallback;
+    return new Promise<boolean>((resolve) => {
+      const originalCallback = this.tokenClient!.callback;
       
-      if (tokenResponse && !tokenResponse.error) {
-        this.hasAccess = true;
-        resolve(true);
-      } else if (tokenResponse?.error === 'popup_closed_by_user') {
-        // Don't change access state if user just closed popup
-        // Don't reject either, just resolve with current state
-        resolve(this._hasAccess);
-      } else {
-        if (tokenResponse?.error === 'user_denied' || 
-            tokenResponse?.error === 'access_denied') {
-          // User actively declined - don't retry with UI
-          this.hasAccess = false;
-          reject(new Error('User denied access: ' + tokenResponse?.error));
+      // Set a temporary callback for this operation
+      this.tokenClient!.callback = (tokenResponse) => {
+        // Restore the original callback
+        this.tokenClient!.callback = originalCallback;
+        
+        if (tokenResponse && !tokenResponse.error) {
+          this.hasAccess = true;
+          
+          // Update token expiry
+          if (tokenResponse.expires_in) {
+            const expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
+            localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
+          }
+          
+          resolve(true);
         } else {
-          // Other error, might need user interaction
-          this.hasAccess = false;
-          reject(new Error('Token error: ' + tokenResponse?.error));
+          // Silent refresh failed - this is expected and not an error
+          console.log('Silent token refresh failed:', tokenResponse?.error);
+          resolve(false);
         }
+      };
+      
+      try {
+        // Try to get a token without showing UI
+        this.tokenClient!.requestAccessToken({ prompt: 'none' });
+      } catch (error) {
+        // Restore the original callback if there's an exception
+        this.tokenClient!.callback = originalCallback;
+        console.log('Silent refresh exception:', error);
+        resolve(false);
       }
-    };
-    
-    try {
-      // Request a token without showing UI
-      this.tokenClient.requestAccessToken({ prompt: 'none' });
-    } catch (error) {
-      // Restore the original callback if there's an exception
-      this.tokenClient.callback = originalCallback;
-      reject(error);
-    }
-  });
-}
+    });
+  }
 
   // Request Calendar access with better error handling
   public async requestCalendarAccess(): Promise<boolean> {
-    
-    
     if (!this.initialized) {
-    
       const initialized = await this.initializeClient();
-    
       if (!initialized) {
         throw new Error('Failed to initialize Google API client');
+      }
+    }
+    
+    // If we already have access and token is not expired, just return true
+    if (this._hasAccess && !this.isTokenExpired()) {
+      console.log('Calendar access already granted with valid token');
+      return true;
+    }
+    
+    // If token is expired, try silent refresh first
+    if (this._hasAccess && this.isTokenExpired()) {
+      console.log('Token expired, attempting silent refresh...');
+      const refreshed = await this.attemptSilentRefresh();
+      if (refreshed) {
+        console.log('Token refreshed successfully');
+        return true;
       }
     }
     
@@ -317,11 +382,18 @@ private async refreshTokenSilently(): Promise<boolean> {
         throw new Error('Token client not initialized');
       }
       
-      // Request an access token - this is where we INTENTIONALLY show the popup
+      // Request an access token - this will show the popup
       return new Promise<boolean>((resolve) => {
         this.tokenClient!.callback = (tokenResponse) => {
           if (tokenResponse && !tokenResponse.error) {
             this.hasAccess = true;
+            
+            // Store token expiry
+            if (tokenResponse.expires_in) {
+              const expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
+              localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
+            }
+            
             resolve(true);
           } else {
             console.error('Error getting token:', tokenResponse?.error);
@@ -330,9 +402,8 @@ private async refreshTokenSilently(): Promise<boolean> {
           }
         };
         
-        // Explicitly prompt the user for consent - this will open a popup
-        // This is the ONLY place in the code where a popup should appear
-        this.tokenClient!.requestAccessToken({prompt: 'consent'});
+        // Explicitly prompt the user for consent
+        this.tokenClient!.requestAccessToken({ prompt: 'consent' });
       });
     } catch (error) {
       console.error('Error in requestCalendarAccess:', error);
@@ -341,54 +412,75 @@ private async refreshTokenSilently(): Promise<boolean> {
     }
   }
 
-  // Fetch list of calendars with better error handling
-  public async fetchCalendars(): Promise<any[]> {
-    if (!this.initialized) {
-      
-      await this.initializeClient();
-    }
-
-    // If we don't have access, try to refresh the token silently before failing
-    if (!this._hasAccess) {
-      try {
-        const refreshed = await this.refreshTokenSilently();
-        if (!refreshed) {
-          throw new Error('Calendar access not granted. Please request access first.');
+  // Ensure we have valid access, with fallback strategies
+  private async ensureAccess(): Promise<boolean> {
+    // If we think we have access, check if token is still valid
+    if (this._hasAccess) {
+      // Check if token is expired
+      if (this.isTokenExpired()) {
+        console.log('Token is expired, attempting refresh...');
+        
+        // Try silent refresh
+        const refreshed = await this.attemptSilentRefresh();
+        if (refreshed) {
+          console.log('Token refreshed successfully');
+          return true;
+        } else {
+          console.log('Token refresh failed, user interaction required');
+          this.hasAccess = false;
+          return false;
         }
-      } catch (error) {
-        console.error('Failed to refresh token silently:', error);
-        throw new Error('Calendar access not granted. Please request access first.');
+      }
+      
+      // Token is not expired, check if it's actually set
+      if (window.gapi?.client) {
+        const token = window.gapi.client.getToken();
+        if (token && token.access_token) {
+          return true;
+        }
+        
+        // Try to restore from localStorage if not set
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        if (storedToken) {
+          try {
+            const parsedToken: StoredToken = JSON.parse(storedToken);
+            window.gapi.client.setToken(parsedToken);
+            return true;
+          } catch (error) {
+            console.error('Error restoring token:', error);
+            this.clearStoredTokenData();
+            this.hasAccess = false;
+          }
+        }
       }
     }
 
+    // If we don't have access or restoration failed
+    return false;
+  }
+
+  // Fetch list of calendars with better error handling
+  public async fetchCalendars(): Promise<any[]> {
+    if (!this.initialized) {
+      await this.initializeClient();
+    }
+
+    // Ensure we have access
+    const hasAccess = await this.ensureAccess();
+    if (!hasAccess) {
+      throw new Error('Calendar access not granted. Please request access first.');
+    }
+
     try {
-      
       const response = await window.gapi.client.calendar.calendarList.list();
-      
       return response.result.items || [];
     } catch (error) {
       console.error('Error fetching calendars:', error);
       
-      // Handle auth errors by requesting access again
+      // Handle auth errors
       if (this.isAuthError(error)) {
-      
         this.hasAccess = false;
-        
-        try {
-          // Try to request access again
-      
-          const granted = await this.requestCalendarAccess();
-          if (granted) {
-            // Retry the fetch if access was granted
-      
-            return this.fetchCalendars();
-          } else {
-            throw new Error('Failed to re-authenticate');
-          }
-        } catch (retryError) {
-          console.error('Failed to re-authenticate:', retryError);
-          throw new Error('Authentication failed while fetching calendars');
-        }
+        throw new Error('Authentication failed. Please request access again.');
       }
       
       throw error;
@@ -402,25 +494,16 @@ private async refreshTokenSilently(): Promise<boolean> {
     timeMax: string
   ): Promise<any[]> {
     if (!this.initialized) {
-      
       await this.initializeClient();
     }
 
-    // If we don't have access, try to refresh the token silently before failing
-    if (!this._hasAccess) {
-      try {
-        const refreshed = await this.refreshTokenSilently();
-        if (!refreshed) {
-          throw new Error('Calendar access not granted. Please request access first.');
-        }
-      } catch (error) {
-        console.error('Failed to refresh token silently:', error);
-        throw new Error('Calendar access not granted. Please request access first.');
-      }
+    // Ensure we have access
+    const hasAccess = await this.ensureAccess();
+    if (!hasAccess) {
+      throw new Error('Calendar access not granted. Please request access first.');
     }
 
     try {
-      
       const response = await window.gapi.client.calendar.events.list({
         calendarId,
         timeMin,
@@ -429,50 +512,29 @@ private async refreshTokenSilently(): Promise<boolean> {
         orderBy: 'startTime'
       });
 
-      
       return response.result.items || [];
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       
-      // Handle auth errors by requesting access again
+      // Handle auth errors
       if (this.isAuthError(error)) {
-        
         this.hasAccess = false;
-        
-        try {
-          // Try to request access again
-        
-          const granted = await this.requestCalendarAccess();
-          if (granted) {
-            // Retry the fetch if access was granted
-            
-            return this.fetchCalendarEvents(calendarId, timeMin, timeMax);
-          } else {
-            throw new Error('Failed to re-authenticate');
-          }
-        } catch (retryError) {
-          console.error('Failed to re-authenticate:', retryError);
-          throw new Error('Authentication failed while fetching events');
-        }
+        throw new Error('Authentication failed. Please request access again.');
       }
       
       throw error;
     }
   }
 
-  // Disconnect from Google APIs (when logging out)
+  // Disconnect from Google APIs
   public async disconnect(): Promise<void> {
-    // To revoke access, we need to make a direct request
     if (this._hasAccess && window.google?.accounts?.oauth2) {
       try {
-        // Get the token
         const token = window.gapi.client.getToken();
         if (token) {
-          // Revoke the token
           window.google.accounts.oauth2.revoke(token.access_token, () => {
-            
+            console.log('Token revoked');
           });
-          // Clear the token from gapi client
           window.gapi.client.setToken(null);
         }
       } catch (error) {
@@ -481,7 +543,7 @@ private async refreshTokenSilently(): Promise<boolean> {
     }
     
     this.hasAccess = false;
-    
+    this.clearStoredTokenData();
   }
 
   // Helper to load scripts
@@ -489,7 +551,6 @@ private async refreshTokenSilently(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       // Check if script is already loaded
       if (document.querySelector(`script[src="${src}"]`)) {
-        
         resolve();
         return;
       }
@@ -499,7 +560,6 @@ private async refreshTokenSilently(): Promise<boolean> {
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        
         resolve();
       };
       script.onerror = (error) => {
@@ -537,7 +597,7 @@ private async refreshTokenSilently(): Promise<boolean> {
 
 export const calendarService = new GoogleCalendarService();
 
-// TypeScript declaration for Google Identity Services
+// TypeScript declarations remain the same
 declare global {
   namespace google.accounts.oauth2 {
     interface TokenClient {
