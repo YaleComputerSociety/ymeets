@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
-import frontendEventAPI from '../../../firebase/eventAPI';
-import { getAccountId, getAccountName } from '../../../firebase/events';
+import frontendEventAPI from '../../../backend/eventAPI';
+import { getAccountId, getAccountName } from '../../../backend/events';
 import { useNavigate } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';

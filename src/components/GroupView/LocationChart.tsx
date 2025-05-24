@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { checkIfAdmin } from '../../firebase/events';
+import { checkIfAdmin } from '../../backend/events';
 import { Location } from '../../types';
 
 // import { IoIosCheckmarkCircle } from 'react-icons/io';
