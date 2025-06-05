@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { calendarDimensions } from '../../../types';
-import { getDates } from '../../../firebase/events';
+import { getDates } from '../../../backend/events';
 import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
@@ -23,6 +23,7 @@ const TimezoneChanger = ({
   const [currentTime, setCurrentTime] = useState('');
 
   const handleTimezoneChange = (newTimezone: string) => {
+
     setSelectedTimezone(newTimezone);
     updateTime(newTimezone);
 

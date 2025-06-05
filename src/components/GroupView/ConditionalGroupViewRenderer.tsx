@@ -1,4 +1,4 @@
-import { checkIfAdmin, getEventOnPageload } from '../../firebase/events';
+import { checkIfAdmin, getEventOnPageload } from '../../backend/events';
 import GroupViewPage from './GroupViewPage';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
