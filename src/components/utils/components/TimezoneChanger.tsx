@@ -26,8 +26,8 @@ const TimezoneChanger = ({
     setSelectedTimezone(newTimezone);
 
     // Calculate time difference between old and new timezone
-    const oldOffset = getTimezoneOffset(initialTimezone);
-    const newOffset = getTimezoneOffset(newTimezone);
+    const oldOffset = getTimezoneOffset(initialTimezone); // oldOffset is the initial Timezone the creator set.
+    const newOffset = getTimezoneOffset(newTimezone); // newTimezone the user wants to go to
     const offsetDiff = newOffset - oldOffset;
 
     let dates = getDates();
@@ -42,10 +42,10 @@ const TimezoneChanger = ({
     // Convert the start and end times to the NEW timezone
     const startInNewZone = DateTime.fromJSDate(
       calendarFramework.startTime
-    ).setZone(newTimezone); // Fixed: use newTimezone
+    ).setZone(newTimezone);
     const endInNewZone = DateTime.fromJSDate(calendarFramework.endTime).setZone(
       newTimezone
-    ); // Fixed: use newTimezone
+    );
 
     // Get the original DateTime objects in the creator's time zone
     const startInCreatorZone = DateTime.fromJSDate(
@@ -55,7 +55,6 @@ const TimezoneChanger = ({
       calendarFramework.endTime
     ).setZone(initialTimezone);
 
-    // Determine how the date range changes
     let adjustedDates = [...dates];
     const startDateNewZone = startInNewZone?.toISODate();
     const startDateCreatorZone = startInCreatorZone?.toISODate();
@@ -138,6 +137,7 @@ const TimezoneChanger = ({
         placeholder="Select a timezone"
         renderOption={(option) => option.replace(/_/g, ' ')}
         className="bg-white dark:bg-secondary_background-dark"
+        searchable={true}
       />
     </div>
   );
