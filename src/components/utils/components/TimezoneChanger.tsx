@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { calendarDimensions } from '../../../types';
-import { getDates } from '../../../firebase/events';
+import { getDates, getStartAndEndTimes } from '../../../firebase/events';
 import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
@@ -18,82 +18,103 @@ const TimezoneChanger = ({
   theCalendarFramework,
   initialTimezone,
 }: TimezoneChangerProps) => {
+  const [initialStartTime, initialEndTime] = getStartAndEndTimes();
   const [selectedTimezone, setSelectedTimezone] = useState(initialTimezone);
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
-  const [currentTime, setCurrentTime] = useState('');
 
   const handleTimezoneChange = (newTimezone: string) => {
     setSelectedTimezone(newTimezone);
-    updateTime(newTimezone);
 
     // Calculate time difference between old and new timezone
-    const oldOffset = getTimezoneOffset(selectedTimezone);
+    const oldOffset = getTimezoneOffset(initialTimezone);
     const newOffset = getTimezoneOffset(newTimezone);
     const offsetDiff = newOffset - oldOffset;
 
     let dates = getDates();
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // Treat the date as UTC and convert to the target timezone
     dates = dates.map((date) =>
       DateTime.fromJSDate(date, { zone: 'utc' })
-        .setZone(newTimezone, { keepLocalTime: true })
+        .setZone(newTimezone, { keepLocalTime: true }) // Fixed: use newTimezone
         .toJSDate()
     );
 
-    // Convert the start and end times to the user's time zone
-    const startInUserZone = DateTime.fromJSDate(
+    // Convert the start and end times to the NEW timezone
+    const startInNewZone = DateTime.fromJSDate(
       calendarFramework.startTime
-    ).setZone(userTimeZone);
-    const endInUserZone = DateTime.fromJSDate(
-      calendarFramework.endTime
-    ).setZone(userTimeZone);
+    ).setZone(newTimezone); // Fixed: use newTimezone
+    const endInNewZone = DateTime.fromJSDate(calendarFramework.endTime).setZone(
+      newTimezone
+    ); // Fixed: use newTimezone
 
-    // Get the original DateTime objects in the creator's time zone (without converting to ISO date)
+    // Get the original DateTime objects in the creator's time zone
     const startInCreatorZone = DateTime.fromJSDate(
       calendarFramework.startTime
-    ).setZone(newTimezone);
+    ).setZone(initialTimezone);
     const endInCreatorZone = DateTime.fromJSDate(
       calendarFramework.endTime
-    ).setZone(newTimezone);
+    ).setZone(initialTimezone);
 
-    // Determine if the time range crosses into another day
+    // Determine how the date range changes
     let adjustedDates = [...dates];
-    const startDateUserZone = startInUserZone?.toISODate();
+    const startDateNewZone = startInNewZone?.toISODate();
     const startDateCreatorZone = startInCreatorZone?.toISODate();
-    const endDateUserZone = endInUserZone?.toISODate();
+    const endDateNewZone = endInNewZone?.toISODate();
     const endDateCreatorZone = endInCreatorZone?.toISODate();
 
-    if (
-      startDateUserZone &&
-      startDateCreatorZone &&
-      startDateUserZone < startDateCreatorZone
-    ) {
-      // If the start date is earlier in the user's time zone (crosses backward)
+    // Calculate how many days each boundary shifted
+    const startDateShift =
+      startDateNewZone && startDateCreatorZone
+        ? DateTime.fromISO(startDateNewZone).diff(
+            DateTime.fromISO(startDateCreatorZone),
+            'days'
+          ).days
+        : 0;
+    const endDateShift =
+      endDateNewZone && endDateCreatorZone
+        ? DateTime.fromISO(endDateNewZone).diff(
+            DateTime.fromISO(endDateCreatorZone),
+            'days'
+          ).days
+        : 0;
+
+    if (startDateShift === endDateShift && startDateShift !== 0) {
+      // Both boundaries shifted by the same amount - shift the entire array
       adjustedDates = adjustedDates.map((date) => {
-        const adjustedDate = new Date(date);
-        adjustedDate.setDate(date.getDate() - 1); // Shift the date backward by 1
-        return adjustedDate;
+        const newDate = new Date(date);
+        newDate.setDate(date.getDate() + startDateShift);
+        return newDate;
       });
-    } else if (
-      endDateUserZone &&
-      endDateCreatorZone &&
-      endDateUserZone < endDateCreatorZone
-    ) {
-      // If the end date is later in the user's time zone (crosses forward)
-      adjustedDates = adjustedDates.map((date) => {
-        const adjustedDate = new Date(date);
-        adjustedDate.setDate(date.getDate() + 1); // Shift the date forward by 1
-        return adjustedDate;
-      });
+    } else {
+      // Different shifts - need to add/remove dates at boundaries
+      if (startDateShift < 0) {
+        // Start date moved backward - add dates at beginning
+        const daysToAdd = Math.abs(startDateShift);
+        for (let i = daysToAdd; i > 0; i--) {
+          const firstDate = adjustedDates[0];
+          const newDate = new Date(firstDate.getTime() - i * 86400000);
+          adjustedDates.unshift(newDate);
+        }
+      }
+
+      if (endDateShift > 0) {
+        // End date moved forward - add dates at end
+        const daysToAdd = endDateShift;
+        for (let i = 1; i <= daysToAdd; i++) {
+          const lastDate = adjustedDates[adjustedDates.length - 1];
+          const newDate = new Date(lastDate.getTime() + i * 86400000);
+          adjustedDates.push(newDate);
+        }
+      }
     }
 
     // Update calendar start and end times
     const updatedFramework = {
       ...calendarFramework,
       dates: datesToCalendarDates(adjustedDates),
-      startTime: new Date(calendarFramework.startTime.getTime() + offsetDiff),
-      endTime: new Date(calendarFramework.endTime.getTime() + offsetDiff),
+      numOfCols: adjustedDates.length,
+      startTime: new Date(initialStartTime.getTime() + offsetDiff),
+      endTime: new Date(initialEndTime.getTime() + offsetDiff),
     };
 
     setCalendarFramework(updatedFramework);
@@ -108,28 +129,6 @@ const TimezoneChanger = ({
     );
     return tzDate.getTime() - utcDate.getTime();
   };
-
-  // Format current time in selected timezone
-  const updateTime = (timezone: string) => {
-    const time = new Date().toLocaleTimeString('en-US', {
-      timeZone: timezone,
-      hour12: true,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-    setCurrentTime(time);
-  };
-
-  // Update time every second
-  useEffect(() => {
-    updateTime(selectedTimezone);
-    const interval = setInterval(() => {
-      updateTime(selectedTimezone);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [selectedTimezone]);
-
   return (
     <div className="dark:text-text-dark">
       <Dropdown

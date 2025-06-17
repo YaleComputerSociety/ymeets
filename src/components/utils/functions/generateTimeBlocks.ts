@@ -1,3 +1,4 @@
+
 export function generateTimeBlocks(startTime: any, endTime: any) {
   // Parse hours and minutes
   let startHour = startTime.getHours();
@@ -53,5 +54,44 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
     }
   }
 
-  return timeBlocks2D;
+  // Group blocks if the time range crosses midnight
+  if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
+    // Find the index where midnight (00:00) starts
+    const midnightIndex = timeBlocks2D.findIndex(hourBlock => 
+      hourBlock[0].startsWith('00:')
+    );
+    
+    if (midnightIndex !== -1) {
+      // Find where 01:00 starts (true after-midnight)
+      const afterMidnightIndex = timeBlocks2D.findIndex(hourBlock => 
+        hourBlock[0].startsWith('01:')
+      );
+      
+      if (afterMidnightIndex !== -1) {
+        // Split properly: after 1AM vs everything else
+        const afterMidnight = timeBlocks2D.slice(afterMidnightIndex);
+        const beforeMidnight = timeBlocks2D.slice(0, afterMidnightIndex);
+        
+        // Return grouped structure: [after-midnight hours, before-midnight hours]
+        return [afterMidnight, beforeMidnight];
+      } else {
+        // No hours after 1AM, just group midnight with before-midnight
+        const beforeMidnight = timeBlocks2D.slice(0, midnightIndex + 1);
+        return [beforeMidnight];
+      }
+    }
+  }
+
+  // If no midnight crossing, return as single group
+  return [timeBlocks2D];
+}
+
+function calculateGapDuration(endHour: number, startHour: number): number {
+  // Calculate hours between the end of one period and start of next
+  // e.g., from 1AM (end) to 10PM (start) = 21 hours gap
+  let gap = startHour - endHour - 1;
+  if (gap < 0) {
+    gap += 24;
+  }
+  return gap;
 }

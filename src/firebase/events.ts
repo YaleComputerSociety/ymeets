@@ -667,6 +667,7 @@ function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const userTimeZone = "Asia/Kolkata"; // For testing purposes, set to a specific timezone
 
   if (timeZone == userTimeZone) {
     return dates;
@@ -674,6 +675,9 @@ function getDates(): Date[] {
 
   dates = dates.map((date) => {
     // Treat the date as UTC and convert to the target timezone
+
+    // firebase stores dates in UTC, so we need to convert them to the user's time zone before doing
+    // operations on them.
     return DateTime.fromJSDate(date, { zone: 'utc' })
       .setZone(timeZone, { keepLocalTime: true })
       .toJSDate();
@@ -716,9 +720,7 @@ function getDates(): Date[] {
       adjustedDate.setDate(date.getDate() + 1); // Shift the date forward by 1
       return adjustedDate;
     });
-  } else {
-    // console.log("Does not cross");
-  }
+  } 
   return adjustedDates;
 }
 
