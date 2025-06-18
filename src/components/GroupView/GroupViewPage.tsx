@@ -43,6 +43,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import { filter } from 'lodash';
 import AlertPopup from '../utils/components/AlertPopup';
+import { getUserTimezone } from '../utils/functions/getUserTimezone';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -211,8 +212,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times[startBlock];
-    const selectedEndTimeHHMM: string = times[endBlock];
+    const selectedStartTimeHHMM: string = times.flat()[startBlock];
+    const selectedEndTimeHHMM: string = times.flat()[endBlock];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -423,12 +424,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                               calendarFramework,
                               setCalendarFramework,
                             ]}
-                            initialTimezone={
-                              getTimezone()
-                                ? getTimezone()
-                                : Intl.DateTimeFormat().resolvedOptions()
-                                    .timeZone
-                            }
+                            initialTimezone={getUserTimezone()}
                           />
                         </div>
 
