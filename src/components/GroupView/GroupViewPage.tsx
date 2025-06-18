@@ -22,7 +22,6 @@ import {
   getAccountName,
   getAccountEmail,
   getChosenLocation,
-  getTimezone,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -41,9 +40,8 @@ import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
-import { filter } from 'lodash';
 import AlertPopup from '../utils/components/AlertPopup';
-import { getUserTimezone } from '../utils/functions/getUserTimezone';
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
 interface GroupViewProps {
   isAdmin: boolean;

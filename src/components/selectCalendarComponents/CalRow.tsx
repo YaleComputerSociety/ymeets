@@ -9,11 +9,8 @@ import CalBlock from './CalBlock';
 import { dragProperties } from '../../types';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
-import { useEffect, useState } from 'react';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../firebase/events';
-import { group } from 'console';
-import { set } from 'lodash';
 
 interface CalRowProps {
   bucket: calandarDate[];

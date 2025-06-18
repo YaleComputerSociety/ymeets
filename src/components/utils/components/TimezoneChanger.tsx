@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calendarDimensions } from '../../../types';
 import {
-  getDates,
   getStartAndEndTimes,
-  getUTCDates,
   getUTCStartAndEndTimes,
 } from '../../../firebase/events';
 import { DateTime } from 'luxon';
@@ -24,7 +22,6 @@ const TimezoneChanger = ({
   theCalendarFramework,
   initialTimezone,
 }: TimezoneChangerProps) => {
-  const [initialStartTime, initialEndTime] = getStartAndEndTimes();
   const [selectedTimezone, setSelectedTimezone] = useState(initialTimezone);
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
 
@@ -35,7 +32,6 @@ const TimezoneChanger = ({
     const { adjustedDates, adjustedStartTime, adjustedEndTime } =
       doTimezoneChange(newTimezone, startTime, endTime);
 
-    // Update calendar start and end times
     const updatedFramework = {
       ...calendarFramework,
       dates: datesToCalendarDates(adjustedDates),
@@ -47,15 +43,6 @@ const TimezoneChanger = ({
     setCalendarFramework(updatedFramework);
   };
 
-  // Helper function to get timezone offset in milliseconds
-  const getTimezoneOffset = (timezone: string) => {
-    const date = new Date();
-    const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-    const tzDate = new Date(
-      date.toLocaleString('en-US', { timeZone: timezone })
-    );
-    return tzDate.getTime() - utcDate.getTime();
-  };
   return (
     <div className="dark:text-text-dark">
       <Dropdown

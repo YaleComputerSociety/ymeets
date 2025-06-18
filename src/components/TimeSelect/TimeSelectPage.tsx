@@ -41,8 +41,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { timezones } from '../utils/constants/timezones';
-import { getUserTimezone } from '../utils/functions/getUserTimezone';
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
 /**
  *

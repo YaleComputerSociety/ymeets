@@ -25,11 +25,9 @@ import {
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
-import { DateTime } from 'luxon';
 import { runTransaction } from 'firebase/firestore';
-import { doTimezoneChange, getTimezoneOffset } from '../components/utils/functions/timzoneConversions';
-import { getUserTimezone } from '../components/utils/functions/getUserTimezone';
-import { get } from 'lodash';
+import { doTimezoneChange } from '../components/utils/functions/timzoneConversions';
+import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 
 // ASSUME names are unique within an event
 

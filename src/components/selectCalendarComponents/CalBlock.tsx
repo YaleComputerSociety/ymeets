@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -135,7 +135,7 @@ export default function CalBlock({
       return theme === 'light' ? '#a8a8a8' : '#404040';
     }
     return theme === 'light' ? 'white' : '#2d3748';
-  }, [theme]);
+  }, [theme, calendarFramework]);
 
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
@@ -166,6 +166,7 @@ export default function CalBlock({
   // Update shade color when relevant props change
   useEffect(() => {
     if (blockID == -1) {
+      setShadeColor(getDefaultColor());
       return;
     }
 
@@ -195,6 +196,7 @@ export default function CalBlock({
     isBlockSelected,
     getGroupPercentageColor,
     getDefaultColor,
+    calendarFramework,
   ]);
 
   // Color interpolation helper
