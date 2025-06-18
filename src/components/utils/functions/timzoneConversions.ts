@@ -64,15 +64,6 @@ export const doTimezoneChange = (newTimezone: string, initialStartTime : Date, i
 
   let dates = getUTCDates();
 
-  // Treat the date as UTC and convert to the target timezone
-  // dates = dates.map((date) =>
-  //   DateTime.fromJSDate(date, { zone: initialTimezone })
-  //     .setZone(newTimezone, { keepLocalTime: true }) // Fixed: use newTimezone
-  //     .toJSDate()
-  // );
-
-  console.log(initialTimezone, newTimezone);
-
   // Convert the start and end times to the NEW timezone
   const startInNewZone = DateTime.fromJSDate(
     initialStartTime

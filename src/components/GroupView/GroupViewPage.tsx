@@ -422,7 +422,15 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                               calendarFramework,
                               setCalendarFramework,
                             ]}
-                            initialTimezone={getUserTimezone()}
+                            initialTimezone={(() => {
+                              // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                              const urlParams = new URLSearchParams(
+                                window.location.search
+                              );
+                              const urlTimezone = urlParams.get('tz');
+                              console.log(urlTimezone);
+                              return urlTimezone || getUserTimezone();
+                            })()}
                           />
                         </div>
 
