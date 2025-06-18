@@ -4,7 +4,6 @@ export function getUserTimezone() {
     
     const userTimezone =  Intl.DateTimeFormat().resolvedOptions().timeZone;
     
-    
     // Check if user's timezone is already in the list
     if (timezones.includes(userTimezone)) {
         return userTimezone;
@@ -13,7 +12,6 @@ export function getUserTimezone() {
     const now = new Date();
     
     const userOffset = now.getTimezoneOffset() * -1; // Flip sign to match standard convention
-    
     
     let closestTimezone = timezones[0];
     let smallestDifference = Infinity;

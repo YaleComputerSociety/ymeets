@@ -13,11 +13,7 @@ import {
   arrayUnion,
   query,
   where,
-  QuerySnapshot,
-  deleteDoc,
-  writeBatch,
-  FieldValue,
-  deleteField,
+  writeBatch,  
 } from 'firebase/firestore';
 import {
   Availability,
@@ -29,10 +25,11 @@ import {
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
-import { time } from 'console';
-import { start } from 'repl';
 import { DateTime } from 'luxon';
 import { runTransaction } from 'firebase/firestore';
+import { doTimezoneChange, getTimezoneOffset } from '../components/utils/functions/timzoneConversions';
+import { getUserTimezone } from '../components/utils/functions/getUserTimezone';
+import { get } from 'lodash';
 
 // ASSUME names are unique within an event
 
@@ -663,72 +660,45 @@ function getZoomLink(): string | undefined {
   return workingEvent.details.zoomLink || undefined;
 }
 
+function getUTCDates() : Date[] {
+  console.log(workingEvent.details.dates);
+  return workingEvent.details.dates; 
+}
+
+function getUTCStartAndEndTimes(): Date[] {
+  return [workingEvent.details.startTime, workingEvent.details.endTime]
+}
+
+
 function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // const userTimeZone = "Asia/Kolkata"; // For testing purposes, set to a specific timezone
-
+  const userTimeZone = getUserTimezone();
   if (timeZone == userTimeZone) {
     return dates;
   }
 
-  dates = dates.map((date) => {
-    // Treat the date as UTC and convert to the target timezone
+  const {adjustedDates} = doTimezoneChange(userTimeZone, startTime, endTime)
 
-    // firebase stores dates in UTC, so we need to convert them to the user's time zone before doing
-    // operations on them.
-    return DateTime.fromJSDate(date, { zone: 'utc' })
-      .setZone(timeZone, { keepLocalTime: true })
-      .toJSDate();
-  });
-
-  // Convert the start and end times to the user's time zone
-  const startInUserZone = DateTime.fromJSDate(startTime).setZone(userTimeZone);
-  const endInUserZone = DateTime.fromJSDate(endTime).setZone(userTimeZone);
-
-  // Get the original DateTime objects in the creator's time zone (without converting to ISO date)
-  const startInCreatorZone = DateTime.fromJSDate(startTime).setZone(timeZone);
-  const endInCreatorZone = DateTime.fromJSDate(endTime).setZone(timeZone);
-
-  // Determine if the time range crosses into another day
-  let adjustedDates = [...dates];
-  const startDateUserZone = startInUserZone?.toISODate();
-  const startDateCreatorZone = startInCreatorZone?.toISODate();
-  const endDateUserZone = endInUserZone?.toISODate();
-  const endDateCreatorZone = endInCreatorZone?.toISODate();
-
-  if (
-    startDateUserZone &&
-    startDateCreatorZone &&
-    startDateUserZone < startDateCreatorZone
-  ) {
-    // If the start date is earlier in the user's time zone (crosses backward)
-    adjustedDates = adjustedDates.map((date) => {
-      const adjustedDate = new Date(date);
-      adjustedDate.setDate(date.getDate() - 1); // Shift the date backward by 1
-      return adjustedDate;
-    });
-  } else if (
-    endDateUserZone &&
-    endDateCreatorZone &&
-    endDateUserZone < endDateCreatorZone
-  ) {
-    // If the end date is later in the user's time zone (crosses forward)
-    adjustedDates = adjustedDates.map((date) => {
-      const adjustedDate = new Date(date);
-      adjustedDate.setDate(date.getDate() + 1); // Shift the date forward by 1
-      return adjustedDate;
-    });
-  } 
   return adjustedDates;
 }
 
 function getStartAndEndTimes(): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
+  let userTimeZone = getUserTimezone();
 
-  return [startTime, endTime];
+  if (workingEvent.details.timeZone == userTimeZone) {
+    return [startTime, endTime];
+  }
+
+  const { adjustedStartTime, adjustedEndTime } = doTimezoneChange(
+    userTimeZone,
+    startTime,
+    endTime
+  );
+
+  return [adjustedStartTime, adjustedEndTime];
 }
 
 function getTimezone(): string {
@@ -842,6 +812,8 @@ export {
 
   // Getters (Sync)
   getDates,
+  getUTCDates,
+  getUTCStartAndEndTimes,
   getStartAndEndTimes,
   getChosenLocation,
   getChosenDayAndTime,
