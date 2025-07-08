@@ -279,7 +279,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+    <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* Render AlertPopup unconditionally */}
       <AlertPopup
         title="Alert"
