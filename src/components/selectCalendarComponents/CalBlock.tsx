@@ -132,7 +132,7 @@ export default function CalBlock({
 
   const getDefaultColor = useCallback(() => {
     if (!draggable) {
-      return theme === 'light' ? '#a8a8a8' : '#404040';
+      return chartedUsers ? 'white' : theme === 'light' ? '#a8a8a8' : '#404040';
     }
     return theme === 'light' ? 'white' : '#2d3748';
   }, [theme, calendarFramework]);

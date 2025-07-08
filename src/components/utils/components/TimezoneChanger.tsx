@@ -32,6 +32,8 @@ const TimezoneChanger = ({
     const { adjustedDates, adjustedStartTime, adjustedEndTime } =
       doTimezoneChange(newTimezone, startTime, endTime);
 
+    console.log('switch', adjustedStartTime, adjustedEndTime);
+
     const updatedFramework = {
       ...calendarFramework,
       dates: datesToCalendarDates(adjustedDates),
