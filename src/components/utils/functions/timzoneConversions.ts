@@ -135,8 +135,6 @@ export const doTimezoneChange = (newTimezone: string, initialStartTime : Date, i
     }
   }
 
-  console.log(initialStartTime, initialEndTime)
-
   return {
     adjustedDates,
     adjustedStartTime: new Date(initialStartTime.getTime() + offsetDiff),

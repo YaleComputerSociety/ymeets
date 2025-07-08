@@ -659,7 +659,6 @@ function getZoomLink(): string | undefined {
 }
 
 function getUTCDates() : Date[] {
-  console.log(workingEvent.details.dates);
   return workingEvent.details.dates; 
 }
 

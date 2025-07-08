@@ -290,6 +290,7 @@ function TimeSelectPage() {
           timeMax,
           singleEvents: true,
           orderBy: 'startTime',
+          timeZone: getUserTimezone(),
         });
 
         const theEvents = eventList?.result?.items || [];
