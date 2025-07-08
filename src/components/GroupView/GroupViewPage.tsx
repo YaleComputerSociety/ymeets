@@ -428,7 +428,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                                 window.location.search
                               );
                               const urlTimezone = urlParams.get('tz');
-                              console.log(urlTimezone);
+
                               return urlTimezone || getUserTimezone();
                             })()}
                           />
