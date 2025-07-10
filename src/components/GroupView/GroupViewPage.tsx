@@ -22,7 +22,6 @@ import {
   getAccountName,
   getAccountEmail,
   getChosenLocation,
-  getTimezone,
 } from '../../firebase/events';
 import { useParams, useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -41,8 +40,8 @@ import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
-import { filter } from 'lodash';
 import AlertPopup from '../utils/components/AlertPopup';
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
 interface GroupViewProps {
   isAdmin: boolean;
@@ -211,8 +210,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times[startBlock];
-    const selectedEndTimeHHMM: string = times[endBlock];
+    const selectedStartTimeHHMM: string = times.flat()[startBlock];
+    const selectedEndTimeHHMM: string = times.flat()[endBlock];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -280,7 +279,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+    <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* Render AlertPopup unconditionally */}
       <AlertPopup
         title="Alert"
@@ -423,12 +422,15 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                               calendarFramework,
                               setCalendarFramework,
                             ]}
-                            initialTimezone={
-                              getTimezone()
-                                ? getTimezone()
-                                : Intl.DateTimeFormat().resolvedOptions()
-                                    .timeZone
-                            }
+                            initialTimezone={(() => {
+                              // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                              const urlParams = new URLSearchParams(
+                                window.location.search
+                              );
+                              const urlTimezone = urlParams.get('tz');
+
+                              return urlTimezone || getUserTimezone();
+                            })()}
                           />
                         </div>
 
