@@ -1,3 +1,4 @@
+
 export function generateTimeBlocks(startTime: any, endTime: any) {
   // Parse hours and minutes
   let startHour = startTime.getHours();
@@ -53,5 +54,34 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
     }
   }
 
-  return timeBlocks2D;
+  // Group blocks if the time range crosses midnight
+  if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
+    // Find the index where midnight (00:00) starts
+    const midnightIndex = timeBlocks2D.findIndex(hourBlock => 
+      hourBlock[0].startsWith('00:')
+    );
+    
+    if (midnightIndex !== -1) {
+      // Find where 01:00 starts (true after-midnight)
+      const afterMidnightIndex = timeBlocks2D.findIndex(hourBlock => 
+        hourBlock[0].startsWith('01:')
+      );
+      
+      if (afterMidnightIndex !== -1) {
+        // Split properly: after 12AM vs everything else
+          const afterMidnight = timeBlocks2D.slice(midnightIndex);
+          const beforeMidnight = timeBlocks2D.slice(0, midnightIndex);
+        
+        // Return grouped structure: [after-midnight hours, before-midnight hours]
+        return [afterMidnight, beforeMidnight];
+      } else {
+        // No hours after 1AM, just group midnight with before-midnight
+        const beforeMidnight = timeBlocks2D.slice(0, midnightIndex + 1);
+        return [beforeMidnight];
+      }
+    }
+  }
+
+  // If no midnight crossing, return as single group
+  return [timeBlocks2D];
 }
