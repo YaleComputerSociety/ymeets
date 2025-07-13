@@ -9,7 +9,7 @@ import {
   calandarDate,
   dragProperties,
 } from '../../types';
-import eventAPI from '../../firebase/eventAPI';
+import eventAPI from '../../backend/eventAPI';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   getAccountId,
@@ -25,23 +25,23 @@ import {
   getChosenDayAndTime,
   getTimezone,
   updateAnonymousUserToAuthUser,
-} from '../../firebase/events';
+  getSelectedCalendarIDsByUserID,
+  setUserSelectedCalendarIDs,
+} from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
-import { signInWithGoogle } from '../../firebase/auth';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
-import { GAPIContext } from '../../firebase/gapiContext';
-import { useContext } from 'react';
+
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { getUserTimezone } from '../utils/functions/timzoneConversions';
+import { IconCheck } from '@tabler/icons-react';
+import { useAuth } from '../../backend/authContext';
+import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 
 /**
  *
@@ -49,6 +49,15 @@ import { getUserTimezone } from '../utils/functions/timzoneConversions';
  */
 function TimeSelectPage() {
   const { code } = useParams();
+  const { login, currentUser } = useAuth();
+  const {
+    hasAccess,
+    initialized,
+    requestAccess,
+    getCalendars,
+    getEvents,
+    disconnect,
+  } = useGoogleCalendar();
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const nav = useNavigate();
@@ -61,9 +70,7 @@ function TimeSelectPage() {
   const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
     undefined
   );
-  const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(
-    getAccountId() !== ''
-  );
+
   const [calendarState, setCalendarState] = useState<calanderState>([]);
   const [calendarFramework, setCalendarFramework] =
     useState<calendarDimensions>({
@@ -98,99 +105,150 @@ function TimeSelectPage() {
     lastPosition: null,
   });
 
-  const gapiContext = useContext(GAPIContext);
-  const { gapi, handleIsSignedIn } = gapiContext;
+  // const {
+  //   gapi,
+  //   isGapiInitialized,
+  //   initializeGapi,
+  //   GAPILoading,
+  //   handleIsSignedIn,
+  // } = useContext(GAPIContext);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
   >([]);
-  // const [googleCalIds, setGoogleCalIds] = useState<string[]>(['primary']);
-  const [googleCalIds, setGoogleCalIds] = useState<string[]>([]); // still easy for user to specify primary cal?
+  const [idsOfCurrentlySelectedGCals, setIdsOfCurrentlySelectedGCals] =
+    useState<string[]>([]);
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
-  const [selectedPopupIds, setSelectedPopupIds] = useState<string[]>([]);
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
+  const [hasGCalScope, setHasGCalScope] = useState(
+    localStorage.getItem('hasGCalScope') === 'true'
+  );
+
+  const [showSlowMessage, setShowSlowMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSlowMessage(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // New state to track if calendar scope request is in progress
+  const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
+    useState(false);
 
   const [hasAvailability, setHasAvailability] = useState(false);
   const [isGeneralDays, setIsGeneralDays] = useState(
     calendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
   );
+
   useEffect(() => {
     const fetchData = async () => {
-      if (code && code.length === 6) {
-        await getEventOnPageload(code)
-          .then(() => {
-            const { availabilities, participants } = eventAPI.getCalendar();
-            const dim = eventAPI.getCalendarDimensions();
-
-            if (dim == undefined) {
-              nav('/notfound');
-            }
-
-            const accountName = getAccountName();
-            if (accountName === null) {
-              return;
-            }
-
-            let avail: Availability | undefined =
-              getAccountId() !== ''
-                ? getAvailabilityByAccountId(getAccountId())
-                : getAvailabilityByName(accountName);
-
-            if (avail === undefined) {
-              avail = eventAPI.getEmptyAvailability(dim);
-            } else {
-              setHasAvailability(true);
-            }
-
-            setChartedUsers(participants);
-
-            setEventName(getEventName());
-            setEventDescription(getEventDescription());
-            setLocationOptions(getLocationOptions());
-
-            const theRange = getChosenDayAndTime();
-            setIsGeneralDays(
-              dim?.dates[0][0].date?.getFullYear() === 2000 &&
-                theRange === undefined
-            );
-
-            setCalendarState([...availabilities, avail]);
-            setCalendarFramework(dim);
-
-            /* The first date having a year be 2000 means that it was a general days selection */
-            setAreSelectingGeneralDays(
-              dim?.dates[0][0].date?.getFullYear() == 2000 &&
-                theRange === undefined
-            );
-
-            // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
-            if (theRange != undefined && theRange[0].getFullYear() != 1970) {
-              nav('/groupview/' + code);
-            }
-          })
-          .catch(() => {
-            nav('/notfound');
-          });
-      } else {
+      // Check if code is valid
+      if (!code || code.length !== 6) {
         console.error("The event code in the URL doesn't exist");
         nav('/notfound');
+        return false;
+      }
+
+      try {
+        // Main event loading
+        await getEventOnPageload(code);
+
+        const { availabilities, participants } = eventAPI.getCalendar();
+        const dim = eventAPI.getCalendarDimensions();
+        const uid = getAccountId();
+
+        if (dim === undefined) {
+          nav('/notfound');
+          return false;
+        }
+
+        // Handle account details
+        const accountName = getAccountName();
+        if (accountName === null) {
+          return false;
+        }
+
+        // Setup availability
+        let avail: Availability | undefined =
+          uid !== ''
+            ? getAvailabilityByAccountId(uid)
+            : getAvailabilityByName(accountName);
+
+        if (avail === undefined) {
+          avail = eventAPI.getEmptyAvailability(dim);
+        } else {
+          setHasAvailability(true);
+        }
+
+        // Update state with event data
+        setChartedUsers(participants);
+        setEventName(getEventName());
+        setEventDescription(getEventDescription());
+        setLocationOptions(getLocationOptions());
+
+        const theRange = getChosenDayAndTime();
+        const isGeneralDaysSelection =
+          dim?.dates[0][0].date?.getFullYear() === 2000 &&
+          theRange === undefined;
+
+        setIsGeneralDays(isGeneralDaysSelection);
+        setCalendarState([...availabilities, avail]);
+        setCalendarFramework(dim);
+        setAreSelectingGeneralDays(isGeneralDaysSelection);
+
+        // Navigate to group view if a selection is already made
+        if (theRange !== undefined && theRange[0].getFullYear() !== 1970) {
+          nav('/groupview/' + code);
+          return true;
+        }
+
+        try {
+          const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
+          setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
+
+          if (hasAccess) {
+            await fetchUserCalendars();
+          }
+        } catch (calendarError) {
+          console.error('Error fetching calendar data:', calendarError);
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Error loading event:', error);
+        nav('/notfound');
+        return false;
       }
     };
 
-    fetchData()
-      .then(() => {
-        if (getAccountName() == '' || getAccountName() == undefined) {
+    // Execute the main data fetching function and handle final states
+    (async () => {
+      try {
+        setLoading(true);
+        const success = await fetchData();
+
+        if (
+          success &&
+          (getAccountName() === '' || getAccountName() === undefined)
+        ) {
           setPromptUserForLogin(true);
         }
-
+      } catch (err) {
+        console.error('Unhandled error in data fetching:', err);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+      }
+    })();
+  }, [code]);
+
+  // useEffect(() => {
+  //   fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, false);
+  // }, [googleCalendars, idsOfCurrentlySelectedGCals]);
 
   useEffect(() => {
     if (!isGeneralDays) return;
@@ -242,11 +300,18 @@ function TimeSelectPage() {
     }));
   }, [isGeneralDays]);
 
-  const getGoogleCalData = async (
+  const fetchGoogleCalEvents = async (
     calIds: string[],
     fillAvailability = false
   ) => {
     try {
+      // Check if we have the required scope first
+
+      if (!hasAccess) {
+        setGoogleCalendarEvents([]);
+        return;
+      }
+
       const theDates: calandarDate[] = ([] as calandarDate[]).concat(
         ...(calendarFramework?.dates || [])
       );
@@ -260,9 +325,6 @@ function TimeSelectPage() {
       }
 
       // Calculate time range based on whether it's general days or not
-      // if general days -- the events for the next day are grabbed. So if SUN is one of them,
-      // the events for the next SUN are grabbed
-
       let timeMin: string;
       let timeMax: string;
 
@@ -284,23 +346,22 @@ function TimeSelectPage() {
       }
 
       for (let i = 0; i < calIds.length; i++) {
-        const eventList = await gapi?.client?.calendar?.events?.list({
-          calendarId: calIds[i],
-          timeMin,
-          timeMax,
-          singleEvents: true,
-          orderBy: 'startTime',
-          timeZone: getUserTimezone(),
-        });
+        // const eventList = await gapi?.client?.calendar?.events?.list({
+        //   calendarId: calIds[i],
+        //   timeMin,
+        //   timeMax,
+        //   singleEvents: true,
+        //   orderBy: 'startTime',
+        // });
 
-        const theEvents = eventList?.result?.items || [];
+        const theEvents = await getEvents(calIds[i], timeMin, timeMax);
 
         for (let event of theEvents) {
           const startDate = new Date(
-            event?.start?.dateTime || event?.start?.date || ''
+            event?.start?.dateTime || (event.start as any)?.date || ''
           );
           const endDate = new Date(
-            event?.end?.dateTime ?? event?.end?.date ?? ''
+            event?.end?.dateTime || (event.end as any)?.date || ''
           );
 
           if (startDate.getDay() !== endDate.getDay()) {
@@ -318,38 +379,26 @@ function TimeSelectPage() {
       }
     } catch (error) {
       console.error('Error fetching calendar events:', error);
+      if (
+        error instanceof Error &&
+        (error.message.includes('scope') ||
+          error.message.includes('permission'))
+      ) {
+        setHasGCalScope(false);
+      }
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (gapi) {
-        await getGoogleCalData(googleCalIds, shouldFillAvailability);
-      } else {
-        return;
-      }
-    };
-    fetchData();
-  }, [gapi, googleCalIds, isGeneralDays]);
-
-  const onPopupCloseAndSubmit = async () => {
-    if (selectedPopupIds === googleCalIds) {
-      setGcalPopupOpen(false);
-      return;
+    if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
+      fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, shouldFillAvailability);
     }
-    setGoogleCalIds(selectedPopupIds);
-    setGcalPopupOpen(false);
-  };
-
-  const onPopupCloseAutofillAndSubmit = async () => {
-    setShouldFillAvailability(true);
-    setIsFillingAvailability(true);
-    if (selectedPopupIds === googleCalIds) {
-      await getGoogleCalData(selectedPopupIds, true);
-    } else {
-      setGoogleCalIds(selectedPopupIds);
-    }
-  };
+  }, [
+    googleCalendars,
+    idsOfCurrentlySelectedGCals,
+    hasAccess,
+    shouldFillAvailability,
+  ]);
 
   const fillAvailabilityNotInGCalEvents = (
     parsedEvents: any[],
@@ -416,143 +465,141 @@ function TimeSelectPage() {
     setGcalPopupOpen(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (code && code.length === 6) {
-        await getEventOnPageload(code).then(() => {
-          const { availabilities, participants } = eventAPI.getCalendar();
-          const dim = eventAPI.getCalendarDimensions();
-
-          if (dim == undefined) {
-            nav('/notfound');
-          }
-
-          const accountName = getAccountName();
-          if (accountName === null) {
-            return;
-          }
-
-          let avail: Availability | undefined =
-            getAccountId() !== ''
-              ? getAvailabilityByAccountId(getAccountId())
-              : getAvailabilityByName(accountName);
-
-          if (avail === undefined) {
-            avail = eventAPI.getEmptyAvailability(dim);
-          } else {
-            setHasAvailability(true);
-          }
-
-          setChartedUsers(participants);
-
-          setEventName(getEventName());
-          setEventDescription(getEventDescription());
-          setLocationOptions(getLocationOptions());
-
-          const theRange = getChosenDayAndTime();
-
-          setCalendarState([...availabilities, avail]);
-          setCalendarFramework(dim);
-
-          /* The first date having a year be 2000 means that it was a general days selection */
-          setAreSelectingGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() == 2000 &&
-              theRange === undefined
-          );
-
-          // if there's a selection already made, nav to groupview since you're not allowed to edit ur avail
-          if (theRange != undefined && theRange[0].getFullYear() != 1970) {
-            nav('/groupview/' + code);
-          }
-        });
-      } else {
-        console.error("The event code in the URL doesn't exist");
-        nav('/notfound');
-      }
-    };
-
-    fetchData()
-      .then(() => {
-        if (getAccountName() == '' || getAccountName() == undefined) {
-          setPromptUserForLogin(true);
-        }
-
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="w-full h-[60%] flex flex-col items-center justify-center">
-        <LoadingAnim />
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
-
-  const checkIfUserHasCalendarScope = async (): Promise<boolean> => {
-    const currentScopes =
-      gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getGrantedScopes() ||
-      '';
-    return currentScopes.includes(
-      'https://www.googleapis.com/auth/calendar.readonly'
-    );
-  };
-
-  const requestAdditionalScopes = async () => {
-    try {
-      await gapi?.auth2
-        .getAuthInstance()
-        .grantOfflineAccess({
-          scope: 'https://www.googleapis.com/auth/calendar.readonly',
-          prompt: 'consent',
-        })
-        .then(async (response) => {
-          if (response.code) {
-            await signInWithGoogle(response.code, gapi, handleIsSignedIn);
-            fetchUserCalendars();
-          } else {
-            console.error('Failed to grant additional permissions.');
-          }
-        });
-    } catch (error) {
-      console.error('Error during scope request:', error);
-    }
-  };
-
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
     try {
-      const response = await gapi?.client?.calendar?.calendarList.list();
-      const calendars = response?.result.items;
-      if (calendars !== undefined) {
-        setGoogleCalendars(calendars);
-        setGcalPopupOpen(true);
+      // if (!gapi || !isGapiInitialized) {
+      //   await initializeGapi();
+
+      //   // Check again after initialization attempt
+      //   if (!gapi || !gapi.client || !gapi.client.calendar) {
+      //     throw new Error('Failed to initialize Google Calendar API');
+      //   }
+      // }
+
+      // Verify we have the calendar scope before attempting to fetch
+
+      if (!hasAccess) {
+        console.warn('Attempting to fetch calendars without proper scope');
+        setHasGCalScope(false);
+        return [];
       }
+
+      const calendars = await getCalendars();
+
+      setGoogleCalendars(calendars);
+      return calendars;
     } catch (error) {
       console.error('Error fetching Google Calendars:', error);
+
+      // Check if the error is scope-related and handle accordingly
+      if (
+        error instanceof Error &&
+        (error.message.includes('scope') ||
+          error.message.includes('permission') ||
+          error.message.includes('unauthorized') ||
+          error.message.includes('login required'))
+      ) {
+        setHasGCalScope(false);
+        localStorage.setItem('hasGCalScope', 'false');
+      }
+
+      return [];
     }
   };
 
+  // Check and maintain state about Google login and calendar permissions
+  useEffect(() => {
+    const checkGoogleAuthStatus = async () => {
+      // First check if the user is logged into Google
+
+      if (currentUser && hasAccess) {
+        await fetchUserCalendars();
+      }
+    };
+
+    checkGoogleAuthStatus();
+  }, [currentUser, hasAccess]);
+
   const handleToggleGCalAvailabilitiesClick = async () => {
-    if (await checkIfUserHasCalendarScope()) {
-      fetchUserCalendars();
+    if (!currentUser) {
+      const user = await login();
+
+      if (user) {
+        updateAnonymousUserToAuthUser(getAccountName());
+
+        // After login, check if we have calendar scope
+
+        if (hasAccess) {
+          await fetchUserCalendars();
+          setGcalPopupOpen(true);
+        } else {
+          // Need to request calendar scope
+          const scopeGranted = await requestAccess();
+          if (scopeGranted) {
+            setGcalPopupOpen(true);
+          }
+        }
+      }
     } else {
-      requestAdditionalScopes().then(() => {
-        fetchUserCalendars();
-      });
+      // Already logged in, check if we have calendar scope
+
+      if (hasAccess) {
+        // We have the scope, show calendar selection
+        await fetchUserCalendars();
+        setGcalPopupOpen(true);
+      } else {
+        // Need to request calendar scope
+        const scopeGranted = await requestAccess();
+        if (scopeGranted) {
+          setGcalPopupOpen(true);
+        }
+      }
     }
   };
 
   const handleAutofillAvailabilityClick = async () => {
+    // Check if the user is logged into Google
+    if (!currentUser) {
+      // Need to sign in first
+      const user = (await login()) != undefined;
+
+      if (!user) {
+        return;
+      }
+      updateAnonymousUserToAuthUser(getAccountName());
+    }
+
+    // Check if we have calendar scope
+    let justGrantedScope = false;
+    if (!hasAccess) {
+      // Need to request calendar scope
+      const scopeGranted = await requestAccess();
+      if (!scopeGranted) {
+        return;
+      }
+      justGrantedScope = true;
+    }
+
+    // Now we can proceed with autofill
     setShouldFillAvailability(true);
     setIsFillingAvailability(true);
 
-    // Proceed with autofill even if no GCals are selected
-    await getGoogleCalData(googleCalIds.length > 0 ? googleCalIds : [], true);
+    const lastSelectedGCalIds =
+      await getSelectedCalendarIDsByUserID(getAccountId());
+    if (justGrantedScope) {
+      setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
+    }
+
+    // Fetch calendar data and use it for
+    await fetchGoogleCalEvents(
+      idsOfCurrentlySelectedGCals.length > 0
+        ? idsOfCurrentlySelectedGCals
+        : justGrantedScope === true
+          ? lastSelectedGCalIds
+          : [],
+      true
+    );
   };
 
   const getCurrentUserIndex = () => {
@@ -571,12 +618,27 @@ function TimeSelectPage() {
       ? (calendarState[user] ?? [])
       : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
-    navigate(`/groupview/${code}`);
   };
 
   const handleSubmitAvailability = () => {
     saveAvailAndLocationChanges();
+    setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
+    navigate(`/groupview/${code}`);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-[60%] flex flex-col items-center justify-center">
+        <LoadingAnim />
+        <p className="text-gray-500">Loading...</p>
+        {showSlowMessage && (
+          <p className="text-center text-gray-500">
+            Your internet may be slow, or pop-ups may be disabled
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
@@ -606,14 +668,83 @@ function TimeSelectPage() {
             </div>
           )}
           <CopyCodeButton />
+
+          <div className="hidden lg:flex flex-col w-full bg-secondary_background dark:bg-secondary_background-dark p-4 py-2 rounded-lg">
+            <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">
+              Your Calendars
+            </h2>
+            {currentUser && hasAccess ? (
+              <ul className="space-y-1 max-h-80 overflow-y-auto">
+                {googleCalendars.map((cal) => (
+                  <li
+                    key={cal.id}
+                    className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
+                    onClick={() => {
+                      setIdsOfCurrentlySelectedGCals((prevState) => {
+                        if (prevState?.includes(cal.id)) {
+                          return prevState.filter((id) => id !== cal.id);
+                        } else {
+                          return [...(prevState || []), cal.id];
+                        }
+                      });
+                    }}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                        idsOfCurrentlySelectedGCals?.includes(cal.id)
+                          ? 'bg-primary dark:bg-blue-700'
+                          : 'bg-transparent'
+                      } border border-gray-400 dark:border-gray-600`}
+                    >
+                      {idsOfCurrentlySelectedGCals?.includes(cal.id) && (
+                        <IconCheck size={12} color="white" />
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
+                      {cal.summary}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center space-y-3">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Grant permission to import your calendars
+                </p>
+
+                <button
+                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
+                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                  onClick={async () => {
+                    if (currentUser && !hasAccess) {
+                      // alr logged in, need more scopes
+
+                      await requestAccess();
+                    } else {
+                      login().then(async (loginSuccessful) => {
+                        if (loginSuccessful !== undefined) {
+                          updateAnonymousUserToAuthUser(getAccountName());
+                          await requestAccess();
+                        }
+                      });
+                    }
+                  }}
+                >
+                  <img src={LOGO} alt="Logo" className="mr-2 h-5" />
+                  Sign in
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
         <div className="lg:col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout */}
                 <div className="w-full flex flex-col gap-4 md:hidden">
-                  {isGoogleLoggedIn ? (
+                  {currentUser && hasAccess ? (
                     <div className="flex gap-2 w-full">
                       <ButtonSmall
                         bgColor="primary"
@@ -638,21 +769,30 @@ function TimeSelectPage() {
                     <button
                       className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                       flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                      onClick={() => {
-                        signInWithGoogle(
-                          undefined,
-                          undefined,
-                          handleIsSignedIn
-                        ).then((loginSuccessful) => {
-                          if (loginSuccessful) {
-                            updateAnonymousUserToAuthUser(getAccountName());
-                            setIsGoogleLoggedIn(true);
-                          }
-                        });
+                      onClick={async () => {
+                        if (!hasAccess) {
+                          // alr logged in, need more scopes
+                          await requestAccess();
+                          // .then(() =>
+                          //   window.location.reload()
+                          // );
+                        } else {
+                          login()
+                            .then((User) => {
+                              updateAnonymousUserToAuthUser(getAccountName());
+                              requestAccess();
+                              // .then(() =>
+                              //   window.location.reload()
+                              // );
+                            })
+                            .catch((error) => {
+                              console.error('Error during login:', error);
+                            });
+                        }
                       }}
                     >
                       <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                      Sign in to access GCal
+                      Grant permission to import your calendars
                     </button>
                   )}
                   <div className="flex items-center gap-3 w-full">
@@ -677,17 +817,17 @@ function TimeSelectPage() {
                 </div>
 
                 {/* Desktop layout - unchanged */}
-                <div className="hidden md:flex items-center w-full max-w-full justify-between items-center space-x-2">
-                  <div className="flex items-center gap-2 flex-1">
+                <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
+                  <div className="flex items-center flex-1">
                     <div className="flex items-center gap-2">
-                      {isGoogleLoggedIn ? (
+                      {currentUser ? (
                         <>
                           <ButtonSmall
                             bgColor="primary"
                             textColor="white"
                             themeGradient={false}
                             onClick={handleToggleGCalAvailabilitiesClick}
-                            className="!rounded-lg"
+                            className="lg:hidden !rounded-lg"
                           >
                             Show GCal Events
                           </ButtonSmall>
@@ -696,26 +836,23 @@ function TimeSelectPage() {
                             textColor="white"
                             themeGradient={false}
                             onClick={handleAutofillAvailabilityClick}
-                            className="!rounded-lg"
+                            className="!rounded-lg mr-2"
                           >
                             Autofill Availability
                           </ButtonSmall>
                         </>
                       ) : (
                         <button
-                          className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
+                          className="lg:hidden font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
-                            signInWithGoogle(
-                              undefined,
-                              undefined,
-                              handleIsSignedIn
-                            ).then((loginSuccessful) => {
-                              if (loginSuccessful) {
+                            login()
+                              .then((User) => {
                                 updateAnonymousUserToAuthUser(getAccountName());
-                                setIsGoogleLoggedIn(true);
-                              }
-                            });
+                              })
+                              .catch((error) => {
+                                console.error('Error during login:', error);
+                              });
                           }}
                         >
                           <img src={LOGO} alt="Logo" className="mr-2 h-5" />
@@ -766,24 +903,21 @@ function TimeSelectPage() {
           </div>
         </div>
       </div>
+      {/* For Mobile */}
       <AddGoogleCalendarPopup
         isOpen={isGcalPopupOpen}
         onClose={closeGcalPopup}
-        onCloseAndSubmit={onPopupCloseAndSubmit}
-        onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
+        // onCloseAndAutofillAndSubmit={onPopupCloseAutofillAndSubmit}
         isFillingAvailability={isFillingAvailability}
       >
-        <h2 className="text-2xl font-bold mb-4">Select GCals</h2>
-        <FormGroup>
-          {googleCalendars.map((cal: any) => (
-            <FormControlLabel
+        <h2 className="text-xl font-bold mb-4">My Calendars</h2>
+        <ul className="space-y-1">
+          {googleCalendars.map((cal) => (
+            <li
               key={cal.id}
-              control={
-                <Checkbox checked={selectedPopupIds?.includes(cal.id)} />
-              }
-              label={cal.summary}
-              onChange={() => {
-                setSelectedPopupIds((prevState) => {
+              className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
+              onClick={() => {
+                setIdsOfCurrentlySelectedGCals((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
                   } else {
@@ -791,9 +925,24 @@ function TimeSelectPage() {
                   }
                 });
               }}
-            />
+            >
+              <div
+                className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                  idsOfCurrentlySelectedGCals?.includes(cal.id)
+                    ? 'bg-primary dark:bg-blue-700'
+                    : 'bg-transparent'
+                } border border-gray-400`}
+              >
+                {idsOfCurrentlySelectedGCals?.includes(cal.id) && (
+                  <IconCheck size={12} color="white" />
+                )}
+              </div>
+              <span className="text-sm text-gray-800 truncate">
+                {cal.summary}
+              </span>
+            </li>
           ))}
-        </FormGroup>
+        </ul>
       </AddGoogleCalendarPopup>
       {promptUserForLogin && (
         <LoginPopup

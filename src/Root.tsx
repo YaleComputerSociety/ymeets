@@ -9,16 +9,16 @@ import ConditionalGroupViewRenderer from './components/GroupView/ConditionalGrou
 import AboutUsPage from './components/AboutUs/AboutUsPage';
 import NotFound from './components/NotFound/NotFound';
 import PrivacyPage from './components/Privacy/PrivacyPage';
-import { GAPIContextWrapper } from './firebase/gapiContext';
 import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './backend/authContext';
 
 function Root() {
   return (
-    <ThemeProvider>
-      <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
-        <Banner title="2.0 Release is Live" text="Please report bugs" />
-        <GAPIContextWrapper>
+    <AuthProvider>
+      <ThemeProvider>
+        <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
+          <Banner title="2.0 Release is Live" text="Please report bugs" />
           <Router>
             <NavBar></NavBar>
             <Routes>
@@ -35,9 +35,9 @@ function Root() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
-        </GAPIContextWrapper>
-      </div>
-    </ThemeProvider>
+        </div>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { getTimezone, getUTCDates } from '../../../firebase/events';
+import { getTimezone, getUTCDates } from '../../../backend/events';
 import { timezones } from '../constants/timezones';
 
 const getTimezoneOffset = (timezone: string) => {

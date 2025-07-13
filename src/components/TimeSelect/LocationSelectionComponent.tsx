@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import Select from 'react-dropdown-select';
+import { getAccountName, getLocationVotesByName } from '../../backend/events';
 import { IconChevronDown, IconX, IconCheck } from '@tabler/icons-react';
 import './locationSelectionComponent.css';
 
@@ -83,7 +85,9 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
               key={location}
               className="flex items-center px-3 py-1 bg-primary dark:bg-primary-600 text-white rounded-full shadow-md"
             >
-              <span title={location} className="mr-2 truncate max-w-[150px]">{location}</span>
+              <span title={location} className="mr-2 truncate max-w-[150px]">
+                {location}
+              </span>
               <IconX
                 size={16}
                 className="cursor-pointer hover:text-gray-200 transition-colors"
@@ -114,7 +118,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
       </div>
       {isOpen && (
         <ul
-          className="absolute z-50 w-full max-h-60 mt-1 overflow-y-auto 
+          className="absolute z-50 w-full max-h-40 mt-1 overflow-y-auto 
                       bg-white dark:bg-secondary_background-dark 
                       border border-gray-300 dark:border-gray-600 
                       rounded-lg shadow-lg 
