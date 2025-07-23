@@ -126,16 +126,16 @@ export default function CalRow({
     const matchedEvents = googleCalendarEvents?.filter(
       (gEvent: calendar_v3.Schema$Event) =>
         gEvent?.start?.dateTime &&
-        dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
-          dateObjectToComparable(date.date)
+        gEvent.start.dateTime?.split('T')[0] ===
+          date.date?.toISOString().split('T')[0]
     );
 
     const matchedDates = googleCalendarEvents
       ?.map((gEvent: calendar_v3.Schema$Event) => {
         if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
           return [
-            new Date(gEvent.start.dateTime),
-            new Date(gEvent.end.dateTime),
+            new Date(gEvent?.start?.dateTime),
+            new Date(gEvent?.end?.dateTime),
           ];
         }
         return null;

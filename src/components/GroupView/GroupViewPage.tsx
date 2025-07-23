@@ -59,6 +59,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
       endTime: new Date(),
       numOfBlocks: 0,
       numOfCols: 0,
+      timezone: getUserTimezone(),
     });
 
   const { code } = useParams();

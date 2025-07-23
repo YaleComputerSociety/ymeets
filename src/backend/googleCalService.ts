@@ -1,6 +1,10 @@
 // GoogleCalendarService.ts
 // A service to handle Google Calendar API interactions with modern authentication flow
 
+import { time } from "console";
+import { getUserTimezone } from "../components/utils/functions/timzoneConversions";
+
+
 // Why we feel this is secure: https://stackoverflow.com/questions/18280827/localstorage-vs-cookies-for-oauth2-in-html5-web-app
 // combined with the fact that there is a expiration date for the token.
 
@@ -487,11 +491,43 @@ class GoogleCalendarService {
     }
   }
 
+ private convertEventsToTimezone(events: any, targetTimezone: string) {
+  console.log("converting");
+  return events.map((event: any) => {
+    const convertedEvent = { ...event };
+    
+    if (event.start?.dateTime) {
+      const startDate = new Date(event.start.dateTime);
+      convertedEvent.start = {
+        ...event.start,
+        dateTime: startDate.toLocaleString('sv-SE', { 
+          timeZone: targetTimezone 
+        }).replace(' ', 'T'),
+        timeZone: targetTimezone
+      };
+    }
+    
+    if (event.end?.dateTime) {
+      const endDate = new Date(event.end.dateTime);
+      convertedEvent.end = {
+        ...event.end,
+        dateTime: endDate.toLocaleString('sv-SE', { 
+          timeZone: targetTimezone 
+        }).replace(' ', 'T'),
+        timeZone: targetTimezone
+      };
+    }
+    
+    return convertedEvent;
+  });
+}
+
   // Fetch calendar events with better error handling
   public async fetchCalendarEvents(
     calendarId: string = 'primary',
     timeMin: string,
-    timeMax: string
+    timeMax: string,
+    timezone: string
   ): Promise<any[]> {
     if (!this.initialized) {
       await this.initializeClient();
@@ -503,16 +539,30 @@ class GoogleCalendarService {
       throw new Error('Calendar access not granted. Please request access first.');
     }
 
+    console.log(`Fetching events for calendar ${calendarId} from ${timeMin} to ${timeMax} in timezone ${timezone}`);
+
     try {
       const response = await window.gapi.client.calendar.events.list({
         calendarId,
         timeMin,
         timeMax,
         singleEvents: true,
-        orderBy: 'startTime'
+        orderBy: 'startTime',
+        timeZone: timezone
       });
 
-      return response.result.items || [];
+      console.log(response.result.items);
+
+      if (timezone == null ) {
+        return response.result.items || [];
+      }
+
+      const conversion =  this.convertEventsToTimezone(response.result.items, timezone) || [];
+
+      console.log(conversion)
+
+      return conversion;
+
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       

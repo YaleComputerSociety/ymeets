@@ -95,21 +95,6 @@ function SelectCalander({
     [setDragState]
   );
 
-  function checkIfDraggableBasedOnGroup(
-    groupIndex: number,
-    columnIndex: number
-  ) {
-    if (
-      (columnIndex === 0 && groupIndex === 0) ||
-      (columnIndex === theCalendarFramework[0].numOfCols - 1 &&
-        groupIndex === 1)
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
   useEffect(() => {
     const calendar = calendarRef.current;
     if (calendar) {

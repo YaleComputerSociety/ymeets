@@ -15,5 +15,6 @@ export function isTimeBetweenDates(
 
   checkTime.setHours(hours, minutes, 0, 0);
 
+
   return startTime <= checkTime && checkTime < endTime;
 }

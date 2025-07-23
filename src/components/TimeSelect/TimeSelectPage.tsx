@@ -1,6 +1,7 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3 } from 'googleapis';
 import { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 import {
   calanderState,
   userData,
@@ -23,7 +24,6 @@ import {
   getLocationOptions,
   getParticipantIndex,
   getChosenDayAndTime,
-  getTimezone,
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
@@ -33,8 +33,11 @@ import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPop
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
-
-import { getUserTimezone } from '../utils/functions/timzoneConversions';
+import { getDates } from '../../backend/events';
+import {
+  adjustBlockIDColumnID,
+  getUserTimezone,
+} from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
@@ -42,6 +45,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
+import { get } from 'lodash';
 
 /**
  *
@@ -79,6 +83,7 @@ function TimeSelectPage() {
       endTime: new Date(),
       numOfBlocks: 0,
       numOfCols: 0,
+      timezone: getUserTimezone(),
     });
 
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -104,14 +109,6 @@ function TimeSelectPage() {
     selectionMode: false, // true for selecting, false for deselecting
     lastPosition: null,
   });
-
-  // const {
-  //   gapi,
-  //   isGapiInitialized,
-  //   initializeGapi,
-  //   GAPILoading,
-  //   handleIsSignedIn,
-  // } = useContext(GAPIContext);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
@@ -246,10 +243,6 @@ function TimeSelectPage() {
     })();
   }, [code]);
 
-  // useEffect(() => {
-  //   fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, false);
-  // }, [googleCalendars, idsOfCurrentlySelectedGCals]);
-
   useEffect(() => {
     if (!isGeneralDays) return;
 
@@ -304,6 +297,8 @@ function TimeSelectPage() {
     calIds: string[],
     fillAvailability = false
   ) => {
+    console.log(fillAvailability);
+
     try {
       // Check if we have the required scope first
 
@@ -318,6 +313,7 @@ function TimeSelectPage() {
       const parsedEvents: any[] = [];
 
       if (calIds.length === 0) {
+        console.log('No Google Calendars selected, clearing events');
         setGoogleCalendarEvents([]);
         if (fillAvailability)
           fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
@@ -345,16 +341,15 @@ function TimeSelectPage() {
         ).toISOString();
       }
 
-      for (let i = 0; i < calIds.length; i++) {
-        // const eventList = await gapi?.client?.calendar?.events?.list({
-        //   calendarId: calIds[i],
-        //   timeMin,
-        //   timeMax,
-        //   singleEvents: true,
-        //   orderBy: 'startTime',
-        // });
+      console.log(calendarFramework?.timezone);
 
-        const theEvents = await getEvents(calIds[i], timeMin, timeMax);
+      for (let i = 0; i < calIds.length; i++) {
+        const theEvents = await getEvents(
+          calIds[i],
+          timeMin,
+          timeMax,
+          calendarFramework?.timezone
+        );
 
         for (let event of theEvents) {
           const startDate = new Date(
@@ -371,7 +366,6 @@ function TimeSelectPage() {
           parsedEvents.push(event);
         }
       }
-
       setGoogleCalendarEvents([...parsedEvents]);
 
       if (fillAvailability) {
@@ -390,6 +384,7 @@ function TimeSelectPage() {
   };
 
   useEffect(() => {
+    console.log('fetching events');
     if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, shouldFillAvailability);
     }
@@ -398,12 +393,16 @@ function TimeSelectPage() {
     idsOfCurrentlySelectedGCals,
     hasAccess,
     shouldFillAvailability,
+    calendarFramework.timezone,
   ]);
 
   const fillAvailabilityNotInGCalEvents = (
     parsedEvents: any[],
     dates: calandarDate[]
   ) => {
+    console.log('parsedEvents', parsedEvents);
+    console.log('dates', dates);
+
     const userIndex = getCurrentUserIndex();
     const oldCalendarState = { ...calendarState };
     const userAvailability = oldCalendarState[userIndex];
@@ -419,8 +418,13 @@ function TimeSelectPage() {
       startHour !== undefined &&
       endMinute !== undefined &&
       startMinute !== undefined
-        ? (endHour - startHour) * 60 + (endMinute - startMinute)
+        ? endHour < startHour
+          ? // Time crosses midnight - add 24 hours to end time
+            (endHour + 24 - startHour) * 60 + (endMinute - startMinute)
+          : // Normal case - same day
+            (endHour - startHour) * 60 + (endMinute - startMinute)
         : 0;
+
     const totalBlocks = totalMinutes / 15; // Assuming 15-minute intervals
 
     const timeBlocks = generateTimeBlocks(
@@ -428,32 +432,55 @@ function TimeSelectPage() {
       calendarFramework?.endTime
     );
 
+    console.log(totalBlocks, dates.length);
+
     const times: string[] = ([] as string[]).concat(...timeBlocks.flat());
 
-    for (let columnID = 0; columnID < dates.length; columnID++) {
+    for (
+      let columnID = 0;
+      columnID < calendarFramework.dates.length;
+      columnID++
+    ) {
       const dateObj = dates[columnID];
       for (let blockID = 0; blockID < totalBlocks; blockID++) {
-        const timeString = times[blockID];
+        const [adjustedColumnID, adjustedBlockID] =
+          calendarFramework.numOfCols != getDates().length
+            ? adjustBlockIDColumnID(
+                blockID < timeBlocks[0].length * 4 ? 0 : 1,
+                blockID,
+                columnID,
+                calendarFramework.numOfCols,
+                getDates().length,
+                calendarFramework
+              )
+            : [columnID, blockID];
+
+        const timeString = times[adjustedBlockID];
         const [hours, minutes] = timeString
           ? timeString.split(':').map(Number)
           : [0, 0];
 
-        const startDateTime = new Date(dateObj.date as Date);
-        startDateTime.setHours(hours, minutes, 0, 0);
+        const startDateTime = DateTime.fromJSDate(dateObj.date as Date)
+          .set({ hour: hours, minute: minutes, second: 0, millisecond: 0 })
+          .setZone(calendarFramework.timezone);
 
-        const endDateTime = new Date(startDateTime.getTime() + 15 * 60 * 1000);
-
+        const endDateTime = startDateTime.plus({ minutes: 15 });
+        console.log('startDateTime', startDateTime.toJSDate());
         const overlapsGCalEvent = parsedEvents.some((event) => {
-          const eventStart = new Date(event.start.dateTime || event.start.date);
-          const eventEnd = new Date(event.end.dateTime || event.end.date);
+          const eventStart = new Date(event.start.dateTime);
+          const eventEnd = new Date(event.end.dateTime);
+          console.log('eventStart', eventStart);
 
-          return startDateTime < eventEnd && endDateTime > eventStart;
+          return (
+            startDateTime.toJSDate() < eventEnd &&
+            endDateTime.toJSDate() > eventStart
+          );
         });
 
-        if (!overlapsGCalEvent) {
-          userAvailability[columnID][blockID] = true;
+        if (overlapsGCalEvent == false) {
+          userAvailability[adjustedColumnID][adjustedBlockID] = true;
         } else {
-          userAvailability[columnID][blockID] = false;
+          userAvailability[adjustedColumnID][adjustedBlockID] = false;
         }
       }
     }

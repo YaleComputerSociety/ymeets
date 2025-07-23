@@ -152,7 +152,8 @@ export function useGoogleCalendar() {
     async (
       calendarId: string = 'primary',
       startDate: string,
-      endDate: string
+      endDate: string,
+      timezone: string
     ): Promise<CalendarEvent[]> => {
       // Sync state before checking
       syncAuthState();
@@ -171,7 +172,8 @@ export function useGoogleCalendar() {
         const events = await calendarService.fetchCalendarEvents(
           calendarId,
           startDate,
-          endDate
+          endDate,
+          timezone
         );
         return events;
       } catch (err) {
