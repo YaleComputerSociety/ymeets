@@ -1,6 +1,6 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3 } from 'googleapis';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { DateTime } from 'luxon';
 import {
   calanderState,
@@ -51,9 +51,63 @@ import { get } from 'lodash';
  *
  * @returns Page Component
  */
-function TimeSelectPage() {
-  const { code } = useParams();
-  const { login, currentUser } = useAuth();
+function TimeSelectPage({
+  isEditing,
+  toggleEditing,
+  onFetchComplete,
+  code,
+  chartedUsers,
+  setChartedUsers,
+  calendarState,
+  setCalendarState,
+  calendarFramework,
+  setCalendarFramework,
+  loading,
+  setLoading,
+  eventName,
+  setEventName,
+  eventDescription,
+  setEventDescription,
+  locationOptions,
+  setLocationOptions,
+  areSelectingGeneralDays,
+  setAreSelectingGeneralDays,
+  isGeneralDays,
+  setIsGeneralDays,
+  hasAvailability,
+  setHasAvailability,
+}: {
+  isEditing: boolean;
+  toggleEditing: () => void;
+  onFetchComplete: () => void;
+  code: string | undefined;
+  chartedUsers: userData;
+  setChartedUsers: Dispatch<SetStateAction<userData>>;
+  calendarState: calanderState;
+  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarFramework: calendarDimensions;
+  setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+  eventName: string;
+  setEventName: Dispatch<SetStateAction<string>>;
+  eventDescription: string;
+  setEventDescription: Dispatch<SetStateAction<string>>;
+  locationOptions: string[];
+  setLocationOptions: Dispatch<SetStateAction<string[]>>;
+  areSelectingGeneralDays: boolean;
+  setAreSelectingGeneralDays: Dispatch<SetStateAction<boolean>>;
+  isGeneralDays: boolean;
+  setIsGeneralDays: Dispatch<SetStateAction<boolean>>;
+  hasAvailability: boolean;
+  setHasAvailability: Dispatch<SetStateAction<boolean>>;
+}) {
+  const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
+
+  const closeGcalPopup = () => {
+    setGcalPopupOpen(false);
+  };
+
   const {
     hasAccess,
     initialized,
@@ -62,41 +116,17 @@ function TimeSelectPage() {
     getEvents,
     disconnect,
   } = useGoogleCalendar();
-  const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
+  const { login, currentUser } = useAuth();
 
   const nav = useNavigate();
 
-  const closeGcalPopup = () => {
-    setGcalPopupOpen(false);
-  };
-
-  const navigate = useNavigate();
-  const [chartedUsers, setChartedUsers] = useState<userData | undefined>(
-    undefined
-  );
-
-  const [calendarState, setCalendarState] = useState<calanderState>([]);
-  const [calendarFramework, setCalendarFramework] =
-    useState<calendarDimensions>({
-      dates: [],
-      startTime: new Date(),
-      endTime: new Date(),
-      numOfBlocks: 0,
-      numOfCols: 0,
-      timezone: getUserTimezone(),
-    });
-
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
-  const [loading, setLoading] = useState(true);
-
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-  const [locationOptions, setLocationOptions] = useState(Array<string>);
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
-  // hook that handles whether or not we are working with dates, or just selecting days of the week
-  const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false);
+  useEffect(() => {
+    onFetchComplete();
+  }, [onFetchComplete]);
 
   const endPromptUserForLogin = () => {
     setPromptUserForLogin(false);
@@ -137,111 +167,34 @@ function TimeSelectPage() {
   const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
     useState(false);
 
-  const [hasAvailability, setHasAvailability] = useState(false);
-  const [isGeneralDays, setIsGeneralDays] = useState(
-    calendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
-  );
-
   useEffect(() => {
     const fetchData = async () => {
-      // Check if code is valid
-      if (!code || code.length !== 6) {
-        console.error("The event code in the URL doesn't exist");
-        nav('/notfound');
-        return false;
-      }
+      const uid = getAccountId();
 
       try {
-        // Main event loading
-        await getEventOnPageload(code);
+        const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
+        setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
 
-        const { availabilities, participants } = eventAPI.getCalendar();
-        const dim = eventAPI.getCalendarDimensions();
-        const uid = getAccountId();
-
-        if (dim === undefined) {
-          nav('/notfound');
-          return false;
+        if (hasAccess) {
+          await fetchUserCalendars();
         }
-
-        // Handle account details
-        const accountName = getAccountName();
-        if (accountName === null) {
-          return false;
-        }
-
-        // Setup availability
-        let avail: Availability | undefined =
-          uid !== ''
-            ? getAvailabilityByAccountId(uid)
-            : getAvailabilityByName(accountName);
-
-        if (avail === undefined) {
-          avail = eventAPI.getEmptyAvailability(dim);
-        } else {
-          setHasAvailability(true);
-        }
-
-        // Update state with event data
-        setChartedUsers(participants);
-        setEventName(getEventName());
-        setEventDescription(getEventDescription());
-        setLocationOptions(getLocationOptions());
-
-        const theRange = getChosenDayAndTime();
-        const isGeneralDaysSelection =
-          dim?.dates[0][0].date?.getFullYear() === 2000 &&
-          theRange === undefined;
-
-        setIsGeneralDays(isGeneralDaysSelection);
-        setCalendarState([...availabilities, avail]);
-        setCalendarFramework(dim);
-        setAreSelectingGeneralDays(isGeneralDaysSelection);
-
-        // Navigate to group view if a selection is already made
-        if (theRange !== undefined && theRange[0].getFullYear() !== 1970) {
-          nav('/groupview/' + code);
-          return true;
-        }
-
-        try {
-          const lastSelectedGCalIds = await getSelectedCalendarIDsByUserID(uid);
-          setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
-
-          if (hasAccess) {
-            await fetchUserCalendars();
-          }
-        } catch (calendarError) {
-          console.error('Error fetching calendar data:', calendarError);
-        }
-
-        return true;
-      } catch (error) {
-        console.error('Error loading event:', error);
-        nav('/notfound');
-        return false;
+      } catch (calendarError) {
+        console.error('Error fetching calendar data:', calendarError);
       }
     };
 
-    // Execute the main data fetching function and handle final states
     (async () => {
       try {
-        setLoading(true);
-        const success = await fetchData();
+        await fetchData();
 
-        if (
-          success &&
-          (getAccountName() === '' || getAccountName() === undefined)
-        ) {
+        if (getAccountName() === '' || getAccountName() === undefined) {
           setPromptUserForLogin(true);
         }
       } catch (err) {
         console.error('Unhandled error in data fetching:', err);
-      } finally {
-        setLoading(false);
       }
     })();
-  }, [code]);
+  }, []);
 
   useEffect(() => {
     if (!isGeneralDays) return;
@@ -645,12 +598,13 @@ function TimeSelectPage() {
       ? (calendarState[user] ?? [])
       : [];
     wrappedSaveParticipantDetails(avail, selectedLocations);
+    setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
+
+    toggleEditing();
   };
 
   const handleSubmitAvailability = () => {
     saveAvailAndLocationChanges();
-    setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
-    navigate(`/groupview/${code}`);
   };
 
   if (loading) {
@@ -686,6 +640,18 @@ function TimeSelectPage() {
           >
             {eventDescription}
           </div>
+
+          <CopyCodeButton />
+
+          {/* View/Edit Availability Button */}
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={toggleEditing}
+          >
+            {isEditing ? 'View Availabilities' : 'Edit Your Availability'}
+          </ButtonSmall>
+
           {locationOptions.length > 0 && (
             <div className="w-full z-50">
               <LocationSelectionComponent

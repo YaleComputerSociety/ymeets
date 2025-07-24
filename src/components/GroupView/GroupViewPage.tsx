@@ -1,4 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -6,24 +13,17 @@ import {
   calendarDimensions,
   dragProperties,
 } from '../../types';
-import eventAPI from '../../backend/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { useCallback } from 'react';
 import {
-  getEventOnPageload,
-  getEventName,
   getEventObjectForGCal,
   getParticipantIndex,
   getAccountId,
-  getEventDescription,
-  getLocationsVotes,
-  getLocationOptions,
   getAccountName,
   getAccountEmail,
   getChosenLocation,
-  getTimezone,
 } from '../../backend/events';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -43,51 +43,79 @@ import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
-interface GroupViewProps {
-  isAdmin: boolean;
-}
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
-export default function GroupViewPage({ isAdmin }: GroupViewProps) {
-  const [calendarState, setCalendarState] = useState<calanderState>([]);
-  const [calendarFramework, setCalendarFramework] =
-    useState<calendarDimensions>({
-      dates: [],
-      startTime: new Date(),
-      endTime: new Date(),
-      numOfBlocks: 0,
-      numOfCols: 0,
-      timezone: getUserTimezone(),
-    });
-
-  const { code } = useParams();
-
+export default function GroupViewPage({
+  isAdmin,
+  isEditing,
+  toggleEditing,
+  calendarState,
+  setCalendarState,
+  calendarFramework,
+  setCalendarFramework,
+  code,
+  chartedUsers,
+  setChartedUsers,
+  eventName,
+  setEventName,
+  eventDescription,
+  setEventDescription,
+  locationVotes,
+  setLocationVotes,
+  locationOptions,
+  setLocationOptions,
+  adminChosenLocation,
+  setAdminChosenLocation,
+  loading,
+  setLoading,
+  allPeople,
+  setAllPeople,
+  peopleStatus,
+  setPeopleStatus,
+  allUsers,
+  setAllUsers,
+  userHasFilled,
+  setUserHasFilled,
+}: {
+  isAdmin: boolean;
+  isEditing: boolean;
+  toggleEditing: () => void;
+  calendarState: calanderState;
+  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarFramework: calendarDimensions;
+  setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
+  code: string | undefined;
+  chartedUsers: userData;
+  setChartedUsers: Dispatch<SetStateAction<userData>>;
+  eventName: string;
+  setEventName: Dispatch<SetStateAction<string>>;
+  eventDescription: string;
+  setEventDescription: Dispatch<SetStateAction<string>>;
+  locationVotes: any;
+  setLocationVotes: Dispatch<SetStateAction<any>>;
+  locationOptions: string[];
+  setLocationOptions: Dispatch<SetStateAction<string[]>>;
+  adminChosenLocation: string | undefined;
+  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+  allPeople: string[];
+  setAllPeople: Dispatch<SetStateAction<string[]>>;
+  peopleStatus: { [key: string]: boolean };
+  setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
+  allUsers: userData;
+  setAllUsers: Dispatch<SetStateAction<userData>>;
+  userHasFilled: boolean;
+  setUserHasFilled: Dispatch<SetStateAction<boolean>>;
+}) {
   const [showUserChart, setShowUserChart] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
-
-  const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-
-  const [locationVotes, setLocationVotes] = useState(Object);
-  const [locationOptions, setLocationOptions] = useState(Array<string>);
   const [showLocationChart, setShowLocationChart] = useState(false);
-
-  // this is the location that admin selected on the CLIENT side
-  const [adminChosenLocation, setAdminChosenLocation] = useState<
-    string | undefined
-  >(undefined);
-
-  // this is the location the admin previously submitted / submitted to the backend, which is pulled and set
-  // or updated to be the admin location
-  const [selectedLocation, setSelectedLocation] = useState<string>();
-  const [loading, setLoading] = useState(true);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
-
   const [dragState, setDragState] = useState<dragProperties>({
     isSelecting: false,
     startPoint: null,
@@ -95,18 +123,6 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     selectionMode: false, // true for selecting, false for deselecting
     lastPosition: null,
   });
-
-  const [allPeople, setAllPeople] = useState<string[]>([]);
-  const [peopleStatus, setPeopleStatus] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [allUsers, setAllUsers] = useState<userData>({} as userData);
-
-  const [userHasFilled, setUserHasFilled] = useState(false);
-
-  useEffect(() => {
-    setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
-  }, [allPeople]);
 
   const { login, currentUser } = useAuth();
 
@@ -147,47 +163,6 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     },
     [createCalendarEventUrl]
   );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (code && code.length == 6) {
-        await getEventOnPageload(code)
-          .then(() => {
-            const { availabilities, participants } = eventAPI.getCalendar();
-            const dates = eventAPI.getCalendarDimensions();
-
-            setChartedUsers(participants);
-            setAllPeople(participants.users.map((user) => user.name));
-            setAllUsers(participants);
-            setPeopleStatus(
-              Object.fromEntries(
-                participants.users.map((user) => [user.name, true])
-              )
-            );
-
-            setUserHasFilled(participants.userIDs.includes(getAccountId()));
-
-            setCalendarState(availabilities);
-            setCalendarFramework(dates);
-
-            setEventName(getEventName());
-            setEventDescription(getEventDescription());
-            setLocationVotes(getLocationsVotes());
-            setLocationOptions(getLocationOptions());
-            setSelectedLocation(getChosenLocation());
-            setAdminChosenLocation(getChosenLocation());
-            setLoading(false);
-          })
-          .catch(() => {
-            nav('/notfound');
-          });
-      } else {
-        // url is malformed
-        nav('notfound');
-      }
-    };
-    fetchData();
-  }, []);
 
   async function handleSelectionSubmission() {
     if (!dragState.endPoint || !dragState.startPoint) {
@@ -305,6 +280,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <CopyCodeButton />
+
+          <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+
           {isAdmin && (
             <AutoDraftEmailButton
               eventTitle={eventName}
@@ -383,11 +361,12 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                 <div className="flex flex-col sm:flex-row items-center justify-between w-full">
                   <div className="w-full flex flex-col sm:flex-row items-center sm:space-x-2">
                     <div className="flex w-full sm:w-auto justify-center sm:justify-between mb-2 space-x-2 sm:mb-0">
-                      <ButtonSmall
+                      {/* <ButtonSmall
                         bgColor={'primary'}
                         textColor={'white'}
                         onClick={() => {
-                          nav('/timeselect/' + code);
+                          // nav('/timeselect/' + code);
+                          nav('/dashboard/' + code, { state: { isEditing: true } });
                         }}
                       >
                         <div className="flex flex-row items-center justify-center space-x-1">
@@ -398,7 +377,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                               : 'Add Your Availability'}
                           </p>
                         </div>
-                      </ButtonSmall>
+                      </ButtonSmall> */}
 
                       <div className="sm:hidden flex items-center justify-center space-x-0">
                         {isAdmin &&
@@ -436,17 +415,15 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
                         </div>
 
                         <div className="hidden sm:flex items-center justify-center">
-                          {isAdmin &&
-                            calendarFramework?.dates?.[0][0].date instanceof
-                              Date &&
-                            (
-                              calendarFramework.dates[0][0].date as Date
-                            ).getFullYear() !== 2000 &&
-                            isAdmin && (
-                              <AddToGoogleCalendarButton
-                                onClick={handleSelectionSubmission}
-                              />
-                            )}
+                          <ButtonSmall
+                            bgColor="primary"
+                            textColor="white"
+                            onClick={toggleEditing}
+                          >
+                            {isEditing
+                              ? 'View Availabilities'
+                              : 'Edit Your Availability'}
+                          </ButtonSmall>
                         </div>
 
                         <div className="flex items-center space-x-2">

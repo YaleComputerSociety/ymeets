@@ -12,8 +12,11 @@ import PrivacyPage from './components/Privacy/PrivacyPage';
 import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './backend/authContext';
+import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
+import { useState } from 'react';
 
 function Root() {
+  const [isEditing, setIsEditing] = useState(false);
   return (
     <AuthProvider>
       <ThemeProvider>
@@ -24,10 +27,9 @@ function Root() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
-              <Route path="/timeselect/:code" element={<TimeSelectPage />} />
               <Route
-                path="/groupview/:code"
-                element={<ConditionalGroupViewRenderer />}
+                path="/dashboard/:code"
+                element={<UnifiedAvailabilityPage />}
               />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
