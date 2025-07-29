@@ -9,25 +9,27 @@ import ConditionalGroupViewRenderer from './components/GroupView/ConditionalGrou
 import AboutUsPage from './components/AboutUs/AboutUsPage';
 import NotFound from './components/NotFound/NotFound';
 import PrivacyPage from './components/Privacy/PrivacyPage';
-import { GAPIContextWrapper } from './firebase/gapiContext';
 import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './backend/authContext';
+import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
+import { useState } from 'react';
 
 function Root() {
+  const [isEditing, setIsEditing] = useState(false);
   return (
-    <ThemeProvider>
-      <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
-        <Banner title="2.0 Release is Live" text="Please report bugs" />
-        <GAPIContextWrapper>
+    <AuthProvider>
+      <ThemeProvider>
+        <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
+          <Banner title="2.0 Release is Live" text="Please report bugs" />
           <Router>
             <NavBar></NavBar>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
-              <Route path="/timeselect/:code" element={<TimeSelectPage />} />
               <Route
-                path="/groupview/:code"
-                element={<ConditionalGroupViewRenderer />}
+                path="/dashboard/:code"
+                element={<UnifiedAvailabilityPage />}
               />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
@@ -35,9 +37,9 @@ function Root() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
-        </GAPIContextWrapper>
-      </div>
-    </ThemeProvider>
+        </div>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

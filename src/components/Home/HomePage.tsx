@@ -2,7 +2,7 @@
 import * as React from 'react';
 // import background from '../landingpage/landingbackground.jpg'
 import { useNavigate } from 'react-router-dom';
-import { checkIfLoggedIn, getEventById } from '../../firebase/events';
+import { checkIfLoggedIn, getEventById } from '../../backend/events';
 import graphic from './calendargraphic.png';
 import LoginPopup from '../utils/components/LoginPopup';
 import Footer from '../utils/components/Footer';
@@ -49,7 +49,7 @@ export default function HomePage() {
   const goToEvent = () => {
     getEventById(eventCode)
       .then((result) => {
-        navigate('/groupview/' + eventCode);
+        navigate('/dashboard/' + eventCode);
       })
       .catch((err) => {
         formValidationPopup('Code is invalid.');

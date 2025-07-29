@@ -10,7 +10,7 @@ import { dragProperties } from '../../types';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import { getDates } from '../../firebase/events';
+import { getDates } from '../../backend/events';
 
 interface CalRowProps {
   bucket: calandarDate[];
@@ -126,16 +126,16 @@ export default function CalRow({
     const matchedEvents = googleCalendarEvents?.filter(
       (gEvent: calendar_v3.Schema$Event) =>
         gEvent?.start?.dateTime &&
-        dateObjectToComparable(new Date(gEvent.start.dateTime)) ===
-          dateObjectToComparable(date.date)
+        gEvent.start.dateTime?.split('T')[0] ===
+          date.date?.toISOString().split('T')[0]
     );
 
     const matchedDates = googleCalendarEvents
       ?.map((gEvent: calendar_v3.Schema$Event) => {
         if (gEvent?.start?.dateTime && gEvent?.end?.dateTime) {
           return [
-            new Date(gEvent.start.dateTime),
-            new Date(gEvent.end.dateTime),
+            new Date(gEvent?.start?.dateTime),
+            new Date(gEvent?.end?.dateTime),
           ];
         }
         return null;
@@ -179,12 +179,27 @@ export default function CalRow({
 
     const eventEndMatches = matchedEvents?.filter(
       (gEvent: calendar_v3.Schema$Event) => {
+        const [hours, minutes] = time.split(':').map(Number);
         if (gEvent?.end?.dateTime) {
           const endTime = new Date(gEvent.end.dateTime);
           const checkTime = new Date(gEvent.end.dateTime);
           checkTime.setHours(hours, minutes, 0, 0);
           const timeDifference = endTime.getTime() - checkTime.getTime();
-          return timeDifference >= 0 && timeDifference <= 14 * 60 * 1000;
+
+          const isOverlapped = matchedEvents?.some(
+            (otherEvent) =>
+              otherEvent !== gEvent &&
+              otherEvent.end?.dateTime &&
+              new Date(otherEvent.end.dateTime) > endTime &&
+              otherEvent.start?.dateTime &&
+              new Date(otherEvent.start.dateTime) < endTime
+          );
+
+          return (
+            !isOverlapped &&
+            timeDifference >= 0 &&
+            timeDifference <= 14 * 60 * 1000
+          );
         }
         return false;
       }

@@ -789,6 +789,29 @@ async function undoAdminSelections() {
   await saveEventDetails(workingEvent.details);
 }
 
+async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', uid));
+    if (userDoc.exists()) {
+      return userDoc.data().selectedCalendarIDs || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching selected calendars:', error);
+    return [];
+  }
+}
+
+async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
+  try {
+    const userDocRef = doc(db, 'users', uid);
+    console.log('Setting selected calendars for user:', uid, calIDs);
+    await setDoc(userDocRef, { selectedCalendarIDs: calIDs }, { merge: true });
+  } catch (error) {
+    console.error('Error setting selected calendars:', error);
+  }
+}
+
 export { workingEvent }; // For interal use; use getters and setters below
 
 export {
@@ -801,6 +824,8 @@ export {
 
   // Misc
   getAllEventsForUser,
+  getSelectedCalendarIDsByUserID,
+  setUserSelectedCalendarIDs,
 
   // High Level (Async)
   getEventOnPageload,

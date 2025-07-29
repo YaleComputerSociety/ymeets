@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon';
-import { getTimezone, getUTCDates } from '../../../firebase/events';
+import { getTimezone, getUTCDates } from '../../../backend/events';
 import { timezones } from '../constants/timezones';
+import { calendarDimensions } from '../../../types';
+import { generateTimeBlocks } from './generateTimeBlocks';
 
 const getTimezoneOffset = (timezone: string) => {
   const date = new Date();
@@ -141,3 +143,37 @@ export const doTimezoneChange = (newTimezone: string, initialStartTime : Date, i
     adjustedEndTime: new Date(initialEndTime.getTime() + offsetDiff)
   }
 }
+
+export function adjustBlockIDColumnID(
+    groupIndex: number,
+    blockID: number,
+    columnIndex: number,
+    numOfCols: number,
+    originalNumOfCols: number,
+    calendarFramework: calendarDimensions
+  ): [number, number] {
+    const timeBlocks = generateTimeBlocks(
+      calendarFramework.startTime,
+      calendarFramework.endTime
+    );
+    const extraDayAdded = numOfCols != originalNumOfCols;
+
+    if (extraDayAdded) {
+      const upperBlocksPerColumn = timeBlocks[0] ? timeBlocks[0].length * 4 : 0;
+      const lowerBlocksPerColumn = timeBlocks[1] ? timeBlocks[1].length * 4 : 0;
+
+      if (groupIndex === 0) {
+        if (columnIndex === 0) {
+          return [-1, -1];
+        }
+        return [blockID + lowerBlocksPerColumn, columnIndex - 1];
+      } else {
+        if (columnIndex >= originalNumOfCols) {
+          return [-1, -1];
+        }
+        return [blockID - upperBlocksPerColumn, columnIndex];
+      }
+    }
+
+    return [blockID, columnIndex];
+  }
