@@ -660,7 +660,6 @@ function TimeSelectPage({
               />
             </div>
           )}
-          <CopyCodeButton />
 
           <div className="hidden lg:flex flex-col w-full bg-secondary_background dark:bg-secondary_background-dark p-4 py-2 rounded-lg">
             <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">

@@ -379,18 +379,29 @@ export default function GroupViewPage({
                         </div>
                       </ButtonSmall> */}
 
-                      <div className="sm:hidden flex items-center justify-center space-x-0">
-                        {isAdmin &&
-                          calendarFramework?.dates?.[0][0].date instanceof
-                            Date &&
-                          (
-                            calendarFramework.dates[0][0].date as Date
-                          ).getFullYear() !== 2000 &&
-                          isAdmin && (
-                            <AddToGoogleCalendarButton
-                              onClick={handleSelectionSubmission}
-                            />
-                          )}
+                      <div className="sm:hidden">
+                        <div className="flex flex-row ">
+                          {isAdmin &&
+                            calendarFramework?.dates?.[0][0].date instanceof
+                              Date &&
+                            (
+                              calendarFramework.dates[0][0].date as Date
+                            ).getFullYear() !== 2000 &&
+                            isAdmin && (
+                              <AddToGoogleCalendarButton
+                                onClick={handleSelectionSubmission}
+                              />
+                            )}
+                          <ButtonSmall
+                            bgColor="primary"
+                            textColor="white"
+                            onClick={toggleEditing}
+                          >
+                            {isEditing
+                              ? 'View Availabilities'
+                              : 'Edit Your Availability'}
+                          </ButtonSmall>
+                        </div>
                       </div>
                     </div>
 
