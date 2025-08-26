@@ -41,6 +41,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import { auth } from '../../backend/firebase';
 import { IconCheck } from '@tabler/icons-react'; // Added IconAlertCircle
 import { useAuth } from '../../backend/authContext';
@@ -349,13 +350,14 @@ function TimeSelectPage() {
       }
 
       for (let i = 0; i < calIds.length; i++) {
-        // const eventList = await gapi?.client?.calendar?.events?.list({
-        //   calendarId: calIds[i],
-        //   timeMin,
-        //   timeMax,
-        //   singleEvents: true,
-        //   orderBy: 'startTime',
-        // });
+        const eventList = await gapi?.client?.calendar?.events?.list({
+          calendarId: calIds[i],
+          timeMin,
+          timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+          timeZone: getUserTimezone(),
+        });
 
         const theEvents = await getEvents(calIds[i], timeMin, timeMax);
 
@@ -430,7 +432,8 @@ function TimeSelectPage() {
       calendarFramework?.startTime,
       calendarFramework?.endTime
     );
-    const times: string[] = ([] as string[]).concat(...timeBlocks);
+
+    const times: string[] = ([] as string[]).concat(...timeBlocks.flat());
 
     for (let columnID = 0; columnID < dates.length; columnID++) {
       const dateObj = dates[columnID];
@@ -643,7 +646,7 @@ function TimeSelectPage() {
   }
 
   return (
-    <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+    <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
           className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
@@ -804,11 +807,7 @@ function TimeSelectPage() {
                           calendarFramework,
                           setCalendarFramework,
                         ]}
-                        initialTimezone={
-                          getTimezone()
-                            ? getTimezone()
-                            : Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }
+                        initialTimezone={getUserTimezone()}
                       />
                     </div>
                     <ButtonSmall
@@ -873,11 +872,7 @@ function TimeSelectPage() {
                           calendarFramework,
                           setCalendarFramework,
                         ]}
-                        initialTimezone={
-                          getTimezone()
-                            ? getTimezone()
-                            : Intl.DateTimeFormat().resolvedOptions().timeZone
-                        }
+                        initialTimezone={getUserTimezone()}
                       />
                     </div>
                   </div>

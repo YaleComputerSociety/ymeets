@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -104,10 +104,13 @@ export default function CalBlock({
 
   // Helper functions for selection and color calculations
   const isBlockSelected = useCallback((): boolean => {
+    if (blockID == -1) return false;
     return calendarState[user]?.[columnID]?.[blockID] === true;
   }, [calendarState, user, columnID, blockID]);
 
   const isInSelection = useCallback((): boolean => {
+    if (blockID == -1) return false;
+
     if (dragState.isSelecting && dragState.startPoint && dragState.endPoint) {
       const currentBox = getBoundingBox(
         dragState.startPoint,
@@ -128,13 +131,16 @@ export default function CalBlock({
   }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
 
   const getDefaultColor = useCallback(() => {
+    if (!draggable) {
+      return chartedUsers ? 'white' : theme === 'light' ? '#a8a8a8' : '#404040';
+    }
     return theme === 'light' ? 'white' : '#2d3748';
-    // ? theme === 'light'
-    //   ? '#b3b4bd' // Light mode color
-    //   : '#4a4d55' // Dark mode color
-  }, [isOnGcal, theme]);
+  }, [theme, calendarFramework]);
 
   const getGroupPercentageColor = useCallback(() => {
+    if (blockID == -1) {
+      return getDefaultColor();
+    }
     let selectedCount = 0;
     const totalUsers = chartedUsers?.users.length || 0;
 
@@ -159,6 +165,11 @@ export default function CalBlock({
 
   // Update shade color when relevant props change
   useEffect(() => {
+    if (blockID == -1) {
+      setShadeColor(getDefaultColor());
+      return;
+    }
+
     if (!isAdmin && draggable) {
       setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
     } else {
@@ -185,6 +196,7 @@ export default function CalBlock({
     isBlockSelected,
     getGroupPercentageColor,
     getDefaultColor,
+    calendarFramework,
   ]);
 
   // Color interpolation helper
@@ -228,24 +240,8 @@ export default function CalBlock({
     );
   };
 
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (!draggable || isAdmin) return;
-
-      setCalendarState((prev) => {
-        const newState = { ...prev };
-        if (!newState[user]) newState[user] = [];
-        if (!newState[user][columnID]) newState[user][columnID] = [];
-        newState[user][columnID][blockID] = !newState[user][columnID][blockID];
-        return newState;
-      });
-
-      onClick(event as any);
-    },
-    [draggable, isAdmin, user, columnID, blockID, setCalendarState, onClick]
-  );
-
   const handleBlockClick = (e: any, fromTouch = false) => {
+    if (blockID == -1) return; // Skip if blockID is -1
     onClick(e);
 
     if (draggable && !isAdmin) {
@@ -257,6 +253,10 @@ export default function CalBlock({
 
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
+
+    if (blockID == -1) {
+      return;
+    }
 
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
@@ -384,6 +384,7 @@ export default function CalBlock({
   const handleSelectionStart = useCallback(
     (event: any) => {
       if (!draggable) return;
+      if (blockID == -1) return;
 
       if ('dataTransfer' in event) {
         const crt = event.target.cloneNode(true);
@@ -570,6 +571,8 @@ export default function CalBlock({
         setShowTooltip(false);
       }}
       onTouchStart={(e) => {
+        if (blockID == -1) return;
+
         const touch = e.touches[0];
         dragStartTime.current = Date.now();
         lastDragPoint.current = [touch.clientX, touch.clientY];
@@ -577,6 +580,8 @@ export default function CalBlock({
         onClick(e as any);
       }}
       onTouchMove={(e) => {
+        if (blockID == -1) return;
+
         if (theShowUserChart !== undefined) {
           setShowUserChart?.(false);
         }
@@ -602,6 +607,8 @@ export default function CalBlock({
         }
       }}
       onTouchEnd={(e) => {
+        if (blockID == -1) return;
+
         e.preventDefault();
 
         const touchDuration = Date.now() - (dragStartTime.current || 0);

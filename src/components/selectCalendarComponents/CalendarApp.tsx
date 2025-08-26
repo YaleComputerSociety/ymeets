@@ -3,13 +3,11 @@ import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { useState } from 'react';
 import { getTimezone } from '../../backend/events';
+
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 import { dragProperties } from '../../types';
-import InformationPopup from '../utils/components/InformationPopup';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -157,24 +155,34 @@ export default function Calendar({
               <div style={{ height: '0.50rem' }}></div>
             </>
 
-            {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-              <div
-                key={blockIDOffset}
-                className="flex flex-col"
-                style={{ paddingBottom: '1.36rem', marginTop: '-0.3rem' }}
-              >
-                {hour.map((time: string, blockID) => (
+            {timeBlocks.map((group: string[][], groupIndex: number) => (
+              <div key={groupIndex}>
+                {/* Render the time blocks for this group */}
+                {group.map((hour: string[], blockIDOffset: number) => (
                   <div
-                    key={blockID}
-                    className="h-3 flex items-center justify-end pr-1 bg-white dark:bg-secondary_background-dark"
+                    key={blockIDOffset}
+                    className="flex flex-col"
+                    style={{ paddingBottom: '1.36rem', marginTop: '-0.3rem' }}
                   >
-                    {time.slice(-2) === '00' && (
-                      <span className="text-xs p-0 text-outline dark:text-text-dark relative z-20">
-                        {militaryConvert(time)}
-                      </span>
-                    )}
+                    {hour.map((time: string, blockID) => (
+                      <div
+                        key={blockID}
+                        className="h-3 flex items-center justify-end pr-1 bg-white dark:bg-secondary_background-dark"
+                      >
+                        {time.slice(-2) === '00' && (
+                          <span className="text-xs p-0 text-outline dark:text-text-dark relative z-20">
+                            {militaryConvert(time)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ))}
+
+                {/* Add space between groups */}
+                {groupIndex < timeBlocks.length - 1 && (
+                  <div className="h-8"></div>
+                )}
               </div>
             ))}
             <div
