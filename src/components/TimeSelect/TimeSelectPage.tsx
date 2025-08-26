@@ -385,13 +385,13 @@ function TimeSelectPage({
       calendarFramework?.endTime
     );
 
-    console.log(totalBlocks, dates.length);
+    console.log('iterator', totalBlocks, calendarFramework.dates.flat().length);
 
     const times: string[] = ([] as string[]).concat(...timeBlocks.flat());
 
     for (
       let columnID = 0;
-      columnID < calendarFramework.dates.length;
+      columnID < calendarFramework.dates.flat().length;
       columnID++
     ) {
       const dateObj = dates[columnID];
@@ -415,14 +415,13 @@ function TimeSelectPage({
 
         const startDateTime = DateTime.fromJSDate(dateObj.date as Date)
           .set({ hour: hours, minute: minutes, second: 0, millisecond: 0 })
-          .setZone(calendarFramework.timezone);
+          .setZone(calendarFramework.timezone, { keepLocalTime: true });
 
         const endDateTime = startDateTime.plus({ minutes: 15 });
-        console.log('startDateTime', startDateTime.toJSDate());
+
         const overlapsGCalEvent = parsedEvents.some((event) => {
           const eventStart = new Date(event.start.dateTime);
           const eventEnd = new Date(event.end.dateTime);
-          console.log('eventStart', eventStart);
 
           return (
             startDateTime.toJSDate() < eventEnd &&
@@ -549,6 +548,8 @@ function TimeSelectPage({
       }
       updateAnonymousUserToAuthUser(getAccountName());
     }
+
+    console.log('User is logged in, checking calendar scope...');
 
     // Check if we have calendar scope
     let justGrantedScope = false;
