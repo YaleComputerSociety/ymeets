@@ -679,7 +679,7 @@ function TimeSelectPage() {
               Your Calendars
             </h2>
             {currentUser && hasAccess ? (
-              <ul className="space-y-1 max-h-80 overflow-y-auto">
+              <ul className="space-y-1 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
@@ -736,7 +736,7 @@ function TimeSelectPage() {
                   }}
                 >
                   <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                  Sign in
+                  Connect Calendars
                 </button>
               </div>
             )}
@@ -772,8 +772,8 @@ function TimeSelectPage() {
                     </div>
                   ) : (
                     <button
-                      className="font-bold rounded-full shadow-md bg-white text-gray-600 py-3 px-4 text-sm
-                      flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                      className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-4 text-sm
+                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                       onClick={async () => {
                         if (!hasAccess) {
                           // alr logged in, need more scopes
@@ -797,7 +797,7 @@ function TimeSelectPage() {
                       }}
                     >
                       <img src={LOGO} alt="Logo" className="mr-2 h-5" />
-                      Grant permission to import your calendars
+                      Connect Calendars
                     </button>
                   )}
                   <div className="flex items-center gap-3 w-full">
