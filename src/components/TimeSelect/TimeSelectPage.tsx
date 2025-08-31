@@ -1,5 +1,5 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
-import { calendar_v3 } from 'googleapis';
+import { calendar_v3, google } from 'googleapis';
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { DateTime } from 'luxon';
 import {
@@ -247,99 +247,47 @@ function TimeSelectPage({
   }, [isGeneralDays]);
 
   const fetchGoogleCalEvents = async (
-    calIds: string[],
-    fillAvailability = false
-  ) => {
-    console.log(fillAvailability);
+    calIds: string[]
+  ): Promise<calendar_v3.Schema$Event[]> => {
+    if (!hasAccess || calIds.length === 0) return [];
 
-    try {
-      // Check if we have the required scope first
+    const dates = calendarFramework.dates.flat();
+    const timeMin = dates[0]?.date?.toISOString() ?? new Date().toISOString();
+    const timeMax = new Date(dates[dates.length - 1].date as Date).setUTCHours(
+      23,
+      59,
+      59,
+      999
+    );
 
-      if (!hasAccess) {
-        setGoogleCalendarEvents([]);
-        return;
-      }
+    const allEvents: calendar_v3.Schema$Event[] = [];
 
-      const theDates: calandarDate[] = ([] as calandarDate[]).concat(
-        ...(calendarFramework?.dates || [])
+    for (const calId of calIds) {
+      const events = await getEvents(
+        calId,
+        timeMin,
+        new Date(timeMax).toISOString(),
+        calendarFramework.timezone
       );
-      const parsedEvents: any[] = [];
 
-      if (calIds.length === 0) {
-        console.log('No Google Calendars selected, clearing events');
-        setGoogleCalendarEvents([]);
-        if (fillAvailability)
-          fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
-        return;
-      }
+      // Filter out multi-day events
+      const singleDayEvents = events.filter((event) => {
+        if (!event.start?.dateTime || !event.end?.dateTime) return false;
+        const start = new Date(event.start.dateTime);
+        const end = new Date(event.end.dateTime);
+        return start.getDay() === end.getDay();
+      });
 
-      // Calculate time range based on whether it's general days or not
-      let timeMin: string;
-      let timeMax: string;
-
-      if (isGeneralDays) {
-        const today = new Date();
-        timeMin = new Date(today.setUTCHours(0, 0, 0, 0)).toISOString();
-
-        const nextWeek = new Date(today);
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        timeMax = new Date(nextWeek.setUTCHours(23, 59, 59, 999)).toISOString();
-      } else {
-        timeMin = theDates[0]?.date?.toISOString() ?? new Date().toISOString();
-        const timeMaxDate = new Date(
-          theDates[theDates.length - 1].date as Date
-        );
-        timeMax = new Date(
-          timeMaxDate.setUTCHours(23, 59, 59, 999)
-        ).toISOString();
-      }
-
-      console.log(calendarFramework?.timezone);
-
-      for (let i = 0; i < calIds.length; i++) {
-        const theEvents = await getEvents(
-          calIds[i],
-          timeMin,
-          timeMax,
-          calendarFramework?.timezone
-        );
-
-        for (let event of theEvents) {
-          const startDate = new Date(
-            event?.start?.dateTime || (event.start as any)?.date || ''
-          );
-          const endDate = new Date(
-            event?.end?.dateTime || (event.end as any)?.date || ''
-          );
-
-          if (startDate.getDay() !== endDate.getDay()) {
-            continue; // Skip events that span multiple days
-          }
-
-          parsedEvents.push(event);
-        }
-      }
-      setGoogleCalendarEvents([...parsedEvents]);
-
-      if (fillAvailability) {
-        fillAvailabilityNotInGCalEvents(parsedEvents, theDates);
-      }
-    } catch (error) {
-      console.error('Error fetching calendar events:', error);
-      if (
-        error instanceof Error &&
-        (error.message.includes('scope') ||
-          error.message.includes('permission'))
-      ) {
-        setHasGCalScope(false);
-      }
+      allEvents.push(...singleDayEvents);
     }
+
+    setGoogleCalendarEvents(allEvents);
+    return allEvents;
   };
 
   useEffect(() => {
-    console.log('fetching events');
     if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
-      fetchGoogleCalEvents(idsOfCurrentlySelectedGCals, shouldFillAvailability);
+      fetchGoogleCalEvents(idsOfCurrentlySelectedGCals);
     }
   }, [
     googleCalendars,
@@ -348,101 +296,6 @@ function TimeSelectPage({
     shouldFillAvailability,
     calendarFramework.timezone,
   ]);
-
-  const fillAvailabilityNotInGCalEvents = (
-    parsedEvents: any[],
-    dates: calandarDate[]
-  ) => {
-    console.log('parsedEvents', parsedEvents);
-    console.log('dates', dates);
-
-    const userIndex = getCurrentUserIndex();
-    const oldCalendarState = { ...calendarState };
-    const userAvailability = oldCalendarState[userIndex];
-
-    const startHour = calendarFramework?.startTime.getHours();
-    const startMinute = calendarFramework?.startTime.getMinutes();
-
-    const endHour = calendarFramework?.endTime.getHours();
-    const endMinute = calendarFramework?.endTime.getMinutes();
-
-    const totalMinutes =
-      endHour !== undefined &&
-      startHour !== undefined &&
-      endMinute !== undefined &&
-      startMinute !== undefined
-        ? endHour < startHour
-          ? // Time crosses midnight - add 24 hours to end time
-            (endHour + 24 - startHour) * 60 + (endMinute - startMinute)
-          : // Normal case - same day
-            (endHour - startHour) * 60 + (endMinute - startMinute)
-        : 0;
-
-    const totalBlocks = totalMinutes / 15; // Assuming 15-minute intervals
-
-    const timeBlocks = generateTimeBlocks(
-      calendarFramework?.startTime,
-      calendarFramework?.endTime
-    );
-
-    console.log('iterator', totalBlocks, calendarFramework.dates.flat().length);
-
-    const times: string[] = ([] as string[]).concat(...timeBlocks.flat());
-
-    for (
-      let columnID = 0;
-      columnID < calendarFramework.dates.flat().length;
-      columnID++
-    ) {
-      const dateObj = dates[columnID];
-      for (let blockID = 0; blockID < totalBlocks; blockID++) {
-        const [adjustedColumnID, adjustedBlockID] =
-          calendarFramework.numOfCols != getDates().length
-            ? adjustBlockIDColumnID(
-                blockID < timeBlocks[0].length * 4 ? 0 : 1,
-                blockID,
-                columnID,
-                calendarFramework.numOfCols,
-                getDates().length,
-                calendarFramework
-              )
-            : [columnID, blockID];
-
-        const timeString = times[adjustedBlockID];
-        const [hours, minutes] = timeString
-          ? timeString.split(':').map(Number)
-          : [0, 0];
-
-        const startDateTime = DateTime.fromJSDate(dateObj.date as Date)
-          .set({ hour: hours, minute: minutes, second: 0, millisecond: 0 })
-          .setZone(calendarFramework.timezone, { keepLocalTime: true });
-
-        const endDateTime = startDateTime.plus({ minutes: 15 });
-
-        const overlapsGCalEvent = parsedEvents.some((event) => {
-          const eventStart = new Date(event.start.dateTime);
-          const eventEnd = new Date(event.end.dateTime);
-
-          return (
-            startDateTime.toJSDate() < eventEnd &&
-            endDateTime.toJSDate() > eventStart
-          );
-        });
-
-        if (overlapsGCalEvent == false) {
-          userAvailability[adjustedColumnID][adjustedBlockID] = true;
-        } else {
-          userAvailability[adjustedColumnID][adjustedBlockID] = false;
-        }
-      }
-    }
-
-    oldCalendarState[userIndex] = userAvailability;
-    setCalendarState(oldCalendarState as typeof calendarState);
-    setShouldFillAvailability(false);
-    setIsFillingAvailability(false);
-    setGcalPopupOpen(false);
-  };
 
   // Fetch the user's Google Calendars
   const fetchUserCalendars = async () => {
@@ -528,7 +381,6 @@ function TimeSelectPage({
         await fetchUserCalendars();
         setGcalPopupOpen(true);
       } else {
-        // Need to request calendar scope
         const scopeGranted = await requestAccess();
         if (scopeGranted) {
           setGcalPopupOpen(true);
@@ -537,56 +389,132 @@ function TimeSelectPage({
     }
   };
 
-  const handleAutofillAvailabilityClick = async () => {
-    // Check if the user is logged into Google
-    if (!currentUser) {
-      // Need to sign in first
-      const user = (await login()) != undefined;
+  function timeToMinutes(timeString: string): number {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
 
-      if (!user) {
-        return;
+  function dateToMinutes(date: Date): number {
+    return date.getHours() * 60 + date.getMinutes();
+  }
+
+  function isSameDate(date1: Date, date2: Date): boolean {
+    return date1.toDateString() === date2.toDateString();
+  }
+
+  function doesBlockOverlapEvent(
+    blockTime: string,
+    blockDate: Date,
+    event: calendar_v3.Schema$Event
+  ): boolean {
+    if (!event.start?.dateTime || !event.end?.dateTime) return false;
+
+    // Create a proper ISO string with timezone info
+    const eventStartISO =
+      event.start.dateTime +
+      (event.start.timeZone ? getTimezoneOffset(event.start.timeZone) : 'Z');
+    const eventEndISO =
+      event.end.dateTime +
+      (event.end.timeZone ? getTimezoneOffset(event.end.timeZone) : 'Z');
+
+    const eventStart = new Date(eventStartISO);
+    const eventEnd = new Date(eventEndISO);
+
+    if (!isSameDate(eventStart, blockDate)) return false;
+
+    const blockStartMinutes = timeToMinutes(blockTime);
+    const blockEndMinutes = blockStartMinutes + 15;
+    const eventStartMinutes = dateToMinutes(eventStart);
+    const eventEndMinutes = dateToMinutes(eventEnd);
+
+    return (
+      blockStartMinutes <= eventEndMinutes &&
+      blockEndMinutes > eventStartMinutes
+    );
+  }
+
+  function getTimezoneOffset(timezone: string): string {
+    // This would need a proper timezone offset lookup
+    // For now, hardcode common ones or use a library
+    const offsets: { [key: string]: string } = {
+      'Europe/Paris': '+02:00', // Summer time
+      'America/Los_Angeles': '-07:00', // PDT
+      UTC: 'Z',
+    };
+    return offsets[timezone] || 'Z';
+  }
+
+  function autofillAvailabilityFromCalendar(
+    googleCalendarEvents: calendar_v3.Schema$Event[],
+    dates: any[],
+    timeBlocks: string[],
+    currentAvailability: boolean[][]
+  ): boolean[][] {
+    const newAvailability = currentAvailability.map((col) => [...col]);
+
+    for (let colIndex = 0; colIndex < dates.length; colIndex++) {
+      const date = dates[colIndex].date;
+
+      for (let blockIndex = 0; blockIndex < timeBlocks.length; blockIndex++) {
+        const timeBlock = timeBlocks[blockIndex];
+
+        const hasEvent = googleCalendarEvents.some((event) =>
+          doesBlockOverlapEvent(timeBlock, date, event)
+        );
+
+        newAvailability[colIndex][blockIndex] = !hasEvent;
       }
+    }
+
+    return newAvailability;
+  }
+
+  const handleAutofillAvailabilityClick = async () => {
+    if (!currentUser) {
+      const user = await login();
+      if (!user) return;
       updateAnonymousUserToAuthUser(getAccountName());
     }
 
-    console.log('User is logged in, checking calendar scope...');
-
-    // Check if we have calendar scope
-    let justGrantedScope = false;
     if (!hasAccess) {
-      // Need to request calendar scope
       const scopeGranted = await requestAccess();
-      if (!scopeGranted) {
-        return;
-      }
-      justGrantedScope = true;
+      if (!scopeGranted) return;
     }
 
-    // Now we can proceed with autofill
-    setShouldFillAvailability(true);
     setIsFillingAvailability(true);
 
-    const lastSelectedGCalIds =
-      await getSelectedCalendarIDsByUserID(getAccountId());
-    if (justGrantedScope) {
-      setIdsOfCurrentlySelectedGCals(lastSelectedGCalIds);
-    }
+    try {
+      const calIds =
+        idsOfCurrentlySelectedGCals.length > 0
+          ? idsOfCurrentlySelectedGCals
+          : await getSelectedCalendarIDsByUserID(getAccountId());
 
-    // Fetch calendar data and use it for
-    await fetchGoogleCalEvents(
-      idsOfCurrentlySelectedGCals.length > 0
-        ? idsOfCurrentlySelectedGCals
-        : justGrantedScope === true
-          ? lastSelectedGCalIds
-          : [],
-      true
-    );
+      const events = await fetchGoogleCalEvents(calIds);
+
+      const newAvailability = autofillAvailabilityFromCalendar(
+        events,
+        calendarFramework.dates.flat(),
+        generateTimeBlocks(
+          calendarFramework.startTime,
+          calendarFramework.endTime
+        )
+          .flat()
+          .flat(),
+        calendarState[getCurrentUserIndex()]
+      );
+
+      const newCalendarState = { ...calendarState };
+      newCalendarState[getCurrentUserIndex()] = newAvailability;
+      setCalendarState(newCalendarState);
+    } finally {
+      setIsFillingAvailability(false);
+      setGcalPopupOpen(false);
+    }
   };
 
   const getCurrentUserIndex = () => {
     let user = getParticipantIndex(getAccountName(), getAccountId());
     if (user === undefined) {
-      // new user => last availability
       user =
         calendarState !== undefined ? Object.keys(calendarState).length - 1 : 0;
     }
@@ -644,7 +572,6 @@ function TimeSelectPage({
 
           <CopyCodeButton />
 
-          {/* View/Edit Availability Button */}
           <ButtonSmall
             bgColor="primary"
             textColor="white"

@@ -559,7 +559,7 @@ class GoogleCalendarService {
 
       const conversion =  this.convertEventsToTimezone(response.result.items, timezone) || [];
 
-      console.log(conversion)
+      console.log("conversion", conversion)
 
       return conversion;
 

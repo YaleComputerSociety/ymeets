@@ -39,8 +39,6 @@ const TimezoneChanger = ({
       timezone: newTimezone,
     };
 
-    console.log('new timzone', newTimezone);
-
     setCalendarFramework(updatedFramework);
   };
 
