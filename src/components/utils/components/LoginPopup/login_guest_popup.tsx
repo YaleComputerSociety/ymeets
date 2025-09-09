@@ -6,13 +6,12 @@ import {
   signInAnonymously,
   updateProfile,
 } from 'firebase/auth';
-import { signInWithGoogle } from '../../../../firebase/auth';
-import { auth } from '../../../../firebase/firebase';
+import { auth } from '../../../../backend/firebase';
 import LOGO from './googlelogo.png';
-import ButtonSmall from '../ButtonSmall';
-import { useParams } from 'react-router-dom';
 import { IconArrowLeft } from '@tabler/icons-react';
+import { useAuth } from '../../../../backend/authContext';
 import AlertPopup from '../AlertPopup'; // Import AlertPopup
+
 
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
@@ -27,13 +26,17 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
+
+  const { login, currentUser } = useAuth();
+
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
   const handleSignInWithGoogle = () => {
-    signInWithGoogle().then((loginSuccessful) => {
-      if (loginSuccessful !== false) {
+    login().then((loginSuccessful) => {
+      if (loginSuccessful !== undefined) {
         if (code !== '') {
-          navigate(`/timeselect/${code}`);
+          // navigate(`/timeselect/${code}`);
+          navigate('/dashboard/' + code, { state: { isEditing: true } });
         }
         onClose();
         document.body.classList.remove('popup-open');
@@ -104,7 +107,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
       <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
         <button
           onClick={() => {
-            navigate('/groupview/' + code);
+            navigate('/dashboard/' + code);
           }}
           className="absolute top-4 left-4 p-2 flex items-center text-gray-500 hover:text-gray-800 transition-colors duration-200"
           aria-label="Go back"

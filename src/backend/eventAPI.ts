@@ -17,6 +17,7 @@ import {
   getStartAndEndTimes,
 } from './events';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
+import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 
 // TODO fetch event details -> calendarFramework
 
@@ -238,6 +239,7 @@ export default class FrontendEventAPI {
       endTime: getStartAndEndTimes()[1],
       numOfBlocks,
       numOfCols,
+      timezone: getUserTimezone()
     };
   }
 

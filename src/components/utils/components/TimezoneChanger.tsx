@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { calendarDimensions } from '../../../types';
-import {
-  getStartAndEndTimes,
-  getUTCStartAndEndTimes,
-} from '../../../firebase/events';
+import { getDates } from '../../../backend/events';
 import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
 import { timezones } from '../constants/timezones';
 import { doTimezoneChange } from '../functions/timzoneConversions';
+import { getUTCStartAndEndTimes } from '../../../backend/events';
 
 interface TimezoneChangerProps {
   theCalendarFramework: [
@@ -38,6 +36,7 @@ const TimezoneChanger = ({
       numOfCols: adjustedDates.length,
       startTime: adjustedStartTime,
       endTime: adjustedEndTime,
+      timezone: newTimezone,
     };
 
     setCalendarFramework(updatedFramework);

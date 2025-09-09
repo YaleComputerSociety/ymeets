@@ -1,15 +1,10 @@
 import React from 'react';
 import NavLogo from './NavLogo';
-import { checkIfLoggedIn, getAccountName } from '../../firebase/events';
+import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithGoogle } from '../../firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../firebase/firebase';
-import { GAPIContext } from '../../firebase/gapiContext';
-import { useContext } from 'react';
-
-import { logout } from '../../firebase/auth';
+import { auth } from '../../backend/firebase';
 
 import {
   IconMenu2,
@@ -25,8 +20,9 @@ import {
   IconMoon,
   IconSun,
 } from '@tabler/icons-react';
-
+import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { log } from 'console';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
@@ -36,7 +32,7 @@ export default function NavBar() {
 
   const nav = useNavigate();
 
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
+  const { login, logout, currentUser } = useAuth();
 
   const handleMouseLeave = () => {
     setIsOpen(false);
@@ -102,7 +98,10 @@ export default function NavBar() {
                   nav('/useraccount');
                 }}
               >
-                <IconCalendarEvent size={25} className="opacity-80 dark:opacity-100" />{' '}
+                <IconCalendarEvent
+                  size={25}
+                  className="opacity-80 dark:opacity-100"
+                />{' '}
                 <span className="text-sm hidden sm:block ml-2">My Events</span>
               </a>
             </div>
@@ -152,11 +151,12 @@ export default function NavBar() {
                     </a>
                     <div className="border-t border-gray-200"></div>
                     {checkIfLoggedIn() ? (
+                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
                       <a
                         href="#"
                         className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
                         onClick={() => {
-                          logout(gapi);
+                          logout();
                           setMenuState('closed');
                           nav('/');
                         }}
@@ -164,19 +164,12 @@ export default function NavBar() {
                         <IconLogout className="mr-2" size={17} /> Logout
                       </a>
                     ) : (
+                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
                       <a
                         href="#"
                         className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
                         onClick={() => {
-                          signInWithGoogle(
-                            undefined,
-                            undefined,
-                            handleIsSignedIn
-                          ).then((loginSuccessful) => {
-                            if (loginSuccessful) {
-                              window.location.reload();
-                            }
-                          });
+                          login();
                           setMenuState('closed');
                         }}
                       >
