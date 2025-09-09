@@ -409,16 +409,9 @@ function TimeSelectPage({
   ): boolean {
     if (!event.start?.dateTime || !event.end?.dateTime) return false;
 
-    // Create a proper ISO string with timezone info
-    const eventStartISO =
-      event.start.dateTime +
-      (event.start.timeZone ? getTimezoneOffset(event.start.timeZone) : 'Z');
-    const eventEndISO =
-      event.end.dateTime +
-      (event.end.timeZone ? getTimezoneOffset(event.end.timeZone) : 'Z');
-
-    const eventStart = new Date(eventStartISO);
-    const eventEnd = new Date(eventEndISO);
+    // Google Calendar API already returns properly formatted datetime strings with timezone info
+    const eventStart = new Date(event.start.dateTime);
+    const eventEnd = new Date(event.end.dateTime);
 
     if (!isSameDate(eventStart, blockDate)) return false;
 
@@ -431,17 +424,6 @@ function TimeSelectPage({
       blockStartMinutes <= eventEndMinutes &&
       blockEndMinutes > eventStartMinutes
     );
-  }
-
-  function getTimezoneOffset(timezone: string): string {
-    // This would need a proper timezone offset lookup
-    // For now, hardcode common ones or use a library
-    const offsets: { [key: string]: string } = {
-      'Europe/Paris': '+02:00', // Summer time
-      'America/Los_Angeles': '-07:00', // PDT
-      UTC: 'Z',
-    };
-    return offsets[timezone] || 'Z';
   }
 
   function autofillAvailabilityFromCalendar(
