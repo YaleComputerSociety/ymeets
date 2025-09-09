@@ -366,118 +366,101 @@ export default function GroupViewPage({
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
-                <div className="flex flex-col sm:flex-row items-center justify-between w-full">
-                  <div className="w-full flex flex-col sm:flex-row items-center sm:space-x-2">
-                    <div className="flex w-full sm:w-auto justify-center sm:justify-between mb-2 space-x-2 sm:mb-0">
-                      {/* <ButtonSmall
-                        bgColor={'primary'}
-                        textColor={'white'}
+                {/* Mobile layout - match edit mode */}
+                <div className="flex md:hidden items-center gap-3 w-full mb-4">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={toggleEditing}
+                    className="!rounded-lg"
+                  >
+                    {isEditing
+                      ? 'View Availabilities'
+                      : 'Edit Your Availability'}
+                  </ButtonSmall>
+                  {isAdmin &&
+                    calendarFramework?.dates?.[0][0].date instanceof Date &&
+                    (calendarFramework.dates[0][0].date as Date).getFullYear() !== 2000 && (
+                      <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+                    )}
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:hidden">
+                  <div className="flex-1">
+                    <TimezoneChanger
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
+                      initialTimezone={(() => {
+                        // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                        const urlParams = new URLSearchParams(
+                          window.location.search
+                        );
+                        const urlTimezone = urlParams.get('tz');
+
+                        return urlTimezone || getUserTimezone();
+                      })()}
+                    />
+                  </div>
+                  <div className="lg:hidden">
+                    {!participantToggleClicked ? (
+                      <IconAdjustmentsFilled
+                        size={30}
+                        className="cursor-pointer dark:text-text-dark"
                         onClick={() => {
-                          // nav('/timeselect/' + code);
-                          nav('/dashboard/' + code, { state: { isEditing: true } });
+                          setParticipantToggleClicked(!participantToggleClicked);
+                          setShowUserChart(false);
                         }}
-                      >
-                        <div className="flex flex-row items-center justify-center space-x-1">
-                          {userHasFilled ? <IconPencil /> : <IconPlus />}
-                          <p>
-                            {userHasFilled
-                              ? 'Edit Your Availability'
-                              : 'Add Your Availability'}
-                          </p>
-                        </div>
-                      </ButtonSmall> */}
+                      />
+                    ) : (
+                      <IconAdjustments
+                        size={30}
+                        className="cursor-pointer dark:text-text-dark"
+                        onClick={() => {
+                          setParticipantToggleClicked(!participantToggleClicked);
+                          setShowUserChart(true);
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    {isAdmin &&
+                      (locationOptions.length === 0 ? (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                      ) : (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      ))}
+                  </div>
+                </div>
 
-                      <div className="sm:hidden">
-                        <div className="flex flex-row ">
-                          <ButtonSmall
-                            bgColor="primary"
-                            textColor="white"
-                            onClick={toggleEditing}
-                          >
-                            {isEditing
-                              ? 'View Availabilities'
-                              : 'Edit Your Availability'}
-                          </ButtonSmall>
-                          {isAdmin &&
-                            calendarFramework?.dates?.[0][0].date instanceof
-                              Date &&
-                            (
-                              calendarFramework.dates[0][0].date as Date
-                            ).getFullYear() !== 2000 &&
-                            isAdmin && (
-                              <AddToGoogleCalendarButton
-                                onClick={handleSelectionSubmission}
-                              />
-                            )}
-                        </div>
-                      </div>
+                {/* Desktop layout - match edit mode exactly */}
+                <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
+                  <div className="flex items-center flex-1">
+                    <div className="flex items-center gap-2">
+                      {/* Empty div for future buttons */}
                     </div>
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={(() => {
+                          // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                          const urlParams = new URLSearchParams(
+                            window.location.search
+                          );
+                          const urlTimezone = urlParams.get('tz');
 
-                    <div className="w-full sm:flex-1 flex items-center justify-between">
-                      <div className="w-full flex items-center justify-between gap-2">
-                        <div className="flex-1">
-                          <TimezoneChanger
-                            theCalendarFramework={[
-                              calendarFramework,
-                              setCalendarFramework,
-                            ]}
-                            initialTimezone={(() => {
-                              // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
-                              const urlParams = new URLSearchParams(
-                                window.location.search
-                              );
-                              const urlTimezone = urlParams.get('tz');
-
-                              return urlTimezone || getUserTimezone();
-                            })()}
-                          />
-                        </div>
-
-                        <div className="hidden sm:flex items-center justify-center">
-                          <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          <div className="lg:hidden">
-                            {!participantToggleClicked ? (
-                              <IconAdjustmentsFilled
-                                size={30}
-                                className="cursor-pointer dark:text-text-dark"
-                                onClick={() => {
-                                  setParticipantToggleClicked(
-                                    !participantToggleClicked
-                                  );
-                                  setShowUserChart(false);
-                                }}
-                              />
-                            ) : (
-                              <IconAdjustments
-                                size={30}
-                                className="cursor-pointer dark:text-text-dark"
-                                onClick={() => {
-                                  setParticipantToggleClicked(
-                                    !participantToggleClicked
-                                  );
-                                  setShowUserChart(true);
-                                }}
-                              />
-                            )}
-                          </div>
-
-                          <div className="block sm:hidden flex items-center justify-center">
-                            {isAdmin &&
-                              (locationOptions.length === 0 ? (
-                                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
-                              ) : (
-                                <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
-                              ))}
-                          </div>
-                        </div>
-                      </div>
+                          return urlTimezone || getUserTimezone();
+                        })()}
+                      />
                     </div>
                   </div>
 
-                  <div className="hidden sm:flex items-center justify-end space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
                     {isAdmin &&
                       (locationOptions.length === 0 ? (
                         <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
