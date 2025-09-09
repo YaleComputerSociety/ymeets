@@ -281,7 +281,15 @@ export default function GroupViewPage({
 
           <CopyCodeButton />
 
-          <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={toggleEditing}
+          >
+            {isEditing
+              ? 'View Availabilities'
+              : 'Edit Your Availability'}
+          </ButtonSmall>
 
           {isAdmin && (
             <AutoDraftEmailButton
@@ -381,6 +389,15 @@ export default function GroupViewPage({
 
                       <div className="sm:hidden">
                         <div className="flex flex-row ">
+                          <ButtonSmall
+                            bgColor="primary"
+                            textColor="white"
+                            onClick={toggleEditing}
+                          >
+                            {isEditing
+                              ? 'View Availabilities'
+                              : 'Edit Your Availability'}
+                          </ButtonSmall>
                           {isAdmin &&
                             calendarFramework?.dates?.[0][0].date instanceof
                               Date &&
@@ -392,15 +409,6 @@ export default function GroupViewPage({
                                 onClick={handleSelectionSubmission}
                               />
                             )}
-                          <ButtonSmall
-                            bgColor="primary"
-                            textColor="white"
-                            onClick={toggleEditing}
-                          >
-                            {isEditing
-                              ? 'View Availabilities'
-                              : 'Edit Your Availability'}
-                          </ButtonSmall>
                         </div>
                       </div>
                     </div>
@@ -426,15 +434,7 @@ export default function GroupViewPage({
                         </div>
 
                         <div className="hidden sm:flex items-center justify-center">
-                          <ButtonSmall
-                            bgColor="primary"
-                            textColor="white"
-                            onClick={toggleEditing}
-                          >
-                            {isEditing
-                              ? 'View Availabilities'
-                              : 'Edit Your Availability'}
-                          </ButtonSmall>
+                          <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
                         </div>
 
                         <div className="flex items-center space-x-2">
