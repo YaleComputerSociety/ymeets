@@ -19,7 +19,7 @@ export default function CopyCodeButton({
   return (
     <button
       onClick={() => {
-        copy(`${window.location.origin}/groupview/${usedCode}`);
+        copy(`${window.location.origin}/dashboard/${usedCode}`);
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
