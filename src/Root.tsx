@@ -1,5 +1,12 @@
 import './Root.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useParams,
+} from 'react-router-dom';
 import HomePage from './components/Home/HomePage';
 import DaySelectComponent from './components/DaySelect/day_select_component';
 import TimeSelectPage from './components/TimeSelect/TimeSelectPage';
@@ -14,6 +21,12 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './backend/authContext';
 import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
 import { useState } from 'react';
+
+// legacy support for /groupview/:code
+function GroupViewRedirect() {
+  const { code } = useParams();
+  return <Navigate to={`/dashboard/${code}`} replace />;
+}
 
 function Root() {
   const [isEditing, setIsEditing] = useState(false);
@@ -31,6 +44,7 @@ function Root() {
                 path="/dashboard/:code"
                 element={<UnifiedAvailabilityPage />}
               />
+              <Route path="/groupview/:code" element={<GroupViewRedirect />} />
               <Route path="/useraccount" element={<AccountsPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
