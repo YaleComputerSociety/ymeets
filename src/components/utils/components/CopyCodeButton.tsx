@@ -1,4 +1,4 @@
-import { IconCopy } from '@tabler/icons-react';
+import { IconCopy, IconShare } from '@tabler/icons-react';
 import copy from 'clipboard-copy';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -6,11 +6,13 @@ import { useParams } from 'react-router-dom';
 type CopyCodeButtonProps = {
   customEventCode?: string;
   className?: string;
+  showAsShareButton?: boolean; // New prop to control button appearance
 };
 
 export default function CopyCodeButton({
   customEventCode,
   className = '',
+  showAsShareButton = true, // Default to share button style
 }: CopyCodeButtonProps = {}) {
   const [copied, setCopied] = useState(false);
   const { code } = useParams();
@@ -30,8 +32,17 @@ export default function CopyCodeButton({
         }
         ${className}`}
     >
-      <IconCopy className="inline-block w-4 lg:w-5 mr-2" />
-      {copied ? 'Copied!' : usedCode}
+      {showAsShareButton ? (
+        <>
+          <IconCopy className="inline-block w-4 lg:w-5 mr-2" />
+          {copied ? 'Copied!' : 'Copy Link'}
+        </>
+      ) : (
+        <>
+          <IconCopy className="inline-block w-4 lg:w-5 mr-2" />
+          {copied ? 'Copied!' : usedCode}
+        </>
+      )}
     </button>
   );
 }
