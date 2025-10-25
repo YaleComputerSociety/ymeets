@@ -3,6 +3,7 @@ import Select from 'react-dropdown-select';
 import { getAccountName, getLocationVotesByName } from '../../backend/events';
 import { IconChevronDown, IconX, IconCheck } from '@tabler/icons-react';
 import './locationSelectionComponent.css';
+import { filter } from 'lodash';
 
 interface LocationSelectionProps {
   locations: string[];
@@ -23,6 +24,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const filteredLocations = locations.filter((location) => location.toLowerCase().includes(inputValue.toLowerCase().trim()));
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -32,6 +34,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
       : [...selectedLocations, location];
     setSelectedLocations(updated);
     update(updated);
+    setInputValue('');
   };
 
   const handleRemove = (location: string) => {
@@ -61,6 +64,15 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
         setSelectedLocations(updated);
         update(updated);
         setInputValue('');
+      }
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (create) {
+      setInputValue(event.target.value);
+      if (event.target.value.trim() && !isOpen) {
+        setIsOpen(true);
       }
     }
   };
@@ -98,7 +110,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
           <input
             type="text"
             value={inputValue}
-            onChange={(e) => create && setInputValue(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={selectedLocations.length == 0 ? placeholder : ''}
             className={`flex-grow min-w-[150px] p-1 bg-transparent outline-none text-gray-900 dark:text-white ${
@@ -125,7 +137,8 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
                       scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 
                       scrollbar-track-gray-200 dark:scrollbar-track-gray-800"
         >
-          {locations.map((location) => (
+        {filteredLocations.length > 0 ? (
+          filteredLocations.map((location) => (
             <li
               key={location}
               onClick={() => handleSelect(location)}
@@ -141,7 +154,12 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
                 <IconCheck size={18} className="text-black dark:text-white" />
               )}
             </li>
-          ))}
+          ))
+        ) : (
+          <li className='p-2 text-gray-400 italic'>
+            No matching locations
+          </li>
+        )}
         </ul>
       )}
     </div>
