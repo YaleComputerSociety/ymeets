@@ -111,7 +111,7 @@ export default function NavBar() {
                 onClick={handleGearClick}
               >
                 <IconMenu2
-                  className="text-text dark:text-text-dark"
+                  className="text-text dark:text-text-dark hover:text-primary transition hover:scale-110"
                   size={30}
                 />
               </button>
