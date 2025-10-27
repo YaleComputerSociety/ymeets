@@ -266,21 +266,23 @@ export default function GroupViewPage({
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+          {!chartedUsers.hovering && 
           <div
             className="text-4xl font-bold text-center lg:text-left"
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {eventName}
-          </div>
+          </div>}
+          {!chartedUsers.hovering && 
           <div
             className="text-xl text-center lg:text-left"
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {eventDescription}
-          </div>
-
-          <CopyCodeButton />
-
+          </div>}
+            {!chartedUsers.hovering && 
+          <CopyCodeButton />}
+          {!chartedUsers.hovering && 
           <ButtonSmall
             bgColor="primary"
             textColor="white"
@@ -289,9 +291,9 @@ export default function GroupViewPage({
             {isEditing
               ? 'View Availabilities'
               : 'Edit Your Availability'}
-          </ButtonSmall>
+          </ButtonSmall>}
 
-          {isAdmin && (
+          {isAdmin && !chartedUsers.hovering && (
             <AutoDraftEmailButton
               eventTitle={eventName}
               yourName={getAccountName()}
@@ -300,7 +302,7 @@ export default function GroupViewPage({
             />
           )}
 
-          {locationOptions.length > 0 && (
+          {locationOptions.length > 0 && !chartedUsers.hovering && (
             <div className="hidden lg:block">
               <FormControlLabel
                 control={
@@ -312,7 +314,7 @@ export default function GroupViewPage({
               />
             </div>
           )}
-
+        
           <div className="hidden lg:block w-full relative">
             {chartedUsers !== undefined && !showLocationChart && (
               <>
@@ -333,7 +335,7 @@ export default function GroupViewPage({
                     className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
                 )}
-
+                {chartedUsers.hovering &&
                 <UserChart
                   chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                   thePeopleStatus={[peopleStatus, setPeopleStatus]}
@@ -342,7 +344,7 @@ export default function GroupViewPage({
                     participantToggleClicked,
                     setParticipantToggleClicked,
                   ]}
-                />
+                />}
               </>
             )}
 

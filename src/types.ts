@@ -99,4 +99,5 @@ export interface userData {
   userIDs: string[];
   available: user[];
   unavailable: user[];
+  hovering?: boolean;
 }

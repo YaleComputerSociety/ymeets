@@ -78,10 +78,8 @@ const UserChart: React.FC<UserChartProps> = ({
           <table className="table-fixed border-collapse w-full">
             <thead>
               <tr>
-                <th className="border-b p-3 text-primary">Available</th>
-                <th className="border-b p-3 text-text dark:text-text-dark">
-                  Unavailable
-                </th>
+                <th className="border-b p-3 text-primary" dangerouslySetInnerHTML={{__html: "Available (" + String(chartedUsers.available.length) + ")"}}></th>
+                <th className="border-b p-3 text-text dark:text-text-dark" dangerouslySetInnerHTML={{__html: "Unvailable (" + String(chartedUsers.unavailable.length) + ")"}}></th>
               </tr>
             </thead>
             <tbody>
