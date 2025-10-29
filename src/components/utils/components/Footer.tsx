@@ -20,6 +20,19 @@ export default function Footer() {
               <a href="/privacy">Privacy Policy + Limited Use Agreement</a>
             </p>
           </div>
+
+          <div className="flex items-center justify-center px-2 m-1 space-x-3">
+            <img
+              src="/HudsonRiverTrading.png"
+              alt="Hudson River Trading"
+              className="h-6 w-auto object-contain inline-block"
+            />
+            <img
+              src="/MiniMax.png"
+              alt="MiniMax"
+              className="h-6 w-auto object-contain inline-block"
+            />
+          </div>
         </div>
       </footer>
     </>
