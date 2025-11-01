@@ -460,7 +460,7 @@ export default function GroupViewPage({
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+                    {isAdmin ? <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />: null}
                     {isAdmin &&
                       (locationOptions.length === 0 ? (
                         <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
