@@ -28,6 +28,7 @@ import JEET from './Jeet_Headshot.jpg';
 import RYLAN from './Rylan_Headshot.jpg';
 import JAMES from './James.jpg';
 import RONALD from './Ronald.png';
+import ARUSH from './Arush.jpeg';
 
 const CURR_CONTRIBUTORS = [
   {
@@ -74,6 +75,15 @@ const CURR_CONTRIBUTORS = [
     linkedin: 'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
     github: undefined,
     image: RONALD,
+  },
+
+  {
+    name: 'Arush Srivastava',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
+    github: 'https://arushsri515.github.io/#',
+    image: ARUSH,
   },
 
   {
