@@ -316,35 +316,73 @@ export default function AboutUsPage() {
         <br />
         <h1 className="text-5xl font-bold">Past Contributors</h1>
         <br />
-        <div className="grid lg:grid-cols-4 md:grid-cols-2">
-          {PAST_CONTRIBUTORS.map((c) => {
-            return (
-              <ContributorCard
-                name={c.name}
-                title={c.title}
-                founding={c.founding}
-                linkedin={c.linkedin}
-                portfolio={c.portfolio}
-                github={c.github}
-                image={c.image}
-              />
-            );
-          })}
+        {/* Co-founders Section */}
+        <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
+        <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
+          {PAST_CONTRIBUTORS.filter(
+            (c) => c.name === 'Ethan Mathieu' || c.name === 'Nicholas Ribeiro'
+          ).map((c) => (
+            <ContributorCard
+              key={c.name}
+              name={c.name}
+              title={c.title}
+              founding={c.founding}
+              linkedin={c.linkedin}
+              portfolio={c.portfolio}
+              github={c.github}
+              image={c.image}
+            />
+          ))}
         </div>
-        
+        {/* Developers Section */}
+        <h2 className="text-3xl font-bold mb-4">Developers</h2>
+        <div className="grid lg:grid-cols-4 md:grid-cols-2">
+          {PAST_CONTRIBUTORS.filter(
+            (c) => c.name !== 'Ethan Mathieu' && c.name !== 'Nicholas Ribeiro'
+          ).map((c) => (
+            <ContributorCard
+              key={c.name}
+              name={c.name}
+              title={c.title}
+              founding={c.founding}
+              linkedin={c.linkedin}
+              portfolio={c.portfolio}
+              github={c.github}
+              image={c.image}
+            />
+          ))}
+        </div>
+
         <div className="w-full flex flex-col justify-center items-center mt-8 mb-4">
           <p className="text-center text-base text-gray-700 dark:text-text-dark max-w-2xl mb-2">
-            A special thank you to our sponsors, who help fund the essential infrastructure for ymeets and other y/cs products, keeping them free for everyone. Learn more about our sponsors on the <a className="text-primary underline" href="https://yalecomputersociety.org/">Yale Computer Society website</a>.
+            A special thank you to our sponsors, who help fund the essential
+            infrastructure for ymeets and other y/cs products, keeping them free
+            for everyone. Learn more about our sponsors on the{' '}
+            <a
+              className="text-primary underline"
+              href="https://yalecomputersociety.org/"
+            >
+              Yale Computer Society website
+            </a>
+            .
           </p>
           <div className="flex flex-row items-center justify-center space-x-4 mt-2">
-            <a href="https://www.hudsonrivertrading.com/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.hudsonrivertrading.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/HudsonRiverTrading.png"
                 alt="Hudson River Trading"
                 className="h-20 w-auto object-contain inline-block"
               />
             </a>
-            <a href="https://www.minimax.io/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.minimax.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/MiniMax.png"
                 alt="MiniMax"
