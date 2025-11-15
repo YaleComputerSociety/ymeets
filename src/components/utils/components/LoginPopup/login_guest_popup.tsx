@@ -12,17 +12,18 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { useAuth } from '../../../../backend/authContext';
 import AlertPopup from '../AlertPopup'; // Import AlertPopup
 
-
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
   enableAnonymousSignIn?: boolean;
   code: string;
+  onOverlayClick?: () => void;
 }
 
 export const LoginPopup: React.FC<LoginPopupProps> = ({
   onClose,
   enableAnonymousSignIn = false,
   code,
+  onOverlayClick,
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
@@ -95,7 +96,10 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     };
   }, []);
   return (
-    <div className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6">
+    <div
+      className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6"
+      onClick={() => (onOverlayClick ? onOverlayClick() : onClose())}
+    >
       {alertMessage && (
         <AlertPopup
           title="Alert"
@@ -104,7 +108,10 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           onClose={() => setAlertMessage(null)}
         />
       )}
-      <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
+      <div
+        className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={() => {
             onClose();
