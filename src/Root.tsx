@@ -40,6 +40,7 @@ function Root() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
+              <Route path="/edit/:eventId" element={<DaySelectComponent />} />
               <Route
                 path="/dashboard/:code"
                 element={<UnifiedAvailabilityPage />}

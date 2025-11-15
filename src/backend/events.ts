@@ -149,6 +149,7 @@ async function getEventById(id: EventId): Promise<void> {
 
           resolve();
         } else {
+          console.error('[events.getEventById] Event not found', id);
           reject('Document not found');
         }
       })
@@ -369,11 +370,16 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
       partRef = doc(participantsRef, participant.name);
     }
 
+    // Handle availability: if it's already a string, use it; otherwise stringify it
+    const availabilityToSave = typeof participant.availability === 'string' 
+      ? participant.availability 
+      : JSON.stringify(participant.availability);
+    
     setDoc(partRef, {
       name: participant.name,
       accountId: participant.accountId || '',
       email: getAccountEmail(),
-      availability: JSON.stringify(participant.availability),
+      availability: availabilityToSave,
       location: participant.location || '',
     })
       .then(() => {
@@ -450,11 +456,12 @@ async function wrappedSaveParticipantDetails(
     name = 'John Doe';
   }
 
+  // Pass availability as array - saveParticipantDetails will stringify it
   await saveParticipantDetails({
     name,
     accountId: getAccountId(),
     email: getAccountEmail(),
-    availability: JSON.stringify(availability),
+    availability: availability, // Pass as array, not stringified
     location: locations !== undefined ? locations : [],
   });
 }
@@ -535,10 +542,21 @@ async function getEventOnPageload(id: string): Promise<void> {
 
 // Retrieves the availability object of the participant matching `name`
 function getAvailabilityByName(name: string): Availability | undefined {
+  const parseAvail = (val: any): Availability | undefined => {
+    if (val === undefined || val === null) return undefined;
+    if (Array.isArray(val)) return val as Availability;
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val) as Availability;
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  };
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
-      //@ts-expect-error
-      return JSON.parse(workingEvent.participants[i].availability);
+      return parseAvail(workingEvent.participants[i].availability);
       // this arises because to store an availability object in Firestore, it must be stringified, but the frontend uses a JSON object
     }
   }
@@ -548,10 +566,21 @@ function getAvailabilityByName(name: string): Availability | undefined {
 function getAvailabilityByAccountId(
   accountId: string
 ): Availability | undefined {
+  const parseAvail = (val: any): Availability | undefined => {
+    if (val === undefined || val === null) return undefined;
+    if (Array.isArray(val)) return val as Availability;
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val) as Availability;
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  };
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].accountId == accountId) {
-      // @ts-expect-error
-      return JSON.parse(workingEvent.participants[i].availability);
+      return parseAvail(workingEvent.participants[i].availability);
     }
   }
 }
@@ -579,9 +608,35 @@ function getAllAvailabilitiesIDs(): string[] {
 function getAllAvailabilities(): Availability[] {
   const avails: Availability[] = [];
 
+  const makeEmptyAvailability = (): Availability => {
+    const timeBlocks = generateTimeBlocks(
+      workingEvent.details.startTime,
+      workingEvent.details.endTime
+    );
+    const blocksLength = timeBlocks.flat().flat().length;
+    const numDates = getDates().length;
+    const days: boolean[][] = [];
+    for (let i = 0; i < numDates; i++) {
+      days.push(Array.from({ length: blocksLength }, () => false));
+    }
+    return days;
+  };
+
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    // @ts-expect-error
-    avails.push(JSON.parse(workingEvent.participants[i].availability));
+    // availability may be string or already an array
+    const val = workingEvent.participants[i].availability;
+    if (Array.isArray(val)) {
+      avails.push(val as Availability);
+    } else if (typeof val === 'string') {
+      try {
+        avails.push(JSON.parse(val) as Availability);
+      } catch {
+        // if parsing fails, push an empty availability matching current framework
+        avails.push(makeEmptyAvailability());
+      }
+    } else {
+      avails.push(makeEmptyAvailability());
+    }
   }
   return avails;
 }
@@ -768,10 +823,14 @@ async function setNewDates(newDates: Date[] | undefined) {
     return Promise.resolve();
   }
 
+  // Update the dates in the working event
+  workingEvent.details.dates = newDates;
+
+  // Update availability arrays for all participants to match new dates
   for (let p = 0; p < workingEvent.participants.length; p++) {
     let timeBlocks = generateTimeBlocks(
-      workingEvent.details.chosenStartDate,
-      workingEvent.details.chosenEndDate
+      workingEvent.details.startTime,
+      workingEvent.details.endTime
     );
     let availability = [];
     for (let i = 0; i < timeBlocks.length; i++) {
@@ -805,7 +864,6 @@ async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
 async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
   try {
     const userDocRef = doc(db, 'users', uid);
-    console.log('Setting selected calendars for user:', uid, calIDs);
     await setDoc(userDocRef, { selectedCalendarIDs: calIDs }, { merge: true });
   } catch (error) {
     console.error('Error setting selected calendars:', error);

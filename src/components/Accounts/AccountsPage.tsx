@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash, IconEdit } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
@@ -200,27 +200,36 @@ export default function AccountsPage() {
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
                         {event.name}
                       </h3>
-                      {event.iAmCreator && (
-                        <button
-                          onClick={() => {
-                            if (dontAskAgain) {
-                              deleteEvent(event.id)
-                                .then(() => {
-                                  setHasDeletedEvent(true);
-                                  setEvents(
-                                    events?.filter((e) => e.id !== event.id)
-                                  );
-                                })
-                                .catch((err) => {});
-                            } else {
-                              setSelectedEventToDelete(event);
-                            }
-                          }}
-                          className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
-                          aria-label="Delete event"
-                        >
-                          <IconTrash className="w-5 h-5" />
-                        </button>
+                                             {event.iAmCreator && (
+                         <div className="flex gap-1">
+                           <button
+                             onClick={() => nav(`/edit/${event.id}`, { state: { isEditMode: true } })}
+                             className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 flex-shrink-0"
+                             aria-label="Edit event"
+                           >
+                             <IconEdit className="w-5 h-5" />
+                           </button>
+                          <button
+                            onClick={() => {
+                              if (dontAskAgain) {
+                                deleteEvent(event.id)
+                                  .then(() => {
+                                    setHasDeletedEvent(true);
+                                    setEvents(
+                                      events?.filter((e) => e.id !== event.id)
+                                    );
+                                  })
+                                  .catch((err) => {});
+                              } else {
+                                setSelectedEventToDelete(event);
+                              }
+                            }}
+                            className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
+                            aria-label="Delete event"
+                          >
+                            <IconTrash className="w-5 h-5" />
+                          </button>
+                        </div>
                       )}
                     </div>
 
