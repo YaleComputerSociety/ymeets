@@ -292,12 +292,21 @@ export default function GroupViewPage({
           </ButtonSmall>
 
           {isAdmin && (
-            <AutoDraftEmailButton
-              eventTitle={eventName}
-              yourName={getAccountName()}
-              senderEmail={getAccountEmail()}
-              customEventCode={code}
-            />
+            <>
+              <ButtonSmall
+                bgColor="secondary"
+                textColor="white"
+                onClick={() => nav(`/edit/${code}`)}
+              >
+                Edit Event
+              </ButtonSmall>
+              <AutoDraftEmailButton
+                eventTitle={eventName}
+                yourName={getAccountName()}
+                senderEmail={getAccountEmail()}
+                customEventCode={code}
+              />
+            </>
           )}
 
           {locationOptions.length > 0 && (

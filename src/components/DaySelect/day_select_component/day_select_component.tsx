@@ -156,7 +156,6 @@ export const DaySelectComponent = () => {
           setZoomLink(zoomLinkFromDb || '');
           setStartDate(newStartDate);
           setEndDate(newEndDate);
-          setSelectedDates(datesFromDb || []);
           updateLocationsState(locationsFromDb || []);
           setLocationOptions(locationsFromDb || []);
           setTimezone(timezoneFromDb || Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -164,6 +163,8 @@ export const DaySelectComponent = () => {
           // Check if this is a "General Days" event (dates with year 2000)
           if (datesFromDb && datesFromDb.length > 0 && datesFromDb[0].getFullYear() === 2000) {
             setSelectGeneralDays(true);
+            // Clear selectedDates for General Days events
+            setSelectedDates([]);
             // Map the dates to selectedDays state
             // Initialize with default structure and mark selected days
             const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -191,6 +192,18 @@ export const DaySelectComponent = () => {
             setSelectedDays(updatedSelectedDays);
           } else {
             setSelectGeneralDays(false);
+            // For Specific Days events, set selectedDates
+            setSelectedDates(datesFromDb || []);
+            // Clear selectedDays for Specific Days events
+            const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const clearedDays: Record<string, { dateObj: Date; selected: boolean }> = {};
+            dayNames.forEach(dayName => {
+              clearedDays[dayName] = {
+                dateObj: new Date(2000, 0, dayNames.indexOf(dayName) + 2),
+                selected: false
+              };
+            });
+            setSelectedDays(clearedDays);
           }
         } catch (error) {
           console.error('Error loading event data:', error);
@@ -252,13 +265,19 @@ export const DaySelectComponent = () => {
 
     if (isEditMode && eventId) {
       // Update existing event
-      setIsUpdating(true);
       const datesToUse = selectGeneralDays 
         ? Object.keys(selectedDays)
             .filter((day) => selectedDays[day].selected)
             .map((day) => selectedDays[day].dateObj)
         : selectedDates;
       
+      // Validate that at least one date is selected
+      if (datesToUse.length === 0) {
+        setAlertMessage('You need to pick at least one day!');
+        return;
+      }
+      
+      setIsUpdating(true);
       frontendEventAPI
         .updateEvent(
           eventId,
@@ -340,7 +359,25 @@ export const DaySelectComponent = () => {
   };
 
   const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
-    setSelectGeneralDays(tab === 'General Days');
+    const isGeneralDays = tab === 'General Days';
+    
+    if (isGeneralDays && !selectGeneralDays) {
+      // Switching to General Days - clear specific dates
+      setSelectedDates([]);
+    } else if (!isGeneralDays && selectGeneralDays) {
+      // Switching to Specific Days - clear general days selection
+      const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const clearedDays: Record<string, { dateObj: Date; selected: boolean }> = {};
+      dayNames.forEach(dayName => {
+        clearedDays[dayName] = {
+          dateObj: new Date(2000, 0, dayNames.indexOf(dayName) + 2),
+          selected: false
+        };
+      });
+      setSelectedDays(clearedDays);
+    }
+    
+    setSelectGeneralDays(isGeneralDays);
   };
 
   return (

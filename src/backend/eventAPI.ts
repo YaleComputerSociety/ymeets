@@ -128,6 +128,11 @@ export default class FrontendEventAPI {
     timeZone: string
   ): Promise<void> {
     try {
+      // Validate that at least one date is provided
+      if (!dates || dates.length === 0) {
+        throw new Error('At least one date must be selected for the event');
+      }
+      
       // Normalize to match reads which use toUpperCase() when fetching
       const normalizedId = eventId.toUpperCase();
       const eventsRef = doc(collection(db, 'events'), normalizedId);
