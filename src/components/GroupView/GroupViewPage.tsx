@@ -245,6 +245,11 @@ export default function GroupViewPage({
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+  const editAvailabilityButtonLabel = isEditing
+    ? 'View Availabilities'
+    : userHasFilled
+      ? 'Edit Your Availability'
+      : 'Add Availability';
 
   if (loading) {
     return (
@@ -286,9 +291,7 @@ export default function GroupViewPage({
             textColor="white"
             onClick={toggleEditing}
           >
-            {isEditing
-              ? 'View Availabilities'
-              : 'Edit Your Availability'}
+            {editAvailabilityButtonLabel}
           </ButtonSmall>
 
           {isAdmin && (
@@ -374,9 +377,7 @@ export default function GroupViewPage({
                     onClick={toggleEditing}
                     className="!rounded-lg"
                   >
-                    {isEditing
-                      ? 'View Availabilities'
-                      : 'Edit Your Availability'}
+                    {editAvailabilityButtonLabel}
                   </ButtonSmall>
                   {isAdmin &&
                     calendarFramework?.dates?.[0][0].date instanceof Date &&
