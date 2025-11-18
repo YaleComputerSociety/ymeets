@@ -12,17 +12,18 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { useAuth } from '../../../../backend/authContext';
 import AlertPopup from '../AlertPopup'; // Import AlertPopup
 
-
 interface LoginPopupProps {
   onClose: (successFlag?: boolean) => void;
   enableAnonymousSignIn?: boolean;
   code: string;
+  onOverlayClick?: () => void;
 }
 
 export const LoginPopup: React.FC<LoginPopupProps> = ({
   onClose,
   enableAnonymousSignIn = false,
   code,
+  onOverlayClick,
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
@@ -30,6 +31,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
   const { login, currentUser } = useAuth();
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
+  const [showManualInput, setShowManualInput] = useState(false);
 
   const handleSignInWithGoogle = () => {
     login().then((loginSuccessful) => {
@@ -95,7 +97,10 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     };
   }, []);
   return (
-    <div className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6">
+    <div
+      className="popup-overlay active flex items-center justify-center min-h-screen py-6 px-4 sm:px-6"
+      onClick={() => (onOverlayClick ? onOverlayClick() : onClose())}
+    >
       {alertMessage && (
         <AlertPopup
           title="Alert"
@@ -104,9 +109,13 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           onClose={() => setAlertMessage(null)}
         />
       )}
-      <div className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative">
+      <div
+        className="popup-content w-full max-w-md bg-white rounded-2xl shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={() => {
+            onClose();
             navigate('/dashboard/' + code);
           }}
           className="absolute top-4 left-4 p-2 flex items-center text-gray-500 hover:text-gray-800 transition-colors duration-200"
@@ -115,39 +124,41 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           <IconArrowLeft className="h-5 w-5" />
         </button>
 
-        <div className="flex flex-col items-center">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 sm:mb-8">
-            Sign In
+        <div className="flex flex-col items-center w-full px-2">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 mt-2 text-center">
+            Add your availability
           </h2>
-
+          <p className="text-gray-500 text-base mb-4 text-center">
+            How do you want to add your availability?
+          </p>
           <button
-            className="w-full font-medium rounded-full shadow-md bg-white text-gray-700 py-3 px-4 sm:px-6 text-sm sm:text-base
-                      border border-gray-200 hover:border-gray-300 transform transition-all duration-200 hover:shadow-lg 
-                      active:scale-95 flex items-center justify-center"
+            className="w-full flex items-center justify-center gap-3 font-medium rounded-xl shadow bg-white text-gray-800 py-3 px-4 mt-4 mb-2 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition"
             onClick={handleSignInWithGoogle}
           >
-            <img src={LOGO} alt="Logo" className="mr-2 sm:mr-3 h-5 sm:h-6" />
-            <span>Continue with Google</span>
-          </button>
-
-          <div className="flex items-center w-full my-6 sm:my-8">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-500">
-              OR
+            <img src={LOGO} alt="Google" className="h-6 w-6" />
+            <span className="text-center w-full">
+              Autofill with Google Calendar
             </span>
+          </button>
+          <p className="text-xs text-gray-500 text-center mt-1">
+            You can manually edit your availability after.
+          </p>
+          <div className="flex items-center w-full my-3">
+            <div className="flex-1 h-px bg-gray-200"></div>
+            <span className="px-3 text-gray-400">or</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
-
-          <p className="text-center text-sm sm:text-base text-gray-600 mb-3">
-            Enter Name to Continue as Guest
-          </p>
-
-          {enableAnonymousSignIn && (
-            <div className="flex items-center w-full">
+          {!showManualInput ? (
+            <button
+              className="w-full font-medium rounded-xl shadow bg-white text-gray-800 py-3 px-4 mb-2 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition"
+              onClick={() => setShowManualInput(true)}
+            >
+              Manually
+            </button>
+          ) : (
+            <div className="w-full flex items-center gap-2 mb-2">
               <input
-                className="rounded-l-lg py-2.5 sm:py-3 px-3 sm:px-4 text-sm sm:text-base bg-white text-left 
-                          border border-gray-300 focus:border-blue-400 focus:outline-none focus:ring-2 
-                          focus:ring-blue-100 w-full transition-all duration-200"
+                className="rounded-lg py-2 px-3 text-base bg-white text-left border border-gray-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 flex-1 min-w-0 transition-all duration-200"
                 placeholder="Your Name"
                 name="name"
                 type="text"
@@ -162,22 +173,15 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
                 maxLength={25}
               />
               <button
-                className={`
-                  rounded-r-lg font-medium
-                  py-2.5 sm:py-3 px-3 sm:px-4 min-w-[44px] sm:min-w-[48px]
-                  transition-all duration-200 ease-in-out
-                  ${
-                    isValidInput && inputName.trim().length > 0
-                      ? 'bg-primary hover:bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }
-                  focus:outline-none focus:ring-2 focus:ring-blue-300
-                  active:transform active:scale-95
-                `}
+                className={`rounded-lg font-medium py-2 px-3 w-24 min-w-0 transition-all duration-200 text-sm ${
+                  isValidInput && inputName.trim().length > 0
+                    ? 'bg-primary text-white hover:bg-blue-600'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
                 onClick={handleSignInWithoutGoogle}
                 disabled={!isValidInput || inputName.trim().length === 0}
               >
-                <span className="text-lg sm:text-xl">&rarr;</span>
+                Continue
               </button>
             </div>
           )}
