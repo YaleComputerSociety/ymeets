@@ -369,7 +369,7 @@ export default function GroupViewPage({
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout - buttons row */}
                 <div className="flex flex-col md:hidden w-full mb-3">
-                  <div className="flex items-center gap-3 w-full mb-3">
+                  <div className="flex items-center justify-center gap-3 w-full mb-3">
                     <ButtonSmall
                       bgColor="primary"
                       textColor="white"
