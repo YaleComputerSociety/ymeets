@@ -52,10 +52,13 @@ const UserChart: React.FC<UserChartProps> = ({
 
 
   const [rowHeight, setRowHeight] = useState<number | null>(null);
-  const maxRows = Math.max(chartedUsers.available.length, chartedUsers.unavailable.length);
+  const maxRows = Math.max(
+    chartedUsers.available.length,
+    chartedUsers.unavailable.length
+  );
   const numRows =
     rowHeight && calendarHeight
-      ? Math.min(maxRows, Math.max(1, Math.floor(calendarHeight / rowHeight))) - 1
+      ? Math.min(maxRows, Math.max(1, Math.floor(calendarHeight / rowHeight)))
       : maxRows;
 
   const rows: Array<[string, string]> = Array.from(
@@ -67,11 +70,23 @@ const UserChart: React.FC<UserChartProps> = ({
   );
 
 
-  if (numRows < maxRows) {
-    rows.push([
-      ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
-      ((chartedUsers.unavailable.length - numRows) > 0) ? `...and ${(chartedUsers.unavailable.length - numRows)} more` : '',
-    ]);
+  // if (chartedUsers.available.length > numRows || chartedUsers.unavailable.length > numRows) {
+  //   rows.push([
+  //     ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
+  //     ((chartedUsers.unavailable.length - numRows) > 0) ? `...and ${(chartedUsers.unavailable.length - numRows)} more` : '',
+  //   ]);
+  // }
+
+  if (chartedUsers.available.length > numRows) {
+    rows[numRows - 1][0] = `...and ${
+      chartedUsers.available.length - (numRows - 1)
+    } more`;
+  }
+
+  if (chartedUsers.unavailable.length > numRows) {
+    rows[numRows - 1][1] = `...and ${
+      chartedUsers.unavailable.length - (numRows - 1)
+    } more`;
   }
   
 
