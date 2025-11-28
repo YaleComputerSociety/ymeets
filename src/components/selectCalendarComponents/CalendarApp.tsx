@@ -1,4 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { 
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useCallback} from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalander from './SelectCalendar';
 import { calendarDimensions, calanderState, userData } from '../../types';
@@ -35,6 +39,8 @@ interface CalendarProps {
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
+  setChartedUsers?: Dispatch<SetStateAction<userData>>;
+  chartedUsers?: userData;
 }
 
 export default function Calendar({
@@ -49,6 +55,8 @@ export default function Calendar({
   theShowUserChart,
   onClick,
   isGeneralDays,
+  setChartedUsers,
+  chartedUsers,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -84,6 +92,18 @@ export default function Calendar({
     calculateColumnsPerPage
   );
 
+  const handleStopHover = useCallback(() => {
+      if (chartedUsers && setChartedUsers) {
+        setChartedUsers({
+          users: chartedUsers.users,
+          userIDs: chartedUsers.userIDs,
+          available: [],
+          unavailable: [...chartedUsers.users],
+          hovering : false,
+        });
+      }
+    }, [chartedUsers, setChartedUsers]);
+
   React.useEffect(() => {
     const handleResize = () => {
       setNumberOfColumnsPerPage(calculateColumnsPerPage());
@@ -111,7 +131,12 @@ export default function Calendar({
   };
 
   return (
-    <div className="flex flex-col space-y-0 mb-2">
+    <div className="flex flex-col space-y-0 mb-2"
+    onMouseLeave={() => {
+        handleStopHover();
+        console.log("Mouse Left Calendar");
+      }}
+    >
       <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
@@ -212,6 +237,8 @@ export default function Calendar({
               chartedUsersData={chartedUsersData}
               theGoogleCalendarEvents={theGoogleCalendarEvents}
               isGeneralDays={isGeneralDays}
+              setChartedUsers={setChartedUsers}
+              chartedUsers={chartedUsers}
             />
           </div>
         </div>

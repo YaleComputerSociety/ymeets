@@ -89,6 +89,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : false,
       });
     }
   }, []);
@@ -330,6 +331,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : true,
       });
     }
   }, [chartedUsers, setChartedUsers]);

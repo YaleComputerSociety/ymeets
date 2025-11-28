@@ -506,6 +506,8 @@ export default function GroupViewPage({
                 theDragState={[dragState, setDragState]}
                 theGoogleCalendarEvents={[[], () => {}]}
                 isGeneralDays={false}
+                setChartedUsers={setChartedUsers}
+                chartedUsers={chartedUsers}
               />
             </div>
           </div>
