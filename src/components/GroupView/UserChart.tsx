@@ -23,6 +23,7 @@ interface UserChartProps {
     boolean,
     React.Dispatch<React.SetStateAction<boolean>>,
   ];
+  calendarHeight: number | null;
 }
 
 /**
@@ -37,6 +38,7 @@ const UserChart: React.FC<UserChartProps> = ({
   allPeople,
   thePeopleStatus,
   theParticipantToggleClicked,
+  calendarHeight
 }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData || [
     { available: [], unavailable: [] },
@@ -48,10 +50,13 @@ const UserChart: React.FC<UserChartProps> = ({
   const [participantToggleClicked, setParticipantToggleClicked] =
     theParticipantToggleClicked;
 
-  const numRows = Math.max(
-    chartedUsers.available.length,
-    chartedUsers.unavailable.length
-  );
+
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const maxRows = Math.max(chartedUsers.available.length, chartedUsers.unavailable.length);
+  const numRows =
+    rowHeight && calendarHeight
+      ? Math.min(maxRows, Math.max(1, Math.floor(calendarHeight / rowHeight))) - 1
+      : maxRows;
 
   const rows: Array<[string, string]> = Array.from(
     { length: numRows },
@@ -60,6 +65,15 @@ const UserChart: React.FC<UserChartProps> = ({
       chartedUsers.unavailable[i]?.name || '',
     ]
   );
+
+
+  if (numRows < maxRows) {
+    rows.push([
+      ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
+      ((chartedUsers.unavailable.length - numRows) > 0) ? `...and ${(chartedUsers.unavailable.length - numRows)} more` : '',
+    ]);
+  }
+  
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
@@ -87,9 +101,17 @@ const UserChart: React.FC<UserChartProps> = ({
                 <ChartRow
                   available={available}
                   key={idx} // Correctly placed key
+                  onHeightMeasured={
+                    idx === 0
+                      ? (height) => {
+                          if (rowHeight === null) setRowHeight(height);
+                        }
+                      : undefined
+                  }
                   unavailable={unavailable}
                 />
               ))}
+
             </tbody>
           </table>
         ) : (

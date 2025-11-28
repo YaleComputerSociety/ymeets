@@ -245,6 +245,7 @@ export default function GroupViewPage({
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+  const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
 
   if (loading) {
     return (
@@ -253,6 +254,8 @@ export default function GroupViewPage({
       </div>
     );
   }
+
+
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
@@ -344,6 +347,7 @@ export default function GroupViewPage({
                     participantToggleClicked,
                     setParticipantToggleClicked,
                   ]}
+                  calendarHeight={calendarHeight}
                 />}
               </>
             )}
@@ -508,6 +512,7 @@ export default function GroupViewPage({
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}
                 chartedUsers={chartedUsers}
+                setCalendarHeight={setCalendarHeight}
               />
             </div>
           </div>
@@ -555,6 +560,7 @@ export default function GroupViewPage({
                       participantToggleClicked,
                       setParticipantToggleClicked,
                     ]}
+                    calendarHeight={calendarHeight}
                   />
                 </div>
               </div>
