@@ -1,38 +1,26 @@
+import React from 'react';
+import Dropdown from '../../utils/components/Dropdown';
+import { timezones } from '../../utils/constants/timezones';
+
 interface TimezonePickerProps {
-  theTimezone: [string, React.Dispatch<React.SetStateAction<string>>];
+  timezone: string;
+  setTimezone: (timezone: string) => void;
 }
 
-function TimezonePicker({ theTimezone }: TimezonePickerProps) {
-  const [timezone, setTimzeone] = theTimezone;
-
-  const timezones = [
-    'UTC',
-    'America/New_York',
-    'America/Los_Angeles',
-    'Europe/London',
-    'Europe/Paris',
-    'Asia/Tokyo',
-    'Asia/Calcutta',
-    'Australia/Sydney',
-  ];
-
+const TimezonePicker: React.FC<TimezonePickerProps> = ({
+  timezone,
+  setTimezone,
+}) => {
   return (
-    <div className="text-primary w-full">
-      <select
-        value={timezone}
-        onChange={(e) => {
-          setTimzeone(e.target.value);
-        }}
-        className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-secondary_background-dark max-h-40 overflow-y-auto cursor-pointer"
-      >
-        {timezones.map((timezone) => (
-          <option key={timezone} value={timezone}>
-            {timezone.replace(/_/g, ' ')}
-          </option>
-        ))}
-      </select>
-    </div>
+    <Dropdown
+      options={timezones}
+      selectedOption={timezone}
+      onSelect={setTimezone}
+      placeholder="Select a timezone"
+      renderOption={(option) => option.replace(/_/g, ' ')}
+      className="dark:bg-secondary_background-dark"
+    />
   );
-}
+};
 
 export default TimezonePicker;

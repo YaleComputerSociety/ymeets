@@ -13,11 +13,7 @@ import {
   arrayUnion,
   query,
   where,
-  QuerySnapshot,
-  deleteDoc,
   writeBatch,
-  FieldValue,
-  deleteField,
 } from 'firebase/firestore';
 import {
   Availability,
@@ -29,11 +25,10 @@ import {
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
-
-import { DateTime } from 'luxon';
 import { runTransaction } from 'firebase/firestore';
+import { doTimezoneChange } from '../components/utils/functions/timzoneConversions';
+import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 import { AccountsPageEvent } from '../components/Accounts/AccountsPage';
-
 // ASSUME names are unique within an event
 
 let workingEvent: Event = {
@@ -805,70 +800,43 @@ function getZoomLink(): string | undefined {
   return workingEvent.details.zoomLink || undefined;
 }
 
+function getUTCDates(): Date[] {
+  return workingEvent.details.dates;
+}
+
+function getUTCStartAndEndTimes(): Date[] {
+  return [workingEvent.details.startTime, workingEvent.details.endTime];
+}
+
 function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
+  const userTimeZone = getUserTimezone();
   if (timeZone == userTimeZone) {
     return dates;
   }
 
-  dates = dates.map((date) => {
-    // Treat the date as UTC and convert to the target timezone
-    return DateTime.fromJSDate(date, { zone: 'utc' })
-      .setZone(timeZone, { keepLocalTime: true })
-      .toJSDate();
-  });
+  const { adjustedDates } = doTimezoneChange(userTimeZone, startTime, endTime);
 
-  // Convert the start and end times to the user's time zone
-  const startInUserZone = DateTime.fromJSDate(startTime).setZone(userTimeZone);
-  const endInUserZone = DateTime.fromJSDate(endTime).setZone(userTimeZone);
-
-  // Get the original DateTime objects in the creator's time zone (without converting to ISO date)
-  const startInCreatorZone = DateTime.fromJSDate(startTime).setZone(timeZone);
-  const endInCreatorZone = DateTime.fromJSDate(endTime).setZone(timeZone);
-
-  // Determine if the time range crosses into another day
-  let adjustedDates = [...dates];
-  const startDateUserZone = startInUserZone?.toISODate();
-  const startDateCreatorZone = startInCreatorZone?.toISODate();
-  const endDateUserZone = endInUserZone?.toISODate();
-  const endDateCreatorZone = endInCreatorZone?.toISODate();
-
-  if (
-    startDateUserZone &&
-    startDateCreatorZone &&
-    startDateUserZone < startDateCreatorZone
-  ) {
-    // If the start date is earlier in the user's time zone (crosses backward)
-    adjustedDates = adjustedDates.map((date) => {
-      const adjustedDate = new Date(date);
-      adjustedDate.setDate(date.getDate() - 1); // Shift the date backward by 1
-      return adjustedDate;
-    });
-  } else if (
-    endDateUserZone &&
-    endDateCreatorZone &&
-    endDateUserZone < endDateCreatorZone
-  ) {
-    // If the end date is later in the user's time zone (crosses forward)
-    adjustedDates = adjustedDates.map((date) => {
-      const adjustedDate = new Date(date);
-      adjustedDate.setDate(date.getDate() + 1); // Shift the date forward by 1
-      return adjustedDate;
-    });
-  } else {
-    // console.log("Does not cross");
-  }
   return adjustedDates;
 }
 
 function getStartAndEndTimes(): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
+  let userTimeZone = getUserTimezone();
 
-  return [startTime, endTime];
+  if (workingEvent.details.timeZone == userTimeZone) {
+    return [startTime, endTime];
+  }
+
+  const { adjustedStartTime, adjustedEndTime } = doTimezoneChange(
+    userTimeZone,
+    startTime,
+    endTime
+  );
+
+  return [adjustedStartTime, adjustedEndTime];
 }
 
 function getTimezone(): string {
@@ -962,6 +930,29 @@ async function undoAdminSelections() {
   await saveEventDetails(workingEvent.details);
 }
 
+async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', uid));
+    if (userDoc.exists()) {
+      return userDoc.data().selectedCalendarIDs || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching selected calendars:', error);
+    return [];
+  }
+}
+
+async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
+  try {
+    const userDocRef = doc(db, 'users', uid);
+    console.log('Setting selected calendars for user:', uid, calIDs);
+    await setDoc(userDocRef, { selectedCalendarIDs: calIDs }, { merge: true });
+  } catch (error) {
+    console.error('Error setting selected calendars:', error);
+  }
+}
+
 export { workingEvent }; // For interal use; use getters and setters below
 
 export {
@@ -972,6 +963,10 @@ export {
   checkIfLoggedIn,
   checkIfAdmin,
 
+  // Misc
+  getSelectedCalendarIDsByUserID,
+  setUserSelectedCalendarIDs,
+
   // High Level (Async)
   getEventOnPageload,
   getEventById,
@@ -980,6 +975,8 @@ export {
 
   // Getters (Sync)
   getDates,
+  getUTCDates,
+  getUTCStartAndEndTimes,
   getStartAndEndTimes,
   getChosenLocation,
   getChosenDayAndTime,

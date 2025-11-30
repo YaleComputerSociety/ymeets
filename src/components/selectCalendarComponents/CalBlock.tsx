@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -35,6 +35,7 @@ interface CalBlockProps {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   isEventStart: boolean;
+  isEventEnd: boolean;
   eventName: string | null;
   additionalEventCount: number;
 }
@@ -62,6 +63,7 @@ export default function CalBlock({
   chartedUsersData,
   theShowUserChart,
   isEventStart,
+  isEventEnd,
   eventName,
   additionalEventCount,
 }: CalBlockProps) {
@@ -91,20 +93,6 @@ export default function CalBlock({
     }
   }, []);
 
-  const showTooltipWithTimeout = () => {
-    setShowTooltip(true);
-    setIsVisible(true);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => setShowTooltip(false), 300);
-    }, 2000);
-  };
-
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -116,10 +104,13 @@ export default function CalBlock({
 
   // Helper functions for selection and color calculations
   const isBlockSelected = useCallback((): boolean => {
+    if (blockID == -1) return false;
     return calendarState[user]?.[columnID]?.[blockID] === true;
   }, [calendarState, user, columnID, blockID]);
 
   const isInSelection = useCallback((): boolean => {
+    if (blockID == -1) return false;
+
     if (dragState.isSelecting && dragState.startPoint && dragState.endPoint) {
       const currentBox = getBoundingBox(
         dragState.startPoint,
@@ -140,10 +131,16 @@ export default function CalBlock({
   }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
 
   const getDefaultColor = useCallback(() => {
-    return isOnGcal ? '#6B7280' : theme === 'light' ? 'white' : '#2d3748';
-  }, [isOnGcal, theme]);
+    if (!draggable) {
+      return chartedUsers ? 'white' : theme === 'light' ? '#a8a8a8' : '#404040';
+    }
+    return theme === 'light' ? 'white' : '#2d3748';
+  }, [theme, calendarFramework]);
 
   const getGroupPercentageColor = useCallback(() => {
+    if (blockID == -1) {
+      return getDefaultColor();
+    }
     let selectedCount = 0;
     const totalUsers = chartedUsers?.users.length || 0;
 
@@ -168,6 +165,11 @@ export default function CalBlock({
 
   // Update shade color when relevant props change
   useEffect(() => {
+    if (blockID == -1) {
+      setShadeColor(getDefaultColor());
+      return;
+    }
+
     if (!isAdmin && draggable) {
       setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
     } else {
@@ -194,6 +196,7 @@ export default function CalBlock({
     isBlockSelected,
     getGroupPercentageColor,
     getDefaultColor,
+    calendarFramework,
   ]);
 
   // Color interpolation helper
@@ -237,24 +240,8 @@ export default function CalBlock({
     );
   };
 
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (!draggable || isAdmin) return;
-
-      setCalendarState((prev) => {
-        const newState = { ...prev };
-        if (!newState[user]) newState[user] = [];
-        if (!newState[user][columnID]) newState[user][columnID] = [];
-        newState[user][columnID][blockID] = !newState[user][columnID][blockID];
-        return newState;
-      });
-
-      onClick(event as any);
-    },
-    [draggable, isAdmin, user, columnID, blockID, setCalendarState, onClick]
-  );
-
   const handleBlockClick = (e: any, fromTouch = false) => {
+    if (blockID == -1) return; // Skip if blockID is -1
     onClick(e);
 
     if (draggable && !isAdmin) {
@@ -266,6 +253,10 @@ export default function CalBlock({
 
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
+
+    if (blockID == -1) {
+      return;
+    }
 
     const availableUsers: user[] = [];
     const unavailableUsers: user[] = [];
@@ -393,6 +384,7 @@ export default function CalBlock({
   const handleSelectionStart = useCallback(
     (event: any) => {
       if (!draggable) return;
+      if (blockID == -1) return;
 
       if ('dataTransfer' in event) {
         const crt = event.target.cloneNode(true);
@@ -543,19 +535,23 @@ export default function CalBlock({
     [isAdmin, setDragState, debouncedSetDragState]
   );
 
+  // ${isInSelection() && is30Minute ? 'border-t-white' : ''}
+
   return (
     <div
       id={`${columnID}-${blockID}`}
-      className={`
-        cursor-pointer flex-1 w-full p-0 h-4 touch-none relative
-        border-r border-[#7E7E7E]
-        ${is30Minute ? 'border-t border-dashed border-t-[#7E7E7E]' : ''}
-        ${isInSelection() && is30Minute ? 'border-t-white' : ''}
-        transition-colors duration-200 ease-in-out
-      `}
+      className={`cursor-pointer flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
+        is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
+      } transition-colors duration-200 ease-in-out`}
       style={{
         borderTopStyle: is30Minute ? 'dashed' : 'solid',
         backgroundColor: shadeColor,
+        ...(isEventStart || isOnGcal || isEventEnd
+          ? {
+              position: 'relative',
+              zIndex: 2,
+            }
+          : {}),
       }}
       draggable={draggable}
       onClick={handleBlockClick}
@@ -575,14 +571,17 @@ export default function CalBlock({
         setShowTooltip(false);
       }}
       onTouchStart={(e) => {
+        if (blockID == -1) return;
+
         const touch = e.touches[0];
         dragStartTime.current = Date.now();
         lastDragPoint.current = [touch.clientX, touch.clientY];
         handleMobileHoverChartedUser(e);
-        // Remove handleSelectionStart from here
         onClick(e as any);
       }}
       onTouchMove={(e) => {
+        if (blockID == -1) return;
+
         if (theShowUserChart !== undefined) {
           setShowUserChart?.(false);
         }
@@ -593,7 +592,6 @@ export default function CalBlock({
           Math.abs(touch.clientX - startX) > 10 ||
           Math.abs(touch.clientY - startY) > 10;
 
-        // Only start drag selection if there's significant movement
         if (hasMoved && !dragState.isSelecting) {
           handleSelectionStart(e);
         }
@@ -609,6 +607,8 @@ export default function CalBlock({
         }
       }}
       onTouchEnd={(e) => {
+        if (blockID == -1) return;
+
         e.preventDefault();
 
         const touchDuration = Date.now() - (dragStartTime.current || 0);
@@ -635,15 +635,34 @@ export default function CalBlock({
         lastDragPoint.current = null;
       }}
     >
+      {(isEventStart || isOnGcal || isEventEnd) && (
+        <div
+          className="absolute top-0 left-0 w-full h-full pointer-events-none"
+          style={{
+            zIndex: 4,
+            boxShadow: [
+              isEventEnd ? 'inset 0 -2px 0 0 #5191f2' : '',
+              isEventStart ? 'inset 0 2px 0 0 #5191f2' : '',
+              'inset -2px 0 0 0 #5191f2',
+              'inset 2px 0 0 0 #5191f2',
+            ]
+              .filter(Boolean)
+              .join(', '),
+            backgroundColor: isEventStart
+              ? 'rgba(59, 130, 246, 0.1)'
+              : 'transparent',
+          }}
+        />
+      )}
 
       {isEventStart && eventName && (
         <div
-          className="absolute top-0 left-0 text-xs font-bold text-black"
+          className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventName.length > 15 ? `${eventName.slice(0, 15)}...` : eventName}
+          {eventName}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
@@ -651,10 +670,9 @@ export default function CalBlock({
       {showTooltip && associatedEvents && associatedEvents.length > 0 && (
         <div
           className={`
-            absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
-            transform -translate-y-full transition-all duration-300 ease-in-out
-            
-          `}
+          absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
+          transform -translate-y-full transition-all duration-300 ease-in-out
+        `}
         >
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {associatedEvents.map((event, index) => (
@@ -663,7 +681,6 @@ export default function CalBlock({
               </div>
             ))}
           </div>
-          {/* <>hi there!</> */}
           <div className="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-white dark:bg-gray-800" />
         </div>
       )}

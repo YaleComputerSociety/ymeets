@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <>
       <div className="h-3"></div>
-      <footer className="fixed bottom-0 left-0 right-0 text-text dark:text-text-dark bg-white dark:bg-secondary_background-dark w-full flex items-center justify-center text-sm sm:text-md md:p-3.5 xs:p-3 pl-8 pr-8 pt-1 pb-1">
+      <footer className="text-text dark:text-text-dark bg-white dark:bg-secondary_background-dark w-full flex items-center justify-center text-sm sm:text-md md:p-3.5 xs:p-3 pl-8 pr-8 pt-1 pb-1 mt-auto">
         <div className="flex flex-col lg:flex-row md:flex-row sm:flex-row">
           <div className="items-center justify-center px-2 m-1">
             <p className="px-2 text-center hover:text-blue-700 font-bold">
@@ -19,6 +19,23 @@ export default function Footer() {
             <p className="px-2 hover:text-blue-700">
               <a href="/privacy">Privacy Policy + Limited Use Agreement</a>
             </p>
+          </div>
+
+          <div className="flex items-center justify-center px-2 m-1 space-x-3">
+            <a href="https://www.hudsonrivertrading.com/" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/HudsonRiverTrading.png"
+                alt="Hudson River Trading"
+                className="h-6 w-auto object-contain inline-block"
+              />
+            </a>
+            <a href="https://www.minimax.io/" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/MiniMax.png"
+                alt="MiniMax"
+                className="h-6 w-auto object-contain inline-block"
+              />
+            </a>
           </div>
         </div>
       </footer>

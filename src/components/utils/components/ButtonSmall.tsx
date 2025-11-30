@@ -15,7 +15,7 @@ export default function ButtonSmall({
   children,
   disabled = false,
   themeGradient = true,
-  className = ``,
+  className = '',
 }: Props) {
   return (
     <button

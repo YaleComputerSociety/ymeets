@@ -14,6 +14,7 @@ import { dragProperties } from '../../types';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
+import { set } from 'lodash';
 
 interface SelectCalanderProps {
   theCalendarState: [
@@ -70,7 +71,14 @@ function SelectCalander({
   theShowUserChart,
   isGeneralDays,
 }: SelectCalanderProps) {
-  const timeBlocks = generateTimeBlocks(startDate, endDate);
+  const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
+    generateTimeBlocks(startDate, endDate)
+  );
+
+  useEffect(() => {
+    setTimeBlocks(generateTimeBlocks(startDate, endDate));
+  }, [startDate, endDate]);
+
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const [dragState, setDragState] = theDragState;
@@ -96,6 +104,7 @@ function SelectCalander({
       };
     }
   }, [handleMouseLeave]);
+
   return (
     <div
       className=" max-h-140"
@@ -111,38 +120,65 @@ function SelectCalander({
         </div>
 
         <div>
-          <div className="h-px bg-black"></div>
-          {timeBlocks.map((hour: string[], blockIDOffset: number) => (
-            <div key={blockIDOffset}>
-              <div className="flex flex-col">
-                {hour.map((time: string, blockID) => (
-                  <div
-                    key={time}
-                    className={`border-x-outline border-l ${hour.length - 1 === blockID ? 'border-b' : ''}`}
-                  >
-                    <CalRow
-                      theShowUserChart={theShowUserChart}
-                      onClick={onClick}
-                      is30Minute={time.slice(3) === '30'}
-                      time={time}
-                      bucket={bucket}
-                      theCalendarState={theCalendarState}
-                      draggable={draggable}
-                      columnIndexOffSet={columnIndexOffset}
-                      blockID={blockIDOffset * 4 + blockID}
-                      user={user}
-                      isAdmin={isAdmin}
-                      theDragState={[dragState, setDragState]}
-                      theCalendarFramework={theCalendarFramework}
-                      chartedUsersData={chartedUsersData}
-                      theGoogleCalendarEvents={theGoogleCalendarEvents}
-                      borderStyle={time.slice(3) === '30' ? 'dotted' : 'solid'}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="h-px bg-[#7E7E7E]"></div>
+          {(() => {
+            return timeBlocks.map((group: string[][], groupIndex: number) => {
+              return (
+                <div key={groupIndex}>
+                  {group.map((hour: string[], blockIndexWithinHour: number) => (
+                    <div key={`${groupIndex}-${blockIndexWithinHour}`}>
+                      <div className="flex flex-col">
+                        {hour.map((time: string, bid) => {
+                          let blockID =
+                            bid + timeBlocks[groupIndex - 1]?.length * 4 || bid;
+
+                          return (
+                            <div
+                              key={time}
+                              className={`border-y-[#7E7E7E] border-x-[#7E7E7E] border-l ${hour.length - 1 === bid ? 'border-b' : ''}`}
+                            >
+                              <CalRow
+                                theShowUserChart={theShowUserChart}
+                                onClick={onClick}
+                                is30Minute={time.slice(3) === '30'}
+                                time={time}
+                                bucket={bucket}
+                                theCalendarState={theCalendarState}
+                                draggable={draggable}
+                                columnIndexOffSet={columnIndexOffset}
+                                blockIDOffset={blockIndexWithinHour}
+                                blockID={blockIndexWithinHour * 4 + blockID}
+                                user={user}
+                                isAdmin={isAdmin}
+                                theDragState={[dragState, setDragState]}
+                                theCalendarFramework={theCalendarFramework}
+                                chartedUsersData={chartedUsersData}
+                                theGoogleCalendarEvents={
+                                  theGoogleCalendarEvents
+                                }
+                                borderStyle={
+                                  time.slice(3) === '30' ? 'dotted' : 'solid'
+                                }
+                                groupIndex={groupIndex}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add space between groups */}
+                  {groupIndex < timeBlocks.length - 1 && (
+                    <div>
+                      <div className="h-8"></div>
+                      <div className="h-px bg-[#7E7E7E]"></div>
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
     </div>

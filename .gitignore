@@ -12,9 +12,13 @@
 /build
 .firebase/
 
+# virtual environments
+venv/
 
 # misc
+.secrets/
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -25,5 +29,3 @@ yarn-debug.log*
 yarn-error.log*
 
 package-lock.json
-
-.env

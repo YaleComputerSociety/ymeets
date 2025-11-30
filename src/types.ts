@@ -57,6 +57,7 @@ export interface calendarDimensions {
   endTime: Date;
   numOfBlocks: number;
   numOfCols: number;
+  timezone: string;
 }
 interface BoundingBox {
   minCol: number;

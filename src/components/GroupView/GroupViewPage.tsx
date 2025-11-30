@@ -1,4 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
   calanderState,
@@ -6,34 +13,26 @@ import {
   calendarDimensions,
   dragProperties,
 } from '../../types';
-import eventAPI from '../../firebase/eventAPI';
 import Calendar from '../selectCalendarComponents/CalendarApp';
-import { signInWithGoogle } from '../../firebase/auth';
 import { useCallback } from 'react';
 import {
-  getEventOnPageload,
-  getEventName,
   getEventObjectForGCal,
   getParticipantIndex,
   getAccountId,
-  getEventDescription,
-  getLocationsVotes,
-  getLocationOptions,
   getAccountName,
   getAccountEmail,
   getChosenLocation,
-  getTimezone,
-} from '../../firebase/events';
-import { useParams, useNavigate } from 'react-router-dom';
+} from '../../backend/events';
+import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
-
+import { useAuth } from '../../backend/authContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
-import { GAPIContext } from '../../firebase/gapiContext';
+
 import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
@@ -41,54 +40,82 @@ import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
-import { filter } from 'lodash';
+import AlertPopup from '../utils/components/AlertPopup';
+import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
-interface GroupViewProps {
-  isAdmin: boolean;
-}
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
  * @returns Page Component
  */
-export default function GroupViewPage({ isAdmin }: GroupViewProps) {
-  const { gapi, handleIsSignedIn } = useContext(GAPIContext);
-
-  const [calendarState, setCalendarState] = useState<calanderState>([]);
-  const [calendarFramework, setCalendarFramework] =
-    useState<calendarDimensions>({
-      dates: [],
-      startTime: new Date(),
-      endTime: new Date(),
-      numOfBlocks: 0,
-      numOfCols: 0,
-    });
-
-  const { code } = useParams();
-
+export default function GroupViewPage({
+  isAdmin,
+  isEditing,
+  toggleEditing,
+  calendarState,
+  setCalendarState,
+  calendarFramework,
+  setCalendarFramework,
+  code,
+  chartedUsers,
+  setChartedUsers,
+  eventName,
+  setEventName,
+  eventDescription,
+  setEventDescription,
+  locationVotes,
+  setLocationVotes,
+  locationOptions,
+  setLocationOptions,
+  adminChosenLocation,
+  setAdminChosenLocation,
+  loading,
+  setLoading,
+  allPeople,
+  setAllPeople,
+  peopleStatus,
+  setPeopleStatus,
+  allUsers,
+  setAllUsers,
+  userHasFilled,
+  setUserHasFilled,
+}: {
+  isAdmin: boolean;
+  isEditing: boolean;
+  toggleEditing: () => void;
+  calendarState: calanderState;
+  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarFramework: calendarDimensions;
+  setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
+  code: string | undefined;
+  chartedUsers: userData;
+  setChartedUsers: Dispatch<SetStateAction<userData>>;
+  eventName: string;
+  setEventName: Dispatch<SetStateAction<string>>;
+  eventDescription: string;
+  setEventDescription: Dispatch<SetStateAction<string>>;
+  locationVotes: any;
+  setLocationVotes: Dispatch<SetStateAction<any>>;
+  locationOptions: string[];
+  setLocationOptions: Dispatch<SetStateAction<string[]>>;
+  adminChosenLocation: string | undefined;
+  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+  allPeople: string[];
+  setAllPeople: Dispatch<SetStateAction<string[]>>;
+  peopleStatus: { [key: string]: boolean };
+  setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
+  allUsers: userData;
+  setAllUsers: Dispatch<SetStateAction<userData>>;
+  userHasFilled: boolean;
+  setUserHasFilled: Dispatch<SetStateAction<boolean>>;
+}) {
   const [showUserChart, setShowUserChart] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
-
-  const [chartedUsers, setChartedUsers] = useState<userData>({} as userData);
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-
-  const [locationVotes, setLocationVotes] = useState(Object);
-  const [locationOptions, setLocationOptions] = useState(Array<string>);
   const [showLocationChart, setShowLocationChart] = useState(false);
-
-  // this is the location that admin selected on the CLIENT side
-  const [adminChosenLocation, setAdminChosenLocation] = useState<
-    string | undefined
-  >(undefined);
-
-  // this is the location the admin previously submitted / submitted to the backend, which is pulled and set
-  // or updated to be the admin location
-  const [selectedLocation, setSelectedLocation] = useState<string>();
-  const [loading, setLoading] = useState(true);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
-
   const [dragState, setDragState] = useState<dragProperties>({
     isSelecting: false,
     startPoint: null,
@@ -97,17 +124,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     lastPosition: null,
   });
 
-  const [allPeople, setAllPeople] = useState<string[]>([]);
-  const [peopleStatus, setPeopleStatus] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [allUsers, setAllUsers] = useState<userData>({} as userData);
-
-  const [userHasFilled, setUserHasFilled] = useState(false);
-
-  useEffect(() => {
-    setPeopleStatus(Object.fromEntries(allPeople?.map((name) => [name, true])));
-  }, [allPeople]);
+  const { login, currentUser } = useAuth();
 
   const nav = useNavigate();
 
@@ -147,50 +164,9 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     [createCalendarEventUrl]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (code && code.length == 6) {
-        await getEventOnPageload(code)
-          .then(() => {
-            const { availabilities, participants } = eventAPI.getCalendar();
-            const dates = eventAPI.getCalendarDimensions();
-
-            setChartedUsers(participants);
-            setAllPeople(participants.users.map((user) => user.name));
-            setAllUsers(participants);
-            setPeopleStatus(
-              Object.fromEntries(
-                participants.users.map((user) => [user.name, true])
-              )
-            );
-
-            setUserHasFilled(participants.userIDs.includes(getAccountId()));
-
-            setCalendarState(availabilities);
-            setCalendarFramework(dates);
-
-            setEventName(getEventName());
-            setEventDescription(getEventDescription());
-            setLocationVotes(getLocationsVotes());
-            setLocationOptions(getLocationOptions());
-            setSelectedLocation(getChosenLocation());
-            setAdminChosenLocation(getChosenLocation());
-            setLoading(false);
-          })
-          .catch(() => {
-            nav('/notfound');
-          });
-      } else {
-        // url is malformed
-        nav('notfound');
-      }
-    };
-    fetchData();
-  }, []);
-
   async function handleSelectionSubmission() {
     if (!dragState.endPoint || !dragState.startPoint) {
-      alert('No new time selection made!');
+      setAlertMessage('No new time selection made!');
       return;
     }
 
@@ -198,7 +174,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     const [endCol, endBlock] = dragState.endPoint;
 
     if (startCol !== endCol) {
-      alert('You must select times that occur on the same day!');
+      setAlertMessage('You must select times that occur on the same day!');
       return;
     }
 
@@ -210,8 +186,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times[startBlock];
-    const selectedEndTimeHHMM: string = times[endBlock];
+    const selectedStartTimeHHMM: string = times.flat()[startBlock];
+    const selectedEndTimeHHMM: string = times.flat()[endBlock];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -245,7 +221,7 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
         adminChosenLocation
       );
     } else {
-      signInWithGoogle(undefined, gapi, handleIsSignedIn);
+      login();
     }
   }
 
@@ -268,6 +244,8 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
     [chartedUsers, peopleStatus]
   );
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+
   if (loading) {
     return (
       <div className="flex items-center justify-center">
@@ -277,7 +255,15 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
   }
 
   return (
-    <div className="w-full px-0 lg:px-8 lg:px-12 mb-5 lg:mb-0">
+    <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
+      {/* Render AlertPopup unconditionally */}
+      <AlertPopup
+        title="Alert"
+        message={alertMessage || ''}
+        isOpen={!!alertMessage}
+        onClose={() => setAlertMessage(null)}
+      />
+
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
           <div
@@ -294,6 +280,17 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
           </div>
 
           <CopyCodeButton />
+
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={toggleEditing}
+          >
+            {isEditing
+              ? 'View Availabilities'
+              : 'Edit Your Availability'}
+          </ButtonSmall>
+
           {isAdmin && (
             <AutoDraftEmailButton
               eventTitle={eventName}
@@ -368,82 +365,108 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
         <div className="col-span-3">
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
-              <div className="flex justify-center ml-2 mr-2 md:justify-start md:m-5 mb-1">
-                <div className="flex flex-col sm:flex-row items-center justify-between w-full sm:space-x-2">
-                  <div className="w-full sm:flex-grow mb-2 sm:mb-0">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
+                {/* Mobile layout - match edit mode */}
+                <div className="flex md:hidden items-center gap-3 w-full mb-4">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={toggleEditing}
+                    className="!rounded-lg"
+                  >
+                    {isEditing
+                      ? 'View Availabilities'
+                      : 'Edit Your Availability'}
+                  </ButtonSmall>
+                  {isAdmin &&
+                    calendarFramework?.dates?.[0][0].date instanceof Date &&
+                    (calendarFramework.dates[0][0].date as Date).getFullYear() !== 2000 && (
+                      <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+                    )}
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:hidden">
+                  <div className="flex-1">
                     <TimezoneChanger
                       theCalendarFramework={[
                         calendarFramework,
                         setCalendarFramework,
                       ]}
-                      initialTimezone={
-                        getTimezone()
-                          ? getTimezone()
-                          : Intl.DateTimeFormat().resolvedOptions().timeZone
-                      }
+                      initialTimezone={(() => {
+                        // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                        const urlParams = new URLSearchParams(
+                          window.location.search
+                        );
+                        const urlTimezone = urlParams.get('tz');
+
+                        return urlTimezone || getUserTimezone();
+                      })()}
                     />
                   </div>
-
-                  <div className="flex items-center m-3 lg:m-0 md:m-0 justify-end space-x-2">
-                    <ButtonSmall
-                      bgColor={'primary'}
-                      textColor={'white'}
-                      onClick={() => {
-                        nav('/timeselect/' + code);
-                      }}
-                    >
-                      <div className="flex flex-row items-center justify-center space-x-1">
-                        {userHasFilled ? <IconPencil /> : <IconPlus />}
-                        <p>
-                          {userHasFilled
-                            ? 'Edit Your Availability'
-                            : 'Add Your Availability'}
-                        </p>
-                      </div>
-                    </ButtonSmall>
-
-                    {isAdmin &&
-                      calendarFramework?.dates?.[0][0].date instanceof Date &&
-                      (
-                        calendarFramework.dates[0][0].date as Date
-                      ).getFullYear() !== 2000 &&
-                      isAdmin && (
-                        <AddToGoogleCalendarButton
-                          onClick={handleSelectionSubmission}
-                        />
-                      )}
-
-                    <div className="lg:hidden">
-                      {!participantToggleClicked ? (
-                        <IconAdjustmentsFilled
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(
-                              !participantToggleClicked
-                            );
-                            setShowUserChart(false);
-                          }}
-                        />
-                      ) : (
-                        <IconAdjustments
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(
-                              !participantToggleClicked
-                            );
-                            setShowUserChart(true);
-                          }}
-                        />
-                      )}
-                    </div>
-
-                    {locationOptions.length === 0 ? (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                  <div className="lg:hidden">
+                    {!participantToggleClicked ? (
+                      <IconAdjustmentsFilled
+                        size={30}
+                        className="cursor-pointer dark:text-text-dark"
+                        onClick={() => {
+                          setParticipantToggleClicked(!participantToggleClicked);
+                          setShowUserChart(false);
+                        }}
+                      />
                     ) : (
-                      <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      <IconAdjustments
+                        size={30}
+                        className="cursor-pointer dark:text-text-dark"
+                        onClick={() => {
+                          setParticipantToggleClicked(!participantToggleClicked);
+                          setShowUserChart(true);
+                        }}
+                      />
                     )}
+                  </div>
+                  <div className="flex items-center">
+                    {isAdmin &&
+                      (locationOptions.length === 0 ? (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                      ) : (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      ))}
+                  </div>
+                </div>
+
+                {/* Desktop layout - match edit mode exactly */}
+                <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
+                  <div className="flex items-center flex-1">
+                    <div className="flex items-center gap-2">
+                      {/* Empty div for future buttons */}
+                    </div>
+                    <div className="flex-1">
+                      <TimezoneChanger
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        initialTimezone={(() => {
+                          // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
+                          const urlParams = new URLSearchParams(
+                            window.location.search
+                          );
+                          const urlTimezone = urlParams.get('tz');
+
+                          return urlTimezone || getUserTimezone();
+                        })()}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    {isAdmin ? <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />: null}
+                    {isAdmin &&
+                      (locationOptions.length === 0 ? (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
+                      ) : (
+                        <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal." />
+                      ))}
                   </div>
                 </div>
               </div>
@@ -451,6 +474,16 @@ export default function GroupViewPage({ isAdmin }: GroupViewProps) {
               <Calendar
                 theShowUserChart={[showUserChart, setShowUserChart]}
                 onClick={() => {
+                  if (isAdmin) {
+                    // Reset drag selection when the calendar is clicked
+                    setDragState({
+                      isSelecting: false,
+                      startPoint: null,
+                      endPoint: null,
+                      selectionMode: false,
+                      lastPosition: null,
+                    });
+                  }
                   if (showUserChart === true) {
                     return;
                   }
