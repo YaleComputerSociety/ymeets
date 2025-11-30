@@ -1,24 +1,16 @@
 /* eslint-disable */
 
-import { MouseEventHandler, useContext } from 'react';
 import {
   getAccountId,
   getAccountName,
   getAccountEmail,
   checkIfLoggedIn,
   updateAnonymousUserToAuthUser,
-} from './events';
+} from '../backend/events';
 
-import { db, auth, googleProvider } from './firebase';
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  signInWithRedirect,
-  signOut,
-} from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
-import { GAPIContext } from './gapiContext';
-import { get } from 'http';
+import { db, auth, googleProvider } from '../backend/firebase';
+import { signInWithPopup, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const handleAddingUserToDB = async () => {
   try {
@@ -79,7 +71,7 @@ const signInWithGoogle = async (
                       resolve(true); // Still resolve true since login succeeded
                     });
                 })
-                .catch((updateError) => {
+                .catch((updateError: any) => {
                   reject(updateError);
                 });
             } else {
@@ -123,7 +115,7 @@ const signInWithGoogle = async (
                         resolve(true); // Still resolve true since login succeeded
                       });
                   })
-                  .catch((updateError) => {
+                  .catch((updateError: any) => {
                     resolve(false);
                   });
               } else {

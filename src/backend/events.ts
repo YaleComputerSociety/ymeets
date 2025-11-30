@@ -254,6 +254,31 @@ async function getParsedAccountPageEventsForUser(
       const event = eventDoc.data();
       console.log('Firestore Event:', event);
 
+      // Safely handle dateCreated - might be undefined for old events or already a Date
+      let dateCreated: Date;
+      if (!event.details.dateCreated) {
+        dateCreated = new Date(); // Fallback to current date if missing
+      } else if (event.details.dateCreated instanceof Date) {
+        dateCreated = event.details.dateCreated;
+      } else {
+        dateCreated = (
+          event.details.dateCreated as unknown as Timestamp
+        ).toDate();
+      }
+
+      // Safely handle lastModified - might be undefined or missing
+      const lastModifiedIndex = eventCodes.indexOf(eventCode);
+      const lastModifiedValue =
+        lastModifiedIndex >= 0 ? lastModified[lastModifiedIndex] : undefined;
+      let lastModifiedDate: Date;
+      if (!lastModifiedValue) {
+        lastModifiedDate = new Date(); // Fallback to current date if missing
+      } else if (lastModifiedValue instanceof Date) {
+        lastModifiedDate = lastModifiedValue;
+      } else {
+        lastModifiedDate = (lastModifiedValue as unknown as Timestamp).toDate();
+      }
+
       accountPageEvents.push({
         name: event.details.name,
         id: event.publicId,
@@ -276,8 +301,8 @@ async function getParsedAccountPageEventsForUser(
           : 'TBD',
         location: event.details.chosenLocation || 'TBD',
         iAmCreator: event.details.adminAccountId === getAccountId(),
-        dateCreated: event.details.dateCreated.toDate(),
-        lastModified: lastModified[eventCodes.indexOf(eventCode)].toDate(),
+        dateCreated: dateCreated,
+        lastModified: lastModifiedDate,
       });
     } else {
       // won't load if it doesn't exist (has been deleted by admin)
