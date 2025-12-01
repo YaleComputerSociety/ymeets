@@ -514,7 +514,10 @@ function TimeSelectPage({
       : [];
 
     await wrappedSaveParticipantDetails(avail, selectedLocations);
-    await setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
+    await setUserSelectedCalendarIDs(
+      getAccountId(),
+      idsOfCurrentlySelectedGCals
+    );
 
     setIsSaving(false);
     setIsSaved(true);
@@ -724,7 +727,23 @@ function TimeSelectPage({
                       themeGradient={true}
                       onClick={handleSubmitAvailability}
                     >
-                      <span>&nbsp;</span> {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'} <span>&nbsp;</span>
+                      <div className="flex items-center whitespace-nowrap">
+                        {isSaved && !isSaving && (
+                          <IconCheck
+                            size={18}
+                            className="mr-1 transition-all duration-200"
+                          />
+                        )}
+                        <span
+                          className={
+                            isSaved && !isSaving
+                              ? 'font-semibold transition-all duration-200'
+                              : ''
+                          }
+                        >
+                          {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'}
+                        </span>
+                      </div>
                     </ButtonSmall>
                   </div>
                 </div>
@@ -791,7 +810,23 @@ function TimeSelectPage({
                     themeGradient={true}
                     onClick={handleSubmitAvailability}
                   >
-                    <span>&nbsp;</span> {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'} <span>&nbsp;</span>
+                    <div className="flex items-center whitespace-nowrap">
+                      {isSaved && !isSaving && (
+                        <IconCheck
+                          size={18}
+                          className="mr-1 transition-all duration-200"
+                        />
+                      )}
+                      <span
+                        className={
+                          isSaved && !isSaving
+                            ? 'font-semibold transition-all duration-200'
+                            : ''
+                        }
+                      >
+                        {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'}
+                      </span>
+                    </div>
                   </ButtonSmall>
                 </div>
               </div>
@@ -857,6 +892,7 @@ function TimeSelectPage({
           ))}
         </ul>
       </AddGoogleCalendarPopup>
+
       {promptUserForLogin && (
         <LoginPopup
           onClose={endPromptUserForLogin}
