@@ -104,6 +104,9 @@ function TimeSelectPage({
 }) {
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
   const closeGcalPopup = () => {
     setGcalPopupOpen(false);
   };
@@ -504,14 +507,22 @@ function TimeSelectPage({
   };
 
   const saveAvailAndLocationChanges = async () => {
+    setIsSaving(true);
     const user = getCurrentUserIndex();
     const avail: Availability = calendarState
       ? (calendarState[user] ?? [])
       : [];
+
     await wrappedSaveParticipantDetails(avail, selectedLocations);
     await setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
 
-    toggleEditing();
+    setIsSaving(false);
+    setIsSaved(true);
+
+    setTimeout(() => {
+      setIsSaved(false);
+      toggleEditing();
+    }, 600);
   };
 
   const handleSubmitAvailability = () => {
@@ -713,7 +724,7 @@ function TimeSelectPage({
                       themeGradient={true}
                       onClick={handleSubmitAvailability}
                     >
-                      <span>&nbsp;</span> Save <span>&nbsp;</span>
+                      <span>&nbsp;</span> {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'} <span>&nbsp;</span>
                     </ButtonSmall>
                   </div>
                 </div>
@@ -780,7 +791,7 @@ function TimeSelectPage({
                     themeGradient={true}
                     onClick={handleSubmitAvailability}
                   >
-                    <span>&nbsp;</span> Save <span>&nbsp;</span>
+                    <span>&nbsp;</span> {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'} <span>&nbsp;</span>
                   </ButtonSmall>
                 </div>
               </div>
