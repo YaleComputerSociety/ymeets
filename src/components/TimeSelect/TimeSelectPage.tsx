@@ -503,13 +503,13 @@ function TimeSelectPage({
     return user;
   };
 
-  const saveAvailAndLocationChanges = () => {
+  const saveAvailAndLocationChanges = async () => {
     const user = getCurrentUserIndex();
     const avail: Availability = calendarState
       ? (calendarState[user] ?? [])
       : [];
-    wrappedSaveParticipantDetails(avail, selectedLocations);
-    setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
+    await wrappedSaveParticipantDetails(avail, selectedLocations);
+    await setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
 
     toggleEditing();
   };

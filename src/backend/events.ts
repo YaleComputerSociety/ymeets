@@ -244,6 +244,7 @@ async function getParsedAccountPageEventsForUser(
 
   const eventCodes = userEvents.map((event) => event.code);
   const lastModified = userEvents.map((event) => event.lastModified);
+  const dateCreated = userEvents.map((event) => event.dateCreated);
 
   const accountPageEvents: AccountsPageEvent[] = [];
 
@@ -255,22 +256,40 @@ async function getParsedAccountPageEventsForUser(
       const event = eventDoc.data();
       console.log('Firestore Event:', event);
 
-      // Safely handle dateCreated - might be undefined for old events or already a Date
-      let dateCreated: Date;
-      if (!event.details.dateCreated) {
-        dateCreated = new Date(); // Fallback to current date if missing
-      } else if (event.details.dateCreated instanceof Date) {
-        dateCreated = event.details.dateCreated;
+      const eventIndex = eventCodes.indexOf(eventCode);
+
+      // Safely handle dateCreated - prefer userEvents array, fallback to event document, then current date
+      let dateCreatedDate: Date;
+      const dateCreatedValue =
+        eventIndex >= 0 ? dateCreated[eventIndex] : undefined;
+
+      if (dateCreatedValue) {
+        // Use dateCreated from userEvents array (most reliable)
+        if (dateCreatedValue instanceof Date) {
+          dateCreatedDate = dateCreatedValue;
+        } else {
+          dateCreatedDate = (dateCreatedValue as unknown as Timestamp).toDate();
+        }
+      } else if (event.details.dateCreated) {
+        // Fallback to event document if userEvents doesn't have it
+        if (event.details.dateCreated instanceof Date) {
+          dateCreatedDate = event.details.dateCreated;
+        } else {
+          dateCreatedDate = (
+            event.details.dateCreated as unknown as Timestamp
+          ).toDate();
+        }
       } else {
-        dateCreated = (
-          event.details.dateCreated as unknown as Timestamp
-        ).toDate();
+        // Last resort: current date (should rarely happen)
+        console.warn(
+          `No dateCreated found for event ${eventCode}, using current date`
+        );
+        dateCreatedDate = new Date();
       }
 
       // Safely handle lastModified - might be undefined or missing
-      const lastModifiedIndex = eventCodes.indexOf(eventCode);
       const lastModifiedValue =
-        lastModifiedIndex >= 0 ? lastModified[lastModifiedIndex] : undefined;
+        eventIndex >= 0 ? lastModified[eventIndex] : undefined;
       let lastModifiedDate: Date;
       if (!lastModifiedValue) {
         lastModifiedDate = new Date(); // Fallback to current date if missing
@@ -302,7 +321,7 @@ async function getParsedAccountPageEventsForUser(
           : 'TBD',
         location: event.details.chosenLocation || 'TBD',
         iAmCreator: event.details.adminAccountId === getAccountId(),
-        dateCreated: dateCreated,
+        dateCreated: dateCreatedDate,
         lastModified: lastModifiedDate,
       });
     } else {
@@ -431,65 +450,47 @@ async function saveEventDetails(eventDetails: EventDetails) {
 
 async function updateUserCollectionEventsWith(accountId: string) {
   const userRef = doc(db, 'users', accountId);
+  const eventCode = workingEvent.publicId;
+  const now = new Date();
 
-  try {
-    // First, try to get the document (may use cache)
-    let docSnap = await getDoc(userRef);
+  return await runTransaction(db, async (tx) => {
+    const snap = await tx.get(userRef);
 
-    if (!docSnap.exists()) {
-      console.error("User document doesn't exist");
+    if (!snap.exists()) {
+      throw new Error(`User document ${accountId} does not exist`);
+    }
+
+    const data = snap.data();
+    console.log('Data: ', data);
+    
+    const userEvents: UserEvent[] = data.userEvents || [];
+
+    const existingIdx = userEvents.findIndex(ev => ev.code === eventCode);
+
+    // Update existing entry
+    if (existingIdx !== -1) {
+      const updatedEvents = [...userEvents];
+      updatedEvents[existingIdx] = {
+        ...updatedEvents[existingIdx],
+        lastModified: now,
+      };
+
+      tx.update(userRef, { userEvents: updatedEvents });
       return;
     }
 
-    let userData = docSnap.data();
+    // Add new entry if event not in userEvents
+    const newEntry: UserEvent = {
+      code: eventCode,
+      lastModified: now,
+      dateCreated: workingEvent.details.dateCreated || now,
+      isAdmin: false,
+    };
 
-    // If userEvents is missing but document exists, try server fetch
-    if (!userData?.userEvents) {
-      console.warn(
-        'userEvents missing from cached data, fetching from server...'
-      );
-      try {
-        docSnap = await getDocFromServer(userRef);
-        if (docSnap.exists()) {
-          userData = docSnap.data();
-        }
-      } catch (err) {
-        console.error('Error fetching from server:', err);
-      }
-    }
-
-    const userEvents = userData?.userEvents || [];
-
-    let existingEventIndex = -1;
-    // Check if an event with the same code already exists
-    userEvents.forEach((event: { code: string }) => {
-      if (event.code === workingEvent.publicId) {
-        existingEventIndex = userEvents.indexOf(event);
-      }
+    tx.update(userRef, {
+      userEvents: [...userEvents, newEntry],
     });
-
-    if (existingEventIndex !== -1) {
-      // Event exists, update its timestamp
-      userEvents[existingEventIndex].lastModified = new Date();
-      await updateDoc(userRef, {
-        userEvents: userEvents,
-      });
-    } else {
-      // Event doesn't exist, add it to the array
-      const eventDetailsForUser = {
-        code: workingEvent.publicId,
-        lastModified: new Date(),
-        dateCreated: workingEvent.details.dateCreated,
-        isAdmin: false, // safe assumption, since admins always already event saved on creation
-      };
-
-      await updateDoc(userRef, {
-        userEvents: arrayUnion(eventDetailsForUser),
-      });
-    }
-  } catch (err) {
-    console.error('Error updating user collection events:', err);
-  }
+  });
 }
 
 // For internal use
@@ -498,69 +499,46 @@ async function updateUserCollectionEventsWith(accountId: string) {
 async function saveParticipantDetails(participant: Participant): Promise<void> {
   participant.email = getAccountEmail();
 
-  // Update local copy
-  let flag = false;
-  workingEvent.participants.forEach((part, index) => {
-    if (
-      (participant.accountId !== '' &&
-        part.accountId == participant.accountId) ||
-      (participant.accountId == '' && participant.name == part.name)
-    ) {
-      workingEvent.participants[index] = participant;
-      flag = true;
-    }
-  });
+  // Update local copy first
+  let existingIndex = workingEvent.participants.findIndex(part =>
+    (participant.accountId && part.accountId === participant.accountId) ||
+    (!participant.accountId && part.name === participant.name)
+  );
 
-  const accountId = getAccountId();
-
-  // !flag = participant does not exists in that event
-  if (!flag) {
+  if (existingIndex !== -1) {
+    workingEvent.participants[existingIndex] = participant;
+  } else {
     workingEvent.participants.push(participant);
 
-    // Update Backend: add user uid to particpants list of event object
-    if (accountId && accountId !== '') {
-      const eventsRef = collection(db, 'events');
-      updateDoc(doc(eventsRef, workingEvent.publicId), {
+    // Add new entry to event participants array
+    const accountId = getAccountId();
+    if (accountId) {
+      await updateDoc(doc(db, 'events', workingEvent.publicId), {
         participants: arrayUnion(accountId),
-      }).catch((err) => {
-        console.error(err.msg);
       });
     }
   }
 
-  // Add or update event in user collection's userEvents field
-  if (accountId && accountId !== '') {
-    updateUserCollectionEventsWith(accountId);
+  // Always await — avoids race conditions
+  const accountId = getAccountId();
+  if (accountId) {
+    await updateUserCollectionEventsWith(accountId);
   }
 
-  // Update backend
-  await new Promise<void>((resolve, reject) => {
-    const eventsRef = collection(db, 'events');
-    const participantsRef = collection(
-      doc(eventsRef, workingEvent.publicId),
-      'participants'
-    );
-    let partRef;
-    if (participant.accountId) {
-      partRef = doc(participantsRef, participant.accountId);
-    } else {
-      partRef = doc(participantsRef, participant.name);
-    }
+  // Write participant subdoc
+  const eventsRef = collection(db, 'events');
+  const partRef = doc(
+    doc(eventsRef, workingEvent.publicId),
+    'participants',
+    participant.accountId || participant.name
+  );
 
-    setDoc(partRef, {
-      name: participant.name,
-      accountId: participant.accountId || '',
-      email: getAccountEmail(),
-      availability: JSON.stringify(participant.availability),
-      location: participant.location || '',
-    })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        console.error('Failed to save participant details. Error', err.msg);
-        reject(err);
-      });
+  await setDoc(partRef, {
+    name: participant.name,
+    accountId: participant.accountId || '',
+    email: getAccountEmail(),
+    availability: JSON.stringify(participant.availability),
+    location: participant.location || '',
   });
 }
 
