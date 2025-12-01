@@ -4,6 +4,7 @@ import {
   doc,
   collection,
   getDoc,
+  getDocFromServer,
   setDoc,
   updateDoc,
   CollectionReference,
@@ -429,56 +430,66 @@ async function saveEventDetails(eventDetails: EventDetails) {
 }
 
 async function updateUserCollectionEventsWith(accountId: string) {
-  console.log("Here's the account ID:", accountId);
   const userRef = doc(db, 'users', accountId);
 
-  // First, get the current user document to check existing events
-  getDoc(userRef)
-    .then((docSnap) => {
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        const userEvents = userData.userEvents || [];
+  try {
+    // First, try to get the document (may use cache)
+    let docSnap = await getDoc(userRef);
 
-        let existingEventIndex = -1;
-        // Check if an event with the same code already exists
-        userEvents.forEach((event: { code: string }) => {
-          if (event.code === workingEvent.publicId) {
-            existingEventIndex = userEvents.indexOf(event);
-          }
-        });
+    if (!docSnap.exists()) {
+      console.error("User document doesn't exist");
+      return;
+    }
 
-        if (existingEventIndex !== -1) {
-          console.log('Event exists, updating lastModified');
-          // Event exists, update its timestamp
-          userEvents[existingEventIndex].lastModified = new Date();
-          // Update the document with the modified array
-          updateDoc(userRef, {
-            userEvents: userEvents,
-          }).catch((err) => {
-            console.error('Error updating events lastModified field:', err);
-          });
-        } else {
-          // Event doesn't exist, add it to the array
-          const eventDetailsForUser = {
-            code: workingEvent.publicId,
-            lastModified: new Date(),
-            dateCreated: workingEvent.details.dateCreated,
-            isAdmin: false, // safe assumtion, since admins always already event saved on creation
-          };
+    let userData = docSnap.data();
 
-          updateDoc(userRef, {
-            userEvents: arrayUnion(eventDetailsForUser),
-          }).catch((err) => {
-            console.error('Error adding new event:', err);
-          });
+    // If userEvents is missing but document exists, try server fetch
+    if (!userData?.userEvents) {
+      console.warn(
+        'userEvents missing from cached data, fetching from server...'
+      );
+      try {
+        docSnap = await getDocFromServer(userRef);
+        if (docSnap.exists()) {
+          userData = docSnap.data();
         }
-      } else {
-        console.error("User document doesn't exist");
+      } catch (err) {
+        console.error('Error fetching from server:', err);
       }
-    })
-    .catch((err) => {
-      console.error('Error getting user document:', err);
+    }
+
+    const userEvents = userData?.userEvents || [];
+
+    let existingEventIndex = -1;
+    // Check if an event with the same code already exists
+    userEvents.forEach((event: { code: string }) => {
+      if (event.code === workingEvent.publicId) {
+        existingEventIndex = userEvents.indexOf(event);
+      }
     });
+
+    if (existingEventIndex !== -1) {
+      // Event exists, update its timestamp
+      userEvents[existingEventIndex].lastModified = new Date();
+      await updateDoc(userRef, {
+        userEvents: userEvents,
+      });
+    } else {
+      // Event doesn't exist, add it to the array
+      const eventDetailsForUser = {
+        code: workingEvent.publicId,
+        lastModified: new Date(),
+        dateCreated: workingEvent.details.dateCreated,
+        isAdmin: false, // safe assumption, since admins always already event saved on creation
+      };
+
+      await updateDoc(userRef, {
+        userEvents: arrayUnion(eventDetailsForUser),
+      });
+    }
+  } catch (err) {
+    console.error('Error updating user collection events:', err);
+  }
 }
 
 // For internal use

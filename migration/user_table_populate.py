@@ -186,7 +186,7 @@ if __name__ == "__main__":
                     # construct event
                     event_entry = {
                         "code": event_id,
-                        "idAdmin": is_admin,
+                        "isAdmin": is_admin,
                         "dateCreated": datetime.now(),
                         "lastModified": datetime.now()
                     }
