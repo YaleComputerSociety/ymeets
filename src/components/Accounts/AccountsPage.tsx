@@ -126,7 +126,7 @@ export default function AccountsPage() {
       <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
           <div className="flex justify-between items-center">
-            <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark">
+            <h2 className="text-3xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-text dark:text-text-dark whitespace-nowrap mr-10">
               Your Events
             </h2>
             <Button
@@ -141,8 +141,8 @@ export default function AccountsPage() {
             </Button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-3 sm:gap-4 w-full sm:w-auto">
-            <div className="relative w-full sm:w-auto flex-1 min-w-[250px]">
+          <div className="flex flex-row items-center gap-2 w-full overflow-hidden">
+            <div className="relative w-full sm:w-50 flex-1 min-w-0">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                 <IconSearch className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               </div>
@@ -159,7 +159,7 @@ export default function AccountsPage() {
             </div>
 
             {/* Sort Dropdown */}
-            <div className="relative min-w-[160px]">
+            <div className="relative min-w-[110px] flex-shrink">
               <select
                 value={sortBy}
                 onChange={(e) =>
