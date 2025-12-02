@@ -26,12 +26,16 @@ import JULIEN from './Julien.jpeg';
 import NIKITA from './Nikita.jpeg';
 import JEET from './Jeet_Headshot.jpg';
 import RYLAN from './Rylan_Headshot.jpg';
+import JAMES from './James.jpg';
+import RONALD from './Ronald.png';
+import ARUSH from './Arush.jpeg';
 
 const CURR_CONTRIBUTORS = [
   {
     name: 'Jeet Parikh',
     title: ['Product Lead', 'Software Engineer'],
     founding: false,
+    portfolio: undefined,
     linkedin: 'https://www.linkedin.com/in/parikhjeet/',
     github: 'https://github.com/jeet-parikh',
     image: JEET,
@@ -47,24 +51,6 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
-    name: 'Julien Toussaint Dang',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
-    github: 'https://github.com/JulienTD23',
-    image: JULIEN,
-  },
-
-  {
-    name: 'Nikita Saitov',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
-    github: 'https://github.com/niksaitov',
-    image: NIKITA,
-  },
-
-  {
     name: 'Hawa Khalif',
     title: ['Software Engineer'],
     founding: false,
@@ -74,45 +60,55 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
-    name: 'Lily Lin',
-    title: ['UI/UX Designer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
-    portfolio: undefined,
+    name: 'James Masson',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/james-masson-94a390257/',
+    github: 'https://github.com/jmasson0706',
+    image: JAMES,
+  },
+
+  {
+    name: 'Ronald Milgo',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
     github: undefined,
-    image: LILY,
+    image: RONALD,
   },
 
   {
-    name: 'Nicholas Ribeiro',
-    title: ['Senior Software Engineer', 'Former Lead'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
-    portfolio: 'http://www.nicholasjribeiro.com/',
-    github: 'https://github.com/nickribs1',
-    image: NICK,
+    name: 'Arush Srivastava',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
+    github: 'https://arushsri515.github.io/#',
+    image: ARUSH,
   },
 
   {
-    name: 'Ethan Mathieu',
-    title: ['Senior Software Engineer', 'Former Lead'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
-    github: 'https://github.com/emath12',
-    image: ETHAN,
+    name: 'Julien Toussaint Dang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
+    github: 'https://github.com/JulienTD23',
+    image: JULIEN,
   },
+
+  
 ];
 
 const PAST_CONTRIBUTORS = [
   {
-    name: 'Rome Thorstenson',
+    name: 'Shankara Abbineni',
     title: ['Software Engineer'],
     founding: true,
-    linkedin: 'https://www.linkedin.com/in/romethorstenson/',
+    linkedin: 'https://www.linkedin.com/in/shankaraabbineni/',
+    github: 'https://github.com/SAbbineni24',
     portfolio: undefined,
-    github: 'https://github.com/Rome-1',
-    image: ROME,
+    image: SHANKARA,
   },
+  
   {
     name: 'Ron Cheng',
     title: ['Software Engineer', 'UI/UX Designer'],
@@ -133,14 +129,23 @@ const PAST_CONTRIBUTORS = [
     image: JIAKANG,
   },
 
-  {
-    name: 'Alan Xie',
-    title: ['Software Engineer'],
+    {
+    name: 'Lily Lin',
+    title: ['UI/UX Designer'],
     founding: true,
-    linkedin: 'https://www.linkedin.com/in/alanxie2026',
-    github: 'https://github.com/gr4d13nt',
-    image: ALAN,
+    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
     portfolio: undefined,
+    github: undefined,
+    image: LILY,
+  },
+
+  {
+    name: 'Ethan Mathieu',
+    title: ['Senior Software Engineer', 'Former Lead'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
+    github: 'https://github.com/emath12',
+    image: ETHAN,
   },
 
   {
@@ -153,15 +158,46 @@ const PAST_CONTRIBUTORS = [
     image: LAILAH,
   },
 
+
   {
-    name: 'Shankara Abbineni',
+    name: 'Nicholas Ribeiro',
+    title: ['Senior Software Engineer', 'Former Lead'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
+    portfolio: 'http://www.nicholasjribeiro.com/',
+    github: 'https://github.com/nickribs1',
+    image: NICK,
+  },
+
+  {
+    name: 'Nikita Saitov',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
+    github: 'https://github.com/niksaitov',
+    image: NIKITA,
+  },
+
+  {
+    name: 'Rome Thorstenson',
     title: ['Software Engineer'],
     founding: true,
-    linkedin: 'https://www.linkedin.com/in/shankaraabbineni/',
-    github: 'https://github.com/SAbbineni24',
+    linkedin: 'https://www.linkedin.com/in/romethorstenson/',
     portfolio: undefined,
-    image: SHANKARA,
+    github: 'https://github.com/Rome-1',
+    image: ROME,
   },
+
+  {
+    name: 'Alan Xie',
+    title: ['Software Engineer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/alanxie2026',
+    github: 'https://github.com/gr4d13nt',
+    image: ALAN,
+    portfolio: undefined,
+  },
+
 ];
 
 interface ContributorCardProps {
@@ -316,35 +352,73 @@ export default function AboutUsPage() {
         <br />
         <h1 className="text-5xl font-bold">Past Contributors</h1>
         <br />
-        <div className="grid lg:grid-cols-4 md:grid-cols-2">
-          {PAST_CONTRIBUTORS.map((c) => {
-            return (
-              <ContributorCard
-                name={c.name}
-                title={c.title}
-                founding={c.founding}
-                linkedin={c.linkedin}
-                portfolio={c.portfolio}
-                github={c.github}
-                image={c.image}
-              />
-            );
-          })}
+        {/* Co-founders Section */}
+        <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
+        <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
+          {PAST_CONTRIBUTORS.filter(
+            (c) => c.name === 'Ethan Mathieu' || c.name === 'Nicholas Ribeiro'
+          ).map((c) => (
+            <ContributorCard
+              key={c.name}
+              name={c.name}
+              title={c.title}
+              founding={c.founding}
+              linkedin={c.linkedin}
+              portfolio={c.portfolio}
+              github={c.github}
+              image={c.image}
+            />
+          ))}
         </div>
-        
+        {/* Developers Section */}
+        <h2 className="text-3xl font-bold mb-4">Developers</h2>
+        <div className="grid lg:grid-cols-4 md:grid-cols-2">
+          {PAST_CONTRIBUTORS.filter(
+            (c) => c.name !== 'Ethan Mathieu' && c.name !== 'Nicholas Ribeiro'
+          ).map((c) => (
+            <ContributorCard
+              key={c.name}
+              name={c.name}
+              title={c.title}
+              founding={c.founding}
+              linkedin={c.linkedin}
+              portfolio={c.portfolio}
+              github={c.github}
+              image={c.image}
+            />
+          ))}
+        </div>
+
         <div className="w-full flex flex-col justify-center items-center mt-8 mb-4">
           <p className="text-center text-base text-gray-700 dark:text-text-dark max-w-2xl mb-2">
-            A special thank you to our sponsors, who help fund the essential infrastructure for ymeets and other y/cs products, keeping them free for everyone. Learn more about our sponsors on the <a className="text-primary underline" href="https://yalecomputersociety.org/">Yale Computer Society website</a>.
+            A special thank you to our sponsors, who help fund the essential
+            infrastructure for ymeets and other y/cs products, keeping them free
+            for everyone. Learn more about our sponsors on the{' '}
+            <a
+              className="text-primary underline"
+              href="https://yalecomputersociety.org/"
+            >
+              Yale Computer Society website
+            </a>
+            .
           </p>
           <div className="flex flex-row items-center justify-center space-x-4 mt-2">
-            <a href="https://www.hudsonrivertrading.com/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.hudsonrivertrading.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/HudsonRiverTrading.png"
                 alt="Hudson River Trading"
                 className="h-20 w-auto object-contain inline-block"
               />
             </a>
-            <a href="https://www.minimax.io/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.minimax.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/MiniMax.png"
                 alt="MiniMax"

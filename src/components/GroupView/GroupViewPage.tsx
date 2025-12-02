@@ -245,6 +245,11 @@ export default function GroupViewPage({
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+  const editAvailabilityButtonLabel = isEditing
+    ? 'View Availabilities'
+    : userHasFilled
+      ? 'Edit Your Availability'
+      : 'Add Availability';
 
   if (loading) {
     return (
@@ -287,9 +292,7 @@ export default function GroupViewPage({
             onClick={toggleEditing}
             className="hidden md:block"
           >
-            {isEditing
-              ? 'View Availabilities'
-              : 'Edit Your Availability'}
+            {editAvailabilityButtonLabel}
           </ButtonSmall>
 
           {isAdmin && (
