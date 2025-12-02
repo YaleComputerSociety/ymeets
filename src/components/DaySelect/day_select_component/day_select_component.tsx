@@ -2,8 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
-import { getAccountId, getAccountName } from '../../../backend/events';
-import { useNavigate } from 'react-router-dom';
+import { 
+  getAccountId, 
+  getAccountName, 
+  getEventById,
+  getEventName,
+  getEventDescription,
+  getDates,
+  getStartAndEndTimes,
+  getLocationOptions,
+  getTimezone,
+  getZoomLink
+} from '../../../backend/events';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
 import TimezonePicker from '../../utils/components/TimezonePicker';
@@ -12,6 +23,9 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
 
 export const DaySelectComponent = () => {
+  const location = useLocation();
+  const { eventId } = useParams();
+  const isEditMode = !!eventId;
   // Default event start/end time values
   const nineAM = new Date('January 1, 2023');
   nineAM.setHours(9);
@@ -95,10 +109,112 @@ export const DaySelectComponent = () => {
   });
 
   const [selectGeneralDays, setSelectGeneralDays] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const navigate = useNavigate();
+  
+  // Load event data if in edit mode
+  useEffect(() => {
+    if (isEditMode && eventId) {
+      const loadEventData = async () => {
+        try {
+          await getEventById(eventId);
+          
+          // Get event data from the working event
+          const eventNameFromDb = getEventName();
+          const eventDescFromDb = getEventDescription();
+          const datesFromDb = getDates();
+          const timesFromDb = getStartAndEndTimes();
+          const startTimeFromDb = timesFromDb[0];
+          const endTimeFromDb = timesFromDb[1];
+          const locationsFromDb = getLocationOptions();
+          const timezoneFromDb = getTimezone();
+          const zoomLinkFromDb = getZoomLink();
+          
+          // Create new Date objects with base date but preserve hours/minutes from event
+          // This ensures the time selector shows the correct time
+          const baseDate = new Date('January 1, 2023');
+          
+          const newStartDate = new Date(baseDate);
+          if (startTimeFromDb) {
+            newStartDate.setHours(startTimeFromDb.getHours());
+            newStartDate.setMinutes(startTimeFromDb.getMinutes());
+            newStartDate.setSeconds(0);
+            newStartDate.setMilliseconds(0);
+          }
+          
+          const newEndDate = new Date(baseDate);
+          if (endTimeFromDb) {
+            newEndDate.setHours(endTimeFromDb.getHours());
+            newEndDate.setMinutes(endTimeFromDb.getMinutes());
+            newEndDate.setSeconds(0);
+            newEndDate.setMilliseconds(0);
+          }
+          
+          setEventName(eventNameFromDb || '');
+          setEventDescription(eventDescFromDb || '');
+          setZoomLink(zoomLinkFromDb || '');
+          setStartDate(newStartDate);
+          setEndDate(newEndDate);
+          updateLocationsState(locationsFromDb || []);
+          setLocationOptions(locationsFromDb || []);
+          setTimezone(timezoneFromDb || Intl.DateTimeFormat().resolvedOptions().timeZone);
+          
+          // Check if this is a "General Days" event (dates with year 2000)
+          if (datesFromDb && datesFromDb.length > 0 && datesFromDb[0].getFullYear() === 2000) {
+            setSelectGeneralDays(true);
+            // Clear selectedDates for General Days events
+            setSelectedDates([]);
+            // Map the dates to selectedDays state
+            // Initialize with default structure and mark selected days
+            const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const updatedSelectedDays: Record<string, { dateObj: Date; selected: boolean }> = {};
+            
+            // Initialize all days as unselected
+            dayNames.forEach(dayName => {
+              updatedSelectedDays[dayName] = {
+                dateObj: new Date(2000, 0, dayNames.indexOf(dayName) + 2),
+                selected: false
+              };
+            });
+            
+            // Mark selected days from the event
+            datesFromDb.forEach(date => {
+              const dayIndex = date.getDay();
+              const dayName = dayNames[dayIndex];
+              if (updatedSelectedDays[dayName]) {
+                updatedSelectedDays[dayName] = {
+                  dateObj: date,
+                  selected: true
+                };
+              }
+            });
+            setSelectedDays(updatedSelectedDays);
+          } else {
+            setSelectGeneralDays(false);
+            // For Specific Days events, set selectedDates
+            setSelectedDates(datesFromDb || []);
+            // Clear selectedDays for Specific Days events
+            const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const clearedDays: Record<string, { dateObj: Date; selected: boolean }> = {};
+            dayNames.forEach(dayName => {
+              clearedDays[dayName] = {
+                dateObj: new Date(2000, 0, dayNames.indexOf(dayName) + 2),
+                selected: false
+              };
+            });
+            setSelectedDays(clearedDays);
+          }
+        } catch (error) {
+          console.error('Error loading event data:', error);
+        }
+      };
+      loadEventData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, eventId]);
 
-  // New, 2/18/25 - used to check if eventName or eventDescription are blank spaces or invisible characters
+  // Check if eventName or eventDescription are blank spaces or invisible characters
   const isBlankspaceOrInvisible = (str: string): boolean => {
     // eslint-disable-next-line no-control-regex
     const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
@@ -147,6 +263,46 @@ export const DaySelectComponent = () => {
       return;
     }
 
+    if (isEditMode && eventId) {
+      // Update existing event
+      const datesToUse = selectGeneralDays 
+        ? Object.keys(selectedDays)
+            .filter((day) => selectedDays[day].selected)
+            .map((day) => selectedDays[day].dateObj)
+        : selectedDates;
+      
+      // Validate that at least one date is selected
+      if (datesToUse.length === 0) {
+        setAlertMessage('You need to pick at least one day!');
+        return;
+      }
+      
+      setIsUpdating(true);
+      frontendEventAPI
+        .updateEvent(
+          eventId,
+          eventName,
+          eventDescription,
+          datesToUse,
+          locations,
+          startDate,
+          endDate,
+          zoomLink,
+          timezone
+        )
+        .then(() => {
+          setIsUpdating(false);
+          navigate('/dashboard/' + eventId);
+        })
+        .catch((error) => {
+          console.error('Error updating event:', error);
+          setIsUpdating(false);
+          setAlertMessage('Failed to update event');
+        });
+      return;
+    }
+
+    // Create new event
     if (selectGeneralDays) {
       const generallySelectedDates: Date[] = [];
 
@@ -203,7 +359,25 @@ export const DaySelectComponent = () => {
   };
 
   const handleTabChange = (tab: 'Specific Days' | 'General Days') => {
-    setSelectGeneralDays(tab === 'General Days');
+    const isGeneralDays = tab === 'General Days';
+    
+    if (isGeneralDays && !selectGeneralDays) {
+      // Switching to General Days - clear specific dates
+      setSelectedDates([]);
+    } else if (!isGeneralDays && selectGeneralDays) {
+      // Switching to Specific Days - clear general days selection
+      const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const clearedDays: Record<string, { dateObj: Date; selected: boolean }> = {};
+      dayNames.forEach(dayName => {
+        clearedDays[dayName] = {
+          dateObj: new Date(2000, 0, dayNames.indexOf(dayName) + 2),
+          selected: false
+        };
+      });
+      setSelectedDays(clearedDays);
+    }
+    
+    setSelectGeneralDays(isGeneralDays);
   };
 
   return (
@@ -352,8 +526,9 @@ export const DaySelectComponent = () => {
                 onClick={verifyNextAndSubmitEvent}
                 bgColor="primary"
                 textColor="white"
+                disabled={isUpdating}
               >
-                Create
+                {isEditMode ? 'Update Event' : 'Create Event'}
               </Button>
             </div>
           </div>
