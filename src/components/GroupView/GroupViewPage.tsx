@@ -379,9 +379,7 @@ export default function GroupViewPage({
                       onClick={toggleEditing}
                       className="!rounded-lg"
                     >
-                      {isEditing
-                        ? 'View Availabilities'
-                        : 'Edit Your Availability'}
+                      {editAvailabilityButtonLabel}
                     </ButtonSmall>
                     {isAdmin && (
                       <ButtonSmall
