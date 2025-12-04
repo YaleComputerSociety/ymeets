@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import { IconPlus, IconSearch, IconTrash, IconEdit } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash, IconEdit, IconChevronDown } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
