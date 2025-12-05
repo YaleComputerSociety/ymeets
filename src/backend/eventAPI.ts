@@ -79,7 +79,8 @@ export default class FrontendEventAPI {
     startTime: Date,
     endTime: Date,
     zoomLink: string = '',
-    timeZone: string
+    timeZone: string,
+    dateCreated: Date
   ): Promise<Event | null> {
     try {
       const ev: Event | null = await createEvent({
@@ -94,6 +95,7 @@ export default class FrontendEventAPI {
         zoomLink: zoomLink,
         timeZone: timeZone,
         participants: [],
+        dateCreated: dateCreated,
       });
 
       return ev;

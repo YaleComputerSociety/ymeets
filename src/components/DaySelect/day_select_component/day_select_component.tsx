@@ -328,7 +328,8 @@ export const DaySelectComponent = () => {
           startDate,
           endDate,
           zoomLink,
-          timezone
+          timezone,
+          new Date() // dateCreated
         )
         .then((ev) => {
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
@@ -350,7 +351,8 @@ export const DaySelectComponent = () => {
           startDate,
           endDate,
           zoomLink,
-          timezone
+          timezone,
+          new Date() // dateCreated
         )
         .then((ev) => {
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
