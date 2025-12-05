@@ -103,8 +103,9 @@ const UserChart: React.FC<UserChartProps> = ({
         />
       )}
       <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
-        {participantToggleClicked ? (
+         
           <table className="table-fixed border-collapse w-full">
+            
             <thead>
               <tr>
                 <th className="border-b p-3 text-primary" dangerouslySetInnerHTML={{__html: "Available (" + String(chartedUsers.available.length) + ")"}}></th>
@@ -129,59 +130,7 @@ const UserChart: React.FC<UserChartProps> = ({
 
             </tbody>
           </table>
-        ) : (
-          <div className="flex flex-col">
-            <div className="m-2 text-md font-bold dark:text-text-dark">
-              Edit Participants
-            </div>
-            {allPeople?.map((name, idx) => (
-              <div
-                key={idx} // Move key to the outermost div
-                className="flex flex-row justify-between items-center dark:text-text-dark"
-              >
-                <div
-                  className={`p-2 ${
-                    peoepleStatus[name] === true ? 'opacity-100' : 'opacity-50'
-                  }`}
-                >
-                  {name}
-                </div>
-                {!peoepleStatus[name] ? (
-                  <IconSquare
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setPeopleStatus((prev) => ({
-                        ...prev,
-                        [name]: !prev[name],
-                      }))
-                    }
-                  />
-                ) : (
-                  <IconSquareCheck
-                    className="cursor-pointer"
-                    onClick={() => {
-                      if (
-                        allPeople.filter((person) => peoepleStatus[person])
-                          .length === 1 &&
-                        peoepleStatus[name]
-                      ) {
-                        setAlertMessage(
-                          "You can't remove the last participant"
-                        ); // Replace alert with AlertPopup
-                        return;
-                      }
-                      setPeopleStatus((prev) => ({
-                        ...prev,
-                        [name]: !prev[name],
-                      }));
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+    </div>
     </div>
   );
 };

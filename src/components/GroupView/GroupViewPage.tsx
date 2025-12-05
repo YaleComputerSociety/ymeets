@@ -26,6 +26,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
+import EditAvailability from './EditAvailability';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
@@ -321,7 +322,7 @@ export default function GroupViewPage({
           <div className="hidden lg:block w-full relative">
             {chartedUsers !== undefined && !showLocationChart && (
               <>
-                {participantToggleClicked ? (
+                { !chartedUsers.hovering && (participantToggleClicked ? (
                   <IconAdjustments
                     size={40}
                     onClick={() => {
@@ -329,6 +330,7 @@ export default function GroupViewPage({
                     }}
                     className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
+
                 ) : (
                   <IconAdjustmentsFilled
                     size={40}
@@ -337,7 +339,20 @@ export default function GroupViewPage({
                     }}
                     className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
-                )}
+                )) }
+
+                {!participantToggleClicked && 
+                <EditAvailability
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                    calendarHeight={calendarHeight}
+                  />}
+
                 {chartedUsers.hovering &&
                 <UserChart
                   chartedUsersData={[filteredChartedUsers, setChartedUsers]}
@@ -349,6 +364,9 @@ export default function GroupViewPage({
                   ]}
                   calendarHeight={calendarHeight}
                 />}
+
+                
+                
               </>
             )}
 
@@ -553,6 +571,17 @@ export default function GroupViewPage({
                   </button>
 
                   <UserChart
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                    calendarHeight={calendarHeight}
+                  />
+
+                  <EditAvailability
                     chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                     thePeopleStatus={[peopleStatus, setPeopleStatus]}
                     allPeople={allPeople}
