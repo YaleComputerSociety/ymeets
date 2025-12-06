@@ -300,6 +300,7 @@ export default function GroupViewPage({
           >
             {editAvailabilityButtonLabel}
           </ButtonSmall>
+          }
 
           {isAdmin && !chartedUsers.hovering && (
             <AutoDraftEmailButton
