@@ -26,6 +26,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
+import EditAvailability from './EditAvailability';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
@@ -245,6 +246,7 @@ export default function GroupViewPage({
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
+  const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
   const editAvailabilityButtonLabel = isEditing
     ? 'View Availabilities'
     : userHasFilled
@@ -259,6 +261,8 @@ export default function GroupViewPage({
     );
   }
 
+
+
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* Render AlertPopup unconditionally */}
@@ -271,21 +275,23 @@ export default function GroupViewPage({
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+          {!chartedUsers.hovering && 
           <div
             className="text-4xl font-bold text-center lg:text-left"
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {eventName}
-          </div>
+          </div>}
+          {!chartedUsers.hovering && 
           <div
             className="text-xl text-center lg:text-left"
             style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {eventDescription}
-          </div>
-
-          <CopyCodeButton />
-
+          </div>}
+            {!chartedUsers.hovering && 
+          <CopyCodeButton />}
+          {!chartedUsers.hovering && 
           <ButtonSmall
             bgColor="primary"
             textColor="white"
@@ -294,8 +300,9 @@ export default function GroupViewPage({
           >
             {editAvailabilityButtonLabel}
           </ButtonSmall>
+          }
 
-          {isAdmin && (
+          {isAdmin && !chartedUsers.hovering && (
             <AutoDraftEmailButton
               eventTitle={eventName}
               yourName={getAccountName()}
@@ -304,7 +311,7 @@ export default function GroupViewPage({
             />
           )}
 
-          {locationOptions.length > 0 && (
+          {locationOptions.length > 0 && !chartedUsers.hovering && (
             <div className="hidden lg:block">
               <FormControlLabel
                 control={
@@ -316,11 +323,11 @@ export default function GroupViewPage({
               />
             </div>
           )}
-
+        
           <div className="hidden lg:block w-full relative">
             {chartedUsers !== undefined && !showLocationChart && (
               <>
-                {participantToggleClicked ? (
+                { !chartedUsers.hovering && (participantToggleClicked ? (
                   <IconAdjustments
                     size={40}
                     onClick={() => {
@@ -328,6 +335,7 @@ export default function GroupViewPage({
                     }}
                     className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
+
                 ) : (
                   <IconAdjustmentsFilled
                     size={40}
@@ -336,8 +344,21 @@ export default function GroupViewPage({
                     }}
                     className="cursor-pointer absolute -top-10 right-2 p-2"
                   />
-                )}
+                )) }
 
+                {!participantToggleClicked && 
+                <EditAvailability
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                    calendarHeight={calendarHeight}
+                  />}
+
+                {chartedUsers.hovering &&
                 <UserChart
                   chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                   thePeopleStatus={[peopleStatus, setPeopleStatus]}
@@ -346,7 +367,11 @@ export default function GroupViewPage({
                     participantToggleClicked,
                     setParticipantToggleClicked,
                   ]}
-                />
+                  calendarHeight={calendarHeight}
+                />}
+
+                
+                
               </>
             )}
 
@@ -524,6 +549,9 @@ export default function GroupViewPage({
                 theDragState={[dragState, setDragState]}
                 theGoogleCalendarEvents={[[], () => {}]}
                 isGeneralDays={false}
+                setChartedUsers={setChartedUsers}
+                chartedUsers={chartedUsers}
+                setCalendarHeight={setCalendarHeight}
               />
             </div>
           </div>
@@ -571,6 +599,18 @@ export default function GroupViewPage({
                       participantToggleClicked,
                       setParticipantToggleClicked,
                     ]}
+                    calendarHeight={calendarHeight}
+                  />
+
+                  <EditAvailability
+                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                    allPeople={allPeople}
+                    theParticipantToggleClicked={[
+                      participantToggleClicked,
+                      setParticipantToggleClicked,
+                    ]}
+                    calendarHeight={calendarHeight}
                   />
                 </div>
               </div>
