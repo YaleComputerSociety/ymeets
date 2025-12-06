@@ -23,7 +23,7 @@ export default function Button({
   textSize = 'lg',
   themeGradient = true,
   bolded = true,
-  className = '', // Add this line
+  className = '',
 }: Props) {
   const borderRadius = rounded === 'full' ? 'rounded-full' : 'rounded-lg';
   const textSizeClass =

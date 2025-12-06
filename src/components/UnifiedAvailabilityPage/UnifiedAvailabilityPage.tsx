@@ -130,16 +130,19 @@ export default function UnifiedAvailabilityPage() {
             return;
           }
 
+          // Prefer the saved availability from the event if it exists.
+          // Only append a row if the current user has no saved availability yet.
           let avail: Availability | undefined =
             getAccountId() !== ''
               ? getAvailabilityByAccountId(getAccountId())
               : getAvailabilityByName(accountName);
-
-          if (avail === undefined) {
-            avail = eventAPI.getEmptyAvailability(dim);
-          } else {
-            setHasAvailability(true);
-          }
+          const currentUserId = getAccountId();
+          const hasSavedRowById =
+            currentUserId && participants.userIDs.includes(currentUserId);
+          const hasSavedRowByName =
+            !!accountName &&
+            (participants.users || []).some((u) => u.name === accountName);
+          const hasSavedRow = Boolean(hasSavedRowById || hasSavedRowByName);
 
           const theRange = getChosenDayAndTime();
           setIsGeneralDays(
@@ -147,7 +150,19 @@ export default function UnifiedAvailabilityPage() {
               theRange === undefined
           );
 
-          setTimeSelectCalendarState([...availabilities, avail]);
+          // If user already has a saved availability row, use the backend-provided matrix as-is.
+          // Otherwise, append an empty row to allow first-time entry.
+          if (hasSavedRow) {
+            setHasAvailability(true);
+            setTimeSelectCalendarState(availabilities);
+          } else {
+            if (avail === undefined) {
+              avail = eventAPI.getEmptyAvailability(dim);
+            } else {
+              setHasAvailability(true);
+            }
+            setTimeSelectCalendarState([...availabilities, avail]);
+          }
           setTimeSelectCalendarFramework(dim);
 
           /* The first date having a year be 2000 means that it was a general days selection */
@@ -165,7 +180,8 @@ export default function UnifiedAvailabilityPage() {
             onSuccess();
           }
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Failed to load event:', err);
           nav('/notfound');
         });
 
@@ -174,7 +190,7 @@ export default function UnifiedAvailabilityPage() {
       }
     } else {
       // URL is malformed
-      nav('notfound');
+      nav('/notfound');
     }
   };
 

@@ -59,6 +59,27 @@ export default function NavBar() {
     });
   });
 
+  useEffect(() => {
+    if (menuState === 'open') {
+      const handleClickOutside = (event: MouseEvent) => {
+        const menuButton = document.querySelector('.menu-button');
+        const menuDropdown = document.getElementById('menu-dropdown');
+        if (
+          menuDropdown &&
+          !menuDropdown.contains(event.target as Node) &&
+          menuButton &&
+          !menuButton.contains(event.target as Node)
+        ) {
+          setMenuState('closed');
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [menuState]);
+
   return (
     <>
       <div className="flex flex-col w-full pt-6 justify-center z-40 items-center">
@@ -111,12 +132,13 @@ export default function NavBar() {
                 onClick={handleGearClick}
               >
                 <IconMenu2
-                  className="text-text dark:text-text-dark"
+                  className="text-text dark:text-text-dark hover:text-primary transition hover:scale-110"
                   size={30}
                 />
               </button>
               {menuState !== 'closed' && (
                 <div
+                  id="menu-dropdown"
                   className={`absolute z-[9999] mt-2 w-44 rounded-md shadow-lg bg-white dark:bg-secondary_background-dark ring-1 ring-black ring-opacity-5 right-0 transition-all duration-200 ease-out transform origin-top-right 
                                     ${menuState === 'opening' ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
                 >
