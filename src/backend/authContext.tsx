@@ -12,7 +12,8 @@ import {
   onAuthStateChanged,
   User,
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useGoogleCalendar } from './useGoogleCalService';
 
 // Split into two separate contexts - one for Firebase Auth, one for Google APIs
@@ -29,6 +30,27 @@ interface AuthProviderProps {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Helper function to ensure user doc exists in Firestore
+const ensureUserDocExists = async (user: User) => {
+  try {
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        email: user.email || '',
+        name: user.displayName || '',
+        selectedCalendarIDs: [user.email || ''],
+        uid: user.uid,
+        userEvents: [],
+      });
+      console.log('User document created for:', user.uid);
+    }
+  } catch (error) {
+    console.error('Error ensuring user doc exists:', error);
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,7 +58,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check if user is authenticated on load - Firebase only
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Ensure user doc exists in Firestore (handles already logged-in users)
+        await ensureUserDocExists(user);
+      }
       setCurrentUser(user);
       setLoading(false);
     });
@@ -50,6 +76,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      
+      // Ensure user doc exists in Firestore after login
+      await ensureUserDocExists(result.user);
+      
       return result.user;
     } catch (error: any) {
       console.error('Error signing in with Google:', error);
