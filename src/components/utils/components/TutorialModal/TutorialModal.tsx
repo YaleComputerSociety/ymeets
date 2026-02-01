@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { IconX, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import stock_meeting_gif from './Meeting.mp4';
 import day_select_pic from './DaySelect-dark.png';
 import copy_link_gif from './Share.mp4';
@@ -61,6 +61,7 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mediaLoaded, setMediaLoaded] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const totalSlides = tutorialSlides.length;
   const isFirstSlide = currentSlide === 0;
@@ -72,6 +73,7 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
       setIsVisible(true);
       setCurrentSlide(0);
       setMediaLoaded(false);
+      setIsTransitioning(false);
       document.body.style.overflow = 'hidden';
       setTimeout(() => setIsAnimating(true), 10);
     } else if (isVisible) {
@@ -84,14 +86,25 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
     }
   }, [isOpen, isVisible]);
 
-  // Reset media loaded state when slide changes
   useEffect(() => {
     setMediaLoaded(false);
   }, [currentSlide]);
 
+  const changeSlide = (newSlide: number) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+
+    setTimeout(() => {
+      setCurrentSlide(newSlide);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    }, 150);
+  };
+
   const handleNext = () => {
     if (!isLastSlide) {
-      setCurrentSlide((prev) => prev + 1);
+      changeSlide(currentSlide + 1);
     } else {
       localStorage.setItem('hasSeenCreatorTutorial', 'true');
       onClose();
@@ -100,7 +113,13 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
 
   const handlePrevious = () => {
     if (!isFirstSlide) {
-      setCurrentSlide((prev) => prev - 1);
+      changeSlide(currentSlide - 1);
+    }
+  };
+
+  const handleDotClick = (index: number) => {
+    if (index !== currentSlide) {
+      changeSlide(index);
     }
   };
 
@@ -113,9 +132,9 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop - click to dismiss */}
       <div
-        className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
@@ -123,96 +142,124 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
 
       {/* Modal */}
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-[560px] w-full shadow-2xl border border-gray-100 dark:border-gray-700 transition-all duration-300 ${
+        className={`relative bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-[580px] w-full shadow-2xl border border-gray-100 dark:border-gray-700/50 transition-all duration-300 overflow-hidden ${
           isAnimating
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-95 translate-y-5'
         }`}
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-          aria-label="Close tutorial"
-        >
-          <IconX size={20} stroke={1.5} />
-        </button>
-
         {/* Media container */}
-        <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-700 rounded-2xl overflow-hidden">
+        <div className="relative w-full aspect-video bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl overflow-hidden">
           {/* Loading skeleton */}
           <div
             className={`absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-shimmer transition-opacity duration-300 ${
-              mediaLoaded ? 'opacity-0' : 'opacity-100'
+              mediaLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           />
 
-          {/* Media content */}
-          {currentSlideData.media.type === 'video' ? (
-            <video
-              key={currentSlideData.id}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                mediaLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoadedData={() => setMediaLoaded(true)}
-              aria-label={currentSlideData.media.alt}
-            >
-              <source src={currentSlideData.media.src} type="video/mp4" />
-            </video>
-          ) : (
-            <img
-              key={currentSlideData.id}
-              src={currentSlideData.media.src}
-              alt={currentSlideData.media.alt}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                mediaLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoad={() => setMediaLoaded(true)}
-            />
-          )}
+          {/* Media content with fade transition */}
+          <div
+            className={`w-full h-full transition-all duration-200 ease-out ${
+              isTransitioning
+                ? 'opacity-0 scale-[0.98]'
+                : 'opacity-100 scale-100'
+            }`}
+          >
+            {currentSlideData.media.type === 'video' ? (
+              <video
+                key={currentSlideData.id}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  mediaLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoadedData={() => setMediaLoaded(true)}
+                aria-label={currentSlideData.media.alt}
+              >
+                <source src={currentSlideData.media.src} type="video/mp4" />
+              </video>
+            ) : (
+              <img
+                key={currentSlideData.id}
+                src={currentSlideData.media.src}
+                alt={currentSlideData.media.alt}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  mediaLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => setMediaLoaded(true)}
+              />
+            )}
+          </div>
         </div>
 
-        {/* Text content */}
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-6">
-          {currentSlideData.title}
-        </h2>
-        <p className="text-base text-gray-600 dark:text-gray-300 leading-relaxed mt-2">
-          {currentSlideData.description}
-        </p>
+        {/* Text content with fade transition */}
+        <div
+          className={`transition-all duration-200 ease-out ${
+            isTransitioning ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-6 tracking-tight">
+            {currentSlideData.title}
+          </h2>
+          <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed mt-2 min-h-[48px]">
+            {currentSlideData.description}
+          </p>
+        </div>
 
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-gray-200 dark:bg-gray-600 rounded-full mt-6 overflow-hidden">
-          <div
-            className="h-full bg-primary dark:bg-primary-dark rounded-full transition-all duration-400 ease-out"
-            style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
-          />
+        {/* Progress dots with glow */}
+        <div className="flex justify-center items-center gap-3 mt-6">
+          {tutorialSlides.map((_, index) => {
+            const isCompleted = index < currentSlide;
+            const isCurrent = index === currentSlide;
+
+            return (
+              <button
+                key={index}
+                onClick={() => handleDotClick(index)}
+                className="relative p-1"
+                aria-label={`Go to step ${index + 1}`}
+              >
+                {/* Subtle glow for current dot */}
+                {isCurrent && (
+                  <div className="absolute inset-0 bg-primary/20 dark:bg-primary-dark/20 rounded-full blur-[3px] scale-[1.8]" />
+                )}
+                <div
+                  className={`relative w-2 h-2 rounded-full transition-all duration-300 ease-out ${
+                    isCurrent
+                      ? 'bg-primary dark:bg-primary-dark'
+                      : isCompleted
+                        ? 'bg-primary/50 dark:bg-primary-dark/50'
+                        : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  }`}
+                />
+              </button>
+            );
+          })}
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-5">
+        <div className="flex justify-between items-center mt-6">
           <button
             onClick={handlePrevious}
             disabled={isFirstSlide}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${
               isFirstSlide
                 ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 active:scale-95'
             }`}
           >
-            <IconChevronLeft size={18} />
-            Back
+            <IconChevronLeft size={18} stroke={2} />
+            <span>Back</span>
           </button>
 
           <button
             onClick={handleNext}
-            className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-blue-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
+            className="flex items-center gap-1.5 px-6 py-2.5 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white rounded-xl font-medium transition-all duration-200 active:scale-95"
           >
-            {isLastSlide ? 'Get Started' : 'Continue'}
-            {!isLastSlide && <IconChevronRight size={18} />}
+            <span>{isLastSlide ? 'Get Started' : 'Continue'}</span>
+            {!isLastSlide && <IconChevronRight size={18} stroke={2} />}
           </button>
         </div>
       </div>
