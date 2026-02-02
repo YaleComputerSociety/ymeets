@@ -51,15 +51,6 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
-    name: 'Hawa Khalif',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
-    github: 'https://github.com/hawakhalif',
-    image: HAWA,
-  },
-
-  {
     name: 'James Masson',
     title: ['Software Engineer'],
     founding: false,
@@ -98,6 +89,14 @@ const CURR_CONTRIBUTORS = [
 ];
 
 const PAST_CONTRIBUTORS = [
+  {
+    name: 'Hawa Khalif',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
+    github: 'https://github.com/hawakhalif',
+    image: HAWA,
+  },
 
   {
     name: 'Nikita Saitov',
