@@ -27,7 +27,9 @@ import {
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
+  workingEvent,
 } from '../../backend/events';
+import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
@@ -517,6 +519,15 @@ function TimeSelectPage({
     await setUserSelectedCalendarIDs(
       getAccountId(),
       idsOfCurrentlySelectedGCals
+    );
+
+    // Notify event admin 
+    notifyAdminOfNewResponse(
+      workingEvent.details.adminAccountId,
+      getAccountId(),
+      getAccountName(),
+      workingEvent.details.name,
+      workingEvent.publicId
     );
 
     setIsSaving(false);
