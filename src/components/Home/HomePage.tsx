@@ -19,6 +19,7 @@ import {
   IconLockAccessOff,
   IconLock,
 } from '@tabler/icons-react';
+import { sendAvailabilityUpdatedEmail } from '../../emails/sendEmailHelpers';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -28,6 +29,24 @@ export default function HomePage() {
   const [showFormValidation, setShowFormValidation] =
     React.useState<boolean>(false);
   const [formErrorMessage, setFormErrorMessage] = React.useState('');
+  const [emailStatus, setEmailStatus] = React.useState<
+    'idle' | 'sending' | 'sent' | 'error'
+  >('idle');
+
+  const handleSendTestEmail = async () => {
+    setEmailStatus('sending');
+    try {
+      await sendAvailabilityUpdatedEmail('jeetparikh06@gmail.com', {
+        participantName: 'Drake Maye',
+        eventTitle: 'Team Sync Meeting',
+        eventUrl: 'http://ymeets.com/dashboard/QEEGG2',
+      });
+      setEmailStatus('sent');
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      setEmailStatus('error');
+    }
+  };
 
   function formValidationPopup(message: string) {
     setShowFormValidation(true);
@@ -125,6 +144,24 @@ export default function HomePage() {
                 bolded={false}
               >
                 View My Events
+              </Button>
+            </div>
+
+            <div className="flex justify-center md:justify-start mt-5">
+              <Button
+                bgColor="white"
+                textColor="black"
+                themeGradient={false}
+                onClick={handleSendTestEmail}
+                bolded={false}
+              >
+                {emailStatus === 'sending'
+                  ? 'Sending...'
+                  : emailStatus === 'sent'
+                    ? 'Email Sent!'
+                    : emailStatus === 'error'
+                      ? 'Failed - Retry'
+                      : 'Send Test Email'}
               </Button>
             </div>
           </div>
