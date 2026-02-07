@@ -594,16 +594,6 @@ function TimeSelectPage({
             {isEditing ? 'View Availabilities' : 'Edit Your Availability'}
           </ButtonSmall>
 
-          {/* Share Section */}
-          <div className="w-full">
-            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-              Share
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <CopyCodeButton className="!w-full" />
-            </div>
-          </div>
-
           {/* Location Selection */}
           {locationOptions.length > 0 && (
             <div className="w-full z-50">
