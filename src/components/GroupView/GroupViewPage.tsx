@@ -462,24 +462,23 @@ export default function GroupViewPage({
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 {/* Mobile layout - buttons row */}
                 <div className="flex flex-col md:hidden w-full mb-3">
-                  <div className="flex items-center justify-center gap-3 w-full mb-3">
+                  <div className="flex items-center justify-center gap-2 w-full mb-3">
                     <ButtonSmall
                       bgColor="primary"
                       textColor="white"
                       onClick={toggleEditing}
-                      className="!rounded-lg"
+                      className="!rounded-lg flex-1"
                     >
                       {editAvailabilityButtonLabel}
                     </ButtonSmall>
                     {isAdmin && (
-                      <ButtonSmall
-                        bgColor="secondary"
-                        textColor="white"
+                      <button
                         onClick={() => nav(`/edit/${code}`)}
-                        className="!rounded-lg"
+                        className="p-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+                        title="Edit Event"
                       >
-                        Edit Event
-                      </ButtonSmall>
+                        <IconPencil size={20} />
+                      </button>
                     )}
                   </div>
                   {/* Timezone and Export row */}
