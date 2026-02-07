@@ -277,7 +277,10 @@ export default function GroupViewPage({
       />
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
-        <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+        <div
+          className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3"
+          style={calendarHeight ? { maxHeight: calendarHeight + 60, height: 'fit-content' } : undefined}
+        >
           {/* Event Title & Description */}
           {!chartedUsers.hovering && (
             <div className="w-full">
@@ -376,13 +379,13 @@ export default function GroupViewPage({
             </div>
           )}
 
-          {/* Participants Section */}
+          {/* Participants Section - expands to fill remaining space up to calendar height */}
           {!chartedUsers.hovering && allPeople && allPeople.length > 0 && (
-            <div className="hidden lg:block w-full">
-              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            <div className="hidden lg:flex lg:flex-col w-full flex-1 min-h-0">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex-shrink-0">
                 Participants ({allPeople.filter(name => peopleStatus[name]).length}/{allPeople.length})
               </div>
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto">
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-y-auto flex-1">
                 {allPeople.map((name, idx) => (
                   <div
                     key={idx}
