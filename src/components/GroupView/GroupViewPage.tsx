@@ -40,7 +40,7 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { IconPencil, IconPlus } from '@tabler/icons-react';
+import { IconPencil, IconPlus, IconCheck } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
@@ -277,129 +277,151 @@ export default function GroupViewPage({
       />
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
-        <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
-          {!chartedUsers.hovering && 
-          <div
-            className="text-4xl font-bold text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventName}
-          </div>}
-          {!chartedUsers.hovering && 
-          <div
-            className="text-xl text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventDescription}
-          </div>}
-            {!chartedUsers.hovering && 
-          <CopyCodeButton />}
-          {!chartedUsers.hovering && 
-          <ButtonSmall
-            bgColor="primary"
-            textColor="white"
-            onClick={toggleEditing}
-            className="hidden md:block"
-          >
-            {editAvailabilityButtonLabel}
-          </ButtonSmall>
-          }
-
-          {isAdmin && !chartedUsers.hovering && (
-            <AutoDraftEmailButton
-              eventTitle={eventName}
-              yourName={getAccountName()}
-              senderEmail={getAccountEmail()}
-              customEventCode={code}
-            />
-          )}
-
-          {isAdmin && !chartedUsers.hovering && (
-            <div className="flex items-center gap-3">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={emailNotifications}
-                  onChange={async (e) => {
-                    const newValue = e.target.checked;
-                    setEmailNotifications(newValue);
-                    await setEmailAdmin(newValue);
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-primary dark:peer-checked:bg-primary-600"></div>
-              </label>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email me when someone responds
-              </span>
+        <div className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3">
+          {/* Event Title & Description */}
+          {!chartedUsers.hovering && (
+            <div className="w-full">
+              <div
+                className="text-3xl font-bold text-center lg:text-left"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              >
+                {eventName}
+              </div>
+              {eventDescription && (
+                <div
+                  className="text-base text-gray-600 dark:text-gray-400 text-center lg:text-left mt-1"
+                  style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                >
+                  {eventDescription}
+                </div>
+              )}
             </div>
           )}
 
+          {/* Primary Action */}
+          {!chartedUsers.hovering && (
+            <div className="hidden md:flex items-center gap-2 w-full">
+              <ButtonSmall
+                bgColor="primary"
+                textColor="white"
+                onClick={toggleEditing}
+                className="flex-1"
+              >
+                {editAvailabilityButtonLabel}
+              </ButtonSmall>
+              {isAdmin && (
+                <button
+                  onClick={() => nav(`/edit/${code}`)}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+                  title="Edit Event"
+                >
+                  <IconPencil size={18} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Share Section */}
+          {!chartedUsers.hovering && (
+            <div className="w-full">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Share
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
+                <div className="flex gap-2">
+                  <CopyCodeButton className="!w-auto flex-1 !text-xs !py-1.5 !px-2" />
+                  {isAdmin && (
+                    <AutoDraftEmailButton
+                      eventTitle={eventName}
+                      yourName={getAccountName()}
+                      senderEmail={getAccountEmail()}
+                      customEventCode={code}
+                      className="flex-1 !text-xs !py-1.5 !px-2"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Settings Section */}
+          {isAdmin && !chartedUsers.hovering && (
+            <div className="w-full">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Settings
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Email notifications
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={emailNotifications}
+                      onChange={async (e) => {
+                        const newValue = e.target.checked;
+                        setEmailNotifications(newValue);
+                        await setEmailAdmin(newValue);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary dark:peer-checked:bg-primary-600"></div>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Get notified when someone fills out their availability
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Participants Section */}
+          {!chartedUsers.hovering && allPeople && allPeople.length > 0 && (
+            <div className="hidden lg:block w-full">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Participants ({allPeople.filter(name => peopleStatus[name]).length}/{allPeople.length})
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto">
+                {allPeople.map((name, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mx-1"
+                    onClick={() => {
+                      if (allPeople.filter(person => peopleStatus[person]).length === 1 && peopleStatus[name]) {
+                        setAlertMessage("You can't remove the last participant");
+                        return;
+                      }
+                      setPeopleStatus(prev => ({
+                        ...prev,
+                        [name]: !prev[name],
+                      }));
+                    }}
+                  >
+                    <span className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+                      {name}
+                    </span>
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                      peopleStatus[name]
+                        ? 'bg-primary border-primary'
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}>
+                      {peopleStatus[name] && (
+                        <IconCheck size={12} className="text-white" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Location Chart Section */}
           {locationOptions.length > 0 && !chartedUsers.hovering && (
-            <div className="hidden lg:block">
-              <FormControlLabel
-                control={
-                  <Switch
-                    onClick={() => setShowLocationChart((prev) => !prev)}
-                  />
-                }
-                label={`Show ${showLocationChart ? 'User Availability' : 'Locations'}`}
-              />
-            </div>
-          )}
-        
-          <div className="hidden lg:block w-full relative">
-            {chartedUsers !== undefined && !showLocationChart && (
-              <>
-                { !chartedUsers.hovering && (participantToggleClicked ? (
-                  <IconAdjustments
-                    size={40}
-                    onClick={() => {
-                      setParticipantToggleClicked(!participantToggleClicked);
-                    }}
-                    className="cursor-pointer absolute -top-10 right-2 p-2"
-                  />
-
-                ) : (
-                  <IconAdjustmentsFilled
-                    size={40}
-                    onClick={() => {
-                      setParticipantToggleClicked(!participantToggleClicked);
-                    }}
-                    className="cursor-pointer absolute -top-10 right-2 p-2"
-                  />
-                )) }
-
-                {!participantToggleClicked && 
-                <EditAvailability
-                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                    allPeople={allPeople}
-                    theParticipantToggleClicked={[
-                      participantToggleClicked,
-                      setParticipantToggleClicked,
-                    ]}
-                    calendarHeight={calendarHeight}
-                  />}
-
-                {chartedUsers.hovering &&
-                <UserChart
-                  chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                  allPeople={allPeople}
-                  theParticipantToggleClicked={[
-                    participantToggleClicked,
-                    setParticipantToggleClicked,
-                  ]}
-                  calendarHeight={calendarHeight}
-                />}
-
-                
-                
-              </>
-            )}
-
-            {locationOptions.length > 0 && showLocationChart && (
+            <div className="hidden lg:block w-full">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Locations
+              </div>
               <LocationChart
                 theSelectedLocation={[
                   adminChosenLocation,
@@ -411,8 +433,24 @@ export default function GroupViewPage({
                 locationVotes={Object.values(locationVotes)}
                 selectionMade={!!getChosenLocation()}
               />
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Hover User Chart - shows available/unavailable when hovering on calendar */}
+          {chartedUsers.hovering && (
+            <div className="hidden lg:block w-full">
+              <UserChart
+                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                allPeople={allPeople}
+                theParticipantToggleClicked={[
+                  participantToggleClicked,
+                  setParticipantToggleClicked,
+                ]}
+                calendarHeight={calendarHeight}
+              />
+            </div>
+          )}
         </div>
 
         <div className="col-span-3">
@@ -495,39 +533,18 @@ export default function GroupViewPage({
                   </div>
                 </div>
 
-                {/* Desktop layout - match edit mode exactly */}
-                <div className="hidden md:flex w-full max-w-full justify-between items-center space-x-2">
-                  <div className="flex items-center flex-1">
-                    <div className="flex items-center gap-2">
-                      {isAdmin && (
-                        <ButtonSmall
-                          bgColor="secondary"
-                          textColor="white"
-                          onClick={() => nav(`/edit/${code}`)}
-                        >
-                          Edit Event
-                        </ButtonSmall>
-                      )}
-                    </div>
-                    <div className="flex-1 ml-2">
-                      <TimezoneChanger
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
-                        initialTimezone={(() => {
-                          // TODO: saving this as a reminder to add URL parameters once we merge in SPA code that supports it
-                          const urlParams = new URLSearchParams(
-                            window.location.search
-                          );
-                          const urlTimezone = urlParams.get('tz');
-
-                          return urlTimezone || getUserTimezone();
-                        })()}
-                      />
-                    </div>
+                {/* Desktop layout - Timezone fills space, Export on right */}
+                <div className="hidden md:flex w-full max-w-full items-center gap-2">
+                  <div className="flex-1">
+                    <TimezoneChanger
+                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      initialTimezone={(() => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const urlTimezone = urlParams.get('tz');
+                        return urlTimezone || getUserTimezone();
+                      })()}
+                    />
                   </div>
-
                   <div className="flex items-center space-x-2">
                     {isAdmin ? <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />: null}
                     {isAdmin &&

@@ -563,34 +563,53 @@ function TimeSelectPage({
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
-          className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
+          className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3 text-text dark:text-text-dark"
         >
-          <div
-            className="text-4xl font-bold text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventName}
-          </div>
-          <div
-            className="text-xl text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventDescription}
+          {/* Event Title & Description */}
+          <div className="w-full">
+            <div
+              className="text-3xl font-bold text-center lg:text-left"
+              style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+            >
+              {eventName}
+            </div>
+            {eventDescription && (
+              <div
+                className="text-base text-gray-600 dark:text-gray-400 text-center lg:text-left mt-1"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              >
+                {eventDescription}
+              </div>
+            )}
           </div>
 
-          <CopyCodeButton />
-
+          {/* Primary Action */}
           <ButtonSmall
             bgColor="primary"
             textColor="white"
             onClick={toggleEditing}
+            className="w-full"
           >
             {isEditing ? 'View Availabilities' : 'Edit Your Availability'}
           </ButtonSmall>
 
+          {/* Share Section */}
+          <div className="w-full">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              Share
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <CopyCodeButton className="!w-full" />
+            </div>
+          </div>
+
+          {/* Location Selection */}
           {locationOptions.length > 0 && (
             <div className="w-full z-50">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Your Preferred Locations
+              </div>
               <LocationSelectionComponent
                 locations={locationOptions}
                 update={setSelectedLocations}
@@ -598,10 +617,12 @@ function TimeSelectPage({
             </div>
           )}
 
-          <div className="hidden lg:flex flex-col w-full bg-secondary_background dark:bg-secondary_background-dark p-4 py-2 rounded-lg">
-            <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">
+          {/* Your Calendars Section */}
+          <div className="hidden lg:flex flex-col w-full">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
               Your Calendars
-            </h2>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             {currentUser && hasAccess ? (
               <ul className="space-y-1 max-h-80 overflow-y-auto">
                 {googleCalendars.map((cal) => (
@@ -664,6 +685,7 @@ function TimeSelectPage({
                 </button>
               </div>
             )}
+            </div>
           </div>
         </div>
 
