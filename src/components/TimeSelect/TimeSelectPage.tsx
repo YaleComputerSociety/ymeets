@@ -521,14 +521,16 @@ function TimeSelectPage({
       idsOfCurrentlySelectedGCals
     );
 
-    // Notify event admin 
-    notifyAdminOfNewResponse(
-      workingEvent.details.adminAccountId,
-      getAccountId(),
-      getAccountName(),
-      workingEvent.details.name,
-      workingEvent.publicId
-    );
+    // Email event admin if they opted in
+    if (workingEvent.details.emailAdmin === true) {
+      notifyAdminOfNewResponse(
+        workingEvent.details.adminAccountId,
+        getAccountId(),
+        getAccountName(),
+        workingEvent.details.name,
+        workingEvent.publicId
+      );
+    }
 
     setIsSaving(false);
     setIsSaved(true);

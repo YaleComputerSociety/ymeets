@@ -25,6 +25,7 @@ export interface EventDetails {
   timeZone: string;
   participants: string[]; // firebase uids
   dateCreated: Date;
+  emailAdmin?: boolean; // whether to email admin when participants submit availability
 }
 
 export interface Participant {

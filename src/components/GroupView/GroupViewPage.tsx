@@ -22,6 +22,8 @@ import {
   getAccountName,
   getAccountEmail,
   getChosenLocation,
+  getEmailAdmin,
+  setEmailAdmin,
 } from '../../backend/events';
 import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
@@ -247,6 +249,7 @@ export default function GroupViewPage({
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
+  const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const editAvailabilityButtonLabel = isEditing
     ? 'View Availabilities'
     : userHasFilled
@@ -309,6 +312,27 @@ export default function GroupViewPage({
               senderEmail={getAccountEmail()}
               customEventCode={code}
             />
+          )}
+
+          {isAdmin && !chartedUsers.hovering && (
+            <div className="flex items-center gap-3">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={emailNotifications}
+                  onChange={async (e) => {
+                    const newValue = e.target.checked;
+                    setEmailNotifications(newValue);
+                    await setEmailAdmin(newValue);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-primary dark:peer-checked:bg-primary-600"></div>
+              </label>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email me when someone responds
+              </span>
+            </div>
           )}
 
           {locationOptions.length > 0 && !chartedUsers.hovering && (

@@ -67,6 +67,9 @@ export default class FrontendEventAPI {
    * @param plausibleLocations
    * @param startTime
    * @param endTime
+   * @param zoomLink
+   * @param timeZone
+   * @param dateCreated
    * @returns Promise object that expands to a Event object.
    */
   static async createNewEvent(
