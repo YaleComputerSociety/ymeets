@@ -114,6 +114,7 @@ export default function GroupViewPage({
   setUserHasFilled: Dispatch<SetStateAction<boolean>>;
 }) {
   const [showUserChart, setShowUserChart] = useState(false);
+  const [showParticipantFilter, setShowParticipantFilter] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
   const [showLocationChart, setShowLocationChart] = useState(false);
@@ -504,25 +505,11 @@ export default function GroupViewPage({
                         <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
                       )}
                     <div className="lg:hidden">
-                      {!participantToggleClicked ? (
-                        <IconAdjustmentsFilled
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(!participantToggleClicked);
-                            setShowUserChart(false);
-                          }}
-                        />
-                      ) : (
-                        <IconAdjustments
-                          size={30}
-                          className="cursor-pointer dark:text-text-dark"
-                          onClick={() => {
-                            setParticipantToggleClicked(!participantToggleClicked);
-                            setShowUserChart(true);
-                          }}
-                        />
-                      )}
+                      <IconAdjustments
+                        size={30}
+                        className="cursor-pointer dark:text-text-dark"
+                        onClick={() => setShowParticipantFilter(true)}
+                      />
                     </div>
                     <div className="flex items-center">
                       {isAdmin &&
@@ -616,20 +603,21 @@ export default function GroupViewPage({
             </div>
           )}
 
+          {/* Mobile Popup 1: Availability Chart (shows when hovering/clicking calendar) */}
           {chartedUsers !== undefined && (
             <div className="lg:hidden">
               <div
                 className={`
-            z-[9999]  fixed bottom-0 left-0 right-0 
-            transform transition-transform ${!participantToggleClicked ? 'duration-300' : ''} ease-in-out
-            bg-white dark:bg-secondary_background-dark shadow-lg
-            ${showUserChart ? 'translate-y-0' : 'translate-y-full'}
-            `}
+                  z-[9999] fixed bottom-0 left-0 right-0
+                  transform transition-transform duration-300 ease-in-out
+                  bg-white dark:bg-secondary_background-dark shadow-lg rounded-t-xl
+                  ${showUserChart ? 'translate-y-0' : 'translate-y-full'}
+                `}
               >
-                <div className="p-4 rounded-t-xl">
+                <div className="p-4">
                   <button
                     onClick={() => setShowUserChart(false)}
-                    className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    className="absolute top-3 right-3 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl"
                   >
                     &times;
                   </button>
@@ -644,21 +632,67 @@ export default function GroupViewPage({
                     ]}
                     calendarHeight={calendarHeight}
                   />
-
-                  <EditAvailability
-                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                    allPeople={allPeople}
-                    theParticipantToggleClicked={[
-                      participantToggleClicked,
-                      setParticipantToggleClicked,
-                    ]}
-                    calendarHeight={calendarHeight}
-                  />
                 </div>
               </div>
             </div>
           )}
+
+          {/* Mobile Popup 2: Participant Filter (shows when clicking filter icon) */}
+          <div className="lg:hidden">
+            <div
+              className={`
+                z-[9999] fixed bottom-0 left-0 right-0
+                transform transition-transform duration-300 ease-in-out
+                bg-white dark:bg-secondary_background-dark shadow-lg rounded-t-xl
+                ${showParticipantFilter ? 'translate-y-0' : 'translate-y-full'}
+              `}
+            >
+              <div className="p-4">
+                <button
+                  onClick={() => setShowParticipantFilter(false)}
+                  className="absolute top-3 right-3 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl"
+                >
+                  &times;
+                </button>
+
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  Filter Participants ({allPeople?.filter(name => peopleStatus[name]).length}/{allPeople?.length})
+                </div>
+
+                <div className="max-h-64 overflow-y-auto">
+                  {allPeople?.map((name, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 -mx-2"
+                      onClick={() => {
+                        if (allPeople.filter(person => peopleStatus[person]).length === 1 && peopleStatus[name]) {
+                          setAlertMessage("You can't remove the last participant");
+                          return;
+                        }
+                        setPeopleStatus(prev => ({
+                          ...prev,
+                          [name]: !prev[name],
+                        }));
+                      }}
+                    >
+                      <span className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+                        {name}
+                      </span>
+                      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
+                        peopleStatus[name]
+                          ? 'bg-primary border-primary'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}>
+                        {peopleStatus[name] && (
+                          <IconCheck size={14} className="text-white" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
