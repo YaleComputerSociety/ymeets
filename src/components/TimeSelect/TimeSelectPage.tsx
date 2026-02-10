@@ -198,6 +198,10 @@ function TimeSelectPage({
 
   useEffect(() => {
     if (!isGeneralDays) return;
+    if (calendarFramework.dates.length === 0) return;
+
+    const startDate = calendarFramework.dates[0]?.[0]?.date;
+    if (!startDate || startDate.getFullYear() !== 2000) return;
 
     // you need to injet dates into each column so later on
     const today = new Date();
@@ -244,7 +248,7 @@ function TimeSelectPage({
       ...prev,
       dates: updatedDates,
     }));
-  }, [isGeneralDays]);
+  }, [isGeneralDays, calendarFramework.dates]);
 
   const fetchGoogleCalEvents = async (
     calIds: string[]
@@ -252,13 +256,15 @@ function TimeSelectPage({
     if (!hasAccess || calIds.length === 0) return [];
 
     const dates = calendarFramework.dates.flat();
-    const timeMin = dates[0]?.date?.toISOString() ?? new Date().toISOString();
-    const timeMax = new Date(dates[dates.length - 1].date as Date).setUTCHours(
-      23,
-      59,
-      59,
-      999
-    );
+    const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
+
+    const startDate = new Date(Math.min(...dateTimestamps));
+    startDate.setHours(0, 0, 0, 0);
+    const timeMin = startDate.toISOString();
+
+    const endDate = new Date(Math.max(...dateTimestamps));
+    endDate.setHours(23, 59, 59, 999);
+    const timeMax = endDate.toISOString();
 
     const allEvents: calendar_v3.Schema$Event[] = [];
 
@@ -266,7 +272,7 @@ function TimeSelectPage({
       const events = await getEvents(
         calId,
         timeMin,
-        new Date(timeMax).toISOString(),
+        timeMax,
         calendarFramework.timezone
       );
 
@@ -295,6 +301,7 @@ function TimeSelectPage({
     hasAccess,
     shouldFillAvailability,
     calendarFramework.timezone,
+    calendarFramework.dates,
   ]);
 
   // Fetch the user's Google Calendars
