@@ -141,7 +141,7 @@ export default function CalBlock({
 
   //TODO: Add a useMemo funtion that computes max number of users in a single block
   // use Memo should ensure it only runs when calendarState changes
-  const maxUsers = useMemo(() => {
+  const maxUsers = useMemo<number>(() => {
     let maxCount = 0;
     const counts: number[][] = [];
 
@@ -150,11 +150,11 @@ export default function CalBlock({
 
         // create row if needed
         if (!counts[j]) {
-          counts[j] = [];
+          counts[j] = new Array(calendarState[i][j].length).fill(0);
         }
 
         for (let k = 0; k < calendarState[i][j].length; k++) {
-          if (calendarState[i][j][k] === true) {
+          if (calendarState[i][j][k]) {
             const newVal = (counts[j][k] ?? 0) + 1;
             counts[j][k] = newVal;
 
