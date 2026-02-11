@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   calanderState,
@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _ from 'lodash';
+import _, { max } from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -138,12 +138,45 @@ export default function CalBlock({
     return theme === 'light' ? 'white' : '#2d3748';
   }, [theme, calendarFramework]);
 
+
+  //TODO: Add a useMemo funtion that computes max number of users in a single block
+  // use Memo should ensure it only runs when calendarState changes
+  const maxUsers = useMemo(() => {
+    let maxCount = 0;
+    const counts: number[][] = [];
+
+    for (let i = 0; i < calendarState.length; i++) {
+      for (let j = 0; j < calendarState[i].length; j++) {
+
+        // create row if needed
+        if (!counts[j]) {
+          counts[j] = [];
+        }
+
+        for (let k = 0; k < calendarState[i][j].length; k++) {
+          if (calendarState[i][j][k] === true) {
+            const newVal = (counts[j][k] ?? 0) + 1;
+            counts[j][k] = newVal;
+
+            if (newVal > maxCount) {
+              maxCount = newVal;
+            }
+            
+          }
+        }
+      }
+      
+    }
+    return maxCount;
+    
+  }, [calendarState]); // might depend on more than calander state
+   
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
       return getDefaultColor();
     }
     let selectedCount = 0;
-    const totalUsers = chartedUsers?.users.length || 0;
+    // const totalUsers = chartedUsers?.users.length || 0;
 
     for (let i = 0; i < calendarState.length; i++) {
       if (
@@ -158,7 +191,8 @@ export default function CalBlock({
       return getDefaultColor();
     }
 
-    const percentageSelected = selectedCount / totalUsers;
+    const percentageSelected = selectedCount / maxUsers; //selectedCount / totalUsers;
+
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
   }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
 

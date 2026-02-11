@@ -135,6 +135,7 @@ function TimeSelectPage({
     setPromptUserForLogin(false);
     window.location.reload();
   };
+  
   const [dragState, setDragState] = useState<dragProperties>({
     isSelecting: false,
     startPoint: null,
