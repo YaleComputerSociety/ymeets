@@ -10,7 +10,7 @@ class TrieNode {
   isWord = false;
 }
 
-export class Trie {
+class Trie {
   private root = new TrieNode();
 
   insert(word: string): void {
@@ -63,65 +63,65 @@ export class Trie {
 export default function SearchBar() {
     const [search, setSearch] = useState('');
     const [invites, setInvites] = useState<string[]>([]);
-    const [emails, setEmails] = useState<string[]>([]);
+    //const [emails, setEmails] = useState<string[]>([]);
 
     // Dunno if this works
-    async function fetchEmails(): Promise<string[]> {
-        const ref = doc(db, "repositories", "studentData"); // whereever it is
-        const snap = await getDoc(ref);
+    // async function fetchEmails(): Promise<string[]> {
+    //     const ref = doc(db, "repositories", "studentData"); // whereever it is
+    //     const snap = await getDoc(ref);
 
-        if (!snap.exists()) return [];
+    //     if (!snap.exists()) return [];
 
-        const data = snap.data();
-        return Array.isArray(data.emails) ? (data.emails as string[]) : [];
-    }
+    //     const data = snap.data();
+    //     return Array.isArray(data.emails) ? (data.emails as string[]) : [];
+    // }
 
-    useEffect(() => {
-        fetchEmails().then(setEmails);
-    }, []);
+    // useEffect(() => {
+    //     fetchEmails().then(setEmails);
+    // }, []);
 
     // get all emails from firebase database
     // TODO: figure out database stuff
     //const emails: string[] = [];
 
-    // const emails: string[] = [
-    //     "alice@yale.edu",
-    //     "bob@yale.edu",
-    //     "carol@yale.edu",
-    //     "david@yale.edu",
-    //     "emma@yale.edu",
-    //     "frank@gmail.com",
-    //     "grace@gmail.com",
-    //     "henry@gmail.com",
-    //     "isabel@yahoo.com",
-    //     "jack@yahoo.com",
-    //     "karen@outlook.com",
-    //     "leo@outlook.com",
-    //     "mia@proton.me",
-    //     "noah@proton.me",
-    //     "olivia@icloud.com",
-    //     "paul@icloud.com",
-    //     "quinn@mit.edu",
-    //     "rachel@stanford.edu",
-    //     "sam@harvard.edu",
-    //     "tina@berkeley.edu",
-    //     "alex@yale.edu",
-    //     "alex1@yale.edu",
-    //     "alex2@yale.edu",
-    //     "alex3@yale.edu",
-    //     "alex4@yale.edu",
-    //     "alex5@yale.edu",
-    //     "alex6@yale.edu",
-    //     "alex7@yale.edu",
-    //     "alex8@yale.edu",
-    //     "alex9@yale.edu",
-    //     "alexander@yale.edu",
-    //     "alexandra@yale.edu",
-    //     "alexandria@yale.edu",
-    //     "alexis@yale.edu",
-    //     "alexis1@yale.edu",
-    //     "alexis2@yale.edu"
-    //     ];
+    const emails: string[] = [
+        "alice@yale.edu",
+        "bob@yale.edu",
+        "carol@yale.edu",
+        "david@yale.edu",
+        "emma@yale.edu",
+        "frank@gmail.com",
+        "grace@gmail.com",
+        "henry@gmail.com",
+        "isabel@yahoo.com",
+        "jack@yahoo.com",
+        "karen@outlook.com",
+        "leo@outlook.com",
+        "mia@proton.me",
+        "noah@proton.me",
+        "olivia@icloud.com",
+        "paul@icloud.com",
+        "quinn@mit.edu",
+        "rachel@stanford.edu",
+        "sam@harvard.edu",
+        "tina@berkeley.edu",
+        "alex@yale.edu",
+        "alex1@yale.edu",
+        "alex2@yale.edu",
+        "alex3@yale.edu",
+        "alex4@yale.edu",
+        "alex5@yale.edu",
+        "alex6@yale.edu",
+        "alex7@yale.edu",
+        "alex8@yale.edu",
+        "alex9@yale.edu",
+        "alexander@yale.edu",
+        "alexandra@yale.edu",
+        "alexandria@yale.edu",
+        "alexis@yale.edu",
+        "alexis1@yale.edu",
+        "alexis2@yale.edu"
+        ];
 
     // useMemo to prevent reinserting everything every refresh
     const trie = useMemo(() => {

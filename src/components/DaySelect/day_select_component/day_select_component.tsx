@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
-import searchBar from './searchbar';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
+import SearchBar from './searchbar';
+
 import { 
   getAccountId, 
   getAccountName, 
@@ -22,7 +23,7 @@ import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
-import SearchBar from './searchbar';
+
 
 export const DaySelectComponent = () => {
   const location = useLocation();
