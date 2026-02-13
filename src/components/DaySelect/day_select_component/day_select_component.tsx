@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
-import searchBar from './searchbar';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
 import { 
@@ -22,7 +21,6 @@ import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
-import SearchBar from './searchbar';
 
 export const DaySelectComponent = () => {
   const location = useLocation();
@@ -421,16 +419,6 @@ export const DaySelectComponent = () => {
                   onChange={(e) => setEventName(e.target.value)}
                   maxLength={40}
                 />
-
-                <label
-                  htmlFor="event-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Emails of Attendees
-                </label>
-
-                <SearchBar/>
-
               </div>
 
               <div className="space-y-2">
