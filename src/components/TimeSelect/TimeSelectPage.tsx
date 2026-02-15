@@ -252,7 +252,10 @@ function TimeSelectPage({
   const fetchGoogleCalEvents = async (
     calIds: string[]
   ): Promise<calendar_v3.Schema$Event[]> => {
-    if (!hasAccess || calIds.length === 0) return [];
+    if (!hasAccess || calIds.length === 0) { 
+      setGoogleCalendarEvents([]);
+      return [];
+    }
 
     const dates = calendarFramework.dates.flat();
     const timeMin = dates[0]?.date?.toISOString() ?? new Date().toISOString();
@@ -289,7 +292,7 @@ function TimeSelectPage({
   };
 
   useEffect(() => {
-    if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
+    if (hasAccess && idsOfCurrentlySelectedGCals?.length !== undefined) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals);
     }
   }, [
