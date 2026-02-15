@@ -19,13 +19,13 @@ interface TutorialSlide {
 }
 
 const tutorialSlides: TutorialSlide[] = [
-  {
-    id: 'welcome',
-    title: 'Welcome to ymeets',
-    description:
-      'The easiest way to find a time that works for everyone. Let us show you how it works.',
-    media: { type: 'video', src: stock_meeting_gif, alt: 'ymeets overview' },
-  },
+  // {
+  //   id: 'welcome',
+  //   title: 'Welcome to ymeets',
+  //   description:
+  //     'The easiest way to find a time that works for everyone. Let us show you how it works.',
+  //   media: { type: 'video', src: stock_meeting_gif, alt: 'ymeets overview' },
+  // },
   {
     id: 'create',
     title: 'Create Your Event',
@@ -47,13 +47,13 @@ const tutorialSlides: TutorialSlide[] = [
       'See when everyone is free at a glance. Hover over names for details, then export your meeting to Google Calendar.',
     media: { type: 'video', src: group_view_vid, alt: 'Viewing availability' },
   },
-  {
-    id: 'done',
-    title: "You're All Set!",
-    description:
-      'Access all your events from "My Events" in the navigation. Happy scheduling!',
-    media: { type: 'video', src: delete_vid, alt: 'My Events' },
-  },
+  // {
+  //   id: 'done',
+  //   title: "You're All Set!",
+  //   description:
+  //     'Access all your events from "My Events" in the navigation. Happy scheduling!',
+  //   media: { type: 'video', src: delete_vid, alt: 'My Events' },
+  // },
 ];
 
 export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
