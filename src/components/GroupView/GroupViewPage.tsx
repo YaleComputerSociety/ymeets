@@ -165,6 +165,20 @@ export default function GroupViewPage({
     [createCalendarEventUrl]
   );
 
+  const today = new Date();
+    const getNextDayOccurrence = (targetDayNum: number): Date => {
+      const date = new Date(today);
+      const currentDayNum = today.getDay();
+
+      let daysToAdd = targetDayNum - currentDayNum;
+      if (daysToAdd <= 0) {
+        daysToAdd += 7;
+      }
+
+      date.setDate(date.getDate() + daysToAdd);
+      return date;
+    };
+
   async function handleSelectionSubmission() {
     if (!dragState.endPoint || !dragState.startPoint) {
       setAlertMessage('No new time selection made!');
@@ -197,11 +211,17 @@ export default function GroupViewPage({
       ? selectedEndTimeHHMM.split(':').map(Number)
       : [0, 0];
 
-    const selectedStartTimeDateObject = new Date(calDate?.date!);
+    let selectedStartTimeDateObject = new Date(calDate?.date!);
+    if (selectedStartTimeDateObject.getFullYear() === 2000) {
+      selectedStartTimeDateObject = getNextDayOccurrence(selectedStartTimeDateObject.getDay());
+    }
     selectedStartTimeDateObject.setHours(startHour);
     selectedStartTimeDateObject.setMinutes(startMinute);
 
-    const selectedEndTimeDateObject = new Date(calDate?.date!);
+    let selectedEndTimeDateObject = new Date(calDate?.date!);
+    if (selectedEndTimeDateObject.getFullYear() === 2000) {
+      selectedEndTimeDateObject = getNextDayOccurrence(selectedEndTimeDateObject.getDay());
+    }
 
     endMinute += 15;
     if (endMinute == 60) {
@@ -395,28 +415,22 @@ export default function GroupViewPage({
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
-                {/* Mobile layout - buttons row */}
-                <div className="flex flex-col md:hidden w-full mb-3">
-                  <div className="flex items-center justify-center gap-3 w-full mb-3">
-                    <ButtonSmall
-                      bgColor="primary"
-                      textColor="white"
-                      onClick={toggleEditing}
-                      className="!rounded-lg"
-                    >
-                      {editAvailabilityButtonLabel}
-                    </ButtonSmall>
-                    {isAdmin && (
-                      <ButtonSmall
-                        bgColor="secondary"
-                        textColor="white"
-                        onClick={() => nav(`/edit/${code}`)}
-                        className="!rounded-lg"
-                      >
-                        Edit Event
-                      </ButtonSmall>
+                {/* Mobile layout - match edit mode */}
+                <div className="flex md:hidden items-center gap-3 w-full mb-4">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={toggleEditing}
+                    className="!rounded-lg"
+                  >
+                    {isEditing
+                      ? 'View Availabilities'
+                      : 'Edit Your Availability'}
+                  </ButtonSmall>
+                  {isAdmin && (
+                      <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
                     )}
-                  </div>
+                  
                   {/* Timezone and Export row */}
                   <div className="flex items-center gap-3 w-full">
                     <div className="flex-1">
@@ -539,10 +553,7 @@ export default function GroupViewPage({
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                 draggable={
-                  isAdmin &&
-                  calendarFramework?.dates?.[0][0].date instanceof Date &&
-                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                    2000
+                  isAdmin
                 }
                 user={getCurrentUserIndex()}
                 isAdmin={isAdmin}
