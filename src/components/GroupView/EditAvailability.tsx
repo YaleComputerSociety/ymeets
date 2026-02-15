@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import ChartRow from './UserChartRow';
 import { userData } from '../../types';
 import {
@@ -45,6 +45,8 @@ const EditAvailability: React.FC<EditAvailabilityProps> = ({
 
 
   const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const [maxHeight, setMaxHeight] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const maxRows = Math.max(
     chartedUsers.available.length,
     chartedUsers.unavailable.length
@@ -77,6 +79,30 @@ const EditAvailability: React.FC<EditAvailabilityProps> = ({
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
+  useLayoutEffect(() => {
+    if (!calendarHeight || !containerRef.current) return;
+
+    const updateMaxHeight = () => {
+      if (!containerRef.current) return;
+      const calendarEl = document.getElementById('cal');
+      if (!calendarEl) return;
+
+      const calendarBottom = calendarEl.getBoundingClientRect().bottom;
+      const editTop = containerRef.current.getBoundingClientRect().top;
+      const nextMaxHeight = calendarBottom - editTop;
+      setMaxHeight(nextMaxHeight > 0 ? nextMaxHeight : null);
+    };
+
+    updateMaxHeight();
+    window.addEventListener('resize', updateMaxHeight);
+    window.addEventListener('scroll', updateMaxHeight, true);
+
+    return () => {
+      window.removeEventListener('resize', updateMaxHeight);
+      window.removeEventListener('scroll', updateMaxHeight, true);
+    };
+  }, [calendarHeight, allPeople.length, participantToggleClicked]);
+
   return (
       <div className="relative">
         {alertMessage && (
@@ -87,7 +113,11 @@ const EditAvailability: React.FC<EditAvailabilityProps> = ({
             onClose={() => setAlertMessage(null)}
           />
         )}
-        <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
+        <div
+          ref={containerRef}
+          className="flex flex-row text-md justify-center z-[9999] items-start text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto"
+          style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
+        >
           {!participantToggleClicked && !chartedUsers.hovering && (
             <div className="flex flex-col">
               <div className="m-2 text-md font-bold dark:text-text-dark">
