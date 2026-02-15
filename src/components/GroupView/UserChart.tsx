@@ -23,6 +23,7 @@ interface UserChartProps {
     boolean,
     React.Dispatch<React.SetStateAction<boolean>>,
   ];
+  calendarHeight: number | null;
 }
 
 /**
@@ -37,6 +38,7 @@ const UserChart: React.FC<UserChartProps> = ({
   allPeople,
   thePeopleStatus,
   theParticipantToggleClicked,
+  calendarHeight
 }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData || [
     { available: [], unavailable: [] },
@@ -48,10 +50,16 @@ const UserChart: React.FC<UserChartProps> = ({
   const [participantToggleClicked, setParticipantToggleClicked] =
     theParticipantToggleClicked;
 
-  const numRows = Math.max(
+
+  const [rowHeight, setRowHeight] = useState<number | null>(null);
+  const maxRows = Math.max(
     chartedUsers.available.length,
     chartedUsers.unavailable.length
   );
+  const numRows =
+    rowHeight && calendarHeight
+      ? Math.min(maxRows, Math.max(1, Math.floor(calendarHeight / rowHeight)))
+      : maxRows;
 
   const rows: Array<[string, string]> = Array.from(
     { length: numRows },
@@ -60,6 +68,27 @@ const UserChart: React.FC<UserChartProps> = ({
       chartedUsers.unavailable[i]?.name || '',
     ]
   );
+
+
+  // if (chartedUsers.available.length > numRows || chartedUsers.unavailable.length > numRows) {
+  //   rows.push([
+  //     ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
+  //     ((chartedUsers.unavailable.length - numRows) > 0) ? `...and ${(chartedUsers.unavailable.length - numRows)} more` : '',
+  //   ]);
+  // }
+
+  if (chartedUsers.available.length > numRows) {
+    rows[numRows - 1][0] = `...and ${
+      chartedUsers.available.length - (numRows - 1)
+    } more`;
+  }
+
+  if (chartedUsers.unavailable.length > numRows) {
+    rows[numRows - 1][1] = `...and ${
+      chartedUsers.unavailable.length - (numRows - 1)
+    } more`;
+  }
+  
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
@@ -74,14 +103,13 @@ const UserChart: React.FC<UserChartProps> = ({
         />
       )}
       <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
-        {participantToggleClicked ? (
+         
           <table className="table-fixed border-collapse w-full">
+            
             <thead>
               <tr>
-                <th className="border-b p-3 text-primary">Available</th>
-                <th className="border-b p-3 text-text dark:text-text-dark">
-                  Unavailable
-                </th>
+                <th className="border-b p-3 text-primary" dangerouslySetInnerHTML={{__html: "Available (" + String(chartedUsers.available.length) + ")"}}></th>
+                <th className="border-b p-3 text-text dark:text-text-dark" dangerouslySetInnerHTML={{__html: "Unvailable (" + String(chartedUsers.unavailable.length) + ")"}}></th>
               </tr>
             </thead>
             <tbody>
@@ -89,64 +117,20 @@ const UserChart: React.FC<UserChartProps> = ({
                 <ChartRow
                   available={available}
                   key={idx} // Correctly placed key
+                  onHeightMeasured={
+                    idx === 0
+                      ? (height) => {
+                          if (rowHeight === null) setRowHeight(height);
+                        }
+                      : undefined
+                  }
                   unavailable={unavailable}
                 />
               ))}
+
             </tbody>
           </table>
-        ) : (
-          <div className="flex flex-col">
-            <div className="m-2 text-md font-bold dark:text-text-dark">
-              Edit Participants
-            </div>
-            {allPeople?.map((name, idx) => (
-              <div
-                key={idx} // Move key to the outermost div
-                className="flex flex-row justify-between items-center dark:text-text-dark"
-              >
-                <div
-                  className={`p-2 ${
-                    peoepleStatus[name] === true ? 'opacity-100' : 'opacity-50'
-                  }`}
-                >
-                  {name}
-                </div>
-                {!peoepleStatus[name] ? (
-                  <IconSquare
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setPeopleStatus((prev) => ({
-                        ...prev,
-                        [name]: !prev[name],
-                      }))
-                    }
-                  />
-                ) : (
-                  <IconSquareCheck
-                    className="cursor-pointer"
-                    onClick={() => {
-                      if (
-                        allPeople.filter((person) => peoepleStatus[person])
-                          .length === 1 &&
-                        peoepleStatus[name]
-                      ) {
-                        setAlertMessage(
-                          "You can't remove the last participant"
-                        ); // Replace alert with AlertPopup
-                        return;
-                      }
-                      setPeopleStatus((prev) => ({
-                        ...prev,
-                        [name]: !prev[name],
-                      }));
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+    </div>
     </div>
   );
 };

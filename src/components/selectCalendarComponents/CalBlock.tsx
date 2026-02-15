@@ -89,6 +89,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : false,
       });
     }
   }, []);
@@ -274,6 +275,7 @@ export default function CalBlock({
       userIDs: chartedUsers.userIDs,
       available: availableUsers,
       unavailable: unavailableUsers,
+      hovering : true,
     });
   }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
@@ -316,6 +318,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: availableUsers,
         unavailable: unavailableUsers,
+        hovering : true,
       });
     },
     [chartedUsers, setChartedUsers, calendarState]
@@ -328,6 +331,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : true,
       });
     }
   }, [chartedUsers, setChartedUsers]);

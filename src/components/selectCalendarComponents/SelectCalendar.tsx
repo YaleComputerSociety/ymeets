@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { 
+  Dispatch,
+  SetStateAction,
+  } from 'react';
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
@@ -52,6 +55,8 @@ interface SelectCalanderProps {
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
+  setChartedUsers?: Dispatch<SetStateAction<userData>>;
+  chartedUsers?: userData;
 }
 
 function SelectCalander({
@@ -70,6 +75,8 @@ function SelectCalander({
   onClick,
   theShowUserChart,
   isGeneralDays,
+  setChartedUsers,
+  chartedUsers,
 }: SelectCalanderProps) {
   const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
@@ -83,6 +90,18 @@ function SelectCalander({
 
   const [dragState, setDragState] = theDragState;
 
+const handleDisappear = useCallback(() => {
+        if (chartedUsers && setChartedUsers) {
+          setChartedUsers({
+            users: chartedUsers.users,
+            userIDs: chartedUsers.userIDs,
+            available: [],
+            unavailable: [...chartedUsers.users],
+            hovering : false,
+          });
+        }
+      }, [chartedUsers, setChartedUsers]);
+
   const handleMouseLeave = useCallback(
     (event: MouseEvent) => {
       if (
@@ -91,9 +110,12 @@ function SelectCalander({
       ) {
         setDragState((prev) => ({ ...prev, isSelecting: false }));
       }
+      handleDisappear();
     },
     [setDragState]
   );
+
+
 
   useEffect(() => {
     const calendar = calendarRef.current;

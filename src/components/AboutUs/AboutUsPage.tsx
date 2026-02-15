@@ -24,7 +24,7 @@ import SHANKARA from './Shankara_Headshot.jpeg';
 import HAWA from './Hawa.jpeg';
 import JULIEN from './Julien.jpeg';
 import NIKITA from './Nikita.jpeg';
-import JEET from './Jeet_Headshot.jpg';
+import JEET from './Jeet_Headshot_2.jpg';
 import RYLAN from './Rylan_Headshot.jpg';
 import JAMES from './James.jpg';
 import RONALD from './Ronald.png';
@@ -51,15 +51,6 @@ const CURR_CONTRIBUTORS = [
   },
 
   {
-    name: 'Hawa Khalif',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
-    github: 'https://github.com/hawakhalif',
-    image: HAWA,
-  },
-
-  {
     name: 'James Masson',
     title: ['Software Engineer'],
     founding: false,
@@ -72,7 +63,8 @@ const CURR_CONTRIBUTORS = [
     name: 'Ronald Milgo',
     title: ['Software Engineer'],
     founding: false,
-    linkedin: 'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
+    linkedin:
+      'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
     github: undefined,
     image: RONALD,
   },
@@ -94,21 +86,47 @@ const CURR_CONTRIBUTORS = [
     github: 'https://github.com/JulienTD23',
     image: JULIEN,
   },
-
-  
 ];
 
 const PAST_CONTRIBUTORS = [
   {
-    name: 'Shankara Abbineni',
+    name: 'Hawa Khalif',
     title: ['Software Engineer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/shankaraabbineni/',
-    github: 'https://github.com/SAbbineni24',
-    portfolio: undefined,
-    image: SHANKARA,
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/hawa-khalif-44a788241/',
+    github: 'https://github.com/hawakhalif',
+    image: HAWA,
   },
-  
+
+  {
+    name: 'Nikita Saitov',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
+    github: 'https://github.com/niksaitov',
+    image: NIKITA,
+  },
+
+  {
+    name: 'Lily Lin',
+    title: ['UI/UX Designer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
+    portfolio: undefined,
+    github: undefined,
+    image: LILY,
+  },
+
+  {
+    name: 'Nicholas Ribeiro',
+    title: ['Software Engineer', 'Former Lead'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
+    portfolio: 'http://www.nicholasjribeiro.com/',
+    github: 'https://github.com/nickribs1',
+    image: NICK,
+  },
+
   {
     name: 'Ron Cheng',
     title: ['Software Engineer', 'UI/UX Designer'],
@@ -117,6 +135,16 @@ const PAST_CONTRIBUTORS = [
     portfolio: undefined,
     github: 'https://github.com/rcheng11',
     image: RON,
+  },
+
+  {
+    name: 'Shankara Abbineni',
+    title: ['Software Engineer'],
+    founding: true,
+    linkedin: 'https://www.linkedin.com/in/shankaraabbineni/',
+    github: 'https://github.com/SAbbineni24',
+    portfolio: undefined,
+    image: SHANKARA,
   },
 
   {
@@ -129,19 +157,9 @@ const PAST_CONTRIBUTORS = [
     image: JIAKANG,
   },
 
-    {
-    name: 'Lily Lin',
-    title: ['UI/UX Designer'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/lily-lin-a0565b214/',
-    portfolio: undefined,
-    github: undefined,
-    image: LILY,
-  },
-
   {
     name: 'Ethan Mathieu',
-    title: ['Senior Software Engineer', 'Former Lead'],
+    title: ['Software Engineer', 'Former Lead'],
     founding: true,
     linkedin: 'https://www.linkedin.com/in/ethan-mathieu/',
     github: 'https://github.com/emath12',
@@ -156,26 +174,6 @@ const PAST_CONTRIBUTORS = [
     portfolio: undefined,
     github: undefined,
     image: LAILAH,
-  },
-
-
-  {
-    name: 'Nicholas Ribeiro',
-    title: ['Senior Software Engineer', 'Former Lead'],
-    founding: true,
-    linkedin: 'https://www.linkedin.com/in/nicholas-ribeiro1/',
-    portfolio: 'http://www.nicholasjribeiro.com/',
-    github: 'https://github.com/nickribs1',
-    image: NICK,
-  },
-
-  {
-    name: 'Nikita Saitov',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/nikita-saitov-bb8648331/',
-    github: 'https://github.com/niksaitov',
-    image: NIKITA,
   },
 
   {
@@ -197,7 +195,6 @@ const PAST_CONTRIBUTORS = [
     image: ALAN,
     portfolio: undefined,
   },
-
 ];
 
 interface ContributorCardProps {
@@ -356,7 +353,7 @@ export default function AboutUsPage() {
         <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
         <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
           {PAST_CONTRIBUTORS.filter(
-            (c) => c.name === 'Ethan Mathieu' || c.name === 'Nicholas Ribeiro'
+            (c) => c.name === 'Ethan Mathieu' || c.name === 'Rome Thorstenson'
           ).map((c) => (
             <ContributorCard
               key={c.name}
@@ -374,7 +371,7 @@ export default function AboutUsPage() {
         <h2 className="text-3xl font-bold mb-4">Developers</h2>
         <div className="grid lg:grid-cols-4 md:grid-cols-2">
           {PAST_CONTRIBUTORS.filter(
-            (c) => c.name !== 'Ethan Mathieu' && c.name !== 'Nicholas Ribeiro'
+            (c) => c.name !== 'Ethan Mathieu' && c.name !== 'Rome Thorstenson'
           ).map((c) => (
             <ContributorCard
               key={c.name}
