@@ -430,7 +430,7 @@ export default function GroupViewPage({
                   {isAdmin && (
                       <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
                     )}
-                  </div>
+                  
                   {/* Timezone and Export row */}
                   <div className="flex items-center gap-3 w-full">
                     <div className="flex-1">
