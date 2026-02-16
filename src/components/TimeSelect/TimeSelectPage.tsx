@@ -11,7 +11,6 @@ import {
   dragProperties,
 } from '../../types';
 import eventAPI from '../../backend/eventAPI';
-import { useNavigate, useParams } from 'react-router-dom';
 import {
   getAccountId,
   getAccountName,
@@ -29,14 +28,13 @@ import {
   setUserSelectedCalendarIDs,
   workingEvent,
   checkIfAdmin,
-  deleteEvent,
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
-import DeletePopup from '../utils/components/DeletePopup';
+import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
 import { getDates } from '../../backend/events';
 import {
@@ -47,7 +45,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { IconCheck, IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { get } from 'lodash';
@@ -126,8 +124,6 @@ function TimeSelectPage({
   } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
-  const nav = useNavigate();
-
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
@@ -162,8 +158,6 @@ function TimeSelectPage({
   );
 
   const [showSlowMessage, setShowSlowMessage] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -172,32 +166,6 @@ function TimeSelectPage({
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (isMenuOpen) {
-      const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as Node;
-        const menuButton = document.getElementById('event-menu-button');
-        const menuDropdown = document.getElementById('event-menu-dropdown');
-
-        if (!menuButton?.contains(target) && !menuDropdown?.contains(target)) {
-          setIsMenuOpen(false);
-        }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isMenuOpen]);
-
-  const handleDeleteEvent = async () => {
-    if (code) {
-      await deleteEvent(code);
-      nav('/');
-    }
-  };
 
   // New state to track if calendar scope request is in progress
   const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
@@ -606,45 +574,7 @@ function TimeSelectPage({
               >
                 {eventName}
               </div>
-              {checkIfAdmin() && (
-                <div className="relative flex-shrink-0">
-                  <button
-                    id="event-menu-button"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    aria-label="Event options"
-                  >
-                    <IconDotsVertical size={20} className="text-gray-500 dark:text-gray-400" />
-                  </button>
-                  {isMenuOpen && (
-                    <div
-                      id="event-menu-dropdown"
-                      className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
-                    >
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          nav(`/edit/${code}`);
-                        }}
-                        className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-                      >
-                        <IconPencil size={16} />
-                        Edit Event
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setShowDeletePopup(true);
-                        }}
-                        className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
-                      >
-                        <IconTrash size={16} />
-                        Delete Event
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              {checkIfAdmin() && <EventOptionsMenu eventCode={code} />}
             </div>
             {eventDescription && (
               <div
@@ -997,14 +927,6 @@ function TimeSelectPage({
           code={code || ''}
         />
       )}
-
-      <DeletePopup
-        title="Delete Event"
-        message="Are you sure you want to delete this event? This action cannot be undone."
-        isOpen={showDeletePopup}
-        onConfirm={handleDeleteEvent}
-        onCancel={() => setShowDeletePopup(false)}
-      />
     </div>
   );
 }

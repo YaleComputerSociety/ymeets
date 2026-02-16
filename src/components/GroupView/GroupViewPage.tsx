@@ -25,7 +25,6 @@ import {
   getEmailAdmin,
   setEmailAdmin,
 } from '../../backend/events';
-import { useNavigate } from 'react-router-dom';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
 import EditAvailability from './EditAvailability';
@@ -40,18 +39,12 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import {
-  IconDotsVertical,
-  IconPencil,
-  IconTrash,
-  IconCheck,
-} from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
-import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
+import { IconAdjustments } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
-import DeletePopup from '../utils/components/DeletePopup';
+import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
-import { deleteEvent } from '../../backend/events';
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -122,8 +115,6 @@ export default function GroupViewPage({
 }) {
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
   const [showLocationChart, setShowLocationChart] = useState(false);
@@ -138,34 +129,6 @@ export default function GroupViewPage({
   });
 
   const { login, currentUser } = useAuth();
-
-  const nav = useNavigate();
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (isMenuOpen) {
-      const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as Node;
-        const menuButton = document.getElementById('event-menu-button');
-        const menuDropdown = document.getElementById('event-menu-dropdown');
-
-        if (!menuButton?.contains(target) && !menuDropdown?.contains(target)) {
-          setIsMenuOpen(false);
-        }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isMenuOpen]);
-
-  const handleDeleteEvent = async () => {
-    if (code) {
-      await deleteEvent(code);
-      nav('/');
-    }
-  };
 
   const createCalendarEventUrl = useCallback((event: any) => {
     const startDateTime = new Date(event.start.dateTime)
@@ -332,48 +295,7 @@ export default function GroupViewPage({
                 >
                   {eventName}
                 </div>
-                {isAdmin && (
-                  <div className="relative flex-shrink-0">
-                    <button
-                      id="event-menu-button"
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                      aria-label="Event options"
-                    >
-                      <IconDotsVertical
-                        size={20}
-                        className="text-gray-500 dark:text-gray-400"
-                      />
-                    </button>
-                    {isMenuOpen && (
-                      <div
-                        id="event-menu-dropdown"
-                        className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
-                      >
-                        <button
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            nav(`/edit/${code}`);
-                          }}
-                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-                        >
-                          <IconPencil size={16} />
-                          Edit Event
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            setShowDeletePopup(true);
-                          }}
-                          className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
-                        >
-                          <IconTrash size={16} />
-                          Delete Event
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {isAdmin && <EventOptionsMenu eventCode={code} />}
               </div>
               {eventDescription && (
                 <div
@@ -809,14 +731,6 @@ export default function GroupViewPage({
           isLogin={false}
         />
       )}
-
-      <DeletePopup
-        title="Delete Event"
-        message="Are you sure you want to delete this event? This action cannot be undone."
-        isOpen={showDeletePopup}
-        onConfirm={handleDeleteEvent}
-        onCancel={() => setShowDeletePopup(false)}
-      />
     </div>
   );
 }
