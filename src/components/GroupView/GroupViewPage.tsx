@@ -40,11 +40,18 @@ import { useContext } from 'react';
 import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
-import { IconPencil, IconPlus, IconCheck } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconPencil,
+  IconTrash,
+  IconCheck,
+} from '@tabler/icons-react';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments, IconAdjustmentsFilled } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
+import DeletePopup from '../utils/components/DeletePopup';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
+import { deleteEvent } from '../../backend/events';
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -115,6 +122,8 @@ export default function GroupViewPage({
 }) {
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
   const [showLocationChart, setShowLocationChart] = useState(false);
@@ -131,6 +140,32 @@ export default function GroupViewPage({
   const { login, currentUser } = useAuth();
 
   const nav = useNavigate();
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (isMenuOpen) {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Node;
+        const menuButton = document.getElementById('event-menu-button');
+        const menuDropdown = document.getElementById('event-menu-dropdown');
+
+        if (!menuButton?.contains(target) && !menuDropdown?.contains(target)) {
+          setIsMenuOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isMenuOpen]);
+
+  const handleDeleteEvent = async () => {
+    if (code) {
+      await deleteEvent(code);
+      nav('/');
+    }
+  };
 
   const createCalendarEventUrl = useCallback((event: any) => {
     const startDateTime = new Date(event.start.dateTime)
@@ -265,8 +300,6 @@ export default function GroupViewPage({
     );
   }
 
-
-
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* Render AlertPopup unconditionally */}
@@ -280,21 +313,75 @@ export default function GroupViewPage({
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
           className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3"
-          style={calendarHeight ? { maxHeight: calendarHeight + 60, height: 'fit-content' } : undefined}
+          style={
+            calendarHeight
+              ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
+              : undefined
+          }
         >
           {/* Event Title & Description */}
           {!chartedUsers.hovering && (
             <div className="w-full">
-              <div
-                className="text-3xl font-bold text-center lg:text-left"
-                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-              >
-                {eventName}
+              <div className="flex items-start justify-between gap-2">
+                <div
+                  className="text-3xl font-bold text-center lg:text-left flex-1 min-w-0"
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                >
+                  {eventName}
+                </div>
+                {isAdmin && (
+                  <div className="relative flex-shrink-0">
+                    <button
+                      id="event-menu-button"
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      aria-label="Event options"
+                    >
+                      <IconDotsVertical
+                        size={20}
+                        className="text-gray-500 dark:text-gray-400"
+                      />
+                    </button>
+                    {isMenuOpen && (
+                      <div
+                        id="event-menu-dropdown"
+                        className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+                      >
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            nav(`/edit/${code}`);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
+                        >
+                          <IconPencil size={16} />
+                          Edit Event
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setShowDeletePopup(true);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                        >
+                          <IconTrash size={16} />
+                          Delete Event
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               {eventDescription && (
                 <div
                   className="text-base text-gray-600 dark:text-gray-400 text-center lg:text-left mt-1"
-                  style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
                 >
                   {eventDescription}
                 </div>
@@ -313,15 +400,6 @@ export default function GroupViewPage({
               >
                 {editAvailabilityButtonLabel}
               </ButtonSmall>
-              {isAdmin && (
-                <button
-                  onClick={() => nav(`/edit/${code}`)}
-                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
-                  title="Edit Event"
-                >
-                  <IconPencil size={18} />
-                </button>
-              )}
             </div>
           )}
 
@@ -384,7 +462,9 @@ export default function GroupViewPage({
           {!chartedUsers.hovering && allPeople && allPeople.length > 0 && (
             <div className="hidden lg:flex lg:flex-col w-full flex-1 min-h-0">
               <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex-shrink-0">
-                Participants ({allPeople.filter(name => peopleStatus[name]).length}/{allPeople.length})
+                Participants (
+                {allPeople.filter((name) => peopleStatus[name]).length}/
+                {allPeople.length})
               </div>
               <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-y-auto flex-1">
                 {allPeople.map((name, idx) => (
@@ -392,24 +472,34 @@ export default function GroupViewPage({
                     key={idx}
                     className="flex items-center justify-between py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mx-1"
                     onClick={() => {
-                      if (allPeople.filter(person => peopleStatus[person]).length === 1 && peopleStatus[name]) {
-                        setAlertMessage("You can't remove the last participant");
+                      if (
+                        allPeople.filter((person) => peopleStatus[person])
+                          .length === 1 &&
+                        peopleStatus[name]
+                      ) {
+                        setAlertMessage(
+                          "You can't remove the last participant"
+                        );
                         return;
                       }
-                      setPeopleStatus(prev => ({
+                      setPeopleStatus((prev) => ({
                         ...prev,
                         [name]: !prev[name],
                       }));
                     }}
                   >
-                    <span className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <span
+                      className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
+                    >
                       {name}
                     </span>
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                      peopleStatus[name]
-                        ? 'bg-primary border-primary'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}>
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center ${
+                        peopleStatus[name]
+                          ? 'bg-primary border-primary'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
+                    >
                       {peopleStatus[name] && (
                         <IconCheck size={12} className="text-white" />
                       )}
@@ -472,15 +562,6 @@ export default function GroupViewPage({
                     >
                       {editAvailabilityButtonLabel}
                     </ButtonSmall>
-                    {isAdmin && (
-                      <button
-                        onClick={() => nav(`/edit/${code}`)}
-                        className="p-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
-                        title="Edit Event"
-                      >
-                        <IconPencil size={20} />
-                      </button>
-                    )}
                   </div>
                   {/* Timezone and Export row */}
                   <div className="flex items-center gap-3 w-full">
@@ -501,8 +582,12 @@ export default function GroupViewPage({
                     </div>
                     {isAdmin &&
                       calendarFramework?.dates?.[0][0].date instanceof Date &&
-                      (calendarFramework.dates[0][0].date as Date).getFullYear() !== 2000 && (
-                        <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />
+                      (
+                        calendarFramework.dates[0][0].date as Date
+                      ).getFullYear() !== 2000 && (
+                        <AddToGoogleCalendarButton
+                          onClick={handleSelectionSubmission}
+                        />
                       )}
                     <div className="lg:hidden">
                       <IconAdjustments
@@ -526,16 +611,25 @@ export default function GroupViewPage({
                 <div className="hidden md:flex w-full max-w-full items-center gap-2">
                   <div className="flex-1">
                     <TimezoneChanger
-                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
                       initialTimezone={(() => {
-                        const urlParams = new URLSearchParams(window.location.search);
+                        const urlParams = new URLSearchParams(
+                          window.location.search
+                        );
                         const urlTimezone = urlParams.get('tz');
                         return urlTimezone || getUserTimezone();
                       })()}
                     />
                   </div>
                   <div className="flex items-center space-x-2">
-                    {isAdmin ? <AddToGoogleCalendarButton onClick={handleSelectionSubmission} />: null}
+                    {isAdmin ? (
+                      <AddToGoogleCalendarButton
+                        onClick={handleSelectionSubmission}
+                      />
+                    ) : null}
                     {isAdmin &&
                       (locationOptions.length === 0 ? (
                         <InformationPopup content="NOTE: Click and drag as if you are selecting your availability to select your ideal time to meet. Then, press Export to GCal" />
@@ -656,7 +750,9 @@ export default function GroupViewPage({
                 </button>
 
                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Filter Participants ({allPeople?.filter(name => peopleStatus[name]).length}/{allPeople?.length})
+                  Filter Participants (
+                  {allPeople?.filter((name) => peopleStatus[name]).length}/
+                  {allPeople?.length})
                 </div>
 
                 <div className="max-h-64 overflow-y-auto">
@@ -665,24 +761,34 @@ export default function GroupViewPage({
                       key={idx}
                       className="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 -mx-2"
                       onClick={() => {
-                        if (allPeople.filter(person => peopleStatus[person]).length === 1 && peopleStatus[name]) {
-                          setAlertMessage("You can't remove the last participant");
+                        if (
+                          allPeople.filter((person) => peopleStatus[person])
+                            .length === 1 &&
+                          peopleStatus[name]
+                        ) {
+                          setAlertMessage(
+                            "You can't remove the last participant"
+                          );
                           return;
                         }
-                        setPeopleStatus(prev => ({
+                        setPeopleStatus((prev) => ({
                           ...prev,
                           [name]: !prev[name],
                         }));
                       }}
                     >
-                      <span className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+                      <span
+                        className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
+                      >
                         {name}
                       </span>
-                      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                        peopleStatus[name]
-                          ? 'bg-primary border-primary'
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}>
+                      <div
+                        className={`w-5 h-5 rounded border flex items-center justify-center ${
+                          peopleStatus[name]
+                            ? 'bg-primary border-primary'
+                            : 'border-gray-300 dark:border-gray-600'
+                        }`}
+                      >
                         {peopleStatus[name] && (
                           <IconCheck size={14} className="text-white" />
                         )}
@@ -703,6 +809,14 @@ export default function GroupViewPage({
           isLogin={false}
         />
       )}
+
+      <DeletePopup
+        title="Delete Event"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        isOpen={showDeletePopup}
+        onConfirm={handleDeleteEvent}
+        onCancel={() => setShowDeletePopup(false)}
+      />
     </div>
   );
 }
