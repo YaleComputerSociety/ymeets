@@ -33,21 +33,6 @@ export default function HomePage() {
     'idle' | 'sending' | 'sent' | 'error'
   >('idle');
 
-  const handleSendTestEmail = async () => {
-    setEmailStatus('sending');
-    try {
-      await sendAvailabilityUpdatedEmail('jeetparikh06@gmail.com', {
-        participantName: 'Drake Maye',
-        eventTitle: 'Team Sync Meeting',
-        eventUrl: 'http://ymeets.com/dashboard/QEEGG2',
-      });
-      setEmailStatus('sent');
-    } catch (error) {
-      console.error('Failed to send email:', error);
-      setEmailStatus('error');
-    }
-  };
-
   function formValidationPopup(message: string) {
     setShowFormValidation(true);
     setFormErrorMessage(message);
@@ -147,23 +132,6 @@ export default function HomePage() {
               </Button>
             </div>
 
-            <div className="flex justify-center md:justify-start mt-5">
-              <Button
-                bgColor="white"
-                textColor="black"
-                themeGradient={false}
-                onClick={handleSendTestEmail}
-                bolded={false}
-              >
-                {emailStatus === 'sending'
-                  ? 'Sending...'
-                  : emailStatus === 'sent'
-                    ? 'Email Sent!'
-                    : emailStatus === 'error'
-                      ? 'Failed - Retry'
-                      : 'Send Test Email'}
-              </Button>
-            </div>
           </div>
 
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
