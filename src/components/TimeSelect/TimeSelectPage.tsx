@@ -158,6 +158,7 @@ function TimeSelectPage({
   );
 
   const [showSlowMessage, setShowSlowMessage] = useState(false);
+  const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -564,6 +565,11 @@ function TimeSelectPage({
         <div
           className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3 text-text dark:text-text-dark"
+          style={
+            calendarHeight
+              ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
+              : undefined
+          }
         >
           {/* Event Title & Description */}
           <div className="w-full">
@@ -610,13 +616,13 @@ function TimeSelectPage({
           )}
 
           {/* Your Calendars Section */}
-          <div className="hidden lg:flex flex-col w-full">
+          <div className="hidden lg:flex flex-col w-full min-h-0 flex-1">
             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
               Your Calendars
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col min-h-0 flex-1">
             {currentUser && hasAccess ? (
-              <ul className="space-y-1 max-h-80 overflow-y-auto">
+              <ul className="space-y-1 overflow-y-auto">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
@@ -873,6 +879,7 @@ function TimeSelectPage({
                   setGoogleCalendarEvents,
                 ]}
                 isGeneralDays={isGeneralDays}
+                setCalendarHeight={setCalendarHeight}
               />
             </div>
           </div>
