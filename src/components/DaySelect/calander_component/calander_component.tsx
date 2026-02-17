@@ -123,6 +123,8 @@ export const CalanderComponent = ({
   dragHasMovedRef.current = dragHasMoved;
   dragStartDateRef.current = dragStartDate;
 
+
+  //Event listener for user dragging mouse
   useEffect(() => {
     if (!isDragging) return;
     const handleMouseUp = () => {
