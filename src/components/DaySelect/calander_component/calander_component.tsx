@@ -6,7 +6,7 @@ import CircleComponent from '../circle_component';
 import TimeSelectComponent from '../time_select_component';
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { checkIfLoggedIn } from '../../../backend/events';
 import GeneralPopup from '../general_popup_component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +17,34 @@ import 'react-tooltip/dist/react-tooltip.css';
 import { getDatesFromRange } from '../../utils/functions/getDatesFromRange';
 import { DateRange } from '../../../types';
 import { useTheme } from '../../../contexts/ThemeContext';
+
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function getRangePosition(
+  date: Date,
+  selectedDates: Date[]
+): { isRangeStart: boolean; isRangeEnd: boolean } {
+  const isSelected = selectedDates.some((d) => isSameDay(d, date));
+  if (!isSelected) {
+    return { isRangeStart: false, isRangeEnd: false };
+  }
+  const prevDay = new Date(date);
+  prevDay.setDate(prevDay.getDate() - 1);
+  const nextDay = new Date(date);
+  nextDay.setDate(nextDay.getDate() + 1);
+  const prevSelected = selectedDates.some((d) => isSameDay(d, prevDay));
+  const nextSelected = selectedDates.some((d) => isSameDay(d, nextDay));
+  return {
+    isRangeStart: !prevSelected,
+    isRangeEnd: !nextSelected,
+  };
+}
 
 interface CalanderComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -85,6 +113,45 @@ export const CalanderComponent = ({
 
   const [selectedDates, setSelectedDates] = theSelectedDates;
   const [lastSelectedDate, setLastSelectedDate] = useState<Date | null>(null);
+
+  // Drag-to-select state: when user drags across days we select the range
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartDate, setDragStartDate] = useState<Date | null>(null);
+  const [dragHasMoved, setDragHasMoved] = useState(false);
+  const dragHasMovedRef = useRef(false);
+  const dragStartDateRef = useRef<Date | null>(null);
+  dragHasMovedRef.current = dragHasMoved;
+  dragStartDateRef.current = dragStartDate;
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseUp = () => {
+      if (!dragHasMovedRef.current && dragStartDateRef.current) {
+        setSelectedDates((prev) => toggleDate(prev, dragStartDateRef.current!));
+      }
+      setIsDragging(false);
+      setDragStartDate(null);
+      setDragHasMoved(false);
+    };
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, [isDragging]);
+
+  const handleDragStart = (date: Date) => {
+    setDragStartDate(date);
+    setIsDragging(true);
+    setDragHasMoved(false);
+  };
+
+  const handleDragOver = (date: Date) => {
+    if (!dragStartDate) return;
+    let start = new Date(dragStartDate);
+    let end = new Date(date);
+    if (start > end) [start, end] = [end, start];
+    if (start.getTime() !== end.getTime()) setDragHasMoved(true);
+    const range = getDatesFromRange({ startDate: start, endDate: end });
+    setSelectedDates(range.map(({ date: d }) => d).sort((a, b) => a.getTime() - b.getTime()));
+  };
 
   const addDay = (date: Date) => {
     const arr = [...selectedDates];
@@ -158,7 +225,7 @@ export const CalanderComponent = ({
   };
 
   return (
-    <div className="calendar-wrapper">
+    <div className={`calendar-wrapper${isDragging ? ' calendar-dragging' : ''}`}>
       <TimeSelectComponent
         updateStart={handleUpdateStartTime}
         updateEnd={handleUpdateEndTime}
@@ -189,6 +256,7 @@ export const CalanderComponent = ({
           minDetail="month"
           tileClassName={tileClassName}
           tileContent={({ date, view }) => {
+            const rangePosition = getRangePosition(date, selectedDates);
             return (
               <div
                 style={{ position: 'relative', width: '100%', height: '100%' }}
@@ -199,6 +267,11 @@ export const CalanderComponent = ({
                   remove={removeDay}
                   selectedDates={selectedDates}
                   handleRange={handleRange}
+                  isDragging={isDragging}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  isRangeStart={rangePosition.isRangeStart}
+                  isRangeEnd={rangePosition.isRangeEnd}
                 />
               </div>
             );

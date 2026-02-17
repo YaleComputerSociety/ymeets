@@ -79,26 +79,44 @@ export const CircleComponent = (props: any) => {
     toggleActive(isDateSelected ? 'active-circle' : 'not-active-circle');
   }, [props.selectedDates, props.date]);
 
-  const handleToggleActive = (event: React.MouseEvent) => {
+  const handleClick = (event: React.MouseEvent) => {
     if (event.shiftKey) {
       props.handleRange(props.date);
-    } else {
-      if (active === 'not-active-circle') {
-        toggleActive('active-circle');
-        props.add(props.date);
-      } else {
-        toggleActive('not-active-circle');
-        props.remove(props.date);
-      }
     }
   };
 
+  const handleMouseDown = (event: React.MouseEvent) => {
+    event.preventDefault();
+    props.onDragStart?.(props.date);
+  };
+
+  const handleMouseEnter = () => {
+    if (props.isDragging) {
+      props.onDragOver?.(props.date);
+    }
+  };
+
+  const isSelected = active === 'active-circle';
+  const isRangeStart = !!props.isRangeStart;
+  const isRangeEnd = !!props.isRangeEnd;
+  const rangeClass = isSelected
+    ? isRangeStart && isRangeEnd
+      ? 'range-single'
+      : isRangeStart
+        ? 'range-start'
+        : isRangeEnd
+          ? 'range-end'
+          : 'range-middle'
+    : '';
+
   return (
-    <div className={`circle ${active}`}>
+    <div className={`circle ${active} ${rangeClass}`}>
       {holidayMetadata.isHoliday ? (
         <button
-          className={`circle-button ${active}`}
-          onClick={handleToggleActive}
+          className={`circle-button ${active} ${rangeClass}`}
+          onClick={handleClick}
+          onMouseDown={handleMouseDown}
+          onMouseEnter={handleMouseEnter}
           data-tooltip-id="holiday-tooltip"
           data-tooltip-content={`${holidayMetadata.holidayName}`}
         >
@@ -106,8 +124,10 @@ export const CircleComponent = (props: any) => {
         </button>
       ) : (
         <button
-          className={`circle-button ${active}`}
-          onClick={handleToggleActive}
+          className={`circle-button ${active} ${rangeClass}`}
+          onClick={handleClick}
+          onMouseDown={handleMouseDown}
+          onMouseEnter={handleMouseEnter}
         >
           {props.date.getDate()}
         </button>
