@@ -139,12 +139,14 @@ export default function CalBlock({
   }, [theme, calendarFramework]);
 
 
-  //TODO: Add a useMemo funtion that computes max number of users in a single block
   // use Memo should ensure it only runs when calendarState changes
   const maxUsers = useMemo<number>(() => {
     let maxCount = 0;
+
+    // define counts array
     const counts: number[][] = [];
 
+    // interate through all blocks and find number of users on each
     for (let i = 0; i < calendarState.length; i++) {
       for (let j = 0; j < calendarState[i].length; j++) {
 
@@ -154,10 +156,14 @@ export default function CalBlock({
         }
 
         for (let k = 0; k < calendarState[i][j].length; k++) {
+          // check if user is on block
           if (calendarState[i][j][k]) {
+            
+            // update to new value
             const newVal = (counts[j][k] ?? 0) + 1;
             counts[j][k] = newVal;
 
+            // update max
             if (newVal > maxCount) {
               maxCount = newVal;
             }
@@ -169,8 +175,9 @@ export default function CalBlock({
     }
     return maxCount;
     
-  }, [calendarState]); // might depend on more than calander state
+  }, [calendarState]); 
    
+
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
       return getDefaultColor();
