@@ -6,6 +6,11 @@ import copy_link_gif from './Share.mp4';
 import group_view_vid from './ViewAvailable.mp4';
 import delete_vid from './EventDeletion.mp4';
 
+import copy_link_vid from './ymeets-copy-link-vid.mp4';
+import create_event_vid from './ymeets-create-event-vid.mp4';
+import import_cals_vid from './ymeets-import-cals-and-autofill-avails.mp4';
+import view_avails_vid from './ymeets-view-availabilities.mp4';
+
 interface TutorialProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,41 +24,34 @@ interface TutorialSlide {
 }
 
 const tutorialSlides: TutorialSlide[] = [
-  // {
-  //   id: 'welcome',
-  //   title: 'Welcome to ymeets',
-  //   description:
-  //     'The easiest way to find a time that works for everyone. Let us show you how it works.',
-  //   media: { type: 'video', src: stock_meeting_gif, alt: 'ymeets overview' },
-  // },
   {
     id: 'create',
     title: 'Create Your Event',
     description:
-      'Name your event, set the timezone, and pick your dates. Choose specific calendar days or recurring days of the week.',
-    media: { type: 'image', src: day_select_pic, alt: 'Date selection' },
+      'Name your event and pick your dates. You can choose specific dates or recurring days of the week.',
+    media: { type: 'video', src: create_event_vid, alt: 'Event Creation' },
   },
   {
     id: 'share',
     title: 'Share and Invite',
     description:
       'Copy your event link to share. Participants can add availability manually or sync directly from Google Calendar.',
-    media: { type: 'video', src: copy_link_gif, alt: 'Sharing event' },
+    media: { type: 'video', src: copy_link_vid, alt: 'Sharing event' },
+  },
+  {
+    id: 'import',
+    title: 'Sync Your Calendar',
+    description:
+      'Easily import your Google Calendar events to block off busy times. No more switching tabs back-and-forth!',
+    media: { type: 'video', src: import_cals_vid, alt: 'Importing calendar' },
   },
   {
     id: 'schedule',
     title: 'Find the Perfect Time',
     description:
       'See when everyone is free at a glance. Hover over names for details, then export your meeting to Google Calendar.',
-    media: { type: 'video', src: group_view_vid, alt: 'Viewing availability' },
+    media: { type: 'video', src: view_avails_vid, alt: 'Viewing availability' },
   },
-  // {
-  //   id: 'done',
-  //   title: "You're All Set!",
-  //   description:
-  //     'Access all your events from "My Events" in the navigation. Happy scheduling!',
-  //   media: { type: 'video', src: delete_vid, alt: 'My Events' },
-  // },
 ];
 
 export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
@@ -142,7 +140,7 @@ export default function TutorialModal({ isOpen, onClose }: TutorialProps) {
 
       {/* Modal */}
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-[580px] w-full shadow-2xl border border-gray-100 dark:border-gray-700/50 transition-all duration-300 overflow-hidden ${
+        className={`relative bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-[720px] w-full shadow-2xl border border-gray-100 dark:border-gray-700/50 transition-all duration-300 overflow-hidden ${
           isAnimating
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-95 translate-y-5'
