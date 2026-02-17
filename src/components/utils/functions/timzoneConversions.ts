@@ -13,6 +13,31 @@ const getTimezoneOffset = (timezone: string) => {
   return tzDate.getTime() - utcDate.getTime();
 };
 
+/**
+ * Format a timezone identifier (e.g. "America/New_York") with its current UTC offset,
+ * e.g. "America/New York (UTC-05:00)".
+ */
+export const formatTimezoneLabel = (timezone: string): string => {
+  try {
+    const offsetMs = getTimezoneOffset(timezone);
+    const offsetMinutes = Math.round(offsetMs / (1000 * 60));
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const absMinutes = Math.abs(offsetMinutes);
+    const hours = Math.floor(absMinutes / 60);
+    const minutes = absMinutes % 60;
+    const offsetStr = `UTC${sign}${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
+
+    // Replace underscores with spaces for a cleaner display name
+    const prettyName = timezone.replace(/_/g, ' ');
+    return `${prettyName} (${offsetStr})`;
+  } catch {
+    // Fallback to just the timezone name if anything goes wrong
+    return timezone.replace(/_/g, ' ');
+  }
+};
+
 export function getUserTimezone() {
     
     const userTimezone =  Intl.DateTimeFormat().resolvedOptions().timeZone;
