@@ -17,7 +17,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const analytics = getAnalytics(app);
+// Analytics can fail to initialize when offline or in unsupported environments.
+// Guard the call so we don't throw a runtime error in development / offline usage.
+let analytics: any;
+if (
+  typeof window !== 'undefined' &&
+  typeof navigator !== 'undefined' &&
+  navigator.onLine &&
+  !!firebaseConfig.measurementId
+) {
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    // Swallow analytics initialization errors so the app can keep running.
+    // eslint-disable-next-line no-console
+    console.warn('Firebase analytics could not be initialized:', error);
+  }
+}
+
 const db = getFirestore(app);
 
 export const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
