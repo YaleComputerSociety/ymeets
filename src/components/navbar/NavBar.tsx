@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../backend/firebase';
+import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
 
 import {
   IconMenu2,
@@ -19,6 +20,7 @@ import {
   IconMoonFilled,
   IconMoon,
   IconSun,
+  IconBook,
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -33,6 +35,8 @@ export default function NavBar() {
   const nav = useNavigate();
 
   const { login, logout, currentUser } = useAuth();
+
+  const [showTutorial, setTutorial] = useState(false);
 
   const handleMouseLeave = () => {
     setIsOpen(false);
@@ -82,6 +86,13 @@ export default function NavBar() {
 
   return (
     <>
+    {showTutorial && (
+      <TutorialModal
+        isOpen={!!showTutorial}
+        onClose={() => setTutorial(false)}
+      />
+    )}
+
       <div className="flex flex-col w-full pt-6 justify-center z-40 items-center">
         <div className="flex bg-secondary_background dark:bg-secondary_background-dark rounded-xl h-16 w-[94%] px-5 sm:px-8 items-center justify-between shadow-lg">
           <NavLogo />
@@ -148,6 +159,20 @@ export default function NavBar() {
                     aria-orientation="vertical"
                     aria-labelledby="options-menu"
                   >
+                    <a
+                      href="#"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTutorial(true);
+                        setMenuState('closed');
+                      }}
+                    >
+                      <IconBook className="mr-2" size={17} /> Tutorial
+                    </a>
+
+                    <div className="border-t border-gray-200"></div>
+
                     <a
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
