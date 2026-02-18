@@ -3,8 +3,8 @@ import {
   HttpsError,
   CallableRequest,
 } from "firebase-functions/v2/https";
-import {defineSecret} from "firebase-functions/params";
-import {Resend} from "resend";
+import { defineSecret } from "firebase-functions/params";
+import { Resend } from "resend";
 
 // Define the secret
 const resendApiKey = defineSecret("RESEND_API_KEY");
@@ -18,7 +18,7 @@ interface EmailData {
 
 // Export the function
 export const sendEmail = onCall<EmailData>(
-  {secrets: [resendApiKey]},
+  { secrets: [resendApiKey] },
   async (request: CallableRequest<EmailData>) => {
     // Optional: Check if user is authenticated
     // if (!request.auth) {
@@ -29,7 +29,7 @@ export const sendEmail = onCall<EmailData>(
     // }
 
     // Get data from the request
-    const {to, subject, html} = request.data;
+    const { to, subject, html } = request.data;
 
     // Validate inputs
     if (!to || !subject || !html) {
@@ -45,7 +45,7 @@ export const sendEmail = onCall<EmailData>(
     try {
       // Send the email
       const result = await resend.emails.send({
-        from: "ymeets <noreply@updates.ymeets.com>",
+        from: "ymeets <alerts@updates.ymeets.com>",
         to: to,
         subject: subject,
         html: html,
