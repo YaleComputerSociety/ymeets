@@ -3,7 +3,7 @@ import './index.css';
 import Root from './Root';
 import { Favi } from './components/navbar/CalendarIcon';
 
-// hi from nikita
+// test
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
