@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../backend/firebase';
+import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
 
 import {
   IconMenu2,
@@ -19,6 +20,7 @@ import {
   IconMoonFilled,
   IconMoon,
   IconSun,
+  IconBook,
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -33,6 +35,8 @@ export default function NavBar() {
   const nav = useNavigate();
 
   const { login, logout, currentUser } = useAuth();
+
+  const [showTutorial, setTutorial] = useState(false);
 
   const handleMouseLeave = () => {
     setIsOpen(false);
@@ -59,8 +63,36 @@ export default function NavBar() {
     });
   });
 
+  useEffect(() => {
+    if (menuState === 'open') {
+      const handleClickOutside = (event: MouseEvent) => {
+        const menuButton = document.querySelector('.menu-button');
+        const menuDropdown = document.getElementById('menu-dropdown');
+        if (
+          menuDropdown &&
+          !menuDropdown.contains(event.target as Node) &&
+          menuButton &&
+          !menuButton.contains(event.target as Node)
+        ) {
+          setMenuState('closed');
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [menuState]);
+
   return (
     <>
+    {showTutorial && (
+      <TutorialModal
+        isOpen={!!showTutorial}
+        onClose={() => setTutorial(false)}
+      />
+    )}
+
       <div className="flex flex-col w-full pt-6 justify-center z-40 items-center">
         <div className="flex bg-secondary_background dark:bg-secondary_background-dark rounded-xl h-16 w-[94%] px-5 sm:px-8 items-center justify-between shadow-lg">
           <NavLogo />
@@ -117,6 +149,7 @@ export default function NavBar() {
               </button>
               {menuState !== 'closed' && (
                 <div
+                  id="menu-dropdown"
                   className={`absolute z-[9999] mt-2 w-44 rounded-md shadow-lg bg-white dark:bg-secondary_background-dark ring-1 ring-black ring-opacity-5 right-0 transition-all duration-200 ease-out transform origin-top-right 
                                     ${menuState === 'opening' ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
                 >
@@ -126,6 +159,20 @@ export default function NavBar() {
                     aria-orientation="vertical"
                     aria-labelledby="options-menu"
                   >
+                    <a
+                      href="#"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTutorial(true);
+                        setMenuState('closed');
+                      }}
+                    >
+                      <IconBook className="mr-2" size={17} /> Tutorial
+                    </a>
+
+                    <div className="border-t border-gray-200"></div>
+
                     <a
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"

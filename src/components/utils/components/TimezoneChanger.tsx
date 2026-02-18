@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
 import { timezones } from '../constants/timezones';
-import { doTimezoneChange } from '../functions/timzoneConversions';
+import { doTimezoneChange, formatTimezoneLabel } from '../functions/timzoneConversions';
 import { getUTCStartAndEndTimes } from '../../../backend/events';
 
 interface TimezoneChangerProps {
@@ -49,7 +49,7 @@ const TimezoneChanger = ({
         selectedOption={selectedTimezone}
         onSelect={handleTimezoneChange}
         placeholder="Select a timezone"
-        renderOption={(option) => option.replace(/_/g, ' ')}
+        renderOption={(option) => formatTimezoneLabel(option)}
         className="bg-white dark:bg-secondary_background-dark"
         searchable={true}
       />

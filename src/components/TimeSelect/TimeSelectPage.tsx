@@ -104,6 +104,9 @@ function TimeSelectPage({
 }) {
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
   const closeGcalPopup = () => {
     setGcalPopupOpen(false);
   };
@@ -132,6 +135,7 @@ function TimeSelectPage({
     setPromptUserForLogin(false);
     window.location.reload();
   };
+  
   const [dragState, setDragState] = useState<dragProperties>({
     isSelecting: false,
     startPoint: null,
@@ -198,6 +202,10 @@ function TimeSelectPage({
 
   useEffect(() => {
     if (!isGeneralDays) return;
+    if (calendarFramework.dates.length === 0) return;
+
+    const startDate = calendarFramework.dates[0]?.[0]?.date;
+    if (!startDate || startDate.getFullYear() !== 2000) return;
 
     // you need to injet dates into each column so later on
     const today = new Date();
@@ -244,21 +252,26 @@ function TimeSelectPage({
       ...prev,
       dates: updatedDates,
     }));
-  }, [isGeneralDays]);
+  }, [isGeneralDays, calendarFramework.dates]);
 
   const fetchGoogleCalEvents = async (
     calIds: string[]
   ): Promise<calendar_v3.Schema$Event[]> => {
-    if (!hasAccess || calIds.length === 0) return [];
+    if (!hasAccess || calIds.length === 0) { 
+      setGoogleCalendarEvents([]);
+      return [];
+    }
 
     const dates = calendarFramework.dates.flat();
-    const timeMin = dates[0]?.date?.toISOString() ?? new Date().toISOString();
-    const timeMax = new Date(dates[dates.length - 1].date as Date).setUTCHours(
-      23,
-      59,
-      59,
-      999
-    );
+    const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
+
+    const startDate = new Date(Math.min(...dateTimestamps));
+    startDate.setHours(0, 0, 0, 0);
+    const timeMin = startDate.toISOString();
+
+    const endDate = new Date(Math.max(...dateTimestamps));
+    endDate.setHours(23, 59, 59, 999);
+    const timeMax = endDate.toISOString();
 
     const allEvents: calendar_v3.Schema$Event[] = [];
 
@@ -266,7 +279,7 @@ function TimeSelectPage({
       const events = await getEvents(
         calId,
         timeMin,
-        new Date(timeMax).toISOString(),
+        timeMax,
         calendarFramework.timezone
       );
 
@@ -286,7 +299,7 @@ function TimeSelectPage({
   };
 
   useEffect(() => {
-    if (hasAccess && idsOfCurrentlySelectedGCals?.length >= 0) {
+    if (hasAccess && idsOfCurrentlySelectedGCals?.length !== undefined) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals);
     }
   }, [
@@ -295,6 +308,7 @@ function TimeSelectPage({
     hasAccess,
     shouldFillAvailability,
     calendarFramework.timezone,
+    calendarFramework.dates,
   ]);
 
   // Fetch the user's Google Calendars
@@ -504,15 +518,26 @@ function TimeSelectPage({
     return user;
   };
 
-  const saveAvailAndLocationChanges = () => {
+  const saveAvailAndLocationChanges = async () => {
+    setIsSaving(true);
     const user = getCurrentUserIndex();
     const avail: Availability = calendarState
       ? (calendarState[user] ?? [])
       : [];
-    wrappedSaveParticipantDetails(avail, selectedLocations);
-    setUserSelectedCalendarIDs(getAccountId(), idsOfCurrentlySelectedGCals);
 
-    toggleEditing();
+    await wrappedSaveParticipantDetails(avail, selectedLocations);
+    await setUserSelectedCalendarIDs(
+      getAccountId(),
+      idsOfCurrentlySelectedGCals
+    );
+
+    setIsSaving(false);
+    setIsSaved(true);
+
+    setTimeout(() => {
+      setIsSaved(false);
+      toggleEditing();
+    }, 600);
   };
 
   const handleSubmitAvailability = () => {
@@ -714,7 +739,23 @@ function TimeSelectPage({
                       themeGradient={true}
                       onClick={handleSubmitAvailability}
                     >
-                      <span>&nbsp;</span> Save <span>&nbsp;</span>
+                      <div className="flex items-center whitespace-nowrap">
+                        {isSaved && !isSaving && (
+                          <IconCheck
+                            size={18}
+                            className="mr-1 transition-all duration-200"
+                          />
+                        )}
+                        <span
+                          className={
+                            isSaved && !isSaving
+                              ? 'font-semibold transition-all duration-200'
+                              : ''
+                          }
+                        >
+                          {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'}
+                        </span>
+                      </div>
                     </ButtonSmall>
                   </div>
                 </div>
@@ -781,7 +822,23 @@ function TimeSelectPage({
                     themeGradient={true}
                     onClick={handleSubmitAvailability}
                   >
-                    <span>&nbsp;</span> Save <span>&nbsp;</span>
+                    <div className="flex items-center whitespace-nowrap">
+                      {isSaved && !isSaving && (
+                        <IconCheck
+                          size={18}
+                          className="mr-1 transition-all duration-200"
+                        />
+                      )}
+                      <span
+                        className={
+                          isSaved && !isSaving
+                            ? 'font-semibold transition-all duration-200'
+                            : ''
+                        }
+                      >
+                        {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save'}
+                      </span>
+                    </div>
                   </ButtonSmall>
                 </div>
               </div>
@@ -847,6 +904,7 @@ function TimeSelectPage({
           ))}
         </ul>
       </AddGoogleCalendarPopup>
+
       {promptUserForLogin && (
         <LoginPopup
           onClose={endPromptUserForLogin}

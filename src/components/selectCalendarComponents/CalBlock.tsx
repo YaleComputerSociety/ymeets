@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   calanderState,
@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _ from 'lodash';
+import _, { max } from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -89,6 +89,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : false,
       });
     }
   }, []);
@@ -137,12 +138,52 @@ export default function CalBlock({
     return theme === 'light' ? 'white' : '#2d3748';
   }, [theme, calendarFramework]);
 
+
+  // use Memo should ensure it only runs when calendarState changes
+  const maxUsers = useMemo<number>(() => {
+    let maxCount = 0;
+
+    // define counts array
+    const counts: number[][] = [];
+
+    // interate through all blocks and find number of users on each
+    for (let i = 0; i < calendarState.length; i++) {
+      for (let j = 0; j < calendarState[i].length; j++) {
+
+        // create row if needed
+        if (!counts[j]) {
+          counts[j] = new Array(calendarState[i][j].length).fill(0);
+        }
+
+        for (let k = 0; k < calendarState[i][j].length; k++) {
+          // check if user is on block
+          if (calendarState[i][j][k]) {
+            
+            // update to new value
+            const newVal = (counts[j][k] ?? 0) + 1;
+            counts[j][k] = newVal;
+
+            // update max
+            if (newVal > maxCount) {
+              maxCount = newVal;
+            }
+            
+          }
+        }
+      }
+      
+    }
+    return maxCount;
+    
+  }, [calendarState]); 
+   
+
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
       return getDefaultColor();
     }
     let selectedCount = 0;
-    const totalUsers = chartedUsers?.users.length || 0;
+    // const totalUsers = chartedUsers?.users.length || 0;
 
     for (let i = 0; i < calendarState.length; i++) {
       if (
@@ -157,7 +198,8 @@ export default function CalBlock({
       return getDefaultColor();
     }
 
-    const percentageSelected = selectedCount / totalUsers;
+    const percentageSelected = selectedCount / maxUsers; //selectedCount / totalUsers;
+
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
   }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
 
@@ -274,6 +316,7 @@ export default function CalBlock({
       userIDs: chartedUsers.userIDs,
       available: availableUsers,
       unavailable: unavailableUsers,
+      hovering : true,
     });
   }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
@@ -316,6 +359,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: availableUsers,
         unavailable: unavailableUsers,
+        hovering : true,
       });
     },
     [chartedUsers, setChartedUsers, calendarState]
@@ -328,6 +372,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
+        hovering : true,
       });
     }
   }, [chartedUsers, setChartedUsers]);
