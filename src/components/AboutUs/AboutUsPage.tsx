@@ -33,7 +33,7 @@ import ARUSH from './Arush.jpeg';
 const CURR_CONTRIBUTORS = [
   {
     name: 'Jeet Parikh',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Product Lead'],
     founding: false,
     portfolio: undefined,
     linkedin: 'https://www.linkedin.com/in/parikhjeet/',
@@ -43,7 +43,7 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Rylan Yang',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Product Lead'],
     founding: false,
     linkedin: 'https://www.linkedin.com/in/rylan-yang/',
     github: 'https://github.com/rylany27',
@@ -229,7 +229,7 @@ function ContributorCard({
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
-        className="mb-2 min-w-full h-80 object-cover object-center rounded-t-lg"
+        className="mb-2 min-w-full h-60 object-cover object-center rounded-t-lg"
         src={image !== undefined ? image : no_person}
         height={400}
       />
