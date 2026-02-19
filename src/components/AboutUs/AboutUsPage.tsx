@@ -330,6 +330,7 @@ export default function AboutUsPage() {
           ></img>
         </div>
         <br />
+        <br />
         <h1 className="text-5xl font-bold">Our Team</h1>
         <br />
         <div className="grid lg:grid-cols-4 md:grid-cols-2">
@@ -353,7 +354,7 @@ export default function AboutUsPage() {
         <br />
         {/* Co-founders Section */}
         <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
-        <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 mb-8">
           {PAST_CONTRIBUTORS.filter(
             (c) => c.name === 'Ethan Mathieu' || c.name === 'Rome Thorstenson'
           ).map((c) => (
