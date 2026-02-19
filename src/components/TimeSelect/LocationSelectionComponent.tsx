@@ -1,9 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Select from 'react-dropdown-select';
-import { getAccountName, getLocationVotesByName } from '../../backend/events';
 import { IconChevronDown, IconX, IconCheck } from '@tabler/icons-react';
-import './locationSelectionComponent.css';
-import { filter } from 'lodash';
 
 interface LocationSelectionProps {
   locations: string[];
@@ -90,77 +86,81 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
 
   return (
     <div className={`relative w-full ${className}`} ref={dropdownRef}>
-      <div className="relative">
-        <div className="flex flex-wrap gap-2 items-center p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-secondary_background-dark">
-          {selectedLocations.map((location) => (
-            <div
-              key={location}
-              className="flex items-center px-3 py-1 bg-primary dark:bg-primary-600 text-white rounded-full shadow-md"
-            >
-              <span title={location} className="mr-2 truncate max-w-[150px]">
-                {location}
+      <div
+        className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer"
+        onClick={toggleDropdown}
+      >
+        <div className="flex flex-wrap gap-1 items-center flex-1 min-w-0">
+          {selectedLocations.length > 0 ? (
+            selectedLocations.map((location) => (
+              <span
+                key={location}
+                className="inline-flex items-center px-1.5 py-0.5 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 rounded text-xs"
+              >
+                <span className="truncate max-w-[100px]" title={location}>
+                  {location}
+                </span>
+                <IconX
+                  size={12}
+                  className="ml-1 cursor-pointer hover:text-primary-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove(location);
+                  }}
+                />
               </span>
-              <IconX
-                size={16}
-                className="cursor-pointer hover:text-gray-200 transition-colors"
-                onClick={() => handleRemove(location)}
-              />
-            </div>
-          ))}
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder={selectedLocations.length == 0 ? placeholder : ''}
-            className={`flex-grow min-w-[150px] p-1 bg-transparent outline-none text-gray-900 dark:text-white ${
-              !create ? 'cursor-pointer' : ''
-            }`}
-            onClick={() => setIsOpen(!isOpen)}
-            readOnly={!create}
-          />
-          <IconChevronDown
-            className={`ml-auto transition-transform duration-300 text-black dark:text-white cursor-pointer ${
-              isOpen ? 'rotate-180' : 'rotate-0'
-            }`}
-            size={20}
-            onClick={() => setIsOpen(!isOpen)}
-          />
+            ))
+          ) : (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {placeholder}
+            </span>
+          )}
         </div>
+        <IconChevronDown
+          className={`flex-shrink-0 ml-1 transition-transform duration-200 text-gray-500 dark:text-gray-400 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+          size={16}
+        />
       </div>
       {isOpen && (
-        <ul
-          className="absolute z-50 w-full max-h-40 mt-1 overflow-y-auto 
-                      bg-white dark:bg-secondary_background-dark 
-                      border border-gray-300 dark:border-gray-600 
-                      rounded-lg shadow-lg 
-                      scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 
-                      scrollbar-track-gray-200 dark:scrollbar-track-gray-800"
-        >
-        {filteredLocations.length > 0 ? (
-          filteredLocations.map((location) => (
-            <li
-              key={location}
-              onClick={() => handleSelect(location)}
-              className={`p-2 text-gray-900 dark:text-white cursor-pointer flex justify-between items-center
-                         ${
-                           selectedLocations.includes(location)
-                             ? 'bg-gray-200 dark:bg-gray-600 font-semibold'
-                             : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                         }`}
-            >
-              <span>{location}</span>
-              {selectedLocations.includes(location) && (
-                <IconCheck size={18} className="text-black dark:text-white" />
-              )}
-            </li>
-          ))
-        ) : (
-          <li className='p-2 text-gray-400 italic'>
-            No matching locations
-          </li>
-        )}
-        </ul>
+        <div className="absolute z-50 w-full mt-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+          {create && (
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Type to search or add..."
+              className="w-full px-2 py-1.5 text-sm bg-transparent border-b border-gray-200 dark:border-gray-700 outline-none text-gray-700 dark:text-gray-300"
+              autoFocus
+            />
+          )}
+          <ul className="max-h-32 overflow-y-auto">
+            {filteredLocations.length > 0 ? (
+              filteredLocations.map((location) => (
+                <li
+                  key={location}
+                  onClick={() => handleSelect(location)}
+                  className={`flex items-center justify-between px-2 py-1.5 text-sm cursor-pointer transition-colors ${
+                    selectedLocations.includes(location)
+                      ? 'bg-primary/10 dark:bg-primary/20 text-gray-700 dark:text-gray-300'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <span className="truncate">{location}</span>
+                  {selectedLocations.includes(location) && (
+                    <IconCheck size={14} className="flex-shrink-0 ml-1 text-primary" />
+                  )}
+                </li>
+              ))
+            ) : (
+              <li className="px-2 py-1.5 text-sm text-gray-400 italic">
+                No matching locations
+              </li>
+            )}
+          </ul>
+        </div>
       )}
     </div>
   );
