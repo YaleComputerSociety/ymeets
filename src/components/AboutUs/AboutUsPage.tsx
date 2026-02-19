@@ -301,25 +301,26 @@ export default function AboutUsPage() {
                             lg:flex-row"
         >
           <p className="text-xl text-gray-700 dark:text-text-dark">
-            Frustrated with unaesthetic group schedulers that lacked modern
-            integrations and were not tailored to the college student's needs,
-            we set out to provide our own solution. <br /> <br />
-            ymeets is a platform designed to make it easier to schedule group
-            events @ Yale by leveraging Google Calendar and allowing the
-            physical location for meetings to also be decided on. The app is
-            built and maintained by a small team of{' '}
+            We were frustrated with clunky group schedulers that felt outdated,
+            lacked modern integrations, and weren't built with college students
+            in mind. <span className="font-bold"> We built something better.</span>
+            <br /> <br />
+            ymeets makes group scheduling at Yale simple by integrating directly
+            with Google Calendar, so you can instantly see availability, pick a time, and choose a place—without endless back-and-forth.
+            <br /> <br />
+            The app is built and maintained by a small team of developers from{' '}
             <a
-              className="text-primary "
+              className="text-primary"
               href="https://yalecomputersociety.org/"
             >
-              y/cs (Yale Computer Society){' '}
+              Yale Computer Society (y/cs)
             </a>
-            developers. If you have concerns about our app uses your
-            information, please go to the following{' '}
+            . We take your privacy seriously—if you have any questions about how
+            your data is used, you can review our privacy policy{' '}
             <a className="text-primary" href="/privacy">
-              page
-            </a>{' '}
-            to view our privacy policy.
+              here
+            </a>
+            .
           </p>
           <img
             className="inline-block mb-6 md:ml-6"
