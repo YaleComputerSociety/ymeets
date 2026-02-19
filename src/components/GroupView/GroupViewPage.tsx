@@ -166,6 +166,20 @@ export default function GroupViewPage({
     [createCalendarEventUrl]
   );
 
+  const today = new Date();
+    const getNextDayOccurrence = (targetDayNum: number): Date => {
+      const date = new Date(today);
+      const currentDayNum = today.getDay();
+
+      let daysToAdd = targetDayNum - currentDayNum;
+      if (daysToAdd <= 0) {
+        daysToAdd += 7;
+      }
+
+      date.setDate(date.getDate() + daysToAdd);
+      return date;
+    };
+
   async function handleSelectionSubmission() {
     if (!dragState.endPoint || !dragState.startPoint) {
       setAlertMessage('No new time selection made!');
@@ -198,11 +212,17 @@ export default function GroupViewPage({
       ? selectedEndTimeHHMM.split(':').map(Number)
       : [0, 0];
 
-    const selectedStartTimeDateObject = new Date(calDate?.date!);
+    let selectedStartTimeDateObject = new Date(calDate?.date!);
+    if (selectedStartTimeDateObject.getFullYear() === 2000) {
+      selectedStartTimeDateObject = getNextDayOccurrence(selectedStartTimeDateObject.getDay());
+    }
     selectedStartTimeDateObject.setHours(startHour);
     selectedStartTimeDateObject.setMinutes(startMinute);
 
-    const selectedEndTimeDateObject = new Date(calDate?.date!);
+    let selectedEndTimeDateObject = new Date(calDate?.date!);
+    if (selectedEndTimeDateObject.getFullYear() === 2000) {
+      selectedEndTimeDateObject = getNextDayOccurrence(selectedEndTimeDateObject.getDay());
+    }
 
     endMinute += 15;
     if (endMinute == 60) {
@@ -585,10 +605,7 @@ export default function GroupViewPage({
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                 draggable={
-                  isAdmin &&
-                  calendarFramework?.dates?.[0][0].date instanceof Date &&
-                  (calendarFramework.dates[0][0].date as Date).getFullYear() !==
-                    2000
+                  isAdmin
                 }
                 user={getCurrentUserIndex()}
                 isAdmin={isAdmin}
