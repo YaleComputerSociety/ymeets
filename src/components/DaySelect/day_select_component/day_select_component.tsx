@@ -459,6 +459,7 @@ export const DaySelectComponent = () => {
                     update={updateLocationsState}
                     create={true}
                     placeholder="Locations (Optional)"
+                    variant="form"
                   />
                 </div>
                 <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">

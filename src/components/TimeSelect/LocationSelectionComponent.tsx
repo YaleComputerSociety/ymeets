@@ -7,6 +7,7 @@ interface LocationSelectionProps {
   create?: boolean; // Allow custom locations
   placeholder?: string;
   className?: string;
+  variant?: 'compact' | 'form'; // compact for sidebar, form for DaySelect
 }
 
 const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
@@ -15,6 +16,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   create = false,
   placeholder = 'Select preferred locations',
   className = '',
+  variant = 'compact',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -84,25 +86,50 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
     };
   }, [isOpen]);
 
+  const isForm = variant === 'form';
+
+  const triggerClasses = isForm
+    ? 'flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-secondary_background-dark border border-gray-300 dark:border-gray-600 cursor-pointer focus-within:ring-1 focus-within:ring-primary dark:focus-within:ring-primary-400 transition-colors duration-200'
+    : 'flex items-center justify-between px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer';
+
+  const tagClasses = isForm
+    ? 'inline-flex items-center px-2 py-1 bg-primary dark:bg-primary-600 text-white rounded-full text-sm'
+    : 'inline-flex items-center px-1.5 py-0.5 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 rounded text-xs';
+
+  const dropdownClasses = isForm
+    ? 'absolute z-50 w-full mt-1 bg-white dark:bg-secondary_background-dark border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden'
+    : 'absolute z-50 w-full mt-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden';
+
+  const inputClasses = isForm
+    ? 'w-full px-4 py-3 text-base bg-transparent border-b border-gray-300 dark:border-gray-600 outline-none text-gray-900 dark:text-white'
+    : 'w-full px-2 py-1.5 text-sm bg-transparent border-b border-gray-200 dark:border-gray-700 outline-none text-gray-700 dark:text-gray-300';
+
+  const listItemClasses = (selected: boolean) =>
+    isForm
+      ? `flex items-center justify-between px-4 py-2 cursor-pointer transition-colors ${
+          selected
+            ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium'
+            : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`
+      : `flex items-center justify-between px-2 py-1.5 text-sm cursor-pointer transition-colors ${
+          selected
+            ? 'bg-primary/10 dark:bg-primary/20 text-gray-700 dark:text-gray-300'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`;
+
   return (
     <div className={`relative w-full ${className}`} ref={dropdownRef}>
-      <div
-        className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer"
-        onClick={toggleDropdown}
-      >
-        <div className="flex flex-wrap gap-1 items-center flex-1 min-w-0">
+      <div className={triggerClasses} onClick={toggleDropdown}>
+        <div className={`flex flex-wrap ${isForm ? 'gap-2' : 'gap-1'} items-center flex-1 min-w-0`}>
           {selectedLocations.length > 0 ? (
             selectedLocations.map((location) => (
-              <span
-                key={location}
-                className="inline-flex items-center px-1.5 py-0.5 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 rounded text-xs"
-              >
-                <span className="truncate max-w-[100px]" title={location}>
+              <span key={location} className={tagClasses}>
+                <span className={`truncate ${isForm ? 'max-w-[150px]' : 'max-w-[100px]'}`} title={location}>
                   {location}
                 </span>
                 <IconX
-                  size={12}
-                  className="ml-1 cursor-pointer hover:text-primary-600"
+                  size={isForm ? 16 : 12}
+                  className={`ml-1 cursor-pointer ${isForm ? 'hover:text-gray-200' : 'hover:text-primary-600'}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemove(location);
@@ -111,7 +138,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
               </span>
             ))
           ) : (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className={isForm ? 'text-gray-500 dark:text-gray-400' : 'text-sm text-gray-500 dark:text-gray-400'}>
               {placeholder}
             </span>
           )}
@@ -120,11 +147,11 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
           className={`flex-shrink-0 ml-1 transition-transform duration-200 text-gray-500 dark:text-gray-400 ${
             isOpen ? 'rotate-180' : ''
           }`}
-          size={16}
+          size={isForm ? 20 : 16}
         />
       </div>
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+        <div className={dropdownClasses}>
           {create && (
             <input
               type="text"
@@ -132,30 +159,26 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder="Type to search or add..."
-              className="w-full px-2 py-1.5 text-sm bg-transparent border-b border-gray-200 dark:border-gray-700 outline-none text-gray-700 dark:text-gray-300"
+              className={inputClasses}
               autoFocus
             />
           )}
-          <ul className="max-h-32 overflow-y-auto">
+          <ul className={isForm ? 'max-h-40 overflow-y-auto' : 'max-h-32 overflow-y-auto'}>
             {filteredLocations.length > 0 ? (
               filteredLocations.map((location) => (
                 <li
                   key={location}
                   onClick={() => handleSelect(location)}
-                  className={`flex items-center justify-between px-2 py-1.5 text-sm cursor-pointer transition-colors ${
-                    selectedLocations.includes(location)
-                      ? 'bg-primary/10 dark:bg-primary/20 text-gray-700 dark:text-gray-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                  className={listItemClasses(selectedLocations.includes(location))}
                 >
                   <span className="truncate">{location}</span>
                   {selectedLocations.includes(location) && (
-                    <IconCheck size={14} className="flex-shrink-0 ml-1 text-primary" />
+                    <IconCheck size={isForm ? 18 : 14} className="flex-shrink-0 ml-1 text-primary" />
                   )}
                 </li>
               ))
             ) : (
-              <li className="px-2 py-1.5 text-sm text-gray-400 italic">
+              <li className={isForm ? 'px-4 py-2 text-gray-400 italic' : 'px-2 py-1.5 text-sm text-gray-400 italic'}>
                 No matching locations
               </li>
             )}
