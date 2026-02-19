@@ -106,24 +106,25 @@ export default function LocationChart({
                 >
                   {loc}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs flex-shrink-0">
-                  {locationVotes[idx]}
-                </span>
+                {showInput && building === loc ? (
+                  <button
+                    className="bg-primary text-white py-0.5 px-2 rounded text-xs font-medium hover:bg-blue-600 transition-colors flex-shrink-0"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(getBookingLink(building), '_blank');
+                    }}
+                  >
+                    Book
+                  </button>
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-400 text-xs flex-shrink-0">
+                    {locationVotes[idx]}
+                  </span>
+                )}
               </div>
             ))}
           </div>
-          {showInput && building && (
-            <button
-              className="mt-2 w-full bg-primary text-white py-1 px-2 rounded text-xs font-medium hover:bg-blue-600 transition-colors"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(getBookingLink(building), '_blank');
-              }}
-            >
-              Book Room
-            </button>
-          )}
         </div>
       )}
     </>
