@@ -14,6 +14,7 @@ interface EmailData {
   to: string;
   subject: string;
   html: string;
+  headers?: Record<string, string>;
 }
 
 // Export the function
@@ -29,7 +30,7 @@ export const sendEmail = onCall<EmailData>(
     // }
 
     // Get data from the request
-    const { to, subject, html } = request.data;
+    const { to, subject, html, headers } = request.data;
 
     // Validate inputs
     if (!to || !subject || !html) {
@@ -49,6 +50,7 @@ export const sendEmail = onCall<EmailData>(
         to: to,
         subject: subject,
         html: html,
+        ...(headers && { headers }),
       });
 
       return {

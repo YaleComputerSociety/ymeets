@@ -11,6 +11,7 @@ interface SendEmailOptions {
   to: string | string[];
   subject: string;
   html: string;
+  headers?: Record<string, string>;
 }
 
 interface SendEmailResult {
@@ -33,18 +34,30 @@ export async function sendEmail(
   return result.data;
 }
 
+// Event-specifc thread ID for emails appear in same thread
+function getEventThreadMessageId(eventId: string): string {
+  return `<event-${eventId}-avail-updated-id>`;
+}
+
 /**
  * Send notification to event creator when someone fills out their availability
  * Exported for testing purposes
  */
 export async function sendAvailabilityUpdatedEmail(
   to: string,
-  data: AvailabilityUpdatedData
+  data: AvailabilityUpdatedData,
+  eventId: string
 ): Promise<SendEmailResult> {
+  const threadMessageId = getEventThreadMessageId(eventId);
+
   return sendEmail({
     to,
     subject: availabilityUpdatedSubject(data),
     html: availabilityUpdatedEmail(data),
+    headers: {
+      'In-Reply-To': threadMessageId,
+      References: threadMessageId,
+    },
   });
 }
 
@@ -75,11 +88,15 @@ export async function notifyAdminOfNewResponse(
       return;
     }
 
-    await sendAvailabilityUpdatedEmail(adminEmail, {
-      participantName: participantName || 'Someone',
-      eventTitle,
-      eventUrl: `https://ymeets.com/dashboard/${eventId}`,
-    });
+    await sendAvailabilityUpdatedEmail(
+      adminEmail,
+      {
+        participantName: participantName || 'Someone',
+        eventTitle,
+        eventUrl: `https://ymeets.com/dashboard/${eventId}`,
+      },
+      eventId
+    );
   } catch (error) {
     console.error('Failed to send availability notification email:', error);
   }
