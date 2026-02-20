@@ -13,7 +13,7 @@ const firebaseConfig = {
   measurementId: 'G-YHLEEL521E',
 };
 
-// Initialize Firebase
+// // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -24,3 +24,4 @@ export const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const googleProvider = new GoogleAuthProvider();
 
 export { auth, db, analytics, googleProvider };
+

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import "./searchbar.css";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from '../../../backend/firebase';
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 
 
@@ -63,65 +64,35 @@ class Trie {
 export default function SearchBar() {
     const [search, setSearch] = useState('');
     const [invites, setInvites] = useState<string[]>([]);
-    //const [emails, setEmails] = useState<string[]>([]);
+    const [emails, setEmails] = useState<string[]>([]);
+
+
+    // events for reference here: C:\Users\jaden\OneDrive\Code\Yale Clubs\ycs\ymeets\src\backend\events.ts
 
     // Dunno if this works
-    // async function fetchEmails(): Promise<string[]> {
-    //     const ref = doc(db, "repositories", "studentData"); // whereever it is
-    //     const snap = await getDoc(ref);
+    async function fetchEmails(): Promise<string[]> {
+      const q = query(
+        collection(db, "emails"),     // or "email_shards" if you used that name
+        orderBy("shardIndex")         // optional but recommended
+      );
 
-    //     if (!snap.exists()) return [];
+      const snap = await getDocs(q);
 
-    //     const data = snap.data();
-    //     return Array.isArray(data.emails) ? (data.emails as string[]) : [];
-    // }
+      const allEmails: string[] = [];
 
-    // useEffect(() => {
-    //     fetchEmails().then(setEmails);
-    // }, []);
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (Array.isArray(data.emails)) {
+          allEmails.push(...data.emails);
+        }
+      });
 
-    // get all emails from firebase database
-    // TODO: figure out database stuff
-    //const emails: string[] = [];
+      return allEmails;
+    }
 
-    const emails: string[] = [
-        "alice@yale.edu",
-        "bob@yale.edu",
-        "carol@yale.edu",
-        "david@yale.edu",
-        "emma@yale.edu",
-        "frank@gmail.com",
-        "grace@gmail.com",
-        "henry@gmail.com",
-        "isabel@yahoo.com",
-        "jack@yahoo.com",
-        "karen@outlook.com",
-        "leo@outlook.com",
-        "mia@proton.me",
-        "noah@proton.me",
-        "olivia@icloud.com",
-        "paul@icloud.com",
-        "quinn@mit.edu",
-        "rachel@stanford.edu",
-        "sam@harvard.edu",
-        "tina@berkeley.edu",
-        "alex@yale.edu",
-        "alex1@yale.edu",
-        "alex2@yale.edu",
-        "alex3@yale.edu",
-        "alex4@yale.edu",
-        "alex5@yale.edu",
-        "alex6@yale.edu",
-        "alex7@yale.edu",
-        "alex8@yale.edu",
-        "alex9@yale.edu",
-        "alexander@yale.edu",
-        "alexandra@yale.edu",
-        "alexandria@yale.edu",
-        "alexis@yale.edu",
-        "alexis1@yale.edu",
-        "alexis2@yale.edu"
-        ];
+    useEffect(() => {
+        fetchEmails().then(setEmails);
+    }, []);
 
     // useMemo to prevent reinserting everything every refresh
     const trie = useMemo(() => {
@@ -138,7 +109,7 @@ export default function SearchBar() {
         if (q.length < 3) {
             return [];
         }
-        return trie.prefixSearch(q).filter((e) => !invites.includes(e)).slice(0, 20); //filter out already invited and only return first 20
+        return trie.prefixSearch(q).filter((e) => !invites.includes(e)) //.slice(0, 20); //filter out already invited and only return first 20
     }, [trie, search]);
 
     function add(email: string) {
