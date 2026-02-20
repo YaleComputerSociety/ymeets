@@ -44,6 +44,7 @@ interface CalendarProps {
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
   chartedUsers?: userData;
   setCalendarHeight?: Dispatch<SetStateAction<number | null>>;
+  compactMode?: boolean;
 }
 
 export default function Calendar({
@@ -61,6 +62,7 @@ export default function Calendar({
   setChartedUsers,
   chartedUsers,
   setCalendarHeight,
+  compactMode = false,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -87,6 +89,11 @@ export default function Calendar({
 
   const calculateColumnsPerPage = () => {
     const width = window.innerWidth;
+    if (compactMode) {
+      if (width > 1400) return 5;
+      if (width > 1200) return 4;
+      return 3;
+    }
     if (width > 1200) return 7;
     if (width > 900) return 5;
     return 3;
@@ -117,7 +124,7 @@ export default function Calendar({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [compactMode]);
 
   const [currentStartPage, setCurrentStartPage] = React.useState(0);
 
