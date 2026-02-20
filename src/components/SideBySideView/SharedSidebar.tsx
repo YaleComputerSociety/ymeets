@@ -73,14 +73,7 @@ export default function SharedSidebar({
   };
 
   return (
-    <div
-      className="text-text dark:text-text-dark gap-y-4 flex flex-col"
-      style={
-        calendarHeight
-          ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
-          : undefined
-      }
-    >
+    <div className="gap-y-4 flex flex-col w-full">
       <AlertPopup
         title="Alert"
         message={alertMessage || ''}

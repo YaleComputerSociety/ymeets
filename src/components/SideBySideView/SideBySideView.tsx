@@ -156,38 +156,17 @@ export default function SideBySideView({
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
-      {/* View mode toggle - top right */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex-1">
-          <TimezoneChanger
-            theCalendarFramework={[calendarFramework, setCalendarFramework]}
-            initialTimezone={(() => {
-              const urlParams = new URLSearchParams(window.location.search);
-              const urlTimezone = urlParams.get('tz');
-              return urlTimezone || getUserTimezone();
-            })()}
-          />
-        </div>
-        <div className="flex items-center gap-3">
-          <ButtonSmall
-            bgColor="primary"
-            textColor="white"
-            onClick={onSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </ButtonSmall>
-          <ViewModeToggle
-            currentMode={currentViewMode}
-            onModeChange={onViewModeChange}
-          />
-        </div>
-      </div>
-
-      {/* Main layout: 5-column grid */}
-      <div className="grid grid-cols-5 gap-3">
-        {/* Sidebar - 1 column */}
-        <div className="col-span-1">
+      {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
+      <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
+        {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
+        <div
+          className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3"
+          style={
+            calendarHeight
+              ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
+              : undefined
+          }
+        >
           <SharedSidebar
             eventName={eventName}
             eventDescription={eventDescription}
@@ -208,64 +187,98 @@ export default function SideBySideView({
           />
         </div>
 
-        {/* Left Calendar (Edit) - 2 columns */}
-        <div className="col-span-2 flex flex-col">
-          <div className="text-sm font-semibold text-center mb-2 text-gray-600 dark:text-gray-400">
-            Your Availability
-          </div>
-          <div className="bg-white dark:bg-secondary_background-dark rounded-lg">
-            <Calendar
-              compactMode={true}
-              theCalendarState={[
-                timeSelectCalendarState,
-                setTimeSelectCalendarState,
-              ]}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={undefined}
-              draggable={true}
-              user={getCurrentUserIndex()}
-              isAdmin={false}
-              theDragState={[leftDragState, setLeftDragState]}
-              theGoogleCalendarEvents={[
-                googleCalendarEvents,
-                setGoogleCalendarEvents,
-              ]}
-              onClick={() => {}}
-              theShowUserChart={undefined}
-              isGeneralDays={isGeneralDays}
-              setCalendarHeight={setCalendarHeight}
-            />
-          </div>
-        </div>
+        {/* Calendar Area - col-span-3 (same as GroupView/TimeSelect) */}
+        <div className="col-span-3">
+          <div className="w-full">
+            <div className="flex flex-col space-y-0 mb-2">
+              {/* Top bar with timezone, save, and view toggle */}
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
+                <div className="hidden md:flex w-full max-w-full items-center gap-2">
+                  <div className="flex-1">
+                    <TimezoneChanger
+                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      initialTimezone={(() => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const urlTimezone = urlParams.get('tz');
+                        return urlTimezone || getUserTimezone();
+                      })()}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <ButtonSmall
+                      bgColor="primary"
+                      textColor="white"
+                      onClick={onSave}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </ButtonSmall>
+                    <ViewModeToggle
+                      currentMode={currentViewMode}
+                      onModeChange={onViewModeChange}
+                    />
+                  </div>
+                </div>
+              </div>
 
-        {/* Right Calendar (View) - 2 columns */}
-        <div className="col-span-2 flex flex-col">
-          <div className="text-sm font-semibold text-center mb-2 text-gray-600 dark:text-gray-400">
-            Group Availability
-          </div>
-          <div className="bg-white dark:bg-secondary_background-dark rounded-lg">
-            <Calendar
-              compactMode={true}
-              theCalendarState={[derivedGroupViewState, noop]}
-              theCalendarFramework={[calendarFramework, setCalendarFramework]}
-              chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-              draggable={false}
-              user={getCurrentUserIndex()}
-              isAdmin={true}
-              theDragState={[rightDragState, setRightDragState]}
-              theGoogleCalendarEvents={[[], noop]}
-              onClick={() => {
-                if (showUserChart === true) {
-                  return;
-                }
-                setShowUserChart(true);
-                setTimeout(() => setShowUserChart(false), 3000);
-              }}
-              theShowUserChart={[showUserChart, setShowUserChart]}
-              isGeneralDays={false}
-              setChartedUsers={setChartedUsers}
-              chartedUsers={chartedUsers}
-            />
+              {/* Side-by-side calendars */}
+              <div className="flex gap-4 px-5">
+                {/* Left Calendar (Edit Your Availability) */}
+                <div className="flex-1 flex flex-col min-w-0">
+                  <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
+                    <Calendar
+                      compactMode={true}
+                      theCalendarState={[
+                        timeSelectCalendarState,
+                        setTimeSelectCalendarState,
+                      ]}
+                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      chartedUsersData={undefined}
+                      draggable={true}
+                      user={getCurrentUserIndex()}
+                      isAdmin={false}
+                      theDragState={[leftDragState, setLeftDragState]}
+                      theGoogleCalendarEvents={[
+                        googleCalendarEvents,
+                        setGoogleCalendarEvents,
+                      ]}
+                      onClick={() => {}}
+                      theShowUserChart={undefined}
+                      isGeneralDays={isGeneralDays}
+                      setCalendarHeight={setCalendarHeight}
+                    />
+                  </div>
+                </div>
+
+                {/* Right Calendar (Group Availability) */}
+                <div className="flex-1 flex flex-col min-w-0">
+                  <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
+                    <Calendar
+                      compactMode={true}
+                      theCalendarState={[derivedGroupViewState, noop]}
+                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                      draggable={false}
+                      user={getCurrentUserIndex()}
+                      isAdmin={true}
+                      theDragState={[rightDragState, setRightDragState]}
+                      theGoogleCalendarEvents={[[], noop]}
+                      onClick={() => {
+                        if (showUserChart === true) {
+                          return;
+                        }
+                        setShowUserChart(true);
+                        setTimeout(() => setShowUserChart(false), 3000);
+                      }}
+                      theShowUserChart={[showUserChart, setShowUserChart]}
+                      isGeneralDays={false}
+                      setChartedUsers={setChartedUsers}
+                      chartedUsers={chartedUsers}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
