@@ -19,10 +19,10 @@ import {
 } from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import SharedSidebar from './SharedSidebar';
-import ViewModeToggle, { ViewMode } from './ViewModeToggle';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
+import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
 
 interface SideBySideViewProps {
   // Calendar states
@@ -51,8 +51,6 @@ interface SideBySideViewProps {
   // Other
   code: string | undefined;
   isAdmin: boolean;
-  onViewModeChange: (mode: ViewMode) => void;
-  currentViewMode: ViewMode;
   isGeneralDays: boolean;
 
   // Google Calendar events for TimeSelect side
@@ -86,8 +84,6 @@ export default function SideBySideView({
   setAdminChosenLocation,
   code,
   isAdmin,
-  onViewModeChange,
-  currentViewMode,
   isGeneralDays,
   googleCalendarEvents,
   setGoogleCalendarEvents,
@@ -97,6 +93,9 @@ export default function SideBySideView({
   const [showUserChart, setShowUserChart] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] = useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
+
+  // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
+  const [expandedCalendar, setExpandedCalendar] = useState<'left' | 'right' | null>(null);
 
   // Drag state for left calendar (TimeSelect - user editing)
   const [leftDragState, setLeftDragState] = useState<dragProperties>({
@@ -213,10 +212,6 @@ export default function SideBySideView({
                     >
                       {isSaving ? 'Saving...' : 'Save'}
                     </ButtonSmall>
-                    <ViewModeToggle
-                      currentMode={currentViewMode}
-                      onModeChange={onViewModeChange}
-                    />
                   </div>
                 </div>
               </div>
@@ -224,59 +219,87 @@ export default function SideBySideView({
               {/* Side-by-side calendars */}
               <div className="flex gap-4 px-5">
                 {/* Left Calendar (Edit Your Availability) */}
-                <div className="flex-1 flex flex-col min-w-0">
-                  <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
-                    <Calendar
-                      compactMode={true}
-                      theCalendarState={[
-                        timeSelectCalendarState,
-                        setTimeSelectCalendarState,
-                      ]}
-                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                      chartedUsersData={undefined}
-                      draggable={true}
-                      user={getCurrentUserIndex()}
-                      isAdmin={false}
-                      theDragState={[leftDragState, setLeftDragState]}
-                      theGoogleCalendarEvents={[
-                        googleCalendarEvents,
-                        setGoogleCalendarEvents,
-                      ]}
-                      onClick={() => {}}
-                      theShowUserChart={undefined}
-                      isGeneralDays={isGeneralDays}
-                      setCalendarHeight={setCalendarHeight}
-                    />
+                {expandedCalendar !== 'right' && (
+                  <div className="flex-1 flex flex-col min-w-0 relative">
+                    {/* Expand/Collapse button - superimposed on top right */}
+                    <button
+                      onClick={() => setExpandedCalendar(expandedCalendar === 'left' ? null : 'left')}
+                      className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+                      title={expandedCalendar === 'left' ? 'Collapse' : 'Expand'}
+                    >
+                      {expandedCalendar === 'left' ? (
+                        <IconArrowsMinimize size={16} className="text-gray-600 dark:text-gray-300" />
+                      ) : (
+                        <IconArrowsMaximize size={16} className="text-gray-600 dark:text-gray-300" />
+                      )}
+                    </button>
+                    <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
+                      <Calendar
+                        compactMode={expandedCalendar !== 'left'}
+                        theCalendarState={[
+                          timeSelectCalendarState,
+                          setTimeSelectCalendarState,
+                        ]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                        chartedUsersData={undefined}
+                        draggable={true}
+                        user={getCurrentUserIndex()}
+                        isAdmin={false}
+                        theDragState={[leftDragState, setLeftDragState]}
+                        theGoogleCalendarEvents={[
+                          googleCalendarEvents,
+                          setGoogleCalendarEvents,
+                        ]}
+                        onClick={() => {}}
+                        theShowUserChart={undefined}
+                        isGeneralDays={isGeneralDays}
+                        setCalendarHeight={setCalendarHeight}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Right Calendar (Group Availability) */}
-                <div className="flex-1 flex flex-col min-w-0">
-                  <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
-                    <Calendar
-                      compactMode={true}
-                      theCalendarState={[derivedGroupViewState, noop]}
-                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                      chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                      draggable={false}
-                      user={getCurrentUserIndex()}
-                      isAdmin={true}
-                      theDragState={[rightDragState, setRightDragState]}
-                      theGoogleCalendarEvents={[[], noop]}
-                      onClick={() => {
-                        if (showUserChart === true) {
-                          return;
-                        }
-                        setShowUserChart(true);
-                        setTimeout(() => setShowUserChart(false), 3000);
-                      }}
-                      theShowUserChart={[showUserChart, setShowUserChart]}
-                      isGeneralDays={false}
-                      setChartedUsers={setChartedUsers}
-                      chartedUsers={chartedUsers}
-                    />
+                {expandedCalendar !== 'left' && (
+                  <div className="flex-1 flex flex-col min-w-0 relative">
+                    {/* Expand/Collapse button - superimposed on top right */}
+                    <button
+                      onClick={() => setExpandedCalendar(expandedCalendar === 'right' ? null : 'right')}
+                      className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+                      title={expandedCalendar === 'right' ? 'Collapse' : 'Expand'}
+                    >
+                      {expandedCalendar === 'right' ? (
+                        <IconArrowsMinimize size={16} className="text-gray-600 dark:text-gray-300" />
+                      ) : (
+                        <IconArrowsMaximize size={16} className="text-gray-600 dark:text-gray-300" />
+                      )}
+                    </button>
+                    <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
+                      <Calendar
+                        compactMode={expandedCalendar !== 'right'}
+                        theCalendarState={[derivedGroupViewState, noop]}
+                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                        chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                        draggable={false}
+                        user={getCurrentUserIndex()}
+                        isAdmin={true}
+                        theDragState={[rightDragState, setRightDragState]}
+                        theGoogleCalendarEvents={[[], noop]}
+                        onClick={() => {
+                          if (showUserChart === true) {
+                            return;
+                          }
+                          setShowUserChart(true);
+                          setTimeout(() => setShowUserChart(false), 3000);
+                        }}
+                        theShowUserChart={[showUserChart, setShowUserChart]}
+                        isGeneralDays={false}
+                        setChartedUsers={setChartedUsers}
+                        chartedUsers={chartedUsers}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
