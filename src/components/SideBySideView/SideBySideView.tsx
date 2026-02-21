@@ -76,6 +76,10 @@ interface SideBySideViewProps {
   selectedCalendarIds: string[];
   setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
 
+  // Location selection (user's preferred locations)
+  selectedLocations: string[];
+  setSelectedLocations: Dispatch<SetStateAction<string[]>>;
+
   // Save functionality
   onSave: () => Promise<void>;
   isSaving: boolean;
@@ -108,6 +112,8 @@ export default function SideBySideView({
   setGoogleCalendars,
   selectedCalendarIds,
   setSelectedCalendarIds,
+  selectedLocations,
+  setSelectedLocations,
   onSave,
   isSaving,
 }: SideBySideViewProps) {
@@ -387,6 +393,8 @@ export default function SideBySideView({
             setGoogleCalendars={setGoogleCalendars}
             selectedCalendarIds={selectedCalendarIds}
             setSelectedCalendarIds={setSelectedCalendarIds}
+            selectedLocations={selectedLocations}
+            setSelectedLocations={setSelectedLocations}
           />
         </div>
 

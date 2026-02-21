@@ -9,6 +9,7 @@ import {
   updateAnonymousUserToAuthUser,
 } from '../../backend/events';
 import LocationChart from '../GroupView/LocationChart';
+import LocationSelectionComponent from '../TimeSelect/LocationSelectionComponent';
 import UserChart from '../GroupView/UserChart';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
@@ -58,6 +59,10 @@ interface SharedSidebarProps {
   setGoogleCalendars?: Dispatch<SetStateAction<Calendar[]>>;
   selectedCalendarIds?: string[];
   setSelectedCalendarIds?: Dispatch<SetStateAction<string[]>>;
+
+  // Location selection (user's preferred locations)
+  selectedLocations?: string[];
+  setSelectedLocations?: Dispatch<SetStateAction<string[]>>;
 }
 
 export default function SharedSidebar({
@@ -81,6 +86,8 @@ export default function SharedSidebar({
   setGoogleCalendars,
   selectedCalendarIds = [],
   setSelectedCalendarIds,
+  selectedLocations = [],
+  setSelectedLocations,
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
@@ -365,23 +372,41 @@ export default function SharedSidebar({
         </div>
       )}
 
-      {/* Location Chart Section */}
+      {/* Locations Section - grouped together */}
       {locationOptions.length > 0 && !chartedUsers?.hovering && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Locations
           </div>
-          <LocationChart
-            theSelectedLocation={[
-              adminChosenLocation,
-              setAdminChosenLocation || (() => {}),
-            ]}
-            locationOptions={
-              locationOptions.length > 0 ? locationOptions : ['']
-            }
-            locationVotes={Object.values(locationVotes)}
-            selectionMade={!!getChosenLocation()}
-          />
+          <div className="space-y-3">
+            {/* User's location vote */}
+            <div className="z-50 relative">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Cast your vote
+              </div>
+              <LocationSelectionComponent
+                locations={locationOptions}
+                update={(selected) => setSelectedLocations && setSelectedLocations(selected)}
+              />
+            </div>
+            {/* Group's location votes */}
+            <div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Group votes
+              </div>
+              <LocationChart
+                theSelectedLocation={[
+                  adminChosenLocation,
+                  setAdminChosenLocation || (() => {}),
+                ]}
+                locationOptions={
+                  locationOptions.length > 0 ? locationOptions : ['']
+                }
+                locationVotes={Object.values(locationVotes)}
+                selectionMade={!!getChosenLocation()}
+              />
+            </div>
+          </div>
         </div>
       )}
 

@@ -53,6 +53,9 @@ export default function UnifiedAvailabilityPage() {
   >([]);
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
 
+  // User's preferred locations
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
   // groupview states
   const [groupViewCalendarState, setGroupViewCalendarState] =
     useState<calanderState>([]);
@@ -286,6 +289,8 @@ export default function UnifiedAvailabilityPage() {
           setGoogleCalendars={setGoogleCalendars}
           selectedCalendarIds={selectedCalendarIds}
           setSelectedCalendarIds={setSelectedCalendarIds}
+          selectedLocations={selectedLocations}
+          setSelectedLocations={setSelectedLocations}
           onSave={handleSideBySideSave}
           isSaving={isSaving}
         />
