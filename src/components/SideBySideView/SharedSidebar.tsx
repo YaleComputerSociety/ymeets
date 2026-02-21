@@ -410,6 +410,7 @@ export default function SharedSidebar({
                 </div>
                 <LocationSelectionComponent
                   locations={locationOptions}
+                  value={selectedLocations}
                   update={(selected) => setSelectedLocations && setSelectedLocations(selected)}
                 />
               </div>

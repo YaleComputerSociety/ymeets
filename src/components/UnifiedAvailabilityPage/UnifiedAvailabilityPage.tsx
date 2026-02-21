@@ -132,13 +132,13 @@ export default function UnifiedAvailabilityPage() {
       const avail: Availability = timeSelectCalendarState
         ? (timeSelectCalendarState[user] ?? [])
         : [];
-      await wrappedSaveParticipantDetails(avail, []);
+      await wrappedSaveParticipantDetails(avail, selectedLocations);
       // Refresh data after save
       await fetchData(false);
     } finally {
       setIsSaving(false);
     }
-  }, [timeSelectCalendarState, getCurrentUserIndex]);
+  }, [timeSelectCalendarState, getCurrentUserIndex, selectedLocations]);
 
   const fetchData = async (
     setLoadingState: boolean = true,

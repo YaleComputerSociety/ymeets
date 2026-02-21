@@ -8,6 +8,7 @@ interface LocationSelectionProps {
   placeholder?: string;
   className?: string;
   variant?: 'compact' | 'form'; // compact for sidebar, form for DaySelect
+  value?: string[]; // Controlled value from parent
 }
 
 const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
@@ -17,10 +18,18 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
   placeholder = 'Select preferred locations',
   className = '',
   variant = 'compact',
+  value,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(value || []);
   const [inputValue, setInputValue] = useState('');
+
+  // Sync with external value when it changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setSelectedLocations(value);
+    }
+  }, [value]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const filteredLocations = locations.filter((location) => location.toLowerCase().includes(inputValue.toLowerCase().trim()));
 
