@@ -532,30 +532,32 @@ export default function SideBySideView({
                 {/* Right Calendar (Group Availability) - always show when user not signed in */}
                 {(expandedCalendar !== 'left' || !userHasSignedIn) && (
                   <div className="flex-1 flex flex-col min-w-0 relative">
-                    {/* Expand/Collapse button - superimposed on top right */}
-                    <button
-                      onClick={() =>
-                        setExpandedCalendar(
-                          expandedCalendar === 'right' ? null : 'right'
-                        )
-                      }
-                      className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
-                      title={
-                        expandedCalendar === 'right' ? 'Collapse' : 'Expand'
-                      }
-                    >
-                      {expandedCalendar === 'right' ? (
-                        <IconArrowsMinimize
-                          size={16}
-                          className="text-gray-600 dark:text-gray-300"
-                        />
-                      ) : (
-                        <IconArrowsMaximize
-                          size={16}
-                          className="text-gray-600 dark:text-gray-300"
-                        />
-                      )}
-                    </button>
+                    {/* Expand/Collapse button - only show when user is signed in (otherwise there's nothing to expand/collapse between) */}
+                    {userHasSignedIn && (
+                      <button
+                        onClick={() =>
+                          setExpandedCalendar(
+                            expandedCalendar === 'right' ? null : 'right'
+                          )
+                        }
+                        className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+                        title={
+                          expandedCalendar === 'right' ? 'Collapse' : 'Expand'
+                        }
+                      >
+                        {expandedCalendar === 'right' ? (
+                          <IconArrowsMinimize
+                            size={16}
+                            className="text-gray-600 dark:text-gray-300"
+                          />
+                        ) : (
+                          <IconArrowsMaximize
+                            size={16}
+                            className="text-gray-600 dark:text-gray-300"
+                          />
+                        )}
+                      </button>
+                    )}
                     <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
