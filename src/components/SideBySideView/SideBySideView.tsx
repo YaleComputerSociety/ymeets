@@ -17,6 +17,7 @@ import {
   getParticipantIndex,
   getAccountId,
   getAccountName,
+  updateAnonymousUserToAuthUser,
 } from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import SharedSidebar from './SharedSidebar';
@@ -25,6 +26,8 @@ import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
+import { useAuth } from '../../backend/authContext';
+import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
 interface Calendar {
   id: string;
@@ -116,7 +119,70 @@ export default function SideBySideView({
   const [expandedCalendar, setExpandedCalendar] = useState<'left' | 'right' | null>(null);
 
   // Google Calendar hook for fetching events
-  const { hasAccess, getEvents, getCalendars } = useGoogleCalendar();
+  const { hasAccess, requestAccess, getEvents, getCalendars } = useGoogleCalendar();
+  const { login, currentUser } = useAuth();
+
+  // Helper functions for autofill
+  const timeToMinutes = (timeString: string): number => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const dateToMinutes = (date: Date): number => {
+    return date.getHours() * 60 + date.getMinutes();
+  };
+
+  const isSameDate = (date1: Date, date2: Date): boolean => {
+    return date1.toDateString() === date2.toDateString();
+  };
+
+  const doesBlockOverlapEvent = (
+    blockTime: string,
+    blockDate: Date,
+    event: calendar_v3.Schema$Event
+  ): boolean => {
+    if (!event.start?.dateTime || !event.end?.dateTime) return false;
+
+    const eventStart = new Date(event.start.dateTime);
+    const eventEnd = new Date(event.end.dateTime);
+
+    if (!isSameDate(eventStart, blockDate)) return false;
+
+    const blockStartMinutes = timeToMinutes(blockTime);
+    const blockEndMinutes = blockStartMinutes + 15;
+    const eventStartMinutes = dateToMinutes(eventStart);
+    const eventEndMinutes = dateToMinutes(eventEnd);
+
+    return (
+      blockStartMinutes <= eventEndMinutes &&
+      blockEndMinutes > eventStartMinutes
+    );
+  };
+
+  const autofillAvailabilityFromCalendar = (
+    events: calendar_v3.Schema$Event[],
+    dates: any[],
+    timeBlocks: string[],
+    currentAvailability: boolean[][]
+  ): boolean[][] => {
+    const newAvailability = currentAvailability.map((col) => [...col]);
+
+    for (let colIndex = 0; colIndex < dates.length; colIndex++) {
+      const date = dates[colIndex].date;
+
+      for (let blockIndex = 0; blockIndex < timeBlocks.length; blockIndex++) {
+        const timeBlock = timeBlocks[blockIndex];
+
+        const hasEvent = events.some((event) =>
+          doesBlockOverlapEvent(timeBlock, date, event)
+        );
+
+        newAvailability[colIndex][blockIndex] = !hasEvent;
+      }
+    }
+
+    return newAvailability;
+  };
 
   // Fetch Google Calendar events when selected calendars change
   const fetchGoogleCalEvents = useCallback(async (calIds: string[]) => {
@@ -190,6 +256,59 @@ export default function SideBySideView({
     }
   }, [hasAccess, selectedCalendarIds, fetchGoogleCalEvents, setGoogleCalendarEvents]);
 
+  // Get current user index
+  const getCurrentUserIndex = useCallback(() => {
+    let user = getParticipantIndex(getAccountName(), getAccountId());
+    if (user === undefined) {
+      user =
+        timeSelectCalendarState !== undefined
+          ? Object.keys(timeSelectCalendarState).length - 1
+          : 0;
+    }
+    return user;
+  }, [timeSelectCalendarState]);
+
+  // Autofill availability from Google Calendar
+  const handleAutofillAvailabilityClick = async () => {
+    if (!currentUser) {
+      const user = await login();
+      if (!user) return;
+      updateAnonymousUserToAuthUser(getAccountName());
+    }
+
+    if (!hasAccess) {
+      const scopeGranted = await requestAccess();
+      if (!scopeGranted) return;
+    }
+
+    const calIds = selectedCalendarIds.length > 0 ? selectedCalendarIds : [];
+
+    if (calIds.length === 0) {
+      // If no calendars selected, try to fetch them first
+      const calendars = await getCalendars();
+      setGoogleCalendars(calendars);
+      return;
+    }
+
+    const events = await fetchGoogleCalEvents(calIds);
+
+    const newAvailability = autofillAvailabilityFromCalendar(
+      events,
+      calendarFramework.dates.flat(),
+      generateTimeBlocks(
+        calendarFramework.startTime,
+        calendarFramework.endTime
+      )
+        .flat()
+        .flat(),
+      timeSelectCalendarState[getCurrentUserIndex()]
+    );
+
+    const newCalendarState = { ...timeSelectCalendarState };
+    newCalendarState[getCurrentUserIndex()] = newAvailability;
+    setTimeSelectCalendarState(newCalendarState);
+  };
+
   // Drag state for left calendar (TimeSelect - user editing)
   const [leftDragState, setLeftDragState] = useState<dragProperties>({
     isSelecting: false,
@@ -207,18 +326,6 @@ export default function SideBySideView({
     selectionMode: false,
     lastPosition: null,
   });
-
-  // Get current user index
-  const getCurrentUserIndex = useCallback(() => {
-    let user = getParticipantIndex(getAccountName(), getAccountId());
-    if (user === undefined) {
-      user =
-        timeSelectCalendarState !== undefined
-          ? Object.keys(timeSelectCalendarState).length - 1
-          : 0;
-    }
-    return user;
-  }, [timeSelectCalendarState]);
 
   // Real-time sync: Derive GroupView state from TimeSelect state
   // This ensures the right calendar updates instantly when the user makes selections on the left
@@ -290,6 +397,15 @@ export default function SideBySideView({
               {/* Top bar with timezone, save, and view toggle */}
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 <div className="hidden md:flex w-full max-w-full items-center gap-2">
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    themeGradient={false}
+                    onClick={handleAutofillAvailabilityClick}
+                    className="!rounded-lg"
+                  >
+                    Autofill Availability
+                  </ButtonSmall>
                   <div className="flex-1">
                     <TimezoneChanger
                       theCalendarFramework={[calendarFramework, setCalendarFramework]}
@@ -300,16 +416,14 @@ export default function SideBySideView({
                       })()}
                     />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <ButtonSmall
-                      bgColor="primary"
-                      textColor="white"
-                      onClick={onSave}
-                      disabled={isSaving}
-                    >
-                      {isSaving ? 'Saving...' : 'Save'}
-                    </ButtonSmall>
-                  </div>
+                  <ButtonSmall
+                    bgColor="primary"
+                    textColor="white"
+                    onClick={onSave}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </ButtonSmall>
                 </div>
               </div>
 
