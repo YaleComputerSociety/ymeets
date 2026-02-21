@@ -286,7 +286,7 @@ export default function SharedSidebar({
           )}
           {currentUser && hasAccess && isCalendarsExpanded && (
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <ul className="space-y-1 overflow-y-auto max-h-[120px]">
+              <ul className="space-y-1 overflow-y-auto max-h-[120px] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
