@@ -312,6 +312,16 @@ export default function SideBySideView({
       [setTimeSelectCalendarState, setHasUnsavedChanges]
     );
 
+  // Wrapped setter for location preferences that marks changes as unsaved
+  const wrappedSetSelectedLocations: Dispatch<SetStateAction<string[]>> =
+    useCallback(
+      (action) => {
+        setSelectedLocations(action);
+        setHasUnsavedChanges(true);
+      },
+      [setSelectedLocations, setHasUnsavedChanges]
+    );
+
   // Autofill availability from Google Calendar
   const handleAutofillAvailabilityClick = async () => {
     if (!currentUser) {
@@ -418,7 +428,7 @@ export default function SideBySideView({
             selectedCalendarIds={selectedCalendarIds}
             setSelectedCalendarIds={setSelectedCalendarIds}
             selectedLocations={selectedLocations}
-            setSelectedLocations={setSelectedLocations}
+            setSelectedLocations={wrappedSetSelectedLocations}
             userHasSignedIn={userHasSignedIn}
             onUserSignIn={() => setUserHasSignedIn(true)}
           />
