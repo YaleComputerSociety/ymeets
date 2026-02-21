@@ -129,7 +129,7 @@ export default function GroupViewPage({
 
   const nav = useNavigate();
 
-  const createCalendarEventUrl = useCallback((event: any) => {
+  const createCalendarEventUrl = useCallback((event: any, isRecurring: boolean = false) => {
     const startDateTime = new Date(event.start.dateTime)
       .toISOString()
       .replace(/-|:|\.\d\d\d/g, '');
@@ -152,13 +152,17 @@ export default function GroupViewPage({
       add: attendeesEmails,
     });
 
+    if (isRecurring) {
+      queryParams.set('recur', 'RRULE:FREQ=WEEKLY');
+    }
+
     return `${baseUrl}?${queryParams.toString()}`;
   }, []);
 
   const handleAddToCalendar = useCallback(
-    async (startDate: Date, endDate: Date, location: string | undefined) => {
+    async (startDate: Date, endDate: Date, location: string | undefined, isRecurring: boolean = false) => {
       const event = getEventObjectForGCal(startDate, endDate, location);
-      const calendarEventUrl = createCalendarEventUrl(event);
+      const calendarEventUrl = createCalendarEventUrl(event, isRecurring);
 
       window.open(calendarEventUrl, '_blank');
     },
@@ -212,7 +216,8 @@ export default function GroupViewPage({
       : [0, 0];
 
     let selectedStartTimeDateObject = new Date(calDate?.date!);
-    if (selectedStartTimeDateObject.getFullYear() === 2000) {
+    const isGeneralDayEvent = selectedStartTimeDateObject.getFullYear() === 2000;
+    if (isGeneralDayEvent) {
       selectedStartTimeDateObject = getNextDayOccurrence(selectedStartTimeDateObject.getDay());
     }
     selectedStartTimeDateObject.setHours(startHour);
@@ -239,7 +244,8 @@ export default function GroupViewPage({
       await handleAddToCalendar(
         selectedStartTimeDateObject,
         selectedEndTimeDateObject,
-        adminChosenLocation
+        adminChosenLocation,
+        isGeneralDayEvent
       );
     } else {
       login();
