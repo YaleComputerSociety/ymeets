@@ -1,12 +1,15 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { userData } from '../../types';
 import {
   getAccountName,
   getAccountEmail,
+  getAccountId,
   getChosenLocation,
   getEmailAdmin,
   setEmailAdmin,
   updateAnonymousUserToAuthUser,
+  getSelectedCalendarIDsByUserID,
+  setUserSelectedCalendarIDs,
 } from '../../backend/events';
 import LocationChart from '../GroupView/LocationChart';
 import LocationSelectionComponent from '../TimeSelect/LocationSelectionComponent';
@@ -105,6 +108,25 @@ export default function SharedSidebar({
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
+  // Load saved calendar preferences on mount
+  useEffect(() => {
+    const loadSavedCalendarPreferences = async () => {
+      const uid = getAccountId();
+      if (!uid || !hasAccess) return;
+
+      try {
+        const savedCalendarIds = await getSelectedCalendarIDsByUserID(uid);
+        if (savedCalendarIds.length > 0 && setSelectedCalendarIds) {
+          setSelectedCalendarIds(savedCalendarIds);
+        }
+      } catch (error) {
+        console.error('Error loading saved calendar preferences:', error);
+      }
+    };
+
+    loadSavedCalendarPreferences();
+  }, [hasAccess, setSelectedCalendarIds]);
+
   const fetchUserCalendars = async () => {
     try {
       if (!hasAccess) {
@@ -124,11 +146,17 @@ export default function SharedSidebar({
   const handleCalendarToggle = (calId: string) => {
     if (setSelectedCalendarIds) {
       setSelectedCalendarIds((prevState) => {
-        if (prevState?.includes(calId)) {
-          return prevState.filter((id) => id !== calId);
-        } else {
-          return [...(prevState || []), calId];
+        const newSelectedIds = prevState?.includes(calId)
+          ? prevState.filter((id) => id !== calId)
+          : [...(prevState || []), calId];
+
+        // Save the updated calendar preferences
+        const uid = getAccountId();
+        if (uid) {
+          setUserSelectedCalendarIDs(uid, newSelectedIds);
         }
+
+        return newSelectedIds;
       });
     }
   };
