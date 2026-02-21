@@ -3,9 +3,11 @@ import { userData } from '../../types';
 import {
   getAccountName,
   getAccountEmail,
+  getAccountId,
   getChosenLocation,
   getEmailAdmin,
   setEmailAdmin,
+  updateAnonymousUserToAuthUser,
 } from '../../backend/events';
 import LocationChart from '../GroupView/LocationChart';
 import UserChart from '../GroupView/UserChart';
@@ -14,6 +16,15 @@ import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import AlertPopup from '../utils/components/AlertPopup';
 import { IconCheck } from '@tabler/icons-react';
+import { useGoogleCalendar } from '../../backend/useGoogleCalService';
+import { useAuth } from '../../backend/authContext';
+import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
+
+interface Calendar {
+  id: string;
+  summary: string;
+  primary?: boolean;
+}
 
 interface SharedSidebarProps {
   eventName: string;
@@ -42,6 +53,12 @@ interface SharedSidebarProps {
   // For participant toggle
   participantToggleClicked?: boolean;
   setParticipantToggleClicked?: Dispatch<SetStateAction<boolean>>;
+
+  // Google Calendar integration
+  googleCalendars?: Calendar[];
+  setGoogleCalendars?: Dispatch<SetStateAction<Calendar[]>>;
+  selectedCalendarIds?: string[];
+  setSelectedCalendarIds?: Dispatch<SetStateAction<string[]>>;
 }
 
 export default function SharedSidebar({
@@ -61,9 +78,60 @@ export default function SharedSidebar({
   calendarHeight,
   participantToggleClicked = true,
   setParticipantToggleClicked,
+  googleCalendars = [],
+  setGoogleCalendars,
+  selectedCalendarIds = [],
+  setSelectedCalendarIds,
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
+
+  const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
+  const { login, currentUser } = useAuth();
+
+  const fetchUserCalendars = async () => {
+    try {
+      if (!hasAccess) {
+        return [];
+      }
+      const calendars = await getCalendars();
+      if (setGoogleCalendars) {
+        setGoogleCalendars(calendars);
+      }
+      return calendars;
+    } catch (error) {
+      console.error('Error fetching Google Calendars:', error);
+      return [];
+    }
+  };
+
+  const handleCalendarToggle = (calId: string) => {
+    if (setSelectedCalendarIds) {
+      setSelectedCalendarIds((prevState) => {
+        if (prevState?.includes(calId)) {
+          return prevState.filter((id) => id !== calId);
+        } else {
+          return [...(prevState || []), calId];
+        }
+      });
+    }
+  };
+
+  const handleSignIn = async () => {
+    if (currentUser && !hasAccess) {
+      await requestAccess();
+      await fetchUserCalendars();
+    } else {
+      const user = await login();
+      if (user) {
+        updateAnonymousUserToAuthUser(getAccountName());
+        const scopeGranted = await requestAccess();
+        if (scopeGranted) {
+          await fetchUserCalendars();
+        }
+      }
+    }
+  };
 
   const filteredChartedUsers = {
     ...chartedUsers,
@@ -161,6 +229,57 @@ export default function SharedSidebar({
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Get notified when someone fills out their availability
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Google Calendar Section */}
+      {!chartedUsers?.hovering && (
+        <div className="w-full">
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Your Calendars
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col min-h-0">
+            {currentUser && hasAccess ? (
+              <ul className="space-y-1 overflow-y-auto max-h-32">
+                {googleCalendars.map((cal) => (
+                  <li
+                    key={cal.id}
+                    className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
+                    onClick={() => handleCalendarToggle(cal.id)}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-sm mr-3 flex-shrink-0 flex items-center justify-center ${
+                        selectedCalendarIds?.includes(cal.id)
+                          ? 'bg-primary dark:bg-blue-700'
+                          : 'bg-transparent'
+                      } border border-gray-400 dark:border-gray-600`}
+                    >
+                      {selectedCalendarIds?.includes(cal.id) && (
+                        <IconCheck size={12} color="white" />
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 truncate">
+                      {cal.summary}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <p className="text-gray-600 dark:text-gray-300 text-xs">
+                  Import your calendars to see your events
+                </p>
+                <button
+                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-3 text-xs
+                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                  onClick={handleSignIn}
+                >
+                  <img src={LOGO} alt="Logo" className="mr-2 h-4" />
+                  Sign in
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

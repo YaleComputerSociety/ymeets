@@ -47,6 +47,12 @@ export default function UnifiedAvailabilityPage() {
     calendar_v3.Schema$Event[]
   >([]);
 
+  // Google Calendar list for sidebar
+  const [googleCalendars, setGoogleCalendars] = useState<
+    { id: string; summary: string; primary?: boolean }[]
+  >([]);
+  const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
+
   // groupview states
   const [groupViewCalendarState, setGroupViewCalendarState] =
     useState<calanderState>([]);
@@ -276,6 +282,10 @@ export default function UnifiedAvailabilityPage() {
           isGeneralDays={isGeneralDays}
           googleCalendarEvents={googleCalendarEvents}
           setGoogleCalendarEvents={setGoogleCalendarEvents}
+          googleCalendars={googleCalendars}
+          setGoogleCalendars={setGoogleCalendars}
+          selectedCalendarIds={selectedCalendarIds}
+          setSelectedCalendarIds={setSelectedCalendarIds}
           onSave={handleSideBySideSave}
           isSaving={isSaving}
         />

@@ -1,6 +1,7 @@
 import {
   useState,
   useMemo,
+  useEffect,
   Dispatch,
   SetStateAction,
   useCallback,
@@ -23,6 +24,13 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
+import { useGoogleCalendar } from '../../backend/useGoogleCalService';
+
+interface Calendar {
+  id: string;
+  summary: string;
+  primary?: boolean;
+}
 
 interface SideBySideViewProps {
   // Calendar states
@@ -59,6 +67,12 @@ interface SideBySideViewProps {
     SetStateAction<calendar_v3.Schema$Event[]>
   >;
 
+  // Google Calendar list state
+  googleCalendars: Calendar[];
+  setGoogleCalendars: Dispatch<SetStateAction<Calendar[]>>;
+  selectedCalendarIds: string[];
+  setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
+
   // Save functionality
   onSave: () => Promise<void>;
   isSaving: boolean;
@@ -87,6 +101,10 @@ export default function SideBySideView({
   isGeneralDays,
   googleCalendarEvents,
   setGoogleCalendarEvents,
+  googleCalendars,
+  setGoogleCalendars,
+  selectedCalendarIds,
+  setSelectedCalendarIds,
   onSave,
   isSaving,
 }: SideBySideViewProps) {
@@ -96,6 +114,81 @@ export default function SideBySideView({
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
   const [expandedCalendar, setExpandedCalendar] = useState<'left' | 'right' | null>(null);
+
+  // Google Calendar hook for fetching events
+  const { hasAccess, getEvents, getCalendars } = useGoogleCalendar();
+
+  // Fetch Google Calendar events when selected calendars change
+  const fetchGoogleCalEvents = useCallback(async (calIds: string[]) => {
+    if (!hasAccess || calIds.length === 0) {
+      setGoogleCalendarEvents([]);
+      return [];
+    }
+
+    const dates = calendarFramework.dates.flat();
+    if (dates.length === 0) return [];
+
+    const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
+    const startDate = new Date(Math.min(...dateTimestamps));
+    startDate.setHours(0, 0, 0, 0);
+    const timeMin = startDate.toISOString();
+
+    const endDate = new Date(Math.max(...dateTimestamps));
+    endDate.setHours(23, 59, 59, 999);
+    const timeMax = endDate.toISOString();
+
+    const allEvents: calendar_v3.Schema$Event[] = [];
+
+    for (const calId of calIds) {
+      try {
+        const events = await getEvents(
+          calId,
+          timeMin,
+          timeMax,
+          calendarFramework.timezone
+        );
+
+        // Filter out multi-day events
+        const singleDayEvents = events.filter((event) => {
+          if (!event.start?.dateTime || !event.end?.dateTime) return false;
+          const start = new Date(event.start.dateTime);
+          const end = new Date(event.end.dateTime);
+          return start.getDay() === end.getDay();
+        });
+
+        allEvents.push(...singleDayEvents);
+      } catch (error) {
+        console.error('Error fetching events for calendar:', calId, error);
+      }
+    }
+
+    setGoogleCalendarEvents(allEvents);
+    return allEvents;
+  }, [hasAccess, calendarFramework.dates, calendarFramework.timezone, getEvents, setGoogleCalendarEvents]);
+
+  // Fetch calendars and events when access is available
+  useEffect(() => {
+    const initializeCalendars = async () => {
+      if (hasAccess && googleCalendars.length === 0) {
+        try {
+          const calendars = await getCalendars();
+          setGoogleCalendars(calendars);
+        } catch (error) {
+          console.error('Error fetching calendars:', error);
+        }
+      }
+    };
+    initializeCalendars();
+  }, [hasAccess, googleCalendars.length, getCalendars, setGoogleCalendars]);
+
+  // Fetch events when selected calendar IDs change
+  useEffect(() => {
+    if (hasAccess && selectedCalendarIds.length > 0) {
+      fetchGoogleCalEvents(selectedCalendarIds);
+    } else if (selectedCalendarIds.length === 0) {
+      setGoogleCalendarEvents([]);
+    }
+  }, [hasAccess, selectedCalendarIds, fetchGoogleCalEvents, setGoogleCalendarEvents]);
 
   // Drag state for left calendar (TimeSelect - user editing)
   const [leftDragState, setLeftDragState] = useState<dragProperties>({
@@ -183,6 +276,10 @@ export default function SideBySideView({
             calendarHeight={calendarHeight}
             participantToggleClicked={participantToggleClicked}
             setParticipantToggleClicked={setParticipantToggleClicked}
+            googleCalendars={googleCalendars}
+            setGoogleCalendars={setGoogleCalendars}
+            selectedCalendarIds={selectedCalendarIds}
+            setSelectedCalendarIds={setSelectedCalendarIds}
           />
         </div>
 
