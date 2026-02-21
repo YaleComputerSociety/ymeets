@@ -170,7 +170,8 @@ export default function UnifiedAvailabilityPage() {
 
           setUserHasFilled(participants.userIDs.includes(getAccountId()));
 
-          setGroupViewCalendarState(availabilities);
+          // Deep copy to prevent shared references with timeSelectCalendarState
+          setGroupViewCalendarState(JSON.parse(JSON.stringify(availabilities)));
           setGroupViewCalendarFramework(dim);
 
           setEventName(getEventName());

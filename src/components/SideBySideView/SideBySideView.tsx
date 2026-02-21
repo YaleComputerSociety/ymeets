@@ -339,17 +339,6 @@ export default function SideBySideView({
     lastPosition: null,
   });
 
-  // Real-time sync: Derive GroupView state from TimeSelect state
-  // This ensures the right calendar updates instantly when the user makes selections on the left
-  const derivedGroupViewState = useMemo(() => {
-    const userIndex = getCurrentUserIndex();
-    const newState = [...groupViewCalendarState];
-
-    if (timeSelectCalendarState[userIndex]) {
-      newState[userIndex] = timeSelectCalendarState[userIndex];
-    }
-    return newState;
-  }, [timeSelectCalendarState, groupViewCalendarState, getCurrentUserIndex]);
 
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
@@ -509,7 +498,7 @@ export default function SideBySideView({
                     <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
-                        theCalendarState={[derivedGroupViewState, noop]}
+                        theCalendarState={[groupViewCalendarState, noop]}
                         theCalendarFramework={[calendarFramework, setCalendarFramework]}
                         chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                         draggable={false}
