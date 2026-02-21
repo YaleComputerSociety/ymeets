@@ -91,7 +91,7 @@ export default function SharedSidebar({
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
-  const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(false);
+  const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
@@ -257,7 +257,7 @@ export default function SharedSidebar({
               {currentUser &&
                 hasAccess &&
                 googleCalendars.length > 0 &&
-                `(${selectedCalendarIds.length})`}
+                `(${selectedCalendarIds.length} selected)`}
             </span>
             {currentUser &&
               hasAccess &&
