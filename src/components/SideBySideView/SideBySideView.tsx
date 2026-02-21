@@ -85,6 +85,10 @@ interface SideBySideViewProps {
   // Save functionality
   onSave: () => Promise<void>;
   isSaving: boolean;
+
+  // Unsaved changes tracking
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function SideBySideView({
@@ -120,6 +124,8 @@ export default function SideBySideView({
   setUserHasSignedIn,
   onSave,
   isSaving,
+  hasUnsavedChanges,
+  setHasUnsavedChanges,
 }: SideBySideViewProps) {
   const [showUserChart, setShowUserChart] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
@@ -296,6 +302,16 @@ export default function SideBySideView({
     return user;
   }, [timeSelectCalendarState]);
 
+  // Wrapped setter that marks changes as unsaved
+  const wrappedSetTimeSelectCalendarState: Dispatch<SetStateAction<calanderState>> =
+    useCallback(
+      (action) => {
+        setTimeSelectCalendarState(action);
+        setHasUnsavedChanges(true);
+      },
+      [setTimeSelectCalendarState, setHasUnsavedChanges]
+    );
+
   // Autofill availability from Google Calendar
   const handleAutofillAvailabilityClick = async () => {
     if (!currentUser) {
@@ -332,6 +348,7 @@ export default function SideBySideView({
     const newCalendarState = { ...timeSelectCalendarState };
     newCalendarState[getCurrentUserIndex()] = newAvailability;
     setTimeSelectCalendarState(newCalendarState);
+    setHasUnsavedChanges(true);
   };
 
   // Drag state for left calendar (TimeSelect - user editing)
@@ -440,14 +457,14 @@ export default function SideBySideView({
                       })()}
                     />
                   </div>
-                  {userHasSignedIn && (
+                  {userHasSignedIn && hasUnsavedChanges && (
                     <ButtonSmall
                       bgColor="primary"
                       textColor="white"
                       onClick={onSave}
                       disabled={isSaving}
                     >
-                      {isSaving ? 'Saving...' : 'Save'}
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </ButtonSmall>
                   )}
                 </div>
@@ -487,7 +504,7 @@ export default function SideBySideView({
                         compactMode={expandedCalendar !== 'left'}
                         theCalendarState={[
                           timeSelectCalendarState,
-                          setTimeSelectCalendarState,
+                          wrappedSetTimeSelectCalendarState,
                         ]}
                         theCalendarFramework={[
                           calendarFramework,

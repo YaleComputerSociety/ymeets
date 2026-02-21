@@ -56,6 +56,9 @@ export default function UnifiedAvailabilityPage() {
   // User's preferred locations
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
+  // Track unsaved changes for save button visibility
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
   // User signed-in state - check if user has a name (either from Google or manual entry)
   const [userHasSignedIn, setUserHasSignedIn] = useState(() => {
     return getAccountName() !== '';
@@ -135,6 +138,7 @@ export default function UnifiedAvailabilityPage() {
       await wrappedSaveParticipantDetails(avail, selectedLocations);
       // Refresh data after save
       await fetchData(false);
+      setHasUnsavedChanges(false);
     } finally {
       setIsSaving(false);
     }
@@ -301,6 +305,8 @@ export default function UnifiedAvailabilityPage() {
           setUserHasSignedIn={setUserHasSignedIn}
           onSave={handleSideBySideSave}
           isSaving={isSaving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          setHasUnsavedChanges={setHasUnsavedChanges}
         />
       </div>
 
