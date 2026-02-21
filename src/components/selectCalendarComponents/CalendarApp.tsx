@@ -1,5 +1,4 @@
-import React, { 
-  useEffect,
+import React, {
   Dispatch,
   SetStateAction,
   useCallback,
@@ -45,6 +44,7 @@ interface CalendarProps {
   chartedUsers?: userData;
   setCalendarHeight?: Dispatch<SetStateAction<number | null>>;
   compactMode?: boolean;
+  calendarLabel?: string;
 }
 
 export default function Calendar({
@@ -63,6 +63,7 @@ export default function Calendar({
   chartedUsers,
   setCalendarHeight,
   compactMode = false,
+  calendarLabel,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -157,7 +158,7 @@ export default function Calendar({
       }}
     ref={ref}
     >
-      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
+      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
             onClick={handlePrev}
@@ -165,7 +166,13 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11"></div>
+        )}
+
+        {calendarLabel && (
+          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+            {calendarLabel}
+          </span>
         )}
 
         {currentStartPage + numberOfColumnsPerPage <
@@ -176,7 +183,7 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11"></div>
         )}
       </div>
       <div

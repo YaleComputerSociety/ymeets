@@ -465,6 +465,7 @@ export default function SideBySideView({
                         theShowUserChart={undefined}
                         isGeneralDays={isGeneralDays}
                         setCalendarHeight={setCalendarHeight}
+                        calendarLabel="Your Availability"
                       />
                     </div>
                   </div>
@@ -507,6 +508,7 @@ export default function SideBySideView({
                         isGeneralDays={false}
                         setChartedUsers={setChartedUsers}
                         chartedUsers={chartedUsers}
+                        calendarLabel="Group Availability"
                       />
                     </div>
                   </div>
