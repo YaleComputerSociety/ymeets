@@ -19,7 +19,9 @@ import {
   wrappedSaveParticipantDetails,
   getParticipantIndex,
   checkIfAdmin,
+  workingEvent,
 } from '../../backend/events';
+import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
   calanderState,
   userData,
@@ -136,6 +138,18 @@ export default function UnifiedAvailabilityPage() {
         ? (timeSelectCalendarState[user] ?? [])
         : [];
       await wrappedSaveParticipantDetails(avail, selectedLocations);
+
+      // Email event admin if they opted in
+      if (workingEvent.details.emailAdmin === true) {
+        notifyAdminOfNewResponse(
+          workingEvent.details.adminAccountId,
+          getAccountId(),
+          getAccountName(),
+          workingEvent.details.name,
+          workingEvent.publicId
+        );
+      }
+
       // Refresh data after save
       await fetchData(false);
       setHasUnsavedChanges(false);
