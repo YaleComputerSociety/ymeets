@@ -19,6 +19,8 @@ import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
+import LoginPopup from '../utils/components/LoginPopup';
+import ButtonSmall from '../utils/components/ButtonSmall';
 
 interface Calendar {
   id: string;
@@ -63,6 +65,10 @@ interface SharedSidebarProps {
   // Location selection (user's preferred locations)
   selectedLocations?: string[];
   setSelectedLocations?: Dispatch<SetStateAction<string[]>>;
+
+  // User signed-in state
+  userHasSignedIn: boolean;
+  onUserSignIn: () => void;
 }
 
 export default function SharedSidebar({
@@ -88,10 +94,13 @@ export default function SharedSidebar({
   setSelectedCalendarIds,
   selectedLocations = [],
   setSelectedLocations,
+  userHasSignedIn,
+  onUserSignIn,
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
@@ -185,6 +194,20 @@ export default function SharedSidebar({
         </div>
       )}
 
+      {/* Add My Availability Button - shown when user is not signed in */}
+      {!chartedUsers?.hovering && !userHasSignedIn && (
+        <div className="w-full">
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={() => setShowLoginPopup(true)}
+            className="w-full"
+          >
+            Add My Availability
+          </ButtonSmall>
+        </div>
+      )}
+
       {/* Share Section */}
       {!chartedUsers?.hovering && (
         <div className="w-full">
@@ -240,8 +263,8 @@ export default function SharedSidebar({
         </div>
       )}
 
-      {/* Google Calendar Section */}
-      {!chartedUsers?.hovering && (
+      {/* Google Calendar Section - only show when user is signed in */}
+      {!chartedUsers?.hovering && userHasSignedIn && (
         <div className="w-full">
           <div
             className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer"
@@ -379,16 +402,18 @@ export default function SharedSidebar({
             Locations
           </div>
           <div className="space-y-3">
-            {/* User's location vote */}
-            <div className="z-50 relative">
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                Cast your vote
+            {/* User's location vote - only show when signed in */}
+            {userHasSignedIn && (
+              <div className="z-50 relative">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Cast your vote
+                </div>
+                <LocationSelectionComponent
+                  locations={locationOptions}
+                  update={(selected) => setSelectedLocations && setSelectedLocations(selected)}
+                />
               </div>
-              <LocationSelectionComponent
-                locations={locationOptions}
-                update={(selected) => setSelectedLocations && setSelectedLocations(selected)}
-              />
-            </div>
+            )}
             {/* Group's location votes */}
             <div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -424,6 +449,20 @@ export default function SharedSidebar({
             calendarHeight={calendarHeight ?? null}
           />
         </div>
+      )}
+
+      {/* Login Popup */}
+      {showLoginPopup && (
+        <LoginPopup
+          onClose={(successFlag) => {
+            setShowLoginPopup(false);
+            if (successFlag) {
+              onUserSignIn();
+            }
+          }}
+          enableAnonymousSignIn={true}
+          code={code || ''}
+        />
       )}
     </div>
   );

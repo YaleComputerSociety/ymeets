@@ -56,6 +56,11 @@ export default function UnifiedAvailabilityPage() {
   // User's preferred locations
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
+  // User signed-in state - check if user has a name (either from Google or manual entry)
+  const [userHasSignedIn, setUserHasSignedIn] = useState(() => {
+    return getAccountName() !== '';
+  });
+
   // groupview states
   const [groupViewCalendarState, setGroupViewCalendarState] =
     useState<calanderState>([]);
@@ -291,6 +296,8 @@ export default function UnifiedAvailabilityPage() {
           setSelectedCalendarIds={setSelectedCalendarIds}
           selectedLocations={selectedLocations}
           setSelectedLocations={setSelectedLocations}
+          userHasSignedIn={userHasSignedIn}
+          setUserHasSignedIn={setUserHasSignedIn}
           onSave={handleSideBySideSave}
           isSaving={isSaving}
         />

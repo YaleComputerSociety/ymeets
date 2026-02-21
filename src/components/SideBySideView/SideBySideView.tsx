@@ -80,6 +80,10 @@ interface SideBySideViewProps {
   selectedLocations: string[];
   setSelectedLocations: Dispatch<SetStateAction<string[]>>;
 
+  // User signed-in state
+  userHasSignedIn: boolean;
+  setUserHasSignedIn: Dispatch<SetStateAction<boolean>>;
+
   // Save functionality
   onSave: () => Promise<void>;
   isSaving: boolean;
@@ -114,6 +118,8 @@ export default function SideBySideView({
   setSelectedCalendarIds,
   selectedLocations,
   setSelectedLocations,
+  userHasSignedIn,
+  setUserHasSignedIn,
   onSave,
   isSaving,
 }: SideBySideViewProps) {
@@ -395,6 +401,8 @@ export default function SideBySideView({
             setSelectedCalendarIds={setSelectedCalendarIds}
             selectedLocations={selectedLocations}
             setSelectedLocations={setSelectedLocations}
+            userHasSignedIn={userHasSignedIn}
+            onUserSignIn={() => setUserHasSignedIn(true)}
           />
         </div>
 
@@ -405,15 +413,17 @@ export default function SideBySideView({
               {/* Top bar with timezone, save, and view toggle */}
               <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
                 <div className="hidden md:flex w-full max-w-full items-center gap-2">
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    themeGradient={false}
-                    onClick={handleAutofillAvailabilityClick}
-                    className="!rounded-lg"
-                  >
-                    Autofill Availability
-                  </ButtonSmall>
+                  {userHasSignedIn && (
+                    <ButtonSmall
+                      bgColor="primary"
+                      textColor="white"
+                      themeGradient={false}
+                      onClick={handleAutofillAvailabilityClick}
+                      className="!rounded-lg"
+                    >
+                      Autofill Availability
+                    </ButtonSmall>
+                  )}
                   <div className="flex-1">
                     <TimezoneChanger
                       theCalendarFramework={[calendarFramework, setCalendarFramework]}
@@ -424,21 +434,23 @@ export default function SideBySideView({
                       })()}
                     />
                   </div>
-                  <ButtonSmall
-                    bgColor="primary"
-                    textColor="white"
-                    onClick={onSave}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </ButtonSmall>
+                  {userHasSignedIn && (
+                    <ButtonSmall
+                      bgColor="primary"
+                      textColor="white"
+                      onClick={onSave}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </ButtonSmall>
+                  )}
                 </div>
               </div>
 
               {/* Side-by-side calendars */}
               <div className="flex gap-4 px-5">
-                {/* Left Calendar (Edit Your Availability) */}
-                {expandedCalendar !== 'right' && (
+                {/* Left Calendar (Edit Your Availability) - only show when user is signed in */}
+                {expandedCalendar !== 'right' && userHasSignedIn && (
                   <div className="flex-1 flex flex-col min-w-0 relative">
                     {/* Expand/Collapse button - superimposed on top right */}
                     <button
@@ -479,8 +491,8 @@ export default function SideBySideView({
                   </div>
                 )}
 
-                {/* Right Calendar (Group Availability) */}
-                {expandedCalendar !== 'left' && (
+                {/* Right Calendar (Group Availability) - always show when user not signed in */}
+                {(expandedCalendar !== 'left' || !userHasSignedIn) && (
                   <div className="flex-1 flex flex-col min-w-0 relative">
                     {/* Expand/Collapse button - superimposed on top right */}
                     <button

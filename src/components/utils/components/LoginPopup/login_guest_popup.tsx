@@ -40,7 +40,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           // navigate(`/timeselect/${code}`);
           navigate('/dashboard/' + code, { state: { isEditing: true } });
         }
-        onClose();
+        onClose(true);
         document.body.classList.remove('popup-open');
       }
     });
