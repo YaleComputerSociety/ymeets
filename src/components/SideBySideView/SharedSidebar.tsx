@@ -3,7 +3,6 @@ import { userData } from '../../types';
 import {
   getAccountName,
   getAccountEmail,
-  getAccountId,
   getChosenLocation,
   getEmailAdmin,
   setEmailAdmin,
@@ -15,7 +14,7 @@ import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import AlertPopup from '../utils/components/AlertPopup';
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
@@ -85,6 +84,7 @@ export default function SharedSidebar({
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
+  const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(false);
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
@@ -141,7 +141,7 @@ export default function SharedSidebar({
   };
 
   return (
-    <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto">
+    <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
       <AlertPopup
         title="Alert"
         message={alertMessage || ''}
@@ -227,7 +227,7 @@ export default function SharedSidebar({
               </label>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Get notified when someone fills out their availability
+              Get notified when someone adds their availability
             </p>
           </div>
         </div>
@@ -236,12 +236,57 @@ export default function SharedSidebar({
       {/* Google Calendar Section */}
       {!chartedUsers?.hovering && (
         <div className="w-full">
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-            Your Calendars
+          <div
+            className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer"
+            onClick={() =>
+              currentUser &&
+              hasAccess &&
+              googleCalendars.length > 0 &&
+              setIsCalendarsExpanded(!isCalendarsExpanded)
+            }
+          >
+            <span>
+              Your Calendars{' '}
+              {currentUser &&
+                hasAccess &&
+                googleCalendars.length > 0 &&
+                `(${selectedCalendarIds.length})`}
+            </span>
+            {currentUser &&
+              hasAccess &&
+              googleCalendars.length > 0 &&
+              (isCalendarsExpanded ? (
+                <IconChevronUp
+                  size={14}
+                  className="text-gray-500 dark:text-gray-400"
+                />
+              ) : (
+                <IconChevronDown
+                  size={14}
+                  className="text-gray-500 dark:text-gray-400"
+                />
+              ))}
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col min-h-0">
-            {currentUser && hasAccess ? (
-              <ul className="space-y-1">
+          {(!currentUser || !hasAccess) && (
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <p className="text-gray-600 dark:text-gray-300 text-xs">
+                  Import your calendars to see your events
+                </p>
+                <button
+                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-3 text-xs
+                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
+                  onClick={handleSignIn}
+                >
+                  <img src={LOGO} alt="Logo" className="mr-2 h-4" />
+                  Sign in
+                </button>
+              </div>
+            </div>
+          )}
+          {currentUser && hasAccess && isCalendarsExpanded && (
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <ul className="space-y-1 overflow-y-auto max-h-[120px]">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
@@ -265,22 +310,8 @@ export default function SharedSidebar({
                   </li>
                 ))}
               </ul>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
-                <p className="text-gray-600 dark:text-gray-300 text-xs">
-                  Import your calendars to see your events
-                </p>
-                <button
-                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-3 text-xs
-                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={handleSignIn}
-                >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-4" />
-                  Sign in
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -299,8 +330,8 @@ export default function SharedSidebar({
                 className="flex items-center justify-between py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mx-1"
                 onClick={() => {
                   if (
-                    allPeople.filter((person) => peopleStatus[person]).length ===
-                      1 &&
+                    allPeople.filter((person) => peopleStatus[person])
+                      .length === 1 &&
                     peopleStatus[name]
                   ) {
                     setAlertMessage("You can't remove the last participant");
@@ -345,7 +376,9 @@ export default function SharedSidebar({
               adminChosenLocation,
               setAdminChosenLocation || (() => {}),
             ]}
-            locationOptions={locationOptions.length > 0 ? locationOptions : ['']}
+            locationOptions={
+              locationOptions.length > 0 ? locationOptions : ['']
+            }
             locationVotes={Object.values(locationVotes)}
             selectionMade={!!getChosenLocation()}
           />
