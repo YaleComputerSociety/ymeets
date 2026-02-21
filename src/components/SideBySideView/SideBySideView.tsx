@@ -359,10 +359,10 @@ export default function SideBySideView({
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
         <div
-          className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3"
+          className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3 overflow-hidden"
           style={
             calendarHeight
-              ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
+              ? { height: calendarHeight + 60, maxHeight: calendarHeight + 60 }
               : undefined
           }
         >
