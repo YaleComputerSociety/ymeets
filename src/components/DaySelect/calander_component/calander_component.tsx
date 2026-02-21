@@ -114,17 +114,17 @@ export const CalanderComponent = ({
   const [selectedDates, setSelectedDates] = theSelectedDates;
   const [lastSelectedDate, setLastSelectedDate] = useState<Date | null>(null);
 
-  // Drag-to-select state: when user drags across days we select the range
+  // Drag-to-select state: when user drags across days we select or deselect the range
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartDate, setDragStartDate] = useState<Date | null>(null);
   const [dragHasMoved, setDragHasMoved] = useState(false);
+  const [dragMode, setDragMode] = useState<'add' | 'remove'>('add');
   const dragHasMovedRef = useRef(false);
   const dragStartDateRef = useRef<Date | null>(null);
   dragHasMovedRef.current = dragHasMoved;
   dragStartDateRef.current = dragStartDate;
 
-
-  //Event listener for user dragging mouse
+  // Event listener for user dragging mouse
   useEffect(() => {
     if (!isDragging) return;
     const handleMouseUp = () => {
@@ -140,6 +140,8 @@ export const CalanderComponent = ({
   }, [isDragging]);
 
   const handleDragStart = (date: Date) => {
+    const startWasSelected = selectedDates.some((d) => isSameDay(d, date));
+    setDragMode(startWasSelected ? 'remove' : 'add');
     setDragStartDate(date);
     setIsDragging(true);
     setDragHasMoved(false);
@@ -152,7 +154,29 @@ export const CalanderComponent = ({
     if (start > end) [start, end] = [end, start];
     if (start.getTime() !== end.getTime()) setDragHasMoved(true);
     const range = getDatesFromRange({ startDate: start, endDate: end });
-    setSelectedDates(range.map(({ date: d }) => d).sort((a, b) => a.getTime() - b.getTime()));
+    //Allow users to select multiple ranges by combining together intervals.
+    const datesInRange = range.map(({ date: d }) => d);
+
+    if (dragMode === 'remove') {
+      setSelectedDates((prev) =>
+        prev
+          .filter(
+            (d) =>
+              !datesInRange.some((r) => d.getTime() === r.getTime())
+          )
+          .sort((a, b) => a.getTime() - b.getTime())
+      );
+    } else {
+      setSelectedDates((prev) => {
+        const combined = [...prev];
+        datesInRange.forEach((d) => {
+          if (!combined.some((existing) => existing.getTime() === d.getTime())) {
+            combined.push(d);
+          }
+        });
+        return combined.sort((a, b) => a.getTime() - b.getTime());
+      });
+    }
   };
 
   const addDay = (date: Date) => {
