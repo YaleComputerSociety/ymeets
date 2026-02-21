@@ -1,5 +1,4 @@
-import React, { 
-  useEffect,
+import React, {
   Dispatch,
   SetStateAction,
   useCallback,
@@ -44,6 +43,8 @@ interface CalendarProps {
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
   chartedUsers?: userData;
   setCalendarHeight?: Dispatch<SetStateAction<number | null>>;
+  compactMode?: boolean;
+  calendarLabel?: string;
 }
 
 export default function Calendar({
@@ -61,6 +62,8 @@ export default function Calendar({
   setChartedUsers,
   chartedUsers,
   setCalendarHeight,
+  compactMode = false,
+  calendarLabel,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -87,6 +90,11 @@ export default function Calendar({
 
   const calculateColumnsPerPage = () => {
     const width = window.innerWidth;
+    if (compactMode) {
+      if (width > 1400) return 5;
+      if (width > 1200) return 4;
+      return 3;
+    }
     if (width > 1200) return 7;
     if (width > 900) return 5;
     return 3;
@@ -117,7 +125,7 @@ export default function Calendar({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [compactMode]);
 
   const [currentStartPage, setCurrentStartPage] = React.useState(0);
 
@@ -150,7 +158,7 @@ export default function Calendar({
       }}
     ref={ref}
     >
-      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
+      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
             onClick={handlePrev}
@@ -158,7 +166,13 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11"></div>
+        )}
+
+        {calendarLabel && (
+          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+            {calendarLabel}
+          </span>
         )}
 
         {currentStartPage + numberOfColumnsPerPage <
@@ -169,7 +183,7 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11"></div>
         )}
       </div>
       <div
@@ -181,7 +195,7 @@ export default function Calendar({
           className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-30"
         ></div>
 
-        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0">
+        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark">
             {/* handles aligning it with the cal */}

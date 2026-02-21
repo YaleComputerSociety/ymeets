@@ -20,6 +20,7 @@ import {
   IconLockAccessOff,
   IconLock,
 } from '@tabler/icons-react';
+import { sendAvailabilityUpdatedEmail } from '../../emails/sendEmailHelpers';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -29,6 +30,9 @@ export default function HomePage() {
   const [showFormValidation, setShowFormValidation] =
     React.useState<boolean>(false);
   const [formErrorMessage, setFormErrorMessage] = React.useState('');
+  const [emailStatus, setEmailStatus] = React.useState<
+    'idle' | 'sending' | 'sent' | 'error'
+  >('idle');
 
   function formValidationPopup(message: string) {
     setShowFormValidation(true);
