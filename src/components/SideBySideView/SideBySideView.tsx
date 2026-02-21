@@ -66,9 +66,7 @@ interface SideBySideViewProps {
 
   // Google Calendar events for TimeSelect side
   googleCalendarEvents: calendar_v3.Schema$Event[];
-  setGoogleCalendarEvents: Dispatch<
-    SetStateAction<calendar_v3.Schema$Event[]>
-  >;
+  setGoogleCalendarEvents: Dispatch<SetStateAction<calendar_v3.Schema$Event[]>>;
 
   // Google Calendar list state
   googleCalendars: Calendar[];
@@ -124,14 +122,18 @@ export default function SideBySideView({
   isSaving,
 }: SideBySideViewProps) {
   const [showUserChart, setShowUserChart] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] = useState(true);
+  const [participantToggleClicked, setParticipantToggleClicked] =
+    useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
-  const [expandedCalendar, setExpandedCalendar] = useState<'left' | 'right' | null>(null);
+  const [expandedCalendar, setExpandedCalendar] = useState<
+    'left' | 'right' | null
+  >(null);
 
   // Google Calendar hook for fetching events
-  const { hasAccess, requestAccess, getEvents, getCalendars } = useGoogleCalendar();
+  const { hasAccess, requestAccess, getEvents, getCalendars } =
+    useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
   // Helper functions for autofill
@@ -197,52 +199,61 @@ export default function SideBySideView({
   };
 
   // Fetch Google Calendar events when selected calendars change
-  const fetchGoogleCalEvents = useCallback(async (calIds: string[]) => {
-    if (!hasAccess || calIds.length === 0) {
-      setGoogleCalendarEvents([]);
-      return [];
-    }
-
-    const dates = calendarFramework.dates.flat();
-    if (dates.length === 0) return [];
-
-    const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
-    const startDate = new Date(Math.min(...dateTimestamps));
-    startDate.setHours(0, 0, 0, 0);
-    const timeMin = startDate.toISOString();
-
-    const endDate = new Date(Math.max(...dateTimestamps));
-    endDate.setHours(23, 59, 59, 999);
-    const timeMax = endDate.toISOString();
-
-    const allEvents: calendar_v3.Schema$Event[] = [];
-
-    for (const calId of calIds) {
-      try {
-        const events = await getEvents(
-          calId,
-          timeMin,
-          timeMax,
-          calendarFramework.timezone
-        );
-
-        // Filter out multi-day events
-        const singleDayEvents = events.filter((event) => {
-          if (!event.start?.dateTime || !event.end?.dateTime) return false;
-          const start = new Date(event.start.dateTime);
-          const end = new Date(event.end.dateTime);
-          return start.getDay() === end.getDay();
-        });
-
-        allEvents.push(...singleDayEvents);
-      } catch (error) {
-        console.error('Error fetching events for calendar:', calId, error);
+  const fetchGoogleCalEvents = useCallback(
+    async (calIds: string[]) => {
+      if (!hasAccess || calIds.length === 0) {
+        setGoogleCalendarEvents([]);
+        return [];
       }
-    }
 
-    setGoogleCalendarEvents(allEvents);
-    return allEvents;
-  }, [hasAccess, calendarFramework.dates, calendarFramework.timezone, getEvents, setGoogleCalendarEvents]);
+      const dates = calendarFramework.dates.flat();
+      if (dates.length === 0) return [];
+
+      const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
+      const startDate = new Date(Math.min(...dateTimestamps));
+      startDate.setHours(0, 0, 0, 0);
+      const timeMin = startDate.toISOString();
+
+      const endDate = new Date(Math.max(...dateTimestamps));
+      endDate.setHours(23, 59, 59, 999);
+      const timeMax = endDate.toISOString();
+
+      const allEvents: calendar_v3.Schema$Event[] = [];
+
+      for (const calId of calIds) {
+        try {
+          const events = await getEvents(
+            calId,
+            timeMin,
+            timeMax,
+            calendarFramework.timezone
+          );
+
+          // Filter out multi-day events
+          const singleDayEvents = events.filter((event) => {
+            if (!event.start?.dateTime || !event.end?.dateTime) return false;
+            const start = new Date(event.start.dateTime);
+            const end = new Date(event.end.dateTime);
+            return start.getDay() === end.getDay();
+          });
+
+          allEvents.push(...singleDayEvents);
+        } catch (error) {
+          console.error('Error fetching events for calendar:', calId, error);
+        }
+      }
+
+      setGoogleCalendarEvents(allEvents);
+      return allEvents;
+    },
+    [
+      hasAccess,
+      calendarFramework.dates,
+      calendarFramework.timezone,
+      getEvents,
+      setGoogleCalendarEvents,
+    ]
+  );
 
   // Fetch calendars and events when access is available
   useEffect(() => {
@@ -266,7 +277,12 @@ export default function SideBySideView({
     } else if (selectedCalendarIds.length === 0) {
       setGoogleCalendarEvents([]);
     }
-  }, [hasAccess, selectedCalendarIds, fetchGoogleCalEvents, setGoogleCalendarEvents]);
+  }, [
+    hasAccess,
+    selectedCalendarIds,
+    fetchGoogleCalEvents,
+    setGoogleCalendarEvents,
+  ]);
 
   // Get current user index
   const getCurrentUserIndex = useCallback(() => {
@@ -307,10 +323,7 @@ export default function SideBySideView({
     const newAvailability = autofillAvailabilityFromCalendar(
       events,
       calendarFramework.dates.flat(),
-      generateTimeBlocks(
-        calendarFramework.startTime,
-        calendarFramework.endTime
-      )
+      generateTimeBlocks(calendarFramework.startTime, calendarFramework.endTime)
         .flat()
         .flat(),
       timeSelectCalendarState[getCurrentUserIndex()]
@@ -339,7 +352,6 @@ export default function SideBySideView({
     lastPosition: null,
   });
 
-
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
     () => ({
@@ -363,7 +375,7 @@ export default function SideBySideView({
           className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3 overflow-hidden"
           style={
             calendarHeight
-              ? { height: calendarHeight + 60, maxHeight: calendarHeight + 60 }
+              ? { height: calendarHeight + 70, maxHeight: calendarHeight + 70 }
               : undefined
           }
         >
@@ -400,7 +412,7 @@ export default function SideBySideView({
           <div className="w-full">
             <div className="flex flex-col space-y-0 mb-2">
               {/* Top bar with timezone, save, and view toggle */}
-              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-2">
+              <div className="flex justify-center ml-2 mr-2 md:justify-start md:ml-5 md:mr-5 md:mt-5 mb-5">
                 <div className="hidden md:flex w-full max-w-full items-center gap-2">
                   {userHasSignedIn && (
                     <ButtonSmall
@@ -415,9 +427,14 @@ export default function SideBySideView({
                   )}
                   <div className="flex-1">
                     <TimezoneChanger
-                      theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                      theCalendarFramework={[
+                        calendarFramework,
+                        setCalendarFramework,
+                      ]}
                       initialTimezone={(() => {
-                        const urlParams = new URLSearchParams(window.location.search);
+                        const urlParams = new URLSearchParams(
+                          window.location.search
+                        );
                         const urlTimezone = urlParams.get('tz');
                         return urlTimezone || getUserTimezone();
                       })()}
@@ -443,14 +460,26 @@ export default function SideBySideView({
                   <div className="flex-1 flex flex-col min-w-0 relative">
                     {/* Expand/Collapse button - superimposed on top right */}
                     <button
-                      onClick={() => setExpandedCalendar(expandedCalendar === 'left' ? null : 'left')}
+                      onClick={() =>
+                        setExpandedCalendar(
+                          expandedCalendar === 'left' ? null : 'left'
+                        )
+                      }
                       className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
-                      title={expandedCalendar === 'left' ? 'Collapse' : 'Expand'}
+                      title={
+                        expandedCalendar === 'left' ? 'Collapse' : 'Expand'
+                      }
                     >
                       {expandedCalendar === 'left' ? (
-                        <IconArrowsMinimize size={16} className="text-gray-600 dark:text-gray-300" />
+                        <IconArrowsMinimize
+                          size={16}
+                          className="text-gray-600 dark:text-gray-300"
+                        />
                       ) : (
-                        <IconArrowsMaximize size={16} className="text-gray-600 dark:text-gray-300" />
+                        <IconArrowsMaximize
+                          size={16}
+                          className="text-gray-600 dark:text-gray-300"
+                        />
                       )}
                     </button>
                     <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
@@ -460,7 +489,10 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           setTimeSelectCalendarState,
                         ]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
@@ -485,22 +517,40 @@ export default function SideBySideView({
                   <div className="flex-1 flex flex-col min-w-0 relative">
                     {/* Expand/Collapse button - superimposed on top right */}
                     <button
-                      onClick={() => setExpandedCalendar(expandedCalendar === 'right' ? null : 'right')}
+                      onClick={() =>
+                        setExpandedCalendar(
+                          expandedCalendar === 'right' ? null : 'right'
+                        )
+                      }
                       className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
-                      title={expandedCalendar === 'right' ? 'Collapse' : 'Expand'}
+                      title={
+                        expandedCalendar === 'right' ? 'Collapse' : 'Expand'
+                      }
                     >
                       {expandedCalendar === 'right' ? (
-                        <IconArrowsMinimize size={16} className="text-gray-600 dark:text-gray-300" />
+                        <IconArrowsMinimize
+                          size={16}
+                          className="text-gray-600 dark:text-gray-300"
+                        />
                       ) : (
-                        <IconArrowsMaximize size={16} className="text-gray-600 dark:text-gray-300" />
+                        <IconArrowsMaximize
+                          size={16}
+                          className="text-gray-600 dark:text-gray-300"
+                        />
                       )}
                     </button>
                     <div className="bg-white dark:bg-secondary_background-dark rounded-lg flex-1">
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-                        theCalendarFramework={[calendarFramework, setCalendarFramework]}
-                        chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                        theCalendarFramework={[
+                          calendarFramework,
+                          setCalendarFramework,
+                        ]}
+                        chartedUsersData={[
+                          filteredChartedUsers,
+                          setChartedUsers,
+                        ]}
                         draggable={false}
                         user={getCurrentUserIndex()}
                         isAdmin={true}
