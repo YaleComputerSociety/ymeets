@@ -303,14 +303,15 @@ export default function SideBySideView({
   }, [timeSelectCalendarState]);
 
   // Wrapped setter that marks changes as unsaved
-  const wrappedSetTimeSelectCalendarState: Dispatch<SetStateAction<calanderState>> =
-    useCallback(
-      (action) => {
-        setTimeSelectCalendarState(action);
-        setHasUnsavedChanges(true);
-      },
-      [setTimeSelectCalendarState, setHasUnsavedChanges]
-    );
+  const wrappedSetTimeSelectCalendarState: Dispatch<
+    SetStateAction<calanderState>
+  > = useCallback(
+    (action) => {
+      setTimeSelectCalendarState(action);
+      setHasUnsavedChanges(true);
+    },
+    [setTimeSelectCalendarState, setHasUnsavedChanges]
+  );
 
   // Wrapped setter for location preferences that marks changes as unsaved
   const wrappedSetSelectedLocations: Dispatch<SetStateAction<string[]>> =

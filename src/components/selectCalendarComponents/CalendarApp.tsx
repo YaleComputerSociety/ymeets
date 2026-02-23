@@ -91,13 +91,16 @@ export default function Calendar({
   const calculateColumnsPerPage = () => {
     const width = window.innerWidth;
     if (compactMode) {
+      // Side-by-side mode: each calendar gets half the width
       if (width > 1400) return 5;
       if (width > 1200) return 4;
       return 3;
     }
-    if (width > 1200) return 7;
-    if (width > 900) return 5;
-    return 3;
+    // Expanded mode: calendar has full width, show up to 7 days max
+    if (width > 1000) return 7;
+    if (width > 800) return 6;
+    if (width > 600) return 5;
+    return 4;
   };
 
   const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
@@ -117,6 +120,9 @@ export default function Calendar({
     }, [chartedUsers, setChartedUsers]);
 
   React.useEffect(() => {
+    // Recalculate columns when compactMode changes (expand/collapse)
+    setNumberOfColumnsPerPage(calculateColumnsPerPage());
+
     const handleResize = () => {
       setNumberOfColumnsPerPage(calculateColumnsPerPage());
     };
