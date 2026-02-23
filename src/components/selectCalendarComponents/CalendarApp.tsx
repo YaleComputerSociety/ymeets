@@ -164,7 +164,7 @@ export default function Calendar({
       }}
     ref={ref}
     >
-      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
+      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-30 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
             onClick={handlePrev}
@@ -172,7 +172,7 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
           />
         ) : (
-          <div className="p-3 h-11 w-11"></div>
+          <div className="p-3 h-11 w-11 z-10"></div>
         )}
 
         {calendarLabel && (
@@ -189,7 +189,7 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
           />
         ) : (
-          <div className="p-3 h-11 w-11"></div>
+          <div className="p-3 h-11 w-11 z-10"></div>
         )}
       </div>
       <div
@@ -198,7 +198,7 @@ export default function Calendar({
       >
         <div
           style={{ width: '3.00rem', height: '2.50rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-30"
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-20"
         ></div>
 
         <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">

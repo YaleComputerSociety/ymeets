@@ -492,7 +492,7 @@ export default function SideBySideView({
                           expandedCalendar === 'left' ? null : 'left'
                         )
                       }
-                      className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+                      className="absolute -top-2 -right-2 z-40 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
                       title={
                         expandedCalendar === 'left' ? 'Collapse' : 'Expand'
                       }
@@ -550,7 +550,7 @@ export default function SideBySideView({
                             expandedCalendar === 'right' ? null : 'right'
                           )
                         }
-                        className="absolute -top-2 -right-2 z-50 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+                        className="absolute -top-2 -right-2 z-40 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
                         title={
                           expandedCalendar === 'right' ? 'Collapse' : 'Expand'
                         }
