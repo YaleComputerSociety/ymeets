@@ -401,11 +401,10 @@ export default function SideBySideView({
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
         <div
           className="text-text dark:text-text-dark lg:p-0 p-4 lg:ml-5 lg:mt-5 col-span-1 flex flex-col lg:items-start lg:justify-start items-center justify-center mb-3 overflow-hidden"
-          style={
-            calendarHeight
-              ? { height: calendarHeight + 70, maxHeight: calendarHeight + 70 }
-              : undefined
-          }
+          style={{
+            height: 'calc(100vh - 170px)',
+            maxHeight: 'calc(100vh - 170px)',
+          }}
         >
           <SharedSidebar
             eventName={eventName}
