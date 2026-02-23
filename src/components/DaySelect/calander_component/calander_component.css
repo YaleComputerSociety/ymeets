@@ -209,6 +209,10 @@ button.react-calendar__tile div {
   /* margin-top: 65px; */
 }
 
+.calendar-wrapper.calendar-dragging {
+  user-select: none;
+}
+
 .calendar-event-name-wrapper {
   position: absolute;
   top: -80px;
