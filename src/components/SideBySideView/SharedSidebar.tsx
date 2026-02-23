@@ -326,21 +326,13 @@ export default function SharedSidebar({
               ))}
           </div>
           {(!currentUser || !hasAccess) && (
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
-                <p className="text-gray-600 dark:text-gray-300 text-xs">
-                  Import your calendars to see your events
-                </p>
-                <button
-                  className="font-bold rounded-full shadow-md bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 py-2 px-3 text-xs
-                  flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
-                  onClick={handleSignIn}
-                >
-                  <img src={GCAL_LOGO} alt="GCal Logo" className="mr-1 h-6" />
-                  Import Calendars
-                </button>
-              </div>
-            </div>
+            <button
+              className="w-full text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 border  border-slate-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 dark:border-gray-600 py-2.5 px-4 rounded-lg transition-all shadow-sm duration-200 flex items-center justify-center gap-2"
+              onClick={handleSignIn}
+            >
+              <img src={GCAL_LOGO} alt="GCal Logo" className="h-5" />
+              <span>Import Google Calendar</span>
+            </button>
           )}
           {currentUser && hasAccess && isCalendarsExpanded && (
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden">
