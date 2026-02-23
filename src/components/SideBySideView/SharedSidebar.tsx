@@ -21,7 +21,7 @@ import AlertPopup from '../utils/components/AlertPopup';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
-import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
+import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
 
@@ -336,8 +336,8 @@ export default function SharedSidebar({
                   flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                   onClick={handleSignIn}
                 >
-                  <img src={LOGO} alt="Logo" className="mr-2 h-4" />
-                  Sign in
+                  <img src={GCAL_LOGO} alt="GCal Logo" className="mr-1 h-6" />
+                  Import Calendars
                 </button>
               </div>
             </div>
