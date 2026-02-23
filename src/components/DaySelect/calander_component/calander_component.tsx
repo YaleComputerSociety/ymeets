@@ -121,6 +121,7 @@ export const CalanderComponent = ({
   const [dragMode, setDragMode] = useState<'add' | 'remove'>('add');
   const dragHasMovedRef = useRef(false);
   const dragStartDateRef = useRef<Date | null>(null);
+  const dragStartSelectionRef = useRef<Date[]>([]);
   dragHasMovedRef.current = dragHasMoved;
   dragStartDateRef.current = dragStartDate;
 
@@ -143,6 +144,7 @@ export const CalanderComponent = ({
     const startWasSelected = selectedDates.some((d) => isSameDay(d, date));
     setDragMode(startWasSelected ? 'remove' : 'add');
     setDragStartDate(date);
+    dragStartSelectionRef.current = [...selectedDates];
     setIsDragging(true);
     setDragHasMoved(false);
   };
@@ -154,12 +156,12 @@ export const CalanderComponent = ({
     if (start > end) [start, end] = [end, start];
     if (start.getTime() !== end.getTime()) setDragHasMoved(true);
     const range = getDatesFromRange({ startDate: start, endDate: end });
-    //Allow users to select multiple ranges by combining together intervals.
     const datesInRange = range.map(({ date: d }) => d);
+    const baseSelection = dragStartSelectionRef.current;
 
     if (dragMode === 'remove') {
-      setSelectedDates((prev) =>
-        prev
+      setSelectedDates(
+        baseSelection
           .filter(
             (d) =>
               !datesInRange.some((r) => d.getTime() === r.getTime())
@@ -167,15 +169,13 @@ export const CalanderComponent = ({
           .sort((a, b) => a.getTime() - b.getTime())
       );
     } else {
-      setSelectedDates((prev) => {
-        const combined = [...prev];
-        datesInRange.forEach((d) => {
-          if (!combined.some((existing) => existing.getTime() === d.getTime())) {
-            combined.push(d);
-          }
-        });
-        return combined.sort((a, b) => a.getTime() - b.getTime());
+      const combined = [...baseSelection];
+      datesInRange.forEach((d) => {
+        if (!combined.some((existing) => existing.getTime() === d.getTime())) {
+          combined.push(d);
+        }
       });
+      setSelectedDates(combined.sort((a, b) => a.getTime() - b.getTime()));
     }
   };
 
