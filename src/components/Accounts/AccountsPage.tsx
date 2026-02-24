@@ -17,6 +17,10 @@ import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import DeletePopup from '../utils/components/DeletePopup';
+import {
+  getCachedAccountEvents,
+  setCachedAccountEvents,
+} from './accountEventsCache';
 
 export interface AccountsPageEvent {
   name: string;
@@ -40,15 +44,20 @@ export default function AccountsPage() {
   const { logout } = useAuth();
 
   useEffect(() => {
-    const retrieveAndSetEvents = async () => {
+    const retrieveAndSetEvents = () => {
       const accountID = getAccountId();
 
       if (accountID && accountID !== '') {
-        await getParsedAccountPageEventsForUser(accountID).then(
-          (parsedEvents) => {
-            setEvents(parsedEvents);
-          }
-        );
+        // Show cached events immediately if we have them
+        const cached = getCachedAccountEvents(accountID);
+        if (cached != null) {
+          setEvents(cached);
+        }
+        // Always fetch fresh data and replace when ready
+        getParsedAccountPageEventsForUser(accountID).then((parsedEvents) => {
+          setCachedAccountEvents(accountID, parsedEvents);
+          setEvents(parsedEvents);
+        });
       } else {
         setEvents([]);
       }
@@ -106,9 +115,11 @@ export default function AccountsPage() {
             deleteEvent(selectedEventToDelete.id)
               .then(() => {
                 setHasDeletedEvent(true);
-                setEvents(
-                  events?.filter((e) => e.id !== selectedEventToDelete.id)
-                );
+                const next =
+                  events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
+                setEvents(next);
+                const accountID = getAccountId();
+                if (accountID) setCachedAccountEvents(accountID, next);
               })
               .catch((err) => {});
             setSelectedEventToDelete(null);
@@ -227,9 +238,13 @@ export default function AccountsPage() {
                                 deleteEvent(event.id)
                                   .then(() => {
                                     setHasDeletedEvent(true);
-                                    setEvents(
-                                      events?.filter((e) => e.id !== event.id)
-                                    );
+                                    const next =
+                                      events?.filter((e) => e.id !== event.id) ??
+                                      [];
+                                    setEvents(next);
+                                    const accountID = getAccountId();
+                                    if (accountID)
+                                      setCachedAccountEvents(accountID, next);
                                   })
                                   .catch((err) => {});
                               } else {
