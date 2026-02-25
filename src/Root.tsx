@@ -34,7 +34,7 @@ function Root() {
     <AuthProvider>
       <ThemeProvider>
         <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
-          <Banner title="2.0 Release is Live" text="Please report bugs" />
+          {/* <Banner title="2.0 Release is Live" text="Please report bugs" /> */}
           <Router>
             <NavBar></NavBar>
             <Routes>

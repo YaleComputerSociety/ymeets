@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import React from 'react';
 import { checkIfAdmin } from '../../backend/events';
 import { Location } from '../../types';
-
-// import { IoIosCheckmarkCircle } from 'react-icons/io';
-import { IconCircleCheckFilled } from '@tabler/icons-react';
 
 interface LocationChartProps {
   theSelectedLocation?:
@@ -30,14 +28,10 @@ export default function LocationChart({
   locationVotes,
   selectionMade,
 }: LocationChartProps) {
-  const [selectedLocation, setSelectedLocation] = theSelectedLocation || [
-    '',
-    () => {},
-  ];
+  const [selectedLocation] = theSelectedLocation || ['', () => {}];
   const [isClicked, setIsClicked] = useState(selectedLocation !== '');
   const [showInput, setShowInput] = useState(false);
   const [building, setBuilding] = useState('');
-  const [roomNumber, setRoomNumber] = useState('');
 
   const combined = locationOptions.map((loc: any, idx: any) => {
     return { location: loc, votes: locationVotes[idx] };
@@ -61,46 +55,26 @@ export default function LocationChart({
     }
   }
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setRoomNumber(event.target.value);
-  }
-
-  function handleInputSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setRoomNumber(roomNumber);
-    setSelectedLocation(building + ' ' + roomNumber);
-    setShowInput(false);
-    setIsClicked(true);
-  }
-
-  function handleClose() {
-    setShowInput(false);
-  }
-
-  // Function to handle key presses
-  function handleKeyPress(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      handleClose();
-    }
-  }
-
   function getBookingLink(building: string): string {
-    const roomNumberInt = parseInt(roomNumber, 10);
     if (building === 'TSAI City') {
       return 'https://city.yale.edu/tsai-city-rooms';
     } else if (building === 'Bass') {
       return 'https://schedule.yale.edu/reserve/spaces/basslibrary';
     } else if (building === 'Sterling') {
       return 'https://schedule.yale.edu/spaces?lid=9060';
-    } else if (building === '17 Hillhouse' && roomNumberInt === 7) {
+    } else if (building === '17 Hillhouse') {
       return 'https://schedule.yale.edu/spaces?lid=14618';
     } else {
       return 'https://25live.collegenet.com/pro/yale#!/home/event/form';
     }
   }
 
-  // Set up and clean up the keydown event listener
   useEffect(() => {
+    function handleKeyPress(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setShowInput(false);
+      }
+    }
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
@@ -109,61 +83,48 @@ export default function LocationChart({
 
   return (
     <>
-      {roomNumber && (
-        <div className="dark:text-text-dark">
-          Chosen Room Number: {roomNumber}
-        </div>
-      )}
       {locationOptions && (
-        <div className="text-text dark:text-text-dark relative flex justify-center items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg">
-          <table className="table-fixed border-collapse w-full">
-            <tbody>
-              <tr>
-                <th className="border-b p-3 text-text dark:text-text-dark">
-                  Location
-                </th>
-                <th className="border-b p-3 text-text dark:text-text-dark">
-                  Votes
-                </th>
-              </tr>
-              {locationOptions?.map((loc: Location, idx: number) => {
-                return (
-                  <tr
-                    key={idx}
-                    onClick={() => handleRowClick(loc)}
-                    className={`group dark:bg-secondary_background-dark dark:text-text-dark text-text p-4 cursor-pointer ${
-                      checkIfAdmin() && !selectionMade
-                        ? 'hover:scale-102 transition-transform duration-200'
-                        : ''
-                    } ${
-                      isClicked && selectedLocation?.includes(loc)
-                        ? 'bg-ymeets-light-blue'
-                        : 'bg-white'
-                    } transition-colors duration-300`}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
+          <div className="space-y-1">
+            {locationOptions?.map((loc: Location, idx: number) => (
+              <div
+                key={idx}
+                onClick={() => handleRowClick(loc)}
+                className={`flex items-center justify-between px-2 py-1.5 rounded text-sm cursor-pointer transition-colors ${
+                  checkIfAdmin() && !selectionMade
+                    ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                    : ''
+                } ${
+                  isClicked && selectedLocation?.includes(loc)
+                    ? 'bg-primary/10 dark:bg-primary/20'
+                    : ''
+                }`}
+              >
+                <span
+                  className="text-gray-700 dark:text-gray-300 break-words flex-1 min-w-0 pr-2"
+                  style={{ wordBreak: 'break-word' }}
+                >
+                  {loc}
+                </span>
+                {showInput && building === loc ? (
+                  <button
+                    className="bg-primary text-white py-0.5 px-2 rounded text-xs font-medium hover:bg-blue-600 transition-colors flex-shrink-0"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(getBookingLink(building), '_blank');
+                    }}
                   >
-                    <td className="p-3 align-top" style={{ wordBreak: 'break-word', whiteSpace: 'normal', maxWidth: '20rem' }}>
-                      <div className="flex flex-col items-start gap-1 w-full">
-                        <span className="break-words">{loc}</span>
-                        {showInput && building === loc && (
-                          <button
-                            className="bg-primary text-white py-1 px-3 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(getBookingLink(building), '_blank');
-                            }}
-                          >
-                            Book Room
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-3">{locationVotes[idx]}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    Book
+                  </button>
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-400 text-xs flex-shrink-0">
+                    {locationVotes[idx]}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </>

@@ -33,7 +33,7 @@ import ARUSH from './Arush.jpeg';
 const CURR_CONTRIBUTORS = [
   {
     name: 'Jeet Parikh',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Product Lead'],
     founding: false,
     portfolio: undefined,
     linkedin: 'https://www.linkedin.com/in/parikhjeet/',
@@ -43,7 +43,7 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Rylan Yang',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Product Lead'],
     founding: false,
     linkedin: 'https://www.linkedin.com/in/rylan-yang/',
     github: 'https://github.com/rylany27',
@@ -228,7 +228,7 @@ function ContributorCard({
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
-        className="mb-2 min-w-full h-80 object-cover object-center rounded-t-lg"
+        className="mb-2 min-w-full h-60 object-cover object-center rounded-t-lg"
         src={image !== undefined ? image : no_person}
         height={400}
       />
@@ -300,25 +300,26 @@ export default function AboutUsPage() {
                             lg:flex-row"
         >
           <p className="text-xl text-gray-700 dark:text-text-dark">
-            Frustrated with unaesthetic group schedulers that lacked modern
-            integrations and were not tailored to the college student's needs,
-            we set out to provide our own solution. <br /> <br />
-            ymeets is a platform designed to make it easier to schedule group
-            events @ Yale by leveraging Google Calendar and allowing the
-            physical location for meetings to also be decided on. The app is
-            built and maintained by a small team of{' '}
+            We were frustrated with clunky group schedulers that felt outdated,
+            lacked modern integrations, and weren't built with college students
+            in mind. <span className="font-bold"> We built something better.</span>
+            <br /> <br />
+            ymeets makes group scheduling at Yale simple by integrating directly
+            with Google Calendar, so you can instantly see availability, pick a time, and choose a place—without endless back-and-forth.
+            <br /> <br />
+            The app is built and maintained by a small team of developers from{' '}
             <a
-              className="text-primary "
+              className="text-primary"
               href="https://yalecomputersociety.org/"
             >
-              y/cs (Yale Computer Society){' '}
+              Yale Computer Society (y/cs)
             </a>
-            developers. If you have concerns about our app uses your
-            information, please go to the following{' '}
+            . We take your privacy seriously—if you have any questions about how
+            your data is used, you can review our privacy policy{' '}
             <a className="text-primary" href="/privacy">
-              page
-            </a>{' '}
-            to view our privacy policy.
+              here
+            </a>
+            .
           </p>
           <img
             className="inline-block mb-6 md:ml-6"
@@ -327,6 +328,7 @@ export default function AboutUsPage() {
             width={300}
           ></img>
         </div>
+        <br />
         <br />
         <h1 className="text-5xl font-bold">Our Team</h1>
         <br />
@@ -351,7 +353,7 @@ export default function AboutUsPage() {
         <br />
         {/* Co-founders Section */}
         <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
-        <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 mb-8">
           {PAST_CONTRIBUTORS.filter(
             (c) => c.name === 'Ethan Mathieu' || c.name === 'Rome Thorstenson'
           ).map((c) => (

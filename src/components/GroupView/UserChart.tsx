@@ -38,7 +38,7 @@ const UserChart: React.FC<UserChartProps> = ({
   allPeople,
   thePeopleStatus,
   theParticipantToggleClicked,
-  calendarHeight
+  calendarHeight,
 }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData || [
     { available: [], unavailable: [] },
@@ -49,7 +49,6 @@ const UserChart: React.FC<UserChartProps> = ({
 
   const [participantToggleClicked, setParticipantToggleClicked] =
     theParticipantToggleClicked;
-
 
   const [rowHeight, setRowHeight] = useState<number | null>(null);
   const maxRows = Math.max(
@@ -69,7 +68,6 @@ const UserChart: React.FC<UserChartProps> = ({
     ]
   );
 
-
   // if (chartedUsers.available.length > numRows || chartedUsers.unavailable.length > numRows) {
   //   rows.push([
   //     ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
@@ -88,7 +86,6 @@ const UserChart: React.FC<UserChartProps> = ({
       chartedUsers.unavailable.length - (numRows - 1)
     } more`;
   }
-  
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
 
@@ -102,35 +99,46 @@ const UserChart: React.FC<UserChartProps> = ({
           onClose={() => setAlertMessage(null)}
         />
       )}
-      <div className="flex flex-row text-md justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
-         
-          <table className="table-fixed border-collapse w-full">
-            
-            <thead>
-              <tr>
-                <th className="border-b p-3 text-primary" dangerouslySetInnerHTML={{__html: "Available (" + String(chartedUsers.available.length) + ")"}}></th>
-                <th className="border-b p-3 text-text dark:text-text-dark" dangerouslySetInnerHTML={{__html: "Unvailable (" + String(chartedUsers.unavailable.length) + ")"}}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(([available, unavailable], idx) => (
-                <ChartRow
-                  available={available}
-                  key={idx} // Correctly placed key
-                  onHeightMeasured={
-                    idx === 0
-                      ? (height) => {
-                          if (rowHeight === null) setRowHeight(height);
-                        }
-                      : undefined
-                  }
-                  unavailable={unavailable}
-                />
-              ))}
-
-            </tbody>
-          </table>
-    </div>
+      <div className="flex flex-row text-sm justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
+        <table className="table-fixed border-collapse w-full">
+          <thead>
+            <tr>
+              <th
+                className="border-b p-3 text-primary"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    'Available (' + String(chartedUsers.available.length) + ')',
+                }}
+              ></th>
+              <th
+                className="border-b p-3 text-text dark:text-text-dark"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    'Unvailable (' +
+                    String(chartedUsers.unavailable.length) +
+                    ')',
+                }}
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([available, unavailable], idx) => (
+              <ChartRow
+                available={available}
+                key={idx} // Correctly placed key
+                onHeightMeasured={
+                  idx === 0
+                    ? (height) => {
+                        if (rowHeight === null) setRowHeight(height);
+                      }
+                    : undefined
+                }
+                unavailable={unavailable}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

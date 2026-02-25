@@ -52,6 +52,7 @@ const TimezoneChanger = ({
         renderOption={(option) => formatTimezoneLabel(option)}
         className="bg-white dark:bg-secondary_background-dark"
         searchable={true}
+        compact={true}
       />
     </div>
   );

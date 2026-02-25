@@ -463,10 +463,10 @@ async function updateUserCollectionEventsWith(accountId: string) {
 
     const data = snap.data();
     console.log('Data: ', data);
-    
+
     const userEvents: UserEvent[] = data.userEvents || [];
 
-    const existingIdx = userEvents.findIndex(ev => ev.code === eventCode);
+    const existingIdx = userEvents.findIndex((ev) => ev.code === eventCode);
 
     // Update existing entry
     if (existingIdx !== -1) {
@@ -501,9 +501,10 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
   participant.email = getAccountEmail();
 
   // Update local copy first
-  let existingIndex = workingEvent.participants.findIndex(part =>
-    (participant.accountId && part.accountId === participant.accountId) ||
-    (!participant.accountId && part.name === participant.name)
+  let existingIndex = workingEvent.participants.findIndex(
+    (part) =>
+      (participant.accountId && part.accountId === participant.accountId) ||
+      (!participant.accountId && part.name === participant.name)
   );
 
   if (existingIndex !== -1) {
@@ -998,6 +999,19 @@ async function undoAdminSelections() {
   await saveEventDetails(workingEvent.details);
 }
 
+function getEmailAdmin(): boolean {
+  return workingEvent.details.emailAdmin === true;
+}
+
+async function setEmailAdmin(emailAdmin: boolean) {
+  workingEvent.details.emailAdmin = emailAdmin;
+  // Update only the emailAdmin field to avoid issues with undefined optional fields
+  const eventsRef = collection(db, 'events');
+  await updateDoc(doc(eventsRef, workingEvent.publicId), {
+    'details.emailAdmin': emailAdmin,
+  });
+}
+
 async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
@@ -1062,6 +1076,7 @@ export {
   getEmails,
   getZoomLink,
   getTimezone,
+  getEmailAdmin,
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
@@ -1079,6 +1094,7 @@ export {
   setNewStartTimes,
   setNewEndTimes,
   setNewDates,
+  setEmailAdmin,
   getParticipantIndex,
   removeEventFromUserCollection,
 };

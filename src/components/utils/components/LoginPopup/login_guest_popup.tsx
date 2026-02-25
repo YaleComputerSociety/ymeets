@@ -40,7 +40,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           // navigate(`/timeselect/${code}`);
           navigate('/dashboard/' + code, { state: { isEditing: true } });
         }
-        onClose();
+        onClose(true);
         document.body.classList.remove('popup-open');
       }
     });
@@ -158,7 +158,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
           ) : (
             <div className="w-full flex items-center gap-2 mb-2">
               <input
-                className="rounded-lg py-2 px-3 text-base bg-white text-left border border-gray-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 flex-1 min-w-0 transition-all duration-200"
+                className="rounded-lg py-2 px-3 text-black bg-white text-left border border-gray-300 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 flex-1 min-w-0 transition-all duration-200"
                 placeholder="Your Name"
                 name="name"
                 type="text"
