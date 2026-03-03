@@ -7,6 +7,7 @@ import graphic from './calendargraphic.png';
 import LoginPopup from '../utils/components/LoginPopup';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
+import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
 
 // import { SiGooglecalendar } from 'react-icons/si';
 // import { FaLock } from 'react-icons/fa';
@@ -19,6 +20,7 @@ import {
   IconLockAccessOff,
   IconLock,
 } from '@tabler/icons-react';
+import { sendAvailabilityUpdatedEmail } from '../../emails/sendEmailHelpers';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -28,6 +30,9 @@ export default function HomePage() {
   const [showFormValidation, setShowFormValidation] =
     React.useState<boolean>(false);
   const [formErrorMessage, setFormErrorMessage] = React.useState('');
+  const [emailStatus, setEmailStatus] = React.useState<
+    'idle' | 'sending' | 'sent' | 'error'
+  >('idle');
 
   function formValidationPopup(message: string) {
     setShowFormValidation(true);
@@ -72,9 +77,18 @@ export default function HomePage() {
     }
   };
 
+  const [showTutorial, setTutorial] = React.useState<boolean>(false);
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="h-1 md:h-8"></div>
+
+      {showTutorial && (
+        <TutorialModal
+          isOpen={!!showTutorial}
+          onClose={() => setTutorial(false)}
+        />
+      )}
 
       <div className="flex-grow w-full overflow-auto px-8 sm:p-14 pt-0 md:px-16 md:pt-14 lg:px-40 xl:px-60 mb-3">
         <div className="flex-col-reverse justify-center md:flex-row flex md:h-1/2 mb-10">
@@ -127,6 +141,16 @@ export default function HomePage() {
                 View My Events
               </Button>
             </div>
+
+            <h1 className="text-text dark:text-text-dark">
+              <b>New to ymeets? →  </b>
+              <span 
+              className='cursor-pointer hover:text-primary transition'
+              onClick={() => setTutorial(true)}>
+                <u>Click here for a quick walkthrough!</u>
+              </span>
+            </h1>
+
           </div>
 
           <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">

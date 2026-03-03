@@ -14,7 +14,8 @@ import {
   getStartAndEndTimes,
   getLocationOptions,
   getTimezone,
-  getZoomLink
+  getZoomLink,
+  checkIfAdmin
 } from '../../../backend/events';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
@@ -122,6 +123,11 @@ export const DaySelectComponent = () => {
       const loadEventData = async () => {
         try {
           await getEventById(eventId);
+
+          if (!checkIfAdmin()) {
+            navigate('/notfound');
+            return;
+          }
           
           // Get event data from the working event
           const eventNameFromDb = getEventName();
@@ -210,6 +216,7 @@ export const DaySelectComponent = () => {
           }
         } catch (error) {
           console.error('Error loading event data:', error);
+          navigate('/notfound');
         }
       };
       loadEventData();
@@ -472,6 +479,7 @@ export const DaySelectComponent = () => {
                     update={updateLocationsState}
                     create={true}
                     placeholder="Locations (Optional)"
+                    variant="form"
                   />
                 </div>
                 <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">

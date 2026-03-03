@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   calanderState,
@@ -8,7 +8,7 @@ import {
   dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _ from 'lodash';
+import _, { max } from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -80,6 +80,10 @@ export default function CalBlock({
   const lastDragPoint = useRef<[number, number] | null>(null);
   const previousBoundingBox = useRef<BoundingBox | null>(null);
   const dragStartTime = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartPointRef = useRef<readonly [number, number] | null>(null);
+  const selectionModeRef = useRef(false);
+  const hasDraggedRef = useRef(false);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -138,12 +142,52 @@ export default function CalBlock({
     return theme === 'light' ? 'white' : '#2d3748';
   }, [theme, calendarFramework]);
 
+
+  // use Memo should ensure it only runs when calendarState changes
+  const maxUsers = useMemo<number>(() => {
+    let maxCount = 0;
+
+    // define counts array
+    const counts: number[][] = [];
+
+    // interate through all blocks and find number of users on each
+    for (let i = 0; i < calendarState.length; i++) {
+      for (let j = 0; j < calendarState[i].length; j++) {
+
+        // create row if needed
+        if (!counts[j]) {
+          counts[j] = new Array(calendarState[i][j].length).fill(0);
+        }
+
+        for (let k = 0; k < calendarState[i][j].length; k++) {
+          // check if user is on block
+          if (calendarState[i][j][k]) {
+            
+            // update to new value
+            const newVal = (counts[j][k] ?? 0) + 1;
+            counts[j][k] = newVal;
+
+            // update max
+            if (newVal > maxCount) {
+              maxCount = newVal;
+            }
+            
+          }
+        }
+      }
+      
+    }
+    return maxCount;
+    
+  }, [calendarState]); 
+   
+
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
       return getDefaultColor();
     }
     let selectedCount = 0;
-    const totalUsers = chartedUsers?.users.length || 0;
+    // const totalUsers = chartedUsers?.users.length || 0;
 
     for (let i = 0; i < calendarState.length; i++) {
       if (
@@ -158,7 +202,8 @@ export default function CalBlock({
       return getDefaultColor();
     }
 
-    const percentageSelected = selectedCount / totalUsers;
+    const percentageSelected = selectedCount / maxUsers; //selectedCount / totalUsers;
+
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
   }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
 
@@ -242,7 +287,8 @@ export default function CalBlock({
   };
 
   const handleBlockClick = (e: any, fromTouch = false) => {
-    if (blockID == -1) return; // Skip if blockID is -1
+    if (blockID == -1) return;
+    if (hasDraggedRef.current) return; 
     onClick(e);
 
     if (draggable && !isAdmin) {
@@ -385,33 +431,101 @@ export default function CalBlock({
     [user, setCalendarState]
   );
 
+  const handleGlobalMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (
+        !isDraggingRef.current ||
+        !lastDragPoint.current ||
+        !previousBoundingBox.current ||
+        !dragStartPointRef.current
+      )
+        return;
+
+      const element = document.elementFromPoint(event.clientX, event.clientY);
+      if (!element?.id?.includes('-')) return;
+      const [newCol, newBlock] = element.id.split('-').map(Number);
+      const [lastCol, lastBlock] = lastDragPoint.current;
+      if (newCol === lastCol && newBlock === lastBlock) return;
+      hasDraggedRef.current = true;
+
+      const startPoint = dragStartPointRef.current;
+      const mode = selectionModeRef.current;
+
+      const intermediateBox = getBoundingBox(
+        [lastCol, lastBlock],
+        [newCol, newBlock]
+      );
+
+      const currentBox = getBoundingBox(startPoint, [newCol, newBlock]);
+      if (!isAdmin) {
+        updateCalendarForBoundingBoxes(intermediateBox, null, mode);
+        updateCalendarForBoundingBoxes(
+          currentBox,
+          previousBoundingBox.current,
+          mode
+        );
+      }
+
+      previousBoundingBox.current = currentBox;
+
+      debouncedSetDragState((prev: dragProperties) => ({
+        ...prev,
+        endPoint: [newCol, newBlock],
+        lastPosition: [newCol, newBlock],
+      }));
+
+      lastDragPoint.current = [newCol, newBlock];
+    },
+    [isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
+  );
+
+  const handleDragEnd = useCallback(
+    () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      isDraggingRef.current = false;
+
+      if (isAdmin && dragStartPointRef.current) {
+        setDragState((prev) => {
+          if (prev.startPoint && prev.endPoint) {
+            const currentBox = getBoundingBox(prev.startPoint, prev.endPoint);
+            return {
+              ...prev,
+              isSelecting: false,
+              completedSelections: [
+                ...(prev.completedSelections || []),
+                currentBox,
+              ],
+            };
+          }
+          return { ...prev, isSelecting: false };
+        });
+      } else {
+        setDragState((prev) => ({ ...prev, isSelecting: false }));
+      }
+      lastDragPoint.current = null;
+      previousBoundingBox.current = null;
+      dragStartTime.current = null;
+      dragStartPointRef.current = null;
+      debouncedSetDragState.cancel();
+    },
+    [isAdmin, setDragState, debouncedSetDragState, handleGlobalMouseMove]
+  );
+
   const handleSelectionStart = useCallback(
-    (event: any) => {
+    (event: React.MouseEvent | React.TouchEvent) => {
       if (!draggable) return;
       if (blockID == -1) return;
 
-      if ('dataTransfer' in event) {
-        const crt = event.target.cloneNode(true);
-        crt.style.position = 'absolute';
-        crt.style.left = '-9999px';
-        crt.style.opacity = '0';
-        document.body.appendChild(crt);
-        event.dataTransfer.setDragImage(crt, 0, 0);
-      }
+      event.preventDefault();
 
       dragStartTime.current = Date.now();
 
       const newSelectionMode = !isInSelection();
 
-      if (!isAdmin) {
-        setCalendarState((prev) => {
-          const newState = { ...prev };
-          if (!newState[user]) newState[user] = [];
-          if (!newState[user][columnID]) newState[user][columnID] = [];
-          newState[user][columnID][blockID] = newSelectionMode;
-          return newState;
-        });
-      }
+      isDraggingRef.current = true;
+      hasDraggedRef.current = false;
+      dragStartPointRef.current = [columnID, blockID];
+      selectionModeRef.current = newSelectionMode;
 
       setDragState({
         isSelecting: true,
@@ -430,6 +544,8 @@ export default function CalBlock({
       };
 
       lastDragPoint.current = [columnID, blockID];
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', () => handleDragEnd(), { once: true });
     },
     [
       draggable,
@@ -441,20 +557,23 @@ export default function CalBlock({
       setCalendarState,
       user,
       dragState.completedSelections,
+      handleDragEnd,
+      handleGlobalMouseMove,
     ]
   );
 
   const handleSelectionMove = useCallback(
-    (event: React.DragEvent | React.TouchEvent) => {
+    (event: React.TouchEvent) => {
       if (
-        !dragState.isSelecting ||
+        !isDraggingRef.current ||
         !lastDragPoint.current ||
-        !previousBoundingBox.current
+        !previousBoundingBox.current ||
+        !dragStartPointRef.current
       )
         return;
 
-      const point = 'touches' in event ? event.touches[0] : event;
-      const element = document.elementFromPoint(point.clientX, point.clientY);
+      const touch = event.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
 
       if (!element?.id?.includes('-')) return;
 
@@ -463,33 +582,22 @@ export default function CalBlock({
 
       if (newCol === lastCol && newBlock === lastBlock) return;
 
-      if (!dragState.startPoint) return;
+      const startPoint = dragStartPointRef.current;
+      const mode = selectionModeRef.current;
 
-      // Create a bounding box that includes both the last point and new point
-      // This ensures we don't miss blocks during fast drags
       const intermediateBox = getBoundingBox(
         [lastCol, lastBlock],
         [newCol, newBlock]
       );
 
-      const currentBox = getBoundingBox(dragState.startPoint, [
-        newCol,
-        newBlock,
-      ]);
+      const currentBox = getBoundingBox(startPoint, [newCol, newBlock]);
 
       if (!isAdmin) {
-        // First update the intermediate blocks to ensure continuity
-        updateCalendarForBoundingBoxes(
-          intermediateBox,
-          null, // Don't provide previous box for intermediate update
-          dragState.selectionMode
-        );
-
-        // Then update the entire selection area
+        updateCalendarForBoundingBoxes(intermediateBox, null, mode);
         updateCalendarForBoundingBoxes(
           currentBox,
           previousBoundingBox.current,
-          dragState.selectionMode
+          mode
         );
       }
 
@@ -503,40 +611,7 @@ export default function CalBlock({
 
       lastDragPoint.current = [newCol, newBlock];
     },
-    [dragState, isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
-  );
-
-  const handleDragEnd = useCallback(
-    (event: React.DragEvent | React.TouchEvent) => {
-      // Remove this check - we don't want to trigger click on drag end
-      // if (dragStartTime.current && Date.now() - dragStartTime.current < 200) {
-      //   handleClick(event as any);
-      // }
-
-      if (isAdmin && dragState.startPoint && dragState.endPoint) {
-        setDragState((prev) => {
-          const currentBox = getBoundingBox(
-            dragState.startPoint!,
-            dragState.endPoint!
-          );
-          return {
-            ...prev,
-            isSelecting: false,
-            completedSelections: [
-              ...(prev.completedSelections || []),
-              currentBox,
-            ],
-          };
-        });
-      } else {
-        setDragState((prev) => ({ ...prev, isSelecting: false }));
-      }
-      lastDragPoint.current = null;
-      previousBoundingBox.current = null;
-      dragStartTime.current = null;
-      debouncedSetDragState.cancel();
-    },
-    [isAdmin, setDragState, debouncedSetDragState]
+    [isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
   );
 
   // ${isInSelection() && is30Minute ? 'border-t-white' : ''}
@@ -544,7 +619,7 @@ export default function CalBlock({
   return (
     <div
       id={`${columnID}-${blockID}`}
-      className={`cursor-pointer flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
+      className={`cursor-pointer select-none flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
         is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
       } transition-colors duration-200 ease-in-out`}
       style={{
@@ -557,11 +632,8 @@ export default function CalBlock({
             }
           : {}),
       }}
-      draggable={draggable}
       onClick={handleBlockClick}
-      onDragStart={handleSelectionStart}
-      onDrag={handleSelectionMove}
-      onDragEnd={handleDragEnd}
+      onMouseDown={handleSelectionStart}
       onMouseOver={() => {
         if (isOnGcal) {
           setShowTooltip(true);
@@ -631,7 +703,7 @@ export default function CalBlock({
             onClick(e as any);
           }
         } else if (dragState.isSelecting) {
-          handleDragEnd(e);
+          handleDragEnd();
           onClick(e as any);
         }
 

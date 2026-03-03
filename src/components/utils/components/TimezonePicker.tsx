@@ -1,6 +1,7 @@
 import React from 'react';
 import Dropdown from '../../utils/components/Dropdown';
 import { timezones } from '../../utils/constants/timezones';
+import { formatTimezoneLabel } from '../functions/timzoneConversions';
 
 interface TimezonePickerProps {
   timezone: string;
@@ -17,7 +18,7 @@ const TimezonePicker: React.FC<TimezonePickerProps> = ({
       selectedOption={timezone}
       onSelect={setTimezone}
       placeholder="Select a timezone"
-      renderOption={(option) => option.replace(/_/g, ' ')}
+      renderOption={(option) => formatTimezoneLabel(option)}
       className="dark:bg-secondary_background-dark"
     />
   );

@@ -65,13 +65,54 @@ Here is a quick visual overview:
 ![Page Hierachy](src/static/SelectCalanderFrontend.png)
 
 # ymeets Style Guide
-ymeets should be written in TypeScript. 
+ymeets should be written in TypeScript.
 
 General functions that are used across more than one file should be stored in the `\utils` folder under the `\functions` folder rather than be redeclared in each scope they are necessary. Components that are used as the building blocks for other larger components should be stored in the `\utils` folder under `\components`.
 
 Component files should be declared in PascalCase, with a matching PascalCase function definition. Folders that do not contain an exported component file should be declared in camelCase. Please do not use class components under any circumstances.
 
 At the top of each function, please include a brief docstring explaining what the function does.
+
+# Firebase Cloud Functions
+
+The `functions/` directory contains Firebase Cloud Functions (e.g., for sending emails via Resend).
+
+## Setup
+
+```bash
+cd functions
+npm install
+```
+
+## Development
+
+Build the functions:
+```bash
+npm run build
+```
+
+Run the Firebase emulator locally:
+```bash
+npm run serve
+```
+
+## Deployment
+
+Deploy functions to Firebase:
+```bash
+npm run deploy
+```
+
+Or from the root directory:
+```bash
+firebase deploy --only functions
+```
+
+## Notes
+
+- The `functions/node_modules` directory is gitignored. Always run `npm install` in the `functions/` directory after cloning.
+- Functions require Node 22. Ensure you're using the correct version (e.g., via `nvm use 22`).
+- Secrets (like `RESEND_API_KEY`) are managed via Firebase and not stored in the repo.
 
 
 
