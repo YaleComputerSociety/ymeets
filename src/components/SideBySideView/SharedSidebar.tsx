@@ -24,6 +24,7 @@ import { useAuth } from '../../backend/authContext';
 import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
+import EmailSearchBar from '../utils/components/EmailSearchBar';
 
 interface Calendar {
   id: string;
@@ -243,17 +244,13 @@ export default function SharedSidebar({
             Share
           </div>
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
               <CopyCodeButton className="!w-auto flex-1 !text-xs !py-1.5 !px-2" />
-              {isAdmin && (
-                <AutoDraftEmailButton
-                  eventTitle={eventName}
-                  yourName={getAccountName()}
-                  senderEmail={getAccountEmail()}
-                  customEventCode={code}
-                  className="flex-1 !text-xs !py-1.5 !px-2"
-                />
-              )}
+              {isAdmin && <EmailSearchBar 
+                Code={code}
+                Title={eventName}
+                Name={getAccountName()}
+                />}
             </div>
           </div>
         </div>

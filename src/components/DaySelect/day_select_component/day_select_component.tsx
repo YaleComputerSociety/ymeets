@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
-import SearchBar from './searchbar';
+import SearchBar from '../../utils/components/EmailSearchBar';
 
 import { 
   getAccountId, 
@@ -430,14 +430,14 @@ export const DaySelectComponent = () => {
                   maxLength={40}
                 />
 
-                <label
+                {/* <label
                   htmlFor="event-name"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Emails of Attendees
                 </label>
 
-                <SearchBar/>
+                <SearchBar/> */}
 
               </div>
 
