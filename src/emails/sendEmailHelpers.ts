@@ -14,6 +14,7 @@ interface SendEmailOptions {
   headers?: Record<string, string>;
 }
 
+
 interface SendEmailResult {
   success: boolean;
   data: {
@@ -33,6 +34,8 @@ export async function sendEmail(
   const result = await sendEmailFn(options);
   return result.data;
 }
+
+
 
 // Event-specifc thread ID for emails appear in same thread
 function getEventThreadMessageId(eventId: string): string {
@@ -60,6 +63,29 @@ export async function sendAvailabilityUpdatedEmail(
     },
   });
 }
+
+
+// for inviting people to the event
+export async function sendEventEmail(
+  to: string,
+  subject: string,
+  html: string,
+  eventId: string
+): Promise<SendEmailResult> {
+  const threadMessageId = getEventThreadMessageId(eventId);
+
+  return sendEmail({
+    to,
+    subject,
+    html,
+    headers: {
+      'In-Reply-To': threadMessageId,
+      References: threadMessageId,
+    },
+  });
+}
+
+
 
 // Notify the event admin when a participant saves their availability
 export async function notifyAdminOfNewResponse(
