@@ -432,13 +432,14 @@ function TimeSelectPage({
     if (!isSameDate(eventStart, blockDate)) return false;
 
     const blockStartMinutes = timeToMinutes(blockTime);
-    const blockEndMinutes = blockStartMinutes + 15;
+    const blockEndMinutes = blockStartMinutes + 30;
     const eventStartMinutes = dateToMinutes(eventStart);
     const eventEndMinutes = dateToMinutes(eventEnd);
 
+    // Two intervals overlap if: start1 < end2 AND start2 < end1
     return (
-      blockStartMinutes <= eventEndMinutes &&
-      blockEndMinutes > eventStartMinutes
+      blockStartMinutes < eventEndMinutes &&
+      eventStartMinutes < blockEndMinutes
     );
   }
 
