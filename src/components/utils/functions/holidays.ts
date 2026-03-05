@@ -59,22 +59,37 @@ function getEaster(year: number): Date {
   return new Date(year, month, day);
 }
 
-/** Yale academic break date ranges by calendar year. [startDay, endDay] in that month. */
+/**
+ * Yale academic break date ranges by calendar year. [startDay, endDay] in that month.
+ * Source: https://yalecollege.yale.edu/academics/academic-calendar/future-and-future-provisional-academic-calendars
+ * and https://yalecollege.yale.edu/academics/academic-calendar/2025-2026-academic-calendar
+ */
 const YALE_OCTOBER_BREAK: Record<number, [number, number]> = {
-  2024: [15, 20],
-  2025: [14, 19],
-  2026: [13, 18],
+  2025: [14, 19], // 2025-26: recess Oct 14, resume Oct 20
+  2026: [21, 25], // 2026-27: recess Oct 21 (W), resume Oct 26 (M)
+  2027: [20, 24], // 2027-28: recess Oct 20 (W), resume Oct 25 (M)
+  2028: [18, 22], // 2028-29: recess Oct 18 (W), resume Oct 23 (M)
+  2029: [17, 21], // 2029-30 provisional
+  2030: [16, 20], // 2030-31 provisional
+  2031: [15, 19], // 2031-32 provisional
 };
 const YALE_NOVEMBER_BREAK: Record<number, [number, number]> = {
-  2024: [27, 30],
-  2025: [21, 30],
-  2026: [20, 29],
+  2025: [21, 30], // 2025-26: recess Nov 21, resume Dec 1
+  2026: [23, 29], // 2026-27: recess Nov 23 (M), resume Nov 30 (M)
+  2027: [22, 28], // 2027-28: recess Nov 22 (M), resume Nov 29 (M)
+  2028: [20, 26], // 2028-29: recess Nov 20 (M), resume Nov 27 (M)
+  2029: [19, 25], // 2029-30 provisional
+  2030: [18, 30], // 2030-31 provisional: recess Nov 18, resume Dec 2
+  2031: [24, 30], // 2031-32 provisional: recess Nov 24, resume Dec 1
 };
 const YALE_SPRING_BREAK: Record<number, [number, number]> = {
-  2024: [10, 23],
-  2025: [10, 23],
-  2026: [6, 22],
-  2027: [5, 21],
+  2026: [6, 22], // 2025-26: recess Mar 6, resume Mar 23
+  2027: [8, 21], // 2026-27: recess Mar 8 (M), resume Mar 22 (M)
+  2028: [6, 19], // 2027-28: recess Mar 6 (M), resume Mar 20 (M)
+  2029: [5, 18], // 2028-29: recess Mar 5 (M), resume Mar 19 (M)
+  2030: [4, 17], // 2029-30 provisional
+  2031: [3, 16], // 2030-31 provisional
+  2032: [8, 21], // 2031-32 provisional
 };
 
 /**
