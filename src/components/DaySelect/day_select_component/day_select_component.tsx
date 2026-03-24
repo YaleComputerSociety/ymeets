@@ -25,6 +25,16 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
 
+const DEFAULT_LOCATION_PRESETS = [
+  '17 Hillhouse',
+  'Bass',
+  'HQ',
+  'LC',
+  'Sterling',
+  'TSAI City',
+  'WLH',
+] as const;
+
 export const DaySelectComponent = () => {
   const location = useLocation();
   const { eventId } = useParams();
@@ -69,13 +79,7 @@ export const DaySelectComponent = () => {
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
   const [locationOptions, setLocationOptions] = useState<string[]>([
-    '17 Hillhouse',
-    'Bass',
-    'HQ',
-    'LC',
-    'Sterling',
-    'TSAI City',
-    'WLH',
+    ...DEFAULT_LOCATION_PRESETS,
   ]);
 
   const [selectedDays, setSelectedDays] = useState<
@@ -164,8 +168,13 @@ export const DaySelectComponent = () => {
           setZoomLink(zoomLinkFromDb || '');
           setStartDate(newStartDate);
           setEndDate(newEndDate);
-          updateLocationsState(locationsFromDb || []);
-          setLocationOptions(locationsFromDb || []);
+          const loadedLocs = Array.isArray(locationsFromDb)
+            ? locationsFromDb
+            : [];
+          updateLocationsState(loadedLocs);
+          setLocationOptions([
+            ...new Set([...DEFAULT_LOCATION_PRESETS, ...loadedLocs]),
+          ]);
           setTimezone(timezoneFromDb || Intl.DateTimeFormat().resolvedOptions().timeZone);
           
           // Check if this is a "General Days" event (dates with year 2000)
@@ -477,6 +486,7 @@ export const DaySelectComponent = () => {
                 <div className="z-40">
                   <LocationSelectionComponent
                     locations={locationOptions}
+                    value={locations}
                     update={updateLocationsState}
                     create={true}
                     placeholder="Locations (Optional)"
