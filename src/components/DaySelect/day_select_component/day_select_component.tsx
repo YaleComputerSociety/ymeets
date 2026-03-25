@@ -2,11 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
 import CalanderComponent from '../calander_component';
 import frontendEventAPI from '../../../backend/eventAPI';
-import SearchBar from '../../utils/components/EmailSearchBar';
-
-import { 
-  getAccountId, 
-  getAccountName, 
+import {
+  getAccountId,
+  getAccountName,
   getEventById,
   getEventName,
   getEventDescription,
@@ -15,8 +13,10 @@ import {
   getLocationOptions,
   getTimezone,
   getZoomLink,
-  checkIfAdmin
+  checkIfAdmin,
+  getParsedAccountPageEventsForUser,
 } from '../../../backend/events';
+import { setCachedAccountEvents } from '../../Accounts/accountEventsCache';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
@@ -342,6 +342,12 @@ export const DaySelectComponent = () => {
           new Date() // dateCreated
         )
         .then((ev) => {
+          const accountID = getAccountId();
+          if (accountID) {
+            getParsedAccountPageEventsForUser(accountID).then((events) =>
+              setCachedAccountEvents(accountID, events)
+            );
+          }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     } else {
@@ -365,6 +371,12 @@ export const DaySelectComponent = () => {
           new Date() // dateCreated
         )
         .then((ev) => {
+          const accountID = getAccountId();
+          if (accountID) {
+            getParsedAccountPageEventsForUser(accountID).then((events) =>
+              setCachedAccountEvents(accountID, events)
+            );
+          }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     }
