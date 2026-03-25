@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../../backend/firebase';
-import { sendEventEmail } from '../../../emails/sendEmailHelpers';
+import { sendInvitationEmail } from '../../../emails/sendEmailHelpers';
 import { IconX, IconUsers, IconSend, IconCheck } from '@tabler/icons-react';
 
 // Trie data structure for efficient email prefix search
@@ -46,59 +46,6 @@ class Trie {
     }
     return arr;
   }
-}
-
-function invitationEmailHtml(
-  customEventCode: string,
-  eventTitle: string,
-  yourName: string
-): string {
-  return `
-<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#f6f7fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f7fb;padding:24px;">
-      <tr>
-        <td align="center">
-          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;padding:24px;">
-
-            <h2 style="margin-top:0;">You've been invited to an event</h2>
-
-            <p>
-              <strong>${yourName}</strong> invited you to join:
-            </p>
-
-            <h3 style="margin-top:8px;">${eventTitle}</h3>
-
-            <p>
-              Click below to view details and respond:
-            </p>
-
-            <p>
-              <a
-                href="https://ymeets.com/dashboard/${customEventCode}"
-                style="display:inline-block;background:#2563eb;color:white;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;">
-                View Invitation
-              </a>
-            </p>
-
-            <p style="font-size:14px;color:#666;">
-              Or paste this link into your browser:
-              <br />
-              https://ymeets.com/dashboard/${customEventCode}
-            </p>
-
-            <p style="font-size:12px;color:#999;">
-              Event code: ${customEventCode}
-            </p>
-
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
-`;
 }
 
 interface InviteModalProps {
@@ -193,13 +140,15 @@ export default function InviteModal({
     if (invites.length === 0) return;
 
     setIsSending(true);
-    const emailHtml = invitationEmailHtml(eventCode, eventTitle, senderName);
-    const subject = `You've been invited to ${eventTitle}`;
 
     try {
       await Promise.all(
         invites.map((email) =>
-          sendEventEmail(email, subject, emailHtml, eventCode)
+          sendInvitationEmail(email, {
+            eventCode,
+            eventTitle,
+            senderName,
+          })
         )
       );
       setSendSuccess(true);

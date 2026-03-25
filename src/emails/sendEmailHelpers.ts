@@ -6,6 +6,11 @@ import {
   availabilityUpdatedSubject,
   type AvailabilityUpdatedData,
 } from './templates/availabilityUpdated';
+import {
+  invitationEmailHtml,
+  invitationEmailSubject,
+  type InvitationEmailData,
+} from './templates/invitation';
 
 interface SendEmailOptions {
   to: string | string[];
@@ -78,6 +83,26 @@ export async function sendEventEmail(
     to,
     subject,
     html,
+    headers: {
+      'In-Reply-To': threadMessageId,
+      References: threadMessageId,
+    },
+  });
+}
+
+/**
+ * Send an invitation email to invite someone to join an event
+ */
+export async function sendInvitationEmail(
+  to: string,
+  data: InvitationEmailData
+): Promise<SendEmailResult> {
+  const threadMessageId = getEventThreadMessageId(data.eventCode);
+
+  return sendEmail({
+    to,
+    subject: invitationEmailSubject(data),
+    html: invitationEmailHtml(data),
     headers: {
       'In-Reply-To': threadMessageId,
       References: threadMessageId,
