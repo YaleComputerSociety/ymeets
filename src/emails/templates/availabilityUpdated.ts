@@ -181,7 +181,7 @@ text-decoration: none
 <tr class="t43"><td></td><td class="t42" width="546" valign="top">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="t41" style="width:100%;"><tr><td class="t40" style="overflow:hidden;background-color:#F8F8F8;padding:40px 50px 40px 50px;border-radius:0 0 18px 18px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100% !important;"><tr><td align="center">
 <table class="t24" role="presentation" cellpadding="0" cellspacing="0" style="Margin-left:auto;Margin-right:auto;"><tr><td width="446" class="t23" style="width:490px;">
-<table class="t22" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t21"><h1 class="t20" style="margin:0;Margin:0;font-family:Albert Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:41px;font-weight:700;font-style:normal;font-size:25px;text-decoration:none;text-transform:none;letter-spacing:-1.56px;direction:ltr;color:#191919;text-align:left;mso-line-height-rule:exactly;mso-text-raise:5px;"><span class="t17" style="margin:0;Margin:0;font-weight:700;mso-line-height-rule:exactly;">${participantName}</span> <span class="t19" style="margin:0;Margin:0;mso-line-height-rule:exactly;"><span class="t18" style="margin:0;Margin:0;font-weight:400;mso-line-height-rule:exactly;">has submitted their availability for</span></span> ${eventTitle}</h1></td></tr></table>
+<table class="t22" role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr><td class="t21"><p class="t20" style="margin:0;Margin:0;font-family:Albert Sans,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:26px;font-weight:400;font-style:normal;font-size:18px;text-decoration:none;text-transform:none;letter-spacing:-0.56px;direction:ltr;color:#333333;text-align:left;mso-line-height-rule:exactly;mso-text-raise:2px;"><strong style="font-weight:700;color:#191919;">${participantName}</strong> has submitted their availability for <strong style="font-weight:700;color:#191919;">${eventTitle}</strong></p></td></tr></table>
 </td></tr></table>
 </td></tr><tr><td><div class="t25" style="mso-line-height-rule:exactly;mso-line-height-alt:23px;line-height:23px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr><tr><td align="center">
 <table class="t30" role="presentation" cellpadding="0" cellspacing="0" style="Margin-left:auto;Margin-right:auto;"><tr><td width="295" class="t29" style="width:295px;">
@@ -218,9 +218,6 @@ text-decoration: none
 </html>
 `.trim();
 }
-
-
-
 
 // <!DOCTYPE html>
 // <html lang="en">
