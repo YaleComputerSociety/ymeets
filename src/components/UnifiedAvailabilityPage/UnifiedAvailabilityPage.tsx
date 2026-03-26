@@ -22,6 +22,11 @@ import {
   workingEvent,
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
+
+// Track events where we've already sent a notification this session
+// to avoid spamming the admin with repeated emails when a user saves multiple times
+const notifiedEventsThisSession = new Set<string>();
+
 import {
   calanderState,
   userData,
@@ -139,15 +144,20 @@ export default function UnifiedAvailabilityPage() {
         : [];
       await wrappedSaveParticipantDetails(avail, selectedLocations);
 
-      // Email event admin if they opted in
-      if (workingEvent.details.emailAdmin === true) {
+      // Email event admin if they opted in (only once per session to avoid spam)
+      const eventId = workingEvent.publicId;
+      if (
+        workingEvent.details.emailAdmin === true &&
+        !notifiedEventsThisSession.has(eventId)
+      ) {
         notifyAdminOfNewResponse(
           workingEvent.details.adminAccountId,
           getAccountId(),
           getAccountName(),
           workingEvent.details.name,
-          workingEvent.publicId
+          eventId
         );
+        notifiedEventsThisSession.add(eventId);
       }
 
       // Refresh data after save
