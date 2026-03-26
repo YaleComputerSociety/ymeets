@@ -98,30 +98,28 @@ export default function NavBar() {
         <div className="flex bg-secondary_background dark:bg-secondary_background-dark rounded-xl h-16 w-[94%] px-5 sm:px-8 items-center justify-between shadow-lg">
           <NavLogo />
           <div className="flex items-center space-x-4">
-            <WaffleMenu />
-            <div onClick={toggleTheme}>
-              {theme === 'dark' ? (
-                <IconMoonFilled
-                  className="cursor-pointer text-text dark:text-text-dark"
-                  size={25}
-                />
-              ) : (
-                <IconSun
-                  className="cursor-pointer text-text dark:text-text-dark"
-                  size={25}
-                />
-              )}
-            </div>
             <div className="hidden sm:block">
               {name && (
                 <div className="relative inline-block">
                   <div
                     className={`text-text dark:text-text-dark flex flex-row border border-outline dark:border-text-dark rounded-full w-fit h-fit px-2 lg:px-3 py-1 self-center transition drop-shadow-2xl text-xs lg:text-sm`}
                   >
-                    {/* Welcome, {name}                              */}
                     <span className="mx-auto">Welcome, {name}</span>
                   </div>
                 </div>
+              )}
+            </div>
+            <div onClick={toggleTheme} className="cursor-pointer">
+              {theme === 'dark' ? (
+                <IconMoonFilled
+                  className="text-text dark:text-text-dark"
+                  size={25}
+                />
+              ) : (
+                <IconSun
+                  className="text-text dark:text-text-dark"
+                  size={25}
+                />
               )}
             </div>
             <div>
@@ -229,6 +227,7 @@ export default function NavBar() {
                 </div>
               )}
             </div>
+            <WaffleMenu />
           </div>
         </div>
         {name.length > 0 && (
