@@ -6,6 +6,11 @@ import {
   availabilityUpdatedSubject,
   type AvailabilityUpdatedData,
 } from './templates/availabilityUpdated';
+import {
+  invitationEmailHtml,
+  invitationEmailSubject,
+  type InvitationEmailData,
+} from './templates/invitation';
 
 interface SendEmailOptions {
   to: string | string[];
@@ -13,6 +18,7 @@ interface SendEmailOptions {
   html: string;
   headers?: Record<string, string>;
 }
+
 
 interface SendEmailResult {
   success: boolean;
@@ -33,6 +39,8 @@ export async function sendEmail(
   const result = await sendEmailFn(options);
   return result.data;
 }
+
+
 
 // Event-specifc thread ID for emails appear in same thread
 function getEventThreadMessageId(eventId: string): string {
@@ -60,6 +68,49 @@ export async function sendAvailabilityUpdatedEmail(
     },
   });
 }
+
+
+// for inviting people to the event
+export async function sendEventEmail(
+  to: string,
+  subject: string,
+  html: string,
+  eventId: string
+): Promise<SendEmailResult> {
+  const threadMessageId = getEventThreadMessageId(eventId);
+
+  return sendEmail({
+    to,
+    subject,
+    html,
+    headers: {
+      'In-Reply-To': threadMessageId,
+      References: threadMessageId,
+    },
+  });
+}
+
+/**
+ * Send an invitation email to invite someone to join an event
+ */
+export async function sendInvitationEmail(
+  to: string,
+  data: InvitationEmailData
+): Promise<SendEmailResult> {
+  const threadMessageId = getEventThreadMessageId(data.eventCode);
+
+  return sendEmail({
+    to,
+    subject: invitationEmailSubject(data),
+    html: invitationEmailHtml(data),
+    headers: {
+      'In-Reply-To': threadMessageId,
+      References: threadMessageId,
+    },
+  });
+}
+
+
 
 // Notify the event admin when a participant saves their availability
 export async function notifyAdminOfNewResponse(

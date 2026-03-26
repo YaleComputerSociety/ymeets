@@ -13,7 +13,7 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
+// // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -41,3 +41,4 @@ export const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const googleProvider = new GoogleAuthProvider();
 
 export { auth, db, analytics, googleProvider };
+

@@ -2,7 +2,6 @@ import { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { userData } from '../../types';
 import {
   getAccountName,
-  getAccountEmail,
   getAccountId,
   getChosenLocation,
   getEmailAdmin,
@@ -15,7 +14,6 @@ import LocationChart from '../GroupView/LocationChart';
 import LocationSelectionComponent from '../TimeSelect/LocationSelectionComponent';
 import UserChart from '../GroupView/UserChart';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
-import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import AlertPopup from '../utils/components/AlertPopup';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
@@ -24,6 +22,7 @@ import { useAuth } from '../../backend/authContext';
 import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
+import InviteButton from '../utils/components/InviteButton';
 
 interface Calendar {
   id: string;
@@ -243,15 +242,14 @@ export default function SharedSidebar({
             Share
           </div>
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
-            <div className="flex gap-2">
+            <div className="flex flex-row gap-2">
               <CopyCodeButton className="!w-auto flex-1 !text-xs !py-1.5 !px-2" />
               {isAdmin && (
-                <AutoDraftEmailButton
+                <InviteButton
+                  eventCode={code || ''}
                   eventTitle={eventName}
-                  yourName={getAccountName()}
-                  senderEmail={getAccountEmail()}
-                  customEventCode={code}
-                  className="flex-1 !text-xs !py-1.5 !px-2"
+                  senderName={getAccountName()}
+                  className="!w-auto flex-1 !text-xs !py-1.5 !px-2"
                 />
               )}
             </div>

@@ -449,6 +449,16 @@ export const DaySelectComponent = () => {
                   onChange={(e) => setEventName(e.target.value)}
                   maxLength={40}
                 />
+
+                {/* <label
+                  htmlFor="event-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Emails of Attendees
+                </label>
+
+                <SearchBar/> */}
+
               </div>
 
               <div className="space-y-2">
