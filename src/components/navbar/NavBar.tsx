@@ -22,6 +22,7 @@ import {
   IconSun,
   IconBook,
 } from '@tabler/icons-react';
+import WaffleMenu from './WaffleMenu';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { log } from 'console';
@@ -97,6 +98,7 @@ export default function NavBar() {
         <div className="flex bg-secondary_background dark:bg-secondary_background-dark rounded-xl h-16 w-[94%] px-5 sm:px-8 items-center justify-between shadow-lg">
           <NavLogo />
           <div className="flex items-center space-x-4">
+            <WaffleMenu />
             <div onClick={toggleTheme}>
               {theme === 'dark' ? (
                 <IconMoonFilled
