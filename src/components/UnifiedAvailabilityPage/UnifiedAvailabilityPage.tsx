@@ -22,11 +22,6 @@ import {
   workingEvent,
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
-
-// Track events where we've already sent a notification this session
-// to avoid spamming the admin with repeated emails when a user saves multiple times
-const notifiedEventsThisSession = new Set<string>();
-
 import {
   calanderState,
   userData,
@@ -36,6 +31,10 @@ import {
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import { calendar_v3 } from 'googleapis';
+
+// Track events where we've already sent a notification this session
+// to avoid spamming the admin with repeated emails when a user saves multiple times
+const notifiedEventsThisSession = new Set<string>();
 
 export default function UnifiedAvailabilityPage() {
   const location = useLocation();
