@@ -44,9 +44,8 @@ module.exports = {
         'float': 'float 3s ease-in-out infinite'
       },
       fontFamily: {
-        roboto: ["Roboto", "sans"],
-        serif: ["Noto Serif", ...defaultTheme.fontFamily.serif],
-        sans: ["Inter", ...defaultTheme.fontFamily.sans],
+        sans: ["Funnel Display", ...defaultTheme.fontFamily.sans],
+        display: ["Funnel Display", ...defaultTheme.fontFamily.sans],
       },
       boxShadow: {
         custom: "2px 4px 3px 0px rgba(0, 0, 0, 0.4)",

@@ -12,7 +12,7 @@ export default function HomePage() {
       <main className="flex-grow flex flex-col items-center px-6 pt-8 md:pt-12">
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-text dark:text-text-dark text-center tracking-tight leading-none">
-          Find the perfect<br />meeting time
+          Scheduling<br />made simple
         </h1>
 
         {/* Subheadline */}
@@ -23,15 +23,15 @@ export default function HomePage() {
         {/* Value Props */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mt-6 text-sm text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-primary-dark/30 text-primary dark:text-primary-dark flex items-center justify-center text-xs font-bold">1</span>
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">1</span>
             <span>Syncs with Google Calendar</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-primary-dark/30 text-primary dark:text-primary-dark flex items-center justify-center text-xs font-bold">2</span>
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">2</span>
             <span>Get notified when others respond</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-primary-dark/30 text-primary dark:text-primary-dark flex items-center justify-center text-xs font-bold">3</span>
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">3</span>
             <span>See availability at a glance</span>
           </div>
         </div>
