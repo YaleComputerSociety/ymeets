@@ -6,7 +6,6 @@ import {
   LandingHero,
   LandingFeatureHighlights,
   LandingHowItWorks,
-  LandingProductDeepDive,
   LandingFinalCta,
 } from './HomeLandingSections';
 
@@ -30,7 +29,6 @@ export default function HomePage() {
         />
         <LandingFeatureHighlights />
         <LandingHowItWorks />
-        <LandingProductDeepDive />
         <LandingFinalCta navigate={navigate} />
       </main>
 

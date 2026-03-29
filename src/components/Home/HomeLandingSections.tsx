@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   IconBrandGoogle,
-  IconCalendarEvent,
   IconLock,
   IconMapPin,
   IconMapPinFilled,
@@ -353,43 +352,6 @@ export function LandingHowItWorks() {
             </div>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export function LandingProductDeepDive() {
-  return (
-    <section
-      className={`${sectionShell} py-16 md:py-24 border-t border-outline/20 dark:border-gray-600/40`}
-    >
-      <div className="max-w-3xl">
-        <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-text-dark mb-4">
-          Built for real campus workflows
-        </h2>
-        <p className="text-text/75 dark:text-text-dark/80 text-lg mb-8 leading-relaxed">
-          Dashboard overview, availability grids, and location voting mirror
-          what your group actually sees—so you can coordinate fast and move
-          on.
-        </p>
-        <ul className="space-y-4">
-          {[
-            'Autofill from Google Calendar to avoid re-typing your week',
-            'Dashboard and event overview with codes easy to share',
-            'Pick and vote on campus meeting spots in one flow',
-            'Finalize time and place so everyone has the same details',
-          ].map((item) => (
-            <li key={item} className="flex gap-3 text-text dark:text-text-dark">
-              <IconCalendarEvent
-                className="shrink-0 mt-0.5 text-primary dark:text-primary-dark"
-                size={20}
-              />
-              <span className="text-text/85 dark:text-text-dark/90">
-                {item}
-              </span>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
