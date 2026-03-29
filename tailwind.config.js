@@ -18,12 +18,30 @@ module.exports = {
         'shimmer': {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' }
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        },
+        'slide-in-right': {
+          '0%': { opacity: '0', transform: 'translateX(30px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' }
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' }
         }
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
         'scale-in': 'scale-in 0.2s ease-out',
-        'shimmer': 'shimmer 1.5s infinite'
+        'shimmer': 'shimmer 1.5s infinite',
+        'slide-up': 'slide-up 0.6s ease-out forwards',
+        'slide-up-delay-1': 'slide-up 0.6s ease-out 0.1s forwards',
+        'slide-up-delay-2': 'slide-up 0.6s ease-out 0.2s forwards',
+        'slide-up-delay-3': 'slide-up 0.6s ease-out 0.3s forwards',
+        'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
+        'float': 'float 3s ease-in-out infinite'
       },
       fontFamily: {
         roboto: ["Roboto", "sans"],
