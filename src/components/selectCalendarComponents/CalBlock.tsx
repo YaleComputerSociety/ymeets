@@ -301,6 +301,10 @@ export default function CalBlock({
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
 
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     if (blockID == -1) {
       return;
     }
@@ -371,16 +375,10 @@ export default function CalBlock({
   );
 
   const handleMouseOrTouchLeaveBlock = useCallback(() => {
-    if (chartedUsers && setChartedUsers) {
-      setChartedUsers({
-        users: chartedUsers.users,
-        userIDs: chartedUsers.userIDs,
-        available: [],
-        unavailable: [...chartedUsers.users],
-        hovering : true,
-      });
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }, [chartedUsers, setChartedUsers]);
+  }, []);
 
   const debouncedSetDragState = useCallback(
     _.debounce((newState) => {
