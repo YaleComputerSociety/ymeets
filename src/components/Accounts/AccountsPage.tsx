@@ -63,9 +63,7 @@ export default function AccountsPage() {
   const [filter, setFilter] = useState('');
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
   const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<'dateCreated' | 'lastModified'>(
-    'lastModified'
-  );
+  const [sortBy, setSortBy] = useState<'dateCreated' | 'lastModified' | ''>('');
   const [selectedEventToDelete, setSelectedEventToDelete] =
     useState<AccountsPageEvent | null>(null);
   const [dontAskAgain, setDontAskAgain] = useState(false);
@@ -183,6 +181,7 @@ export default function AccountsPage() {
                 focus:border-primary focus:ring-2 focus:ring-primary/20
                 min-h-[40px] md:min-h-[60px]"
               >
+                <option defaultValue="">Sort By: </option>
                 <option value="lastModified">Last Modified</option>
                 <option value="dateCreated">Date Created</option>
               </select>
