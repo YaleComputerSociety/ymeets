@@ -75,7 +75,8 @@ export default function HomePage() {
               Everything you need to schedule
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Powerful features that make finding the perfect meeting time effortless
+              Powerful features that make finding the perfect meeting time
+              effortless
             </p>
           </div>
 
@@ -86,7 +87,8 @@ export default function HomePage() {
                 1-click availability
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Connect your Google Calendar to see when you&apos;re busy and autofill your availability with a single click.
+                Connect your Google Calendar to see when you&apos;re busy and
+                autofill your availability with a single click.
               </p>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3 mb-3">
@@ -125,7 +127,8 @@ export default function HomePage() {
                 Response notifications
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Get notified instantly when someone adds their availability to your event. No more checking back.
+                Get notified instantly when someone adds their availability to
+                your event. No more checking back.
               </p>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-start gap-3">
@@ -140,10 +143,10 @@ export default function HomePage() {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-text dark:text-text-dark">
-                      Sarah added their availability
+                      New availability submitted: Team Dinner
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      &quot;Team Dinner&quot; - 3 of 4 people have responded
+                      Sarah has submitted their availability for Team Dinner
                     </div>
                     <div className="text-xs text-primary dark:text-blue-400 mt-2 font-medium">
                       View responses →
@@ -159,7 +162,8 @@ export default function HomePage() {
                 Email invites
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Invite people directly from ymeets. They&apos;ll receive an email with a link to fill out their availability.
+                Invite people directly from ymeets. They&apos;ll receive an
+                email with a link to fill out their availability.
               </p>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-3">
@@ -195,13 +199,83 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Feature 4: Visual Availability */}
+            {/* Feature 4: Location Voting */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Location voting
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Can&apos;t decide where to meet? Add location options and let
+                everyone vote on their favorite spot.
+              </p>
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-text dark:text-text-dark">
+                          Tsai CITY
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          4 votes
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: '80%' }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-text dark:text-text-dark">
+                          Bass Library
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          3 votes
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: '60%' }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-text dark:text-text-dark">
+                          The Elm
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          1 vote
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: '20%' }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 5: Visual Availability */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
               <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
                 Visual availability
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                See when everyone&apos;s free at a glance with our heat map visualization. Darker means more people available.
+                See when everyone&apos;s free at a glance with our heat map
+                visualization. Darker means more people available.
               </p>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-5 gap-1">
@@ -232,49 +306,45 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Feature 5: Location Voting */}
+            {/* Feature 6: Easy Sharing */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
               <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
-                Location voting
+                Easy sharing
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Can&apos;t decide where to meet? Add location options and let everyone vote on their favorite spot.
+                Share your ymeets with a simple link. No sign-up required for
+                participants to respond.
               </p>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">Bass Library</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">4 votes</span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: '80%' }}></div>
-                      </div>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 truncate">
+                    ymeets.com/dashboard/ABC123
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">Blue State Coffee</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">3 votes</span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: '60%' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">Commons</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">1 vote</span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: '20%' }}></div>
-                      </div>
-                    </div>
-                  </div>
+                  <button className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
+                    Copy
+                  </button>
+                </div>
+                <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                    No account required
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                    Works on any device
+                  </span>
                 </div>
               </div>
             </div>
