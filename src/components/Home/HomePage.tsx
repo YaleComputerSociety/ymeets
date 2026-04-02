@@ -352,6 +352,39 @@ export default function HomePage() {
         </section>
       </main>
 
+      {/* Bottom CTA */}
+      <section className="w-full bg-background dark:bg-background-dark pt-0 pb-10 px-6 text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-text-dark mb-6">
+          Ready to get started?
+        </h2>
+        <Button
+          bgColor="primary"
+          textColor="white"
+          onClick={() => navigate('/dayselect')}
+          rounded="lg"
+        >
+          Try it out today
+        </Button>
+        <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+          ymeets is built and maintained by a small group of volunteers at the{' '}
+          <a
+            href="https://yalecomputersociety.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary transition-colors"
+          >
+            Yale Computer Society
+          </a>
+          {' — '}
+          <a
+            href="/about"
+            className="underline hover:text-primary transition-colors"
+          >
+            meet the team
+          </a>
+        </p>
+      </section>
+
       <Footer />
     </div>
   );
