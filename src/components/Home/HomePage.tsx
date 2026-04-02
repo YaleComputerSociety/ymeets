@@ -88,6 +88,292 @@ function AutofillDemo() {
   );
 }
 
+// Feature 2: Response notifications
+const NOTIF_ITEMS = [
+  { name: 'Sarah', event: 'Team Dinner', time: 'just now' },
+  { name: 'James', event: 'Weekend Hike', time: '4m ago' },
+  { name: 'Arush', event: 'Project Sync', time: '11m ago' },
+];
+
+function NotificationsDemo() {
+  const [topVisible, setTopVisible] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setTopVisible(false);
+      t = setTimeout(() => {
+        setTopVisible(true);
+        t = setTimeout(cycle, 3000);
+      }, 1500);
+    }
+    t = setTimeout(cycle, 800);
+    return () => clearTimeout(t);
+  }, []);
+
+  const newEmail = NOTIF_ITEMS[0];
+  const existingEmails = NOTIF_ITEMS.slice(1);
+
+  return (
+    <div className="overflow-hidden">
+      {/* New email slides in, expanding from 0 height */}
+      <div
+        style={{
+          maxHeight: topVisible ? '120px' : '0px',
+          opacity: topVisible ? 1 : 0,
+          marginBottom: topVisible ? '16px' : '0px',
+          transition: 'max-height 400ms ease, opacity 300ms ease, margin-bottom 400ms ease',
+          overflow: 'hidden',
+        }}
+      >
+        <div className="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+          <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg className="w-3.5 h-3.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-text dark:text-text-dark truncate">
+                {newEmail.name} responded to {newEmail.event}
+              </div>
+              <span className="text-xs text-gray-400 flex-shrink-0">{newEmail.time}</span>
+            </div>
+            <div className="text-xs text-primary dark:text-blue-400 mt-0.5 font-medium">
+              View responses →
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Existing emails always visible */}
+      {existingEmails.map(({ name, event, time }) => (
+        <div key={name} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700 mb-4">
+          <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg className="w-3.5 h-3.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-text dark:text-text-dark truncate">
+                {name} responded to {event}
+              </div>
+              <span className="text-xs text-gray-400 flex-shrink-0">{time}</span>
+            </div>
+            <div className="text-xs text-primary dark:text-blue-400 mt-0.5 font-medium">
+              View responses →
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/// Feature 3: Email invites animation
+function EmailInvitesDemo() {
+  const [inviteSent, setInviteSent] = useState(false);
+  const [clicked, setClicked] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setInviteSent(false);
+      setClicked(false);
+      t = setTimeout(() => {
+        setClicked(true);
+        t = setTimeout(() => {
+          setInviteSent(true);
+          t = setTimeout(cycle, 3000);
+        }, 1000);
+      }, 2000);
+    }
+    t = setTimeout(cycle, 500);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+          alex@yale.edu
+        </div>
+        <button
+          className="px-3 py-2 text-white text-sm font-medium rounded-lg transition-all duration-150"
+          style={{
+            backgroundColor: clicked ? 'rgb(29,78,216)' : 'var(--color-primary, #5191F2)',
+            transform: clicked ? 'scale(0.93)' : 'scale(1)',
+            boxShadow: clicked ? 'inset 0 2px 4px rgba(0,0,0,0.25)' : 'none',
+          }}
+        >
+          {clicked && !inviteSent ? 'Inviting...' : 'Invite'}
+        </button>
+      </div>
+      <div className="space-y-2 overflow-hidden">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span>sam@yale.edu - Responded</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span>jordan@yale.edu - Responded</span>
+        </div>
+        {/* New invite slides in */}
+        <div
+          style={{
+            maxHeight: inviteSent ? '40px' : '0px',
+            opacity: inviteSent ? 1 : 0,
+            transition: 'max-height 400ms ease, opacity 300ms ease',
+            overflow: 'hidden',
+          }}
+        >
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+            <span>alex@yale.edu</span>
+            <span className="text-blue-400 dark:text-blue-400 font-medium">— email sent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LocationVotingDemo() {
+  const [bumped, setBumped] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setBumped(false);
+      t = setTimeout(() => {
+        setBumped(true);
+        t = setTimeout(cycle, 2500);
+      }, 2000);
+    }
+    t = setTimeout(cycle, 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const bars = [
+    { label: 'Tsai CITY', votes: bumped ? 5 : 4, width: bumped ? 100 : 80 },
+    { label: 'Bass Library', votes: 3, width: 60 },
+    { label: 'The Elm', votes: 1, width: 20 },
+  ];
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="space-y-5">
+        {bars.map(({ label, votes, width }) => (
+          <div key={label} className="flex items-center gap-3">
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-text dark:text-text-dark">{label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400" style={{ transition: 'all 300ms ease' }}>{votes} votes</span>
+              </div>
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full"
+                  style={{ width: `${width}%`, transition: 'width 400ms ease' }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Feature 5: Visual availability grid
+const GRID_OPACITIES = [
+  [0.2, 0.4, 0.8, 0.6, 0.3],
+  [0.1, 0.6, 1.0, 0.8, 0.4],
+  [0.3, 0.5, 0.9, 0.7, 0.2],
+  [0.2, 0.3, 0.6, 0.4, 0.1],
+];
+
+function VisualAvailabilityDemo() {
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-5 gap-1">
+        {GRID_OPACITIES.map((row, i) =>
+          row.map((opacity, j) => (
+            <div
+              key={`${i}-${j}`}
+              className="h-6 rounded"
+              style={{ backgroundColor: `rgba(59, 130, 246, ${opacity})` }}
+            ></div>
+          ))
+        )}
+      </div>
+      <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+      </div>
+    </div>
+  );
+}
+
+// Feature 6: Easy sharing — copy button cycle
+function EasySharingDemo() {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setCopied(false);
+      t = setTimeout(() => {
+        setCopied(true);
+        t = setTimeout(cycle, 1500);
+      }, 2500);
+    }
+    t = setTimeout(cycle, 800);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 truncate">
+          ymeets.com/dashboard/ABC123
+        </div>
+        <button
+          className="px-4 py-2 text-white text-sm font-medium rounded-lg"
+          style={{
+            backgroundColor: copied ? 'rgb(22,163,74)' : '#5191F2',
+            transition: 'background-color 300ms ease',
+          }}
+        >
+          {copied ? 'Copied ✓' : 'Copy'}
+        </button>
+      </div>
+      <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          No account required
+        </span>
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          Works on any device
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
 
@@ -187,30 +473,7 @@ export default function HomePage() {
                 Get notified instantly when someone adds their availability to
                 your event. No more checking back.
               </p>
-              {[
-                { name: 'Sarah', event: 'Team Dinner', time: 'just now' },
-                { name: 'James', event: 'Weekend Hike', time: '4m ago' },
-                { name: 'Arush', event: 'Project Sync', time: '11m ago' },
-              ].map(({ name, event, time }) => (
-                <div key={name} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700 mb-4">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-3.5 h-3.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs font-semibold text-text dark:text-text-dark truncate">
-                        {name} responded to {event}
-                      </div>
-                      <span className="text-xs text-gray-400 flex-shrink-0">{time}</span>
-                    </div>
-                    <div className="text-xs text-primary dark:text-blue-400 mt-0.5 font-medium">
-                      View responses →
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <NotificationsDemo />
             </div>
 
             {/* Feature 3: Email Invites */}
@@ -222,38 +485,7 @@ export default function HomePage() {
                 Invite people directly from ymeets. They&apos;ll receive an
                 email with a link to fill out their availability.
               </p>
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                    alex@yale.edu
-                  </div>
-                  <button className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
-                    Invite
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="w-4 h-4 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                    <span>sam@yale.edu - Responded</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="w-4 h-4 text-yellow-500"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                    </svg>
-                    <span>jordan@yale.edu - Pending</span>
-                  </div>
-                </div>
-              </div>
+              <EmailInvitesDemo />
             </div>
 
             {/* Feature 4: Location Voting */}
@@ -265,64 +497,7 @@ export default function HomePage() {
                 Can&apos;t decide where to meet? Add location options and let
                 everyone vote on their favorite spot.
               </p>
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">
-                          Tsai CITY
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          4 votes
-                        </span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: '80%' }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">
-                          Bass Library
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          3 votes
-                        </span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: '60%' }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-text dark:text-text-dark">
-                          The Elm
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          1 vote
-                        </span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: '20%' }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <LocationVotingDemo />
             </div>
 
             {/* Feature 5: Visual Availability */}
@@ -334,33 +509,7 @@ export default function HomePage() {
                 See when everyone&apos;s free at a glance with our heat map
                 visualization. Darker means more people available.
               </p>
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div className="grid grid-cols-5 gap-1">
-                  {[
-                    [0.2, 0.4, 0.8, 0.6, 0.3],
-                    [0.1, 0.6, 1.0, 0.8, 0.4],
-                    [0.3, 0.5, 0.9, 0.7, 0.2],
-                    [0.2, 0.3, 0.6, 0.4, 0.1],
-                  ].map((row, i) =>
-                    row.map((opacity, j) => (
-                      <div
-                        key={`${i}-${j}`}
-                        className="h-6 rounded"
-                        style={{
-                          backgroundColor: `rgba(59, 130, 246, ${opacity})`,
-                        }}
-                      ></div>
-                    ))
-                  )}
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                </div>
-              </div>
+              <VisualAvailabilityDemo />
             </div>
 
             {/* Feature 6: Easy Sharing */}
@@ -372,38 +521,7 @@ export default function HomePage() {
                 Share your ymeets with a simple link. No sign-up required for
                 participants to respond.
               </p>
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 truncate">
-                    ymeets.com/dashboard/ABC123
-                  </div>
-                  <button className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors">
-                    Copy
-                  </button>
-                </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                    No account required
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                    Works on any device
-                  </span>
-                </div>
-              </div>
+              <EasySharingDemo />
             </div>
           </div>
         </section>
