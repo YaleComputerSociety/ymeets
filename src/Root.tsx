@@ -20,6 +20,7 @@ import Banner from './components/utils/components/Banner';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './backend/authContext';
 import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
+import GoogleOneTapPrompt from './components/utils/components/GoogleOneTap/GoogleOneTapPrompt';
 import { useState } from 'react';
 
 // legacy support for /groupview/:code
@@ -36,6 +37,7 @@ function Root() {
         <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
           {/* <Banner title="2.0 Release is Live" text="Please report bugs" /> */}
           <Router>
+            <GoogleOneTapPrompt />
             <NavBar></NavBar>
             <Routes>
               <Route path="/" element={<HomePage />} />

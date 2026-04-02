@@ -10,6 +10,7 @@ import {
   signOut,
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithCredential,
   User,
 } from 'firebase/auth';
 import { auth, db } from './firebase';
@@ -21,6 +22,7 @@ interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
   login: () => Promise<User>;
+  loginWithIdToken: (idToken: string) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -87,6 +89,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Sign in with Google One Tap (ID token) via Firebase
+  const loginWithIdToken = async (idToken: string): Promise<User> => {
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      const result = await signInWithCredential(auth, credential);
+      await ensureUserDocExists(result.user);
+      return result.user;
+    } catch (error: any) {
+      console.error('Error signing in with One Tap:', error);
+      throw error;
+    }
+  };
+
   // Sign out from Firebase
   const logout = async (): Promise<void> => {
     try {
@@ -102,6 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     currentUser,
     loading,
     login,
+    loginWithIdToken,
     logout,
   };
 
