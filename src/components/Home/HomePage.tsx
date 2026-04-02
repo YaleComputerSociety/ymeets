@@ -83,9 +83,9 @@ function AutofillDemo() {
 
 // Feature 2: Response notifications
 const NOTIF_ITEMS = [
-  { name: 'Sarah', event: 'Team Dinner', time: 'just now' },
-  { name: 'James', event: 'Weekend Hike', time: '4m ago' },
-  { name: 'Arush', event: 'Project Sync', time: '11m ago' },
+  { name: 'Priya', event: 'Team Dinner', time: 'just now' },
+  { name: 'Marcus', event: 'Weekend Hike', time: '4m ago' },
+  { name: 'Yuki', event: 'Project Sync', time: '11m ago' },
 ];
 
 function NotificationsDemo() {
@@ -169,7 +169,7 @@ function EmailInvitesDemo() {
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-          alex@yale.edu
+          jordan@gmail.com
         </div>
         <button
           className="px-3 py-2 text-white text-sm font-medium rounded-lg transition-all duration-150"
@@ -187,13 +187,13 @@ function EmailInvitesDemo() {
           <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
           </svg>
-          <span>sam@yale.edu - Responded</span>
+          <span>layla@gmail.com - Responded</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
           </svg>
-          <span>jordan@yale.edu - Responded</span>
+          <span>darius@gmail.com - Responded</span>
         </div>
         {/* New invite slides in */}
         <div
@@ -208,7 +208,7 @@ function EmailInvitesDemo() {
             <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
             </svg>
-            <span>alex@yale.edu</span>
+            <span>jordan@gmail.com</span>
             <span className="text-blue-400 dark:text-blue-400 font-medium">— email sent</span>
           </div>
         </div>
