@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext, createContext } from 'react';
-import screenshot from './ymeets-screenshot.png';
+import screenshotLight from './ymeets-ss-light.png';
+import screenshotDark from './ymeets-ss-dark.png';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Shared animation phase: 0 = idle, 1 = animating
 // All feature cards sync to this so they animate together.
@@ -323,6 +325,8 @@ function EasySharingDemo() {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const screenshot = theme === 'dark' ? screenshotDark : screenshotLight;
   const [animPhase, setAnimPhase] = useState(0);
 
   useEffect(() => {
@@ -390,7 +394,7 @@ export default function HomePage() {
 
         {/* Screenshot */}
         <div className="mt-10 mb-12 w-full max-w-6xl px-4">
-          <div className="rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="rounded-2xl overflow-hidden border-4 border-gray-400 dark:border-gray-700 shadow-md dark:shadow-2xl">
             <img
               src={screenshot}
               alt="ymeets interface showing group availability"
