@@ -23,6 +23,7 @@ import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
+import DeclineButton from '../utils/components/DeclineButton';
 
 interface Calendar {
   id: string;
@@ -38,6 +39,7 @@ interface SharedSidebarProps {
 
   // Participants
   allPeople: string[];
+  declinedPeople: string[];
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
 
@@ -71,6 +73,8 @@ interface SharedSidebarProps {
   // User signed-in state
   userHasSignedIn: boolean;
   onUserSignIn: () => void;
+
+  onDecline: () => void;
 }
 
 export default function SharedSidebar({
@@ -79,6 +83,7 @@ export default function SharedSidebar({
   code,
   isAdmin,
   allPeople,
+  declinedPeople,
   peopleStatus,
   setPeopleStatus,
   locationOptions,
@@ -98,6 +103,7 @@ export default function SharedSidebar({
   setSelectedLocations,
   userHasSignedIn,
   onUserSignIn,
+  onDecline,
 }: SharedSidebarProps) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
@@ -289,6 +295,10 @@ export default function SharedSidebar({
         </div>
       )}
 
+
+
+
+
       {/* Google Calendar Section - only show when user is signed in */}
       {!chartedUsers?.hovering && userHasSignedIn && (
         <div className="w-full">
@@ -323,6 +333,7 @@ export default function SharedSidebar({
                 />
               ))}
           </div>
+
           {(!currentUser || !hasAccess) && (
             <button
               className="w-full text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 border  border-slate-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 dark:border-gray-600 py-2.5 px-4 rounded-lg transition-all shadow-sm duration-200 flex items-center justify-center gap-2"
@@ -363,16 +374,25 @@ export default function SharedSidebar({
         </div>
       )}
 
+      {/* Decline Button */}
+      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
+        Decline Invitation{' '}
+      </div>
+      <DeclineButton onDecline={onDecline} />
+      
+
       {/* Participants Section */}
       {!chartedUsers?.hovering && allPeople && allPeople.length > 0 && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Participants (
-            {allPeople.filter((name) => peopleStatus[name]).length}/
-            {allPeople.length})
+
+            {allPeople.filter((name) => !declinedPeople.includes(name) && peopleStatus[name]).length}/
+            {allPeople.filter(name => !declinedPeople.includes(name)).length}
+            )
           </div>
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-            {allPeople.map((name, idx) => (
+            {allPeople.filter((name) => !declinedPeople.includes(name)).map((name, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mx-1"
@@ -412,6 +432,30 @@ export default function SharedSidebar({
           </div>
         </div>
       )}
+
+
+      {/* Declined Section */}
+      {/* Declined People Section */}
+      {declinedPeople && declinedPeople.length > 0 && (
+        <div className="w-full">
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Declined ({declinedPeople.length})
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            {declinedPeople.map((name, idx) => (
+              <div
+                key={idx}
+                className="flex items-center py-1.5 px-1 -mx-1"
+              >
+                <span className="text-sm text-gray-400 dark:text-gray-500">
+                  {name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
 
       {/* Locations Section - grouped together */}
       {locationOptions.length > 0 && !chartedUsers?.hovering && (

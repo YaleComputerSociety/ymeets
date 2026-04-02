@@ -541,8 +541,10 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     email: getAccountEmail(),
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
+    declined: participant.declined || false,
   });
 }
+
 
 async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName();
@@ -615,6 +617,25 @@ async function wrappedSaveParticipantDetails(
     email: getAccountEmail(),
     availability: availability, // Pass as array, not stringified
     location: locations !== undefined ? locations : [],
+    declined: false,
+  });
+}
+
+async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
+  let name = getAccountName();
+  if (!name) {
+    console.warn('User not signed in');
+    name = 'John Doe';
+  }
+
+  // Pass availability as array - saveParticipantDetails will stringify it
+  await saveParticipantDetails({
+    name,
+    accountId: getAccountId(),
+    email: getAccountEmail(),
+    availability: [], // Pass as array, not stringified
+    location: [],
+    declined: true,
   });
 }
 
@@ -1080,6 +1101,7 @@ export {
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
+  wrappedSaveDeclinedParticipantDetails,
   updateAnonymousUserToAuthUser,
   // setAvailability,
   // setLocationPreference,

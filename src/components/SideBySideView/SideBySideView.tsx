@@ -47,6 +47,7 @@ interface SideBySideViewProps {
   chartedUsers: userData;
   setChartedUsers: Dispatch<SetStateAction<userData>>;
   allPeople: string[];
+  declinedPeople: string[];
   allUsers: userData;
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
@@ -84,6 +85,7 @@ interface SideBySideViewProps {
 
   // Save functionality
   onSave: () => Promise<void>;
+  onDecline: () => void;
   isSaving: boolean;
 
   // Unsaved changes tracking
@@ -101,6 +103,7 @@ export default function SideBySideView({
   setChartedUsers,
   allPeople,
   allUsers,
+  declinedPeople,
   peopleStatus,
   setPeopleStatus,
   eventName,
@@ -123,6 +126,7 @@ export default function SideBySideView({
   userHasSignedIn,
   setUserHasSignedIn,
   onSave,
+  onDecline,
   isSaving,
   hasUnsavedChanges,
   setHasUnsavedChanges,
@@ -412,6 +416,7 @@ export default function SideBySideView({
             code={code}
             isAdmin={isAdmin}
             allPeople={allPeople}
+            declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             locationOptions={locationOptions}
@@ -431,6 +436,7 @@ export default function SideBySideView({
             setSelectedLocations={wrappedSetSelectedLocations}
             userHasSignedIn={userHasSignedIn}
             onUserSignIn={() => setUserHasSignedIn(true)}
+            onDecline={onDecline}
           />
         </div>
 

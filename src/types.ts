@@ -34,6 +34,7 @@ export interface Participant {
   email?: string;
   availability: Availability | string; // Availability || JSON string of Availability type
   location: Location[];
+  declined?: boolean;
 }
 
 export type calanderState = Availability[]; // length = num of people
