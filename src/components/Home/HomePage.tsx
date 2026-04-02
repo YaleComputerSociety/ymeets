@@ -1,8 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext, createContext } from 'react';
 import screenshot from './ymeets-screenshot.png';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
+
+// Shared animation phase: 0 = idle, 1 = animating
+// All feature cards sync to this so they animate together.
+const AnimPhaseContext = createContext(0);
 
 // Each slot: null = free, 'busy' = imported event, 'filled' = autofilled availability
 const SLOTS = [
@@ -15,21 +19,8 @@ const SLOTS = [
 ] as const;
 
 function AutofillDemo() {
-  const [filled, setFilled] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    function cycle() {
-      setFilled(false);
-      t = setTimeout(() => {
-        setFilled(true);
-        t = setTimeout(cycle, 2500);
-      }, 1000);
-    }
-    t = setTimeout(cycle, 500);
-    return () => clearTimeout(t);
-  }, []);
-
+  const phase = useContext(AnimPhaseContext);
+  const filled = phase === 1;
   const freeIndices = SLOTS.map((s, i) => s.type === null ? i : -1).filter(i => i >= 0);
 
   return (
@@ -96,21 +87,8 @@ const NOTIF_ITEMS = [
 ];
 
 function NotificationsDemo() {
-  const [topVisible, setTopVisible] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    function cycle() {
-      setTopVisible(false);
-      t = setTimeout(() => {
-        setTopVisible(true);
-        t = setTimeout(cycle, 3000);
-      }, 1500);
-    }
-    t = setTimeout(cycle, 800);
-    return () => clearTimeout(t);
-  }, []);
-
+  const phase = useContext(AnimPhaseContext);
+  const topVisible = phase === 1;
   const newEmail = NOTIF_ITEMS[0];
   const existingEmails = NOTIF_ITEMS.slice(1);
 
@@ -170,27 +148,20 @@ function NotificationsDemo() {
   );
 }
 
-/// Feature 3: Email invites animation
+// Feature 3: Email invites animation
 function EmailInvitesDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const clicked = phase === 1;
   const [inviteSent, setInviteSent] = useState(false);
-  const [clicked, setClicked] = useState(false);
 
   useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    function cycle() {
+    if (phase === 1) {
+      const t = setTimeout(() => setInviteSent(true), 1000);
+      return () => clearTimeout(t);
+    } else {
       setInviteSent(false);
-      setClicked(false);
-      t = setTimeout(() => {
-        setClicked(true);
-        t = setTimeout(() => {
-          setInviteSent(true);
-          t = setTimeout(cycle, 3000);
-        }, 1000);
-      }, 2000);
     }
-    t = setTimeout(cycle, 500);
-    return () => clearTimeout(t);
-  }, []);
+  }, [phase]);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
@@ -245,20 +216,8 @@ function EmailInvitesDemo() {
 }
 
 function LocationVotingDemo() {
-  const [bumped, setBumped] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    function cycle() {
-      setBumped(false);
-      t = setTimeout(() => {
-        setBumped(true);
-        t = setTimeout(cycle, 2500);
-      }, 2000);
-    }
-    t = setTimeout(cycle, 1000);
-    return () => clearTimeout(t);
-  }, []);
+  const phase = useContext(AnimPhaseContext);
+  const bumped = phase === 1;
 
   const bars = [
     { label: 'Tsai CITY', votes: bumped ? 5 : 4, width: bumped ? 100 : 80 },
@@ -323,22 +282,10 @@ function VisualAvailabilityDemo() {
   );
 }
 
-// Feature 6: Easy sharing — copy button cycle
+/// Feature 6: Easy sharing — copy button cycle
 function EasySharingDemo() {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    function cycle() {
-      setCopied(false);
-      t = setTimeout(() => {
-        setCopied(true);
-        t = setTimeout(cycle, 1500);
-      }, 2500);
-    }
-    t = setTimeout(cycle, 800);
-    return () => clearTimeout(t);
-  }, []);
+  const phase = useContext(AnimPhaseContext);
+  const copied = phase === 1;
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
@@ -376,6 +323,20 @@ function EasySharingDemo() {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [animPhase, setAnimPhase] = useState(0);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setAnimPhase(0);
+      t = setTimeout(() => {
+        setAnimPhase(1);
+        t = setTimeout(cycle, 3500);
+      }, 1500);
+    }
+    t = setTimeout(cycle, 1000);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-background-dark">
@@ -439,6 +400,7 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
+        <AnimPhaseContext.Provider value={animPhase}>
         <section className="w-full max-w-6xl px-4 py-16">
           {/* Section Header */}
           <div className="text-center mb-12">
@@ -525,6 +487,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        </AnimPhaseContext.Provider>
       </main>
 
       {/* Bottom CTA */}
