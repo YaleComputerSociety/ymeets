@@ -389,10 +389,10 @@ export default function SideBySideView({
     () => ({
       ...chartedUsers,
       users: allUsers?.users?.filter(
-        (user) => peopleStatus[user.name] === true
+        (user) => peopleStatus[user.name] === true && !declinedPeople.includes(user.name)
       ),
     }),
-    [chartedUsers, allUsers, peopleStatus]
+    [chartedUsers, allUsers, peopleStatus, declinedPeople]
   );
 
   // No-op setter for read-only calendar

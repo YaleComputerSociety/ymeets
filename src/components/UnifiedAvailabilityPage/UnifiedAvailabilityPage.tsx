@@ -407,6 +407,7 @@ export default function UnifiedAvailabilityPage() {
             setLoading={setLoading}
             allPeople={allPeople}
             setAllPeople={setAllPeople}
+            declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}

@@ -33,6 +33,7 @@ export default function ConditionalGroupViewRenderer({
   setLoading,
   allPeople,
   setAllPeople,
+  declinedPeople,
   peopleStatus,
   setPeopleStatus,
   allUsers,
@@ -63,6 +64,7 @@ export default function ConditionalGroupViewRenderer({
   setLoading: Dispatch<SetStateAction<boolean>>;
   allPeople: string[];
   setAllPeople: Dispatch<SetStateAction<string[]>>;
+  declinedPeople: string[];
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
@@ -115,6 +117,7 @@ export default function ConditionalGroupViewRenderer({
             setLoading={setLoading}
             allPeople={allPeople}
             setAllPeople={setAllPeople}
+            declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
@@ -150,6 +153,7 @@ export default function ConditionalGroupViewRenderer({
             setLoading={setLoading}
             allPeople={allPeople}
             setAllPeople={setAllPeople}
+            declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
