@@ -20,6 +20,7 @@ import {
   getParticipantIndex,
   checkIfAdmin,
   workingEvent,
+  wrappedSaveDeclinedParticipantDetails
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
@@ -87,6 +88,7 @@ export default function UnifiedAvailabilityPage() {
   const [eventDescription, setEventDescription] = useState('');
   const [locationOptions, setLocationOptions] = useState(Array<string>);
   const [allPeople, setAllPeople] = useState<string[]>([]);
+  const [declinedPeople, setDeclinedPeople] = useState<string[]>([]);
   const [allUsers, setAllUsers] = useState<userData>({} as userData);
   const [peopleStatus, setPeopleStatus] = useState<{
     [key: string]: boolean;
@@ -188,6 +190,12 @@ export default function UnifiedAvailabilityPage() {
             unavailable: participants.users,
           });
           setAllPeople(participants.users.map((user) => user.name));
+          setDeclinedPeople(
+            workingEvent.participants
+              .filter((p) => p.declined === true)
+              .map((p) => p.name)
+          );
+
           setAllUsers(participants);
           setPeopleStatus(
             Object.fromEntries(
@@ -304,6 +312,7 @@ export default function UnifiedAvailabilityPage() {
           chartedUsers={chartedUsers}
           setChartedUsers={setChartedUsers}
           allPeople={allPeople}
+          declinedPeople={declinedPeople}
           allUsers={allUsers}
           peopleStatus={peopleStatus}
           setPeopleStatus={setPeopleStatus}
@@ -327,6 +336,7 @@ export default function UnifiedAvailabilityPage() {
           userHasSignedIn={userHasSignedIn}
           setUserHasSignedIn={setUserHasSignedIn}
           onSave={handleSideBySideSave}
+          onDecline={() => fetchData(false)}
           isSaving={isSaving}
           hasUnsavedChanges={hasUnsavedChanges}
           setHasUnsavedChanges={setHasUnsavedChanges}
@@ -397,6 +407,7 @@ export default function UnifiedAvailabilityPage() {
             setLoading={setLoading}
             allPeople={allPeople}
             setAllPeople={setAllPeople}
+            declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
