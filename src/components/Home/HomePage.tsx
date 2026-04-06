@@ -252,24 +252,40 @@ function LocationVotingDemo() {
 }
 
 // Feature 5: Visual availability grid
-const GRID_OPACITIES = [
-  [0.2, 0.4, 0.8, 0.6, 0.3],
-  [0.1, 0.6, 1.0, 0.8, 0.4],
-  [0.3, 0.5, 0.9, 0.7, 0.2],
-  [0.2, 0.3, 0.6, 0.4, 0.1],
+// const GRID_OPACITIES = [
+//   [0.2, 0.4, 0.8, 0.6, 0.3],
+//   [0.1, 0.6, 1.0, 0.8, 0.4],
+//   [0.3, 0.5, 0.9, 0.7, 0.2],
+//   [0.2, 0.3, 0.6, 0.4, 0.1],
+// ];
+
+// Feature 5: Visual availability grid
+
+const BLUE_SCALE = [
+  "rgb(191, 219, 254)", // light
+  "rgb(147, 197, 253)", // light-medium
+  "rgb(96, 165, 250)",  // medium
+  "rgb(59, 130, 246)",  // darker
+];
+
+const GRID_LEVELS = [
+  [1, 1, 2, 1, 1],
+  [1, 2, 3, 2, 1],
+  [2, 3, 4, 3, 2], // darker middle
+  [1, 2, 3, 2, 1],
 ];
 
 function VisualAvailabilityDemo() {
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
       <div className="grid grid-cols-5 gap-1">
-        {GRID_OPACITIES.map((row, i) =>
-          row.map((opacity, j) => (
+        {GRID_LEVELS.map((row, i) =>
+          row.map((level, j) => (
             <div
               key={`${i}-${j}`}
               className="h-6 rounded"
-              style={{ backgroundColor: `rgba(59, 130, 246, ${opacity})` }}
-            ></div>
+              style={{ backgroundColor: BLUE_SCALE[level - 1] }}
+            />
           ))
         )}
       </div>
@@ -348,14 +364,14 @@ export default function HomePage() {
       <main className="flex-grow flex flex-col items-center px-6 pt-8 md:pt-12">
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-text dark:text-text-dark text-center tracking-tight leading-none">
-          Scheduling
+          Group scheduling,
           <br />
-          made simple
+          without the back-and-forth
         </h1>
 
         {/* Subheadline */}
         <p className="mt-4 text-lg sm:text-xl text-gray-600 dark:text-gray-300 text-center max-w-lg">
-          The easiest way to find when everyone&apos;s free
+          Create an event. Share the link. Pick a time.
         </p>
 
         {/* Value Props */}
@@ -364,19 +380,19 @@ export default function HomePage() {
             <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
               1
             </span>
-            <span>Syncs with Google Calendar</span>
+            <span>Sync with Google Calendar</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
               2
             </span>
-            <span>Get notified when others respond</span>
+            <span>Get responses in real-time</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
               3
             </span>
-            <span>See availability at a glance</span>
+            <span>See availability instantly</span>
           </div>
         </div>
 
@@ -412,8 +428,7 @@ export default function HomePage() {
               Everything you need to schedule
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Powerful features that make finding the perfect meeting time
-              effortless
+              Simple, powerful group scheduling.
             </p>
           </div>
 
@@ -424,8 +439,7 @@ export default function HomePage() {
                 1-click availability
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Connect your Google Calendar to see when you&apos;re busy and
-                autofill your availability with a single click.
+                Connect your calendars and autofill availability instantly.
               </p>
               <AutofillDemo />
             </div>
@@ -436,8 +450,7 @@ export default function HomePage() {
                 Response notifications
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Get notified instantly when someone adds their availability to
-                your event. No more checking back.
+                Get notified when people respond. No more checking back.
               </p>
               <NotificationsDemo />
             </div>
@@ -448,8 +461,7 @@ export default function HomePage() {
                 Email invites
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Invite people directly from ymeets. They&apos;ll receive an
-                email with a link to fill out their availability.
+                Invited participants get a link to mark their availability.
               </p>
               <EmailInvitesDemo />
             </div>
@@ -460,8 +472,7 @@ export default function HomePage() {
                 Location voting
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Can&apos;t decide where to meet? Add location options and let
-                everyone vote on their favorite spot.
+                Add location options and let everyone vote on where to meet.
               </p>
               <LocationVotingDemo />
             </div>
@@ -472,8 +483,7 @@ export default function HomePage() {
                 Visual availability
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                See when everyone&apos;s free at a glance with our heat map
-                visualization. Darker means more people available.
+                See when everyone&apos;s free at a glance.
               </p>
               <VisualAvailabilityDemo />
             </div>
@@ -484,8 +494,7 @@ export default function HomePage() {
                 Easy sharing
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Share your ymeets with a simple link. No sign-up required for
-                participants to respond.
+                Share the link. No sign-up required for participants.
               </p>
               <EasySharingDemo />
             </div>
@@ -497,7 +506,7 @@ export default function HomePage() {
       {/* Bottom CTA */}
       <section className="w-full bg-background dark:bg-background-dark pt-0 pb-10 px-6 text-center">
         <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-text-dark mb-6">
-          Ready to get started?
+          Start scheduling in seconds.
         </h2>
         <Button
           bgColor="primary"
@@ -505,7 +514,7 @@ export default function HomePage() {
           onClick={() => navigate('/dayselect')}
           rounded="lg"
         >
-          Try it out today
+          Create event
         </Button>
       </section>
 
