@@ -123,19 +123,35 @@ export default function NavBar() {
               )}
             </div>
             <div>
-              <a
-                href="#"
-                className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                onClick={() => {
-                  nav('/useraccount');
-                }}
-              >
-                <IconCalendarEvent
-                  size={25}
-                  className="opacity-80 dark:opacity-100"
-                />{' '}
-                <span className="text-sm hidden sm:block ml-2">My Events</span>
-              </a>
+              {checkIfLoggedIn() ? (
+                <a
+                  href="#"
+                  className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
+                  onClick={() => {
+                    nav('/useraccount');
+                  }}
+                >
+                  <IconCalendarEvent
+                    size={25}
+                    className="opacity-80 dark:opacity-100"
+                  />{' '}
+                  <span className="text-sm hidden sm:block ml-2">My Events</span>
+                </a>
+              ) : (
+                <a
+                  href="#"
+                  className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
+                  onClick={() => {
+                    login();
+                  }}
+                >
+                  <IconLogin2
+                    size={25}
+                    className="opacity-80 dark:opacity-100"
+                  />{' '}
+                  <span className="text-sm hidden sm:block ml-2">Sign In</span>
+                </a>
+              )}
             </div>
             <div className="relative">
               <button
@@ -196,32 +212,21 @@ export default function NavBar() {
                     >
                       <IconMessageReport className="mr-2" size={17} /> Feedback
                     </a>
-                    <div className="border-t border-gray-200"></div>
-                    {checkIfLoggedIn() ? (
-                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                      <a
-                        href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                        onClick={() => {
-                          logout();
-                          setMenuState('closed');
-                          nav('/');
-                        }}
-                      >
-                        <IconLogout className="mr-2" size={17} /> Logout
-                      </a>
-                    ) : (
-                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                      <a
-                        href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                        onClick={() => {
-                          login();
-                          setMenuState('closed');
-                        }}
-                      >
-                        <IconLogin2 className="mr-2" size={17} /> Login
-                      </a>
+                    {checkIfLoggedIn() && (
+                      <>
+                        <div className="border-t border-gray-200"></div>
+                        <a
+                          href="#"
+                          className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
+                          onClick={() => {
+                            logout();
+                            setMenuState('closed');
+                            nav('/');
+                          }}
+                        >
+                          <IconLogout className="mr-2" size={17} /> Logout
+                        </a>
+                      </>
                     )}
                   </div>
                 </div>

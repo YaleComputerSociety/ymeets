@@ -1,177 +1,523 @@
-/* eslint-disable */
-import * as React from 'react';
-// import background from '../landingpage/landingbackground.jpg'
 import { useNavigate } from 'react-router-dom';
-import { checkIfLoggedIn, getEventById } from '../../backend/events';
-import graphic from './calendargraphic.png';
-import LoginPopup from '../utils/components/LoginPopup';
+import { useEffect, useState, useContext, createContext } from 'react';
+import screenshotLight from './ymeets-ss-light.png';
+import screenshotDark from './ymeets-ss-dark.png';
 import Footer from '../utils/components/Footer';
 import Button from '../utils/components/Button';
-import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
+import { useTheme } from '../../contexts/ThemeContext';
 
-// import { SiGooglecalendar } from 'react-icons/si';
-// import { FaLock } from 'react-icons/fa';
-// import { CiLocationOn } from 'react-icons/ci';
+// Shared animation phase: 0 = idle, 1 = animating
+// All feature cards sync to this so they animate together.
+const AnimPhaseContext = createContext(0);
 
-import {
-  IconMapPinFilled,
-  IconMapPin,
-  IconBrandGoogle,
-  IconLockAccessOff,
-  IconLock,
-} from '@tabler/icons-react';
-import { sendAvailabilityUpdatedEmail } from '../../emails/sendEmailHelpers';
+// Each slot: null = free, 'busy' = imported event, 'filled' = autofilled availability
+const SLOTS = [
+  { label: '10 AM', type: 'busy',  event: 'Team Standup' },
+  { label: '11 AM', type: null,    event: null },
+  { label: '12 PM', type: 'busy',  event: 'Lunch' },
+  { label: '1 PM',  type: null,    event: null },
+  { label: '2 PM',  type: 'busy',  event: 'Design Review' },
+  { label: '3 PM',  type: null,    event: null },
+] as const;
+
+function AutofillDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const filled = phase === 1;
+  const freeIndices = SLOTS.map((s, i) => s.type === null ? i : -1).filter(i => i >= 0);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-3 gap-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400 flex-shrink-0"></span>
+          <span className="text-sm text-gray-600 dark:text-gray-300">Google Calendar</span>
+          <span className="text-sm text-green-600 dark:text-green-400 font-medium">Connected</span>
+        </div>
+        <button className="px-4 py-1.5 bg-primary text-white font-semibold rounded-full text-sm whitespace-nowrap">
+          Autofill Availability
+        </button>
+      </div>
+      <div className="flex gap-2">
+        {/* Time labels */}
+        <div className="flex flex-col gap-0.5 text-right">
+          {SLOTS.map(s => (
+            <div key={s.label} className="h-7 flex items-center justify-end">
+              <span className="text-xs text-gray-400 dark:text-gray-500 w-10">{s.label}</span>
+            </div>
+          ))}
+        </div>
+        {/* Calendar column */}
+        <div className="flex-1 flex flex-col gap-0.5">
+          {SLOTS.map((slot, i) => {
+            const isFree = slot.type === null;
+            const isNowFilled = isFree && filled;
+            const fillDelay = freeIndices.indexOf(i) * 80;
+            const isDark = document.documentElement.classList.contains('dark');
+            return (
+              <div
+                key={slot.label}
+                className="h-7 rounded flex items-center px-2 text-xs font-medium transition-all duration-300"
+                style={{
+                  backgroundColor: slot.type === 'busy'
+                    ? isDark ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)'
+                    : isNowFilled
+                      ? isDark ? 'rgba(59,130,246,0.55)' : 'rgba(59,130,246,0.35)'
+                      : isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                  transitionDelay: isNowFilled ? `${fillDelay}ms` : '0ms',
+                  color: slot.type === 'busy'
+                    ? isDark ? 'rgb(147,197,253)' : 'rgb(37,99,235)'
+                    : isNowFilled
+                      ? isDark ? 'rgb(191,219,254)' : 'rgb(29,78,216)'
+                      : 'transparent',
+                }}
+              >
+                {slot.event}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Feature 2: Response notifications
+const NOTIF_ITEMS = [
+  { name: 'Priya', event: 'Team Dinner', time: 'just now' },
+  { name: 'Marcus', event: 'Weekend Hike', time: '4m ago' },
+  { name: 'Yuki', event: 'Project Sync', time: '11m ago' },
+];
+
+function NotificationsDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const topVisible = phase === 1;
+  const newEmail = NOTIF_ITEMS[0];
+  const existingEmails = NOTIF_ITEMS.slice(1);
+
+  return (
+    <div className="overflow-hidden">
+      {/* New email slides in, expanding from 0 height */}
+      <div
+        style={{
+          maxHeight: topVisible ? '120px' : '0px',
+          opacity: topVisible ? 1 : 0,
+          marginBottom: topVisible ? '16px' : '0px',
+          transition: 'max-height 400ms ease, opacity 300ms ease, margin-bottom 400ms ease',
+          overflow: 'hidden',
+        }}
+      >
+        <div className="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
+          <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg className="w-3.5 h-3.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-text dark:text-text-dark truncate">
+                {newEmail.name} responded to {newEmail.event}
+              </div>
+              <span className="text-xs text-gray-400 flex-shrink-0">{newEmail.time}</span>
+            </div>
+            <div className="text-xs text-primary dark:text-blue-400 mt-0.5 font-medium">
+              View responses →
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Existing emails always visible */}
+      {existingEmails.map(({ name, event, time }) => (
+        <div key={name} className="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700 mb-4">
+          <div className="w-7 h-7 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg className="w-3.5 h-3.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-text dark:text-text-dark truncate">
+                {name} responded to {event}
+              </div>
+              <span className="text-xs text-gray-400 flex-shrink-0">{time}</span>
+            </div>
+            <div className="text-xs text-primary dark:text-blue-400 mt-0.5 font-medium">
+              View responses →
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Feature 3: Email invites animation
+function EmailInvitesDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const clicked = phase === 1;
+  const [inviteSent, setInviteSent] = useState(false);
+
+  useEffect(() => {
+    if (phase === 1) {
+      const t = setTimeout(() => setInviteSent(true), 1000);
+      return () => clearTimeout(t);
+    } else {
+      setInviteSent(false);
+    }
+  }, [phase]);
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+          jordan@gmail.com
+        </div>
+        <button
+          className="px-3 py-2 text-white text-sm font-medium rounded-lg transition-all duration-150"
+          style={{
+            backgroundColor: clicked ? 'rgb(29,78,216)' : 'var(--color-primary, #5191F2)',
+            transform: clicked ? 'scale(0.93)' : 'scale(1)',
+            boxShadow: clicked ? 'inset 0 2px 4px rgba(0,0,0,0.25)' : 'none',
+          }}
+        >
+          {clicked && !inviteSent ? 'Inviting...' : 'Invite'}
+        </button>
+      </div>
+      <div className="space-y-2 overflow-hidden">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span>layla@gmail.com - Responded</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span>darius@gmail.com - Responded</span>
+        </div>
+        {/* New invite slides in */}
+        <div
+          style={{
+            maxHeight: inviteSent ? '40px' : '0px',
+            opacity: inviteSent ? 1 : 0,
+            transition: 'max-height 400ms ease, opacity 300ms ease',
+            overflow: 'hidden',
+          }}
+        >
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+            <span>jordan@gmail.com</span>
+            <span className="text-blue-400 dark:text-blue-400 font-medium">— email sent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LocationVotingDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const bumped = phase === 1;
+
+  const bars = [
+    { label: 'Tsai CITY', votes: bumped ? 5 : 4, width: bumped ? 100 : 80 },
+    { label: 'Bass Library', votes: 3, width: 60 },
+    { label: 'The Elm', votes: 1, width: 20 },
+  ];
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="space-y-5">
+        {bars.map(({ label, votes, width }) => (
+          <div key={label} className="flex items-center gap-3">
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-text dark:text-text-dark">{label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400" style={{ transition: 'all 300ms ease' }}>{votes} votes</span>
+              </div>
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full"
+                  style={{ width: `${width}%`, transition: 'width 400ms ease' }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Feature 5: Visual availability grid
+// const GRID_OPACITIES = [
+//   [0.2, 0.4, 0.8, 0.6, 0.3],
+//   [0.1, 0.6, 1.0, 0.8, 0.4],
+//   [0.3, 0.5, 0.9, 0.7, 0.2],
+//   [0.2, 0.3, 0.6, 0.4, 0.1],
+// ];
+
+// Feature 5: Visual availability grid
+
+const BLUE_SCALE = [
+  "rgb(191, 219, 254)", // light
+  "rgb(147, 197, 253)", // light-medium
+  "rgb(96, 165, 250)",  // medium
+  "rgb(59, 130, 246)",  // darker
+];
+
+const GRID_LEVELS = [
+  [1, 1, 2, 1, 1],
+  [1, 2, 3, 2, 1],
+  [2, 3, 4, 3, 2], // darker middle
+  [1, 2, 3, 2, 1],
+];
+
+function VisualAvailabilityDemo() {
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-5 gap-1">
+        {GRID_LEVELS.map((row, i) =>
+          row.map((level, j) => (
+            <div
+              key={`${i}-${j}`}
+              className="h-6 rounded"
+              style={{ backgroundColor: BLUE_SCALE[level - 1] }}
+            />
+          ))
+        )}
+      </div>
+      <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+      </div>
+    </div>
+  );
+}
+
+/// Feature 6: Easy sharing — copy button cycle
+function EasySharingDemo() {
+  const phase = useContext(AnimPhaseContext);
+  const copied = phase === 1;
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 truncate">
+          ymeets.com/dashboard/ABC123
+        </div>
+        <button
+          className="px-4 py-2 text-white text-sm font-medium rounded-lg"
+          style={{
+            backgroundColor: copied ? 'rgb(22,163,74)' : '#5191F2',
+            transition: 'background-color 300ms ease',
+          }}
+        >
+          {copied ? 'Copied ✓' : 'Copy'}
+        </button>
+      </div>
+      <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          No account required
+        </span>
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          Works on any device
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [showInput, setShowInput] = React.useState(true);
-  const [eventCode, setEventCode] = React.useState('');
-  const [showLoginPopup, setShowLoginPopup] = React.useState<boolean>(false);
-  const [showFormValidation, setShowFormValidation] =
-    React.useState<boolean>(false);
-  const [formErrorMessage, setFormErrorMessage] = React.useState('');
-  const [emailStatus, setEmailStatus] = React.useState<
-    'idle' | 'sending' | 'sent' | 'error'
-  >('idle');
+  const { theme } = useTheme();
+  const screenshot = theme === 'dark' ? screenshotDark : screenshotLight;
+  const [animPhase, setAnimPhase] = useState(0);
 
-  function formValidationPopup(message: string) {
-    setShowFormValidation(true);
-    setFormErrorMessage(message);
-  }
-
-  const showEventInput = () => {
-    setShowInput(!showInput);
-  };
-  const updateEventCode = (event: React.BaseSyntheticEvent<KeyboardEvent>) => {
-    setEventCode(event.target.value);
-  };
-  const handleKeyPress = (e: any) => {
-    if (e.key == 'Enter') {
-      validateAndGoToEvent();
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    function cycle() {
+      setAnimPhase(0);
+      t = setTimeout(() => {
+        setAnimPhase(1);
+        t = setTimeout(cycle, 3500);
+      }, 1500);
     }
-  };
-
-  const goToEvent = () => {
-    getEventById(eventCode)
-      .then((result) => {
-        navigate('/dashboard/' + eventCode);
-      })
-      .catch((err) => {
-        formValidationPopup('Code is invalid.');
-      });
-  };
-
-  const validateAndGoToEvent = () => {
-    if (eventCode.length != 6) {
-      formValidationPopup('Codes are 6 characters long.');
-    } else {
-      goToEvent();
-    }
-  };
-
-  const handleLoginPopupClose = (successFlag?: boolean) => {
-    setShowLoginPopup(false);
-    if (successFlag) {
-      // instead of checkIfLoggedIn because login is async
-      goToEvent();
-    }
-  };
-
-  const [showTutorial, setTutorial] = React.useState<boolean>(false);
+    t = setTimeout(cycle, 1000);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="h-1 md:h-8"></div>
+    <div className="flex flex-col min-h-screen bg-background dark:bg-background-dark">
+      {/* Main Content */}
+      <main className="flex-grow flex flex-col items-center px-6 pt-8 md:pt-12">
+        {/* Headline */}
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-text dark:text-text-dark text-center tracking-tight leading-none">
+          Group scheduling,
+          <br />
+          without the back-and-forth
+        </h1>
 
-      {showTutorial && (
-        <TutorialModal
-          isOpen={!!showTutorial}
-          onClose={() => setTutorial(false)}
-        />
-      )}
+        {/* Subheadline */}
+        <p className="mt-4 text-lg sm:text-xl text-gray-600 dark:text-gray-300 text-center max-w-lg">
+          Create an event. Share the link. Pick a time.
+        </p>
 
-      <div className="flex-grow w-full overflow-auto px-8 sm:p-14 pt-0 md:px-16 md:pt-14 lg:px-40 xl:px-60 mb-3">
-        <div className="flex-col-reverse justify-center md:flex-row flex md:h-1/2 mb-10">
-          <div className="justify-center self-center space-y-5 md:space-y-12 max-w-full mb-4 min-w-[70%] md:w-[90%]">
-            <div className="flex flex-col space-y-3 md:space-y-7 w-full md:justify-end">
-              <h1 className="text-text dark:text-text-dark font-bold text-center text-3xl sm:text-5xl md:text-left lg:text-left xl:text-5xl md:pr-8 mt-2 md:mt-0 p-2 lg:p-0">
-                A cleaner, faster way to schedule meetings on Yale's campus.
-              </h1>
-              <h3 className="md:block text-text dark:text-text-dark text-lg sm:text-2xl md:text-left xl:text-2xl md:pr-8">
-                <div className="hidden lg:flex flex-col gap-1 text-[90%]">
-                  <div className="flex flex-row text-md gap-3 items-center">
-                    <IconBrandGoogle />
-                    <p>GCal integration</p>
-                  </div>
-                  <div className="flex flex-row text-md gap-3 items-center">
-                    <IconMapPinFilled />
-                    <p className="hidden md:block">
-                      Vote on a preferred campus meeting place
-                    </p>
-                    <p className="md:hidden">
-                      Vote on a preferred meeting place
-                    </p>
-                  </div>
-                  <div className="flex flex-row text-md gap-3 items-center">
-                    <IconLock />
-                    <p>
-                      Lock in the best time and place to gather with a selection
-                    </p>
-                  </div>
-                </div>
-              </h3>
-            </div>
-
-            <div className="flex flex-col justify-center items-center space-y-5 md:flex-row md:justify-start md:items-left md:space-x-12 md:space-y-0">
-              <Button
-                bgColor="primary"
-                textColor="white"
-                onClick={() => navigate('/dayselect')}
-              >
-                Create Event
-              </Button>
-
-              <Button
-                bgColor="white"
-                textColor="black"
-                themeGradient={false}
-                onClick={() => navigate('/useraccount')}
-                bolded={false}
-              >
-                View My Events
-              </Button>
-            </div>
-
-            <h1 className="text-text dark:text-text-dark">
-              <b>New to ymeets? →  </b>
-              <span 
-              className='cursor-pointer hover:text-primary transition'
-              onClick={() => setTutorial(true)}>
-                <u>Click here for a quick walkthrough!</u>
-              </span>
-            </h1>
-
+        {/* Value Props */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mt-6 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
+              1
+            </span>
+            <span>Sync with Google Calendar</span>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
+              2
+            </span>
+            <span>Get responses in real-time</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-primary/20 dark:bg-blue-900/50 text-primary dark:text-blue-400 flex items-center justify-center text-xs font-bold">
+              3
+            </span>
+            <span>See availability instantly</span>
+          </div>
+        </div>
 
-          <div className="flex md:w-[40%] justify-center pb-1 md:pb-4 sm:pb-7 md:pb-0 md:pl-0">
+        {/* CTA Button */}
+        <div className="mt-8">
+          <Button
+            bgColor="primary"
+            textColor="white"
+            onClick={() => navigate('/dayselect')}
+            rounded="lg"
+          >
+            Create event
+          </Button>
+        </div>
+
+        {/* Screenshot */}
+        <div className="mt-10 mb-12 w-full max-w-6xl px-4">
+          <div className="rounded-2xl overflow-hidden border-4 border-gray-400 dark:border-gray-700 shadow-md dark:shadow-2xl">
             <img
-              src={graphic}
-              alt="graphic"
-              className="opacity-80 w-[75%] sm:w-2/3 max-w-xs sm:h-auto sm:w-full self-center lg:w-[100%]"
+              src={screenshot}
+              alt="ymeets interface showing group availability"
+              className="w-full h-auto"
             />
           </div>
         </div>
 
-        {showLoginPopup && (
-          <LoginPopup
-            onClose={handleLoginPopupClose}
-            enableAnonymousSignIn={true}
-            code={eventCode}
-          />
-        )}
-      </div>
+        {/* Features Section */}
+        <AnimPhaseContext.Provider value={animPhase}>
+        <section className="w-full max-w-6xl px-4 py-16">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-text-dark mb-4">
+              Everything you need to schedule
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Simple, powerful group scheduling.
+            </p>
+          </div>
 
-      {/* Footer always at bottom */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Feature 1: Google Calendar Sync with 1-click autofill */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                1-click availability
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Connect your calendars and autofill availability instantly.
+              </p>
+              <AutofillDemo />
+            </div>
+
+            {/* Feature 2: Email Notifications */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Response notifications
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Get notified when people respond. No more checking back.
+              </p>
+              <NotificationsDemo />
+            </div>
+
+            {/* Feature 3: Email Invites */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Email invites
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Invited participants get a link to mark their availability.
+              </p>
+              <EmailInvitesDemo />
+            </div>
+
+            {/* Feature 4: Location Voting */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Location voting
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Add location options and let everyone vote on where to meet.
+              </p>
+              <LocationVotingDemo />
+            </div>
+
+            {/* Feature 5: Visual Availability */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Visual availability
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                See when everyone&apos;s free at a glance.
+              </p>
+              <VisualAvailabilityDemo />
+            </div>
+
+            {/* Feature 6: Easy Sharing */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-text dark:text-text-dark mb-3">
+                Easy sharing
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Share the link. No sign-up required for participants.
+              </p>
+              <EasySharingDemo />
+            </div>
+          </div>
+        </section>
+        </AnimPhaseContext.Provider>
+      </main>
+
+      {/* Bottom CTA */}
+      <section className="w-full bg-background dark:bg-background-dark pt-0 pb-10 px-6 text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-text-dark mb-6">
+          Start scheduling in seconds.
+        </h2>
+        <Button
+          bgColor="primary"
+          textColor="white"
+          onClick={() => navigate('/dayselect')}
+          rounded="lg"
+        >
+          Create event
+        </Button>
+      </section>
+
       <Footer />
     </div>
   );
