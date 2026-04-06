@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef, useMemo } from 'react';
-import { IconPlus, IconSearch, IconTrash, IconEdit, IconChevronDown } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash, IconEdit, IconChevronDown, IconLayoutGrid, IconLayoutList } from '@tabler/icons-react';
 
 import {
   checkIfLoggedIn,
@@ -67,14 +67,14 @@ export default function AccountsPage() {
   const [selectedEventToDelete, setSelectedEventToDelete] =
     useState<AccountsPageEvent | null>(null);
   const [dontAskAgain, setDontAskAgain] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'participant'>('all');
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());
   };
 
   const getSortedEvents = (events: AccountsPageEvent[]) => {
-    // return events; // remove later
-
     console.log(events);
 
     return [...events].sort((a, b) => {
@@ -108,6 +108,20 @@ export default function AccountsPage() {
       (e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter))
     ).length
     , [events, filter, sortBy]);
+
+  const flatFilteredEvents = useMemo(() =>
+    getSortedEvents(events ?? []).filter(e => {
+      const matchesSearch = e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter);
+      const matchesRole =
+        roleFilter === 'all' ||
+        (roleFilter === 'admin' && e.iAmCreator) ||
+        (roleFilter === 'participant' && !e.iAmCreator);
+      return matchesSearch && matchesRole;
+    })
+    , [events, filter, sortBy, roleFilter]);
+
+  const showCreated = roleFilter === 'all' || roleFilter === 'admin';
+  const showFilled  = roleFilter === 'all' || roleFilter === 'participant';
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -167,7 +181,6 @@ export default function AccountsPage() {
               />
             </div>
 
-            {/* Sort Dropdown */}
             <div className="relative min-w-[110px] flex-shrink">
               <select
                 value={sortBy}
@@ -190,6 +203,39 @@ export default function AccountsPage() {
               </div>
             </div>
 
+            <div className="flex-shrink-0 flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden min-h-[40px] md:min-h-[60px]">
+              {(['all', 'admin', 'participant'] as const).map((role) => (
+                <button
+                  key={role}
+                  onClick={() => setRoleFilter(role)}
+                  className={`px-3 py-2 text-sm md:text-base capitalize transition-colors
+                    ${roleFilter === role
+                      ? 'bg-primary text-white'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                >
+                  {role === 'all' ? 'All' : role === 'admin' ? 'Admin' : 'Participant'}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex-shrink-0 flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden min-h-[40px] md:min-h-[60px]">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 transition-colors ${viewMode === 'grid' ? 'bg-primary text-white' : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                aria-label="Grid view"
+              >
+                <IconLayoutGrid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 transition-colors ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                aria-label="List view"
+              >
+                <IconLayoutList className="w-5 h-5" />
+              </button>
+            </div>
+
             <Button
               onClick={() => nav('/dayselect')}
               textColor="white"
@@ -205,152 +251,246 @@ export default function AccountsPage() {
         </div>
 
         {events === undefined ? (
-        <div className="flex items-center justify-center">
-          <LoadingAnim />
-        </div>
-      ) : undefined}
+          <div className="flex items-center justify-center">
+            <LoadingAnim />
+          </div>
+        ) : undefined}
 
-      {events && events.length !== 0 ? (
-        <div className="flex flex-col gap-10">
-
-          <div>
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-primary flex-shrink-0" />
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Created by You</h3>
-                <span className="text-sm text-gray-600 dark:text-gray-500">
-                  ({createdCount})
-                </span>
+        {events && events.length !== 0 ? (
+          <>
+            {viewMode === 'list' ? (
+              <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 dark:bg-gray-800 text-left text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                      <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="px-4 py-3 font-medium">Role</th>
+                      <th className="px-4 py-3 font-medium text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                    {flatFilteredEvents.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="px-4 py-6 text-center text-gray-400 dark:text-gray-500 italic">
+                          No events match your search or filter.
+                        </td>
+                      </tr>
+                    ) : flatFilteredEvents.map((event) => (
+                      <tr key={event.id} className="bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate">
+                          {event.name}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full
+                            ${event.iAmCreator
+                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                            }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${event.iAmCreator ? 'bg-blue-500' : 'bg-green-500'}`} />
+                            {event.iAmCreator ? 'Admin' : 'Participant'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => nav(`/dashboard/${event.id}`)}
+                              className={`px-3 py-1.5 rounded-lg text-white text-xs font-medium transition-colors
+                                ${event.iAmCreator ? 'bg-primary hover:bg-blue-400' : 'bg-green-500 hover:bg-green-400'}`}
+                            >
+                              Open
+                            </button>
+                            <CopyCodeButton
+                              customEventCode={event.id}
+                              className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
+                            />
+                            {event.iAmCreator && (
+                              <>
+                                <button
+                                  onClick={() => nav(`/edit/${event.id}`, { state: { isEditMode: true } })}
+                                  className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                  aria-label="Edit event"
+                                >
+                                  <IconEdit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (dontAskAgain) {
+                                      deleteEvent(event.id)
+                                        .then(() => {
+                                          setHasDeletedEvent(true);
+                                          setEvents(events?.filter((e) => e.id !== event.id));
+                                        })
+                                        .catch((err) => {});
+                                    } else {
+                                      setSelectedEventToDelete(event);
+                                    }
+                                  }}
+                                  className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+                                  aria-label="Delete event"
+                                >
+                                  <IconTrash className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <button
-                onClick={() => filledOutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors group"
-              >
-                Jump to Filled Out
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-            {createdCount === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 italic pl-6">No created events match your search.</p>
             ) : (
-              <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
-                {getSortedEvents(events)
-                  .filter(e =>
-                    e.iAmCreator &&
-                    (e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter))
-                  )
-                  .map((event) => (
-                    <div
-                      key={event.id}
-                      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md flex flex-col justify-between h-full"
-                    >
-                      <div className="flex flex-col gap-4 h-full">
-                        <div className="flex justify-between items-start gap-3">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
-                            {event.name}
-                          </h3>
-                          {event.iAmCreator && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => nav(`/edit/${event.id}`, { state: { isEditMode: true } })}
-                                className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 flex-shrink-0"
-                                aria-label="Edit event"
-                              >
-                                <IconEdit className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (dontAskAgain) {
-                                    deleteEvent(event.id)
-                                      .then(() => {
-                                        setHasDeletedEvent(true);
-                                        setEvents(events?.filter((e) => e.id !== event.id));
-                                      })
-                                      .catch((err) => {});
-                                  } else {
-                                    setSelectedEventToDelete(event);
-                                  }
-                                }}
-                                className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
-                                aria-label="Delete event"
-                              >
-                                <IconTrash className="w-5 h-5" />
-                              </button>
+              /* Existing grid view — unchanged except roleFilter gates each section */
+              <div className="flex flex-col gap-10">
+
+                {showCreated && (
+                  <div>
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-primary flex-shrink-0" />
+                        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Created by You</h3>
+                        <span className="text-sm text-gray-600 dark:text-gray-500">
+                          ({createdCount})
+                        </span>
+                      </div>
+                      {showFilled && (
+                        <button
+                          onClick={() => filledOutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                          className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors group"
+                        >
+                          Jump to Filled Out
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    {createdCount === 0 ? (
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic pl-6">No created events match your search.</p>
+                    ) : (
+                      <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
+                        {getSortedEvents(events)
+                          .filter(e =>
+                            e.iAmCreator &&
+                            (e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter))
+                          )
+                          .map((event) => (
+                            <div
+                              key={event.id}
+                              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md flex flex-col justify-between h-full"
+                            >
+                              <div className="flex flex-col gap-4 h-full">
+                                <div className="flex justify-between items-start gap-3">
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
+                                    {event.name}
+                                  </h3>
+                                  {event.iAmCreator && (
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={() => nav(`/edit/${event.id}`, { state: { isEditMode: true } })}
+                                        className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 flex-shrink-0"
+                                        aria-label="Edit event"
+                                      >
+                                        <IconEdit className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          if (dontAskAgain) {
+                                            deleteEvent(event.id)
+                                              .then(() => {
+                                                setHasDeletedEvent(true);
+                                                setEvents(events?.filter((e) => e.id !== event.id));
+                                              })
+                                              .catch((err) => {});
+                                          } else {
+                                            setSelectedEventToDelete(event);
+                                          }
+                                        }}
+                                        className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
+                                        aria-label="Delete event"
+                                      >
+                                        <IconTrash className="w-5 h-5" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="mt-auto flex flex-row gap-2">
+                                  <button
+                                    onClick={() => nav(`/dashboard/${event.id}`)}
+                                    className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+                                  >
+                                    Open Event
+                                  </button>
+                                  <CopyCodeButton
+                                    customEventCode={event.id}
+                                    className="flex-shrink-0 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                        <div className="mt-auto flex flex-row gap-2">
-                          <button
-                            onClick={() => nav(`/dashboard/${event.id}`)}
-                            className="flex-1 bg-primary hover:bg-blue-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
-                          >
-                            Open Event
-                          </button>
-                          <CopyCodeButton
-                            customEventCode={event.id}
-                            className="flex-shrink-0 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
-                          />
-                        </div>
+                          ))}
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {showCreated && showFilled && (
+                  <hr className="border-gray-200 dark:border-gray-700" />
+                )}
+
+                {showFilled && (
+                  <div ref={filledOutRef}>
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0" />
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Filled Out by You</h3>
+                      <span className="text-sm text-gray-600 dark:text-gray-500">
+                        ({filledCount})
+                      </span>
                     </div>
-                  ))}
+                    {filledCount === 0 ? (
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic pl-6">No filled out events match your search.</p>
+                    ) : (
+                      <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
+                        {getSortedEvents(events)
+                          .filter(e =>
+                            !e.iAmCreator &&
+                            (e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter))
+                          )
+                          .map((event) => (
+                            <div
+                              key={event.id}
+                              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md flex flex-col justify-between h-full"
+                            >
+                              <div className="flex flex-col gap-4 h-full">
+                                <div className="flex justify-between items-start gap-3">
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
+                                    {event.name}
+                                  </h3>
+                                </div>
+                                <div className="mt-auto flex flex-row gap-2">
+                                  <button
+                                    onClick={() => nav(`/dashboard/${event.id}`)}
+                                    className="flex-1 bg-green-500 hover:bg-green-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
+                                  >
+                                    Open Event
+                                  </button>
+                                  <CopyCodeButton
+                                    customEventCode={event.id}
+                                    className="flex-shrink-0 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
             )}
-          </div>
-
-          <hr className="border-gray-200 dark:border-gray-700" />
-
-          <div ref={filledOutRef}>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0" />
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Filled Out by You</h3>
-              <span className="text-sm text-gray-600 dark:text-gray-500">
-                ({filledCount})
-              </span>
-            </div>
-            {filledCount === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 italic pl-6">No filled out events match your search.</p>
-            ) : (
-              <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-9">
-                {getSortedEvents(events)
-                  .filter(e =>
-                    !e.iAmCreator &&
-                    (e.id.toLowerCase().includes(filter) || e.name.toLowerCase().includes(filter))
-                  )
-                  .map((event) => (
-                    <div
-                      key={event.id}
-                      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all hover:shadow-md flex flex-col justify-between h-full"
-                    >
-                      <div className="flex flex-col gap-4 h-full">
-                        <div className="flex justify-between items-start gap-3">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 break-words whitespace-normal min-w-0">
-                            {event.name}
-                          </h3>
-                        </div>
-                        <div className="mt-auto flex flex-row gap-2">
-                          <button
-                            onClick={() => nav(`/dashboard/${event.id}`)}
-                            className="flex-1 bg-green-500 hover:bg-green-400 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
-                          >
-                            Open Event
-                          </button>
-                          <CopyCodeButton
-                            customEventCode={event.id}
-                            className="flex-shrink-0 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-        </div>
-      ) : events !== undefined ? (
+          </>
+        ) : events !== undefined ? (
           getAccountId() === '' ? (
             <div className="text-slate-700 dark:text-text-dark">
               You are logged in as a guest.
