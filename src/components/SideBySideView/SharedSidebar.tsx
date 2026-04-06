@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { userData } from '../../types';
 import {
   getAccountName,
@@ -9,6 +10,7 @@ import {
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
+  wrappedSaveDeclinedParticipantDetails,
 } from '../../backend/events';
 import LocationChart from '../GroupView/LocationChart';
 import LocationSelectionComponent from '../TimeSelect/LocationSelectionComponent';
@@ -24,6 +26,7 @@ import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
+import DeletePopup from '../utils/components/DeletePopup';
 
 interface Calendar {
   id: string;
@@ -105,7 +108,9 @@ export default function SharedSidebar({
   onUserSignIn,
   onDecline,
 }: SharedSidebarProps) {
+  const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -343,6 +348,7 @@ export default function SharedSidebar({
               <span>Import Google Calendar</span>
             </button>
           )}
+
           {currentUser && hasAccess && isCalendarsExpanded && (
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden">
               <ul className="space-y-1 overflow-y-auto max-h-[120px] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
@@ -375,10 +381,29 @@ export default function SharedSidebar({
       )}
 
       {/* Decline Button */}
-      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
-        Decline Invitation{' '}
-      </div>
-      <DeclineButton onDecline={onDecline} />
+       {!chartedUsers?.hovering && !isAdmin && ( 
+        <div>
+          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
+            Decline Invitation{' '}
+          </div>
+          <DeclineButton onDecline={() => setIsDeclinePopupOpen(true)} />
+      <DeletePopup
+        title="Decline Invitation"
+        message="Are you sure you want to decline this event?"
+        isOpen={isDeclinePopupOpen}
+        onConfirm={async () => {
+          await wrappedSaveDeclinedParticipantDetails();
+          setIsDeclinePopupOpen(false);
+          onDecline();
+          navigate('/');
+        }}
+        onCancel={() => setIsDeclinePopupOpen(false)}
+        confirmText="Decline"
+        cancelText="Cancel"
+      />
+        </div>
+      )}
+      
       
 
       {/* Participants Section */}
@@ -434,9 +459,8 @@ export default function SharedSidebar({
       )}
 
 
-      {/* Declined Section */}
       {/* Declined People Section */}
-      {declinedPeople && declinedPeople.length > 0 && (
+      {isAdmin && declinedPeople && declinedPeople.length > 0 && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Declined ({declinedPeople.length})
