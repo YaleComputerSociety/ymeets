@@ -75,6 +75,7 @@ export default function GroupViewPage({
   setLoading,
   allPeople,
   setAllPeople,
+  declinedPeople,
   peopleStatus,
   setPeopleStatus,
   allUsers,
@@ -106,6 +107,7 @@ export default function GroupViewPage({
   setLoading: Dispatch<SetStateAction<boolean>>;
   allPeople: string[];
   setAllPeople: Dispatch<SetStateAction<string[]>>;
+  declinedPeople: string[];
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
@@ -260,10 +262,10 @@ export default function GroupViewPage({
     () => ({
       ...chartedUsers,
       users: allUsers?.users?.filter(
-        (user) => peopleStatus[user.name] === true
+        (user) => peopleStatus[user.name] === true && !declinedPeople.includes(user.name)
       ),
     }),
-    [chartedUsers, peopleStatus]
+    [chartedUsers, peopleStatus, declinedPeople]
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level

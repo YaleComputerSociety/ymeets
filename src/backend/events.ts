@@ -497,7 +497,7 @@ async function updateUserCollectionEventsWith(accountId: string) {
 // For internal use
 // Updates the participants list of the working event
 // with the participant passed in, overwriting if they already exist
-async function saveParticipantDetails(participant: Participant): Promise<void> {
+async function saveParticipantDetails(participant: Participant, skipUserCollection = false): Promise<void> {
   participant.email = getAccountEmail();
 
   // Update local copy first
@@ -522,8 +522,9 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
   }
 
   // Always await — avoids race conditions
+  // if this is a declined call, its can't update user collection with events or it overwrites event deletion
   const accountId = getAccountId();
-  if (accountId) {
+  if (accountId && !skipUserCollection) {
     await updateUserCollectionEventsWith(accountId);
   }
 
@@ -541,8 +542,10 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     email: getAccountEmail(),
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
+    declined: participant.declined || false,
   });
 }
+
 
 async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName();
@@ -615,7 +618,30 @@ async function wrappedSaveParticipantDetails(
     email: getAccountEmail(),
     availability: availability, // Pass as array, not stringified
     location: locations !== undefined ? locations : [],
+    declined: false,
   });
+}
+
+async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
+  let name = getAccountName();
+  if (!name) {
+    console.warn('User not signed in');
+    name = 'John Doe';
+  }
+
+  // remove event from their firestore
+  const accountId = getAccountId();
+  await removeEventFromUserCollection(accountId, workingEvent.publicId);
+
+  // skipUserCollection=true prevents re-adding the event to userEvents
+  await saveParticipantDetails({
+    name,
+    accountId: getAccountId(),
+    email: getAccountEmail(),
+    availability: [], 
+    location: [],
+    declined: true,
+  }, true);
 }
 
 // Sets the official date for the event; must be called by the admin
@@ -1080,6 +1106,7 @@ export {
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
+  wrappedSaveDeclinedParticipantDetails,
   updateAnonymousUserToAuthUser,
   // setAvailability,
   // setLocationPreference,
