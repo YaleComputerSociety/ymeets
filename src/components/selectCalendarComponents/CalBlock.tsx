@@ -47,6 +47,9 @@ interface BoundingBox {
   maxBlock: number;
 }
 
+const AUTO_SCROLL_EDGE_PX = 56;
+const AUTO_SCROLL_MAX_STEP_PX = 18;
+
 export default function CalBlock({
   blockID,
   columnID,
@@ -84,6 +87,11 @@ export default function CalBlock({
   const dragStartPointRef = useRef<readonly [number, number] | null>(null);
   const selectionModeRef = useRef(false);
   const hasDraggedRef = useRef(false);
+  const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
+  const dragOriginClientRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerHasMovedRef = useRef(false);
+  const autoScrollFrameRef = useRef<number | null>(null);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -387,6 +395,29 @@ export default function CalBlock({
     []
   );
 
+  const findScrollContainer = useCallback((startNode: Element | null) => {
+    const taggedContainer = startNode?.closest(
+      '[data-calendar-scroll-container="true"]'
+    ) as HTMLElement | null;
+    if (taggedContainer) {
+      return taggedContainer;
+    }
+
+    let current: HTMLElement | null =
+      (startNode as HTMLElement | null) ?? dragRef.current;
+
+    while (current) {
+      const { overflowY } = window.getComputedStyle(current);
+      const canScrollY = /(auto|scroll|overlay)/.test(overflowY);
+      if (canScrollY && current.scrollHeight > current.clientHeight) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return (document.scrollingElement as HTMLElement | null) || null;
+  }, []);
+
   const updateCalendarForBoundingBoxes = useCallback(
     (
       currentBox: BoundingBox,
@@ -429,19 +460,23 @@ export default function CalBlock({
     [user, setCalendarState]
   );
 
-  const handleGlobalMouseMove = useCallback(
-    (event: MouseEvent) => {
+  const updateDragSelectionAtPoint = useCallback(
+    (clientX: number, clientY: number) => {
       if (
         !isDraggingRef.current ||
         !lastDragPoint.current ||
         !previousBoundingBox.current ||
         !dragStartPointRef.current
-      )
+      ) {
         return;
+      }
 
-      const element = document.elementFromPoint(event.clientX, event.clientY);
+      const element = document.elementFromPoint(clientX, clientY);
       if (!element?.id?.includes('-')) return;
+
       const [newCol, newBlock] = element.id.split('-').map(Number);
+      if (Number.isNaN(newCol) || Number.isNaN(newBlock)) return;
+
       const [lastCol, lastBlock] = lastDragPoint.current;
       if (newCol === lastCol && newBlock === lastBlock) return;
       hasDraggedRef.current = true;
@@ -477,10 +512,116 @@ export default function CalBlock({
     [isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
   );
 
+  const stopAutoScroll = useCallback(() => {
+    if (autoScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(autoScrollFrameRef.current);
+      autoScrollFrameRef.current = null;
+    }
+  }, []);
+
+  const startAutoScroll = useCallback(() => {
+    stopAutoScroll();
+
+    const step = () => {
+      if (!isDraggingRef.current) {
+        autoScrollFrameRef.current = null;
+        return;
+      }
+
+      const pointer = pointerClientRef.current;
+      if (!pointer) {
+        autoScrollFrameRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+
+      if (!pointerHasMovedRef.current) {
+        autoScrollFrameRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+
+      let scrollContainer = scrollContainerRef.current;
+      if (!scrollContainer || !document.contains(scrollContainer)) {
+        const hoveredElement = document.elementFromPoint(pointer.x, pointer.y);
+        scrollContainer = findScrollContainer(hoveredElement);
+        scrollContainerRef.current = scrollContainer;
+      }
+
+      if (scrollContainer) {
+        const isDocumentScrollContainer =
+          scrollContainer === document.body ||
+          scrollContainer === document.documentElement ||
+          scrollContainer === document.scrollingElement;
+
+        const containerTop = isDocumentScrollContainer
+          ? 0
+          : scrollContainer.getBoundingClientRect().top;
+        const containerBottom = isDocumentScrollContainer
+          ? window.innerHeight
+          : scrollContainer.getBoundingClientRect().bottom;
+
+        let scrollDelta = 0;
+
+        if (pointer.y > containerBottom - AUTO_SCROLL_EDGE_PX) {
+          const normalizedDistance = Math.min(
+            1,
+            (pointer.y - (containerBottom - AUTO_SCROLL_EDGE_PX)) /
+              AUTO_SCROLL_EDGE_PX
+          );
+          scrollDelta = Math.ceil(normalizedDistance * AUTO_SCROLL_MAX_STEP_PX);
+        } else if (pointer.y < containerTop + AUTO_SCROLL_EDGE_PX) {
+          const normalizedDistance = Math.min(
+            1,
+            (containerTop + AUTO_SCROLL_EDGE_PX - pointer.y) /
+              AUTO_SCROLL_EDGE_PX
+          );
+          scrollDelta = -Math.ceil(normalizedDistance * AUTO_SCROLL_MAX_STEP_PX);
+        }
+
+        if (scrollDelta !== 0) {
+          const scrollTarget = isDocumentScrollContainer
+            ? document.scrollingElement
+            : scrollContainer;
+          const previousTop = scrollTarget?.scrollTop ?? 0;
+
+          if (scrollTarget) {
+            scrollTarget.scrollTop += scrollDelta;
+          } else {
+            window.scrollBy(0, scrollDelta);
+          }
+
+          if ((scrollTarget?.scrollTop ?? previousTop) !== previousTop) {
+            updateDragSelectionAtPoint(pointer.x, pointer.y);
+          }
+        }
+      }
+
+      autoScrollFrameRef.current = window.requestAnimationFrame(step);
+    };
+
+    autoScrollFrameRef.current = window.requestAnimationFrame(step);
+  }, [findScrollContainer, stopAutoScroll, updateDragSelectionAtPoint]);
+
+  const handleGlobalMouseMove = useCallback(
+    (event: MouseEvent) => {
+      const dragOrigin = dragOriginClientRef.current;
+      if (
+        dragOrigin &&
+        (Math.abs(event.clientX - dragOrigin.x) > 3 ||
+          Math.abs(event.clientY - dragOrigin.y) > 3)
+      ) {
+        pointerHasMovedRef.current = true;
+      }
+      pointerClientRef.current = { x: event.clientX, y: event.clientY };
+      updateDragSelectionAtPoint(event.clientX, event.clientY);
+    },
+    [updateDragSelectionAtPoint]
+  );
+
   const handleDragEnd = useCallback(
     () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       isDraggingRef.current = false;
+      stopAutoScroll();
 
       if (isAdmin && dragStartPointRef.current) {
         setDragState((prev) => {
@@ -504,9 +645,19 @@ export default function CalBlock({
       previousBoundingBox.current = null;
       dragStartTime.current = null;
       dragStartPointRef.current = null;
+      pointerClientRef.current = null;
+      dragOriginClientRef.current = null;
+      pointerHasMovedRef.current = false;
+      scrollContainerRef.current = null;
       debouncedSetDragState.cancel();
     },
-    [isAdmin, setDragState, debouncedSetDragState, handleGlobalMouseMove]
+    [
+      isAdmin,
+      setDragState,
+      debouncedSetDragState,
+      handleGlobalMouseMove,
+      stopAutoScroll,
+    ]
   );
 
   const handleSelectionStart = useCallback(
@@ -517,6 +668,18 @@ export default function CalBlock({
       event.preventDefault();
 
       dragStartTime.current = Date.now();
+      const pointer =
+        'touches' in event && event.touches.length > 0
+          ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
+          : 'clientX' in event
+            ? { x: event.clientX, y: event.clientY }
+            : null;
+      pointerClientRef.current = pointer;
+      dragOriginClientRef.current = pointer;
+      pointerHasMovedRef.current = false;
+      scrollContainerRef.current = findScrollContainer(
+        event.currentTarget as Element
+      );
 
       const newSelectionMode = !isInSelection();
 
@@ -544,6 +707,7 @@ export default function CalBlock({
       lastDragPoint.current = [columnID, blockID];
       document.addEventListener('mousemove', handleGlobalMouseMove);
       document.addEventListener('mouseup', () => handleDragEnd(), { once: true });
+      startAutoScroll();
     },
     [
       draggable,
@@ -557,65 +721,40 @@ export default function CalBlock({
       dragState.completedSelections,
       handleDragEnd,
       handleGlobalMouseMove,
+      findScrollContainer,
+      startAutoScroll,
     ]
   );
 
   const handleSelectionMove = useCallback(
     (event: React.TouchEvent) => {
-      if (
-        !isDraggingRef.current ||
-        !lastDragPoint.current ||
-        !previousBoundingBox.current ||
-        !dragStartPointRef.current
-      )
-        return;
-
       const touch = event.touches[0];
-      const element = document.elementFromPoint(touch.clientX, touch.clientY);
-
-      if (!element?.id?.includes('-')) return;
-
-      const [newCol, newBlock] = element.id.split('-').map(Number);
-      const [lastCol, lastBlock] = lastDragPoint.current;
-
-      if (newCol === lastCol && newBlock === lastBlock) return;
-
-      const startPoint = dragStartPointRef.current;
-      const mode = selectionModeRef.current;
-
-      const intermediateBox = getBoundingBox(
-        [lastCol, lastBlock],
-        [newCol, newBlock]
-      );
-
-      const currentBox = getBoundingBox(startPoint, [newCol, newBlock]);
-
-      if (!isAdmin) {
-        updateCalendarForBoundingBoxes(intermediateBox, null, mode);
-        updateCalendarForBoundingBoxes(
-          currentBox,
-          previousBoundingBox.current,
-          mode
-        );
+      const dragOrigin = dragOriginClientRef.current;
+      if (
+        dragOrigin &&
+        (Math.abs(touch.clientX - dragOrigin.x) > 3 ||
+          Math.abs(touch.clientY - dragOrigin.y) > 3)
+      ) {
+        pointerHasMovedRef.current = true;
       }
-
-      previousBoundingBox.current = currentBox;
-
-      debouncedSetDragState((prev: dragProperties) => ({
-        ...prev,
-        endPoint: [newCol, newBlock],
-        lastPosition: [newCol, newBlock],
-      }));
-
-      lastDragPoint.current = [newCol, newBlock];
+      pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
+      updateDragSelectionAtPoint(touch.clientX, touch.clientY);
     },
-    [isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
+    [updateDragSelectionAtPoint]
   );
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      stopAutoScroll();
+    };
+  }, [handleGlobalMouseMove, stopAutoScroll]);
 
   // ${isInSelection() && is30Minute ? 'border-t-white' : ''}
 
   return (
     <div
+      ref={dragRef}
       id={`${columnID}-${blockID}`}
       className={`cursor-pointer select-none flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
         is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
@@ -650,6 +789,12 @@ export default function CalBlock({
         const touch = e.touches[0];
         dragStartTime.current = Date.now();
         lastDragPoint.current = [touch.clientX, touch.clientY];
+        pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
+        dragOriginClientRef.current = { x: touch.clientX, y: touch.clientY };
+        pointerHasMovedRef.current = false;
+        scrollContainerRef.current = findScrollContainer(
+          e.currentTarget as Element
+        );
         handleMobileHoverChartedUser(e);
         onClick(e as any);
       }}
@@ -705,8 +850,13 @@ export default function CalBlock({
           onClick(e as any);
         }
 
+        stopAutoScroll();
         dragStartTime.current = null;
         lastDragPoint.current = null;
+        pointerClientRef.current = null;
+        dragOriginClientRef.current = null;
+        pointerHasMovedRef.current = false;
+        scrollContainerRef.current = null;
       }}
     >
       {(isEventStart || isOnGcal || isEventEnd) && (
