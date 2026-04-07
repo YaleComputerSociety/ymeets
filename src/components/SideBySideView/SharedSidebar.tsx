@@ -194,6 +194,8 @@ export default function SharedSidebar({
     ),
   };
 
+  console.log(userHasSignedIn)
+
   return (
     <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
       <AlertPopup
@@ -381,7 +383,7 @@ export default function SharedSidebar({
       )}
 
       {/* Decline Button */}
-       {!chartedUsers?.hovering && !isAdmin && ( 
+      {!chartedUsers?.hovering && !isAdmin && userHasSignedIn && getAccountId() !== '' && (
         <div>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
             Decline Invitation{' '}
