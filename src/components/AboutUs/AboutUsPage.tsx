@@ -29,6 +29,9 @@ import RYLAN from './Rylan_Headshot.jpg';
 import JAMES from './James.jpg';
 import RONALD from './Ronald.png';
 import ARUSH from './Arush.jpeg';
+import JADEN from './Jaden.jpeg';
+import ISHANI from './Ishani.png';
+import CONNOR from './Connor.png';
 
 const CURR_CONTRIBUTORS = [
   {
@@ -65,7 +68,7 @@ const CURR_CONTRIBUTORS = [
     founding: false,
     linkedin:
       'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
-    github: undefined,
+    github: 'https://github.com/ronaldmilgo',
     image: RONALD,
   },
 
@@ -85,6 +88,33 @@ const CURR_CONTRIBUTORS = [
     linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
     github: 'https://github.com/JulienTD23',
     image: JULIEN,
+  },
+
+  {
+    name: 'Jaden Cohen',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/jaden-cohen-705a27313/',
+    github: 'https://github.com/Invictus108',
+    image: JADEN,
+  },
+
+  {
+    name: 'Ishani Singh',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/ishani-singh17/',
+    github: 'https://github.com/ising2025',
+    image: ISHANI,
+  },
+
+  {
+    name: 'Connor White',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/connorlwhite/',
+    github: 'https://github.com/ConnorWhite9',
+    image: CONNOR,
   },
 ];
 
