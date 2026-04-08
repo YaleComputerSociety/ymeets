@@ -2,6 +2,7 @@ import {
   useState,
   useMemo,
   useEffect,
+  useRef,
   Dispatch,
   SetStateAction,
   useCallback,
@@ -384,6 +385,26 @@ export default function SideBySideView({
     lastPosition: null,
   });
 
+  // Shared pagination and scroll sync
+  const [sharedPage, setSharedPage] = useState(0);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
+  const isSyncingScroll = useRef(false);
+
+  const handleLeftScroll = useCallback((scrollTop: number) => {
+    if (isSyncingScroll.current) return;
+    isSyncingScroll.current = true;
+    if (rightScrollRef.current) rightScrollRef.current.scrollTop = scrollTop;
+    isSyncingScroll.current = false;
+  }, []);
+
+  const handleRightScroll = useCallback((scrollTop: number) => {
+    if (isSyncingScroll.current) return;
+    isSyncingScroll.current = true;
+    if (leftScrollRef.current) leftScrollRef.current.scrollTop = scrollTop;
+    isSyncingScroll.current = false;
+  }, []);
+
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
     () => ({
@@ -540,6 +561,10 @@ export default function SideBySideView({
                         isGeneralDays={isGeneralDays}
                         setCalendarHeight={setCalendarHeight}
                         calendarLabel="Your Availability"
+                        currentStartPage={sharedPage}
+                        onPageChange={setSharedPage}
+                        scrollRef={leftScrollRef}
+                        onScroll={handleLeftScroll}
                       />
                     </div>
                   </div>
@@ -603,6 +628,10 @@ export default function SideBySideView({
                         setChartedUsers={setChartedUsers}
                         chartedUsers={chartedUsers}
                         calendarLabel="Group Availability"
+                        currentStartPage={sharedPage}
+                        onPageChange={setSharedPage}
+                        scrollRef={rightScrollRef}
+                        onScroll={handleRightScroll}
                       />
                     </div>
                   </div>

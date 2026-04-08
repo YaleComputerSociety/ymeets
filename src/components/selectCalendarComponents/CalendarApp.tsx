@@ -45,6 +45,10 @@ interface CalendarProps {
   setCalendarHeight?: Dispatch<SetStateAction<number | null>>;
   compactMode?: boolean;
   calendarLabel?: string;
+  currentStartPage?: number;
+  onPageChange?: (page: number) => void;
+  scrollRef?: React.RefObject<HTMLDivElement>;
+  onScroll?: (scrollTop: number) => void;
 }
 
 export default function Calendar({
@@ -64,6 +68,10 @@ export default function Calendar({
   setCalendarHeight,
   compactMode = false,
   calendarLabel,
+  currentStartPage: controlledPage,
+  onPageChange,
+  scrollRef,
+  onScroll,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -133,18 +141,21 @@ export default function Calendar({
     };
   }, [compactMode]);
 
-  const [currentStartPage, setCurrentStartPage] = React.useState(0);
+  const [internalStartPage, setInternalStartPage] = React.useState(0);
+  const currentStartPage = controlledPage ?? internalStartPage;
 
   const handlePrev = () => {
-    setCurrentStartPage(Math.max(currentStartPage - 1, 0));
+    const next = Math.max(currentStartPage - numberOfColumnsPerPage, 0);
+    onPageChange ? onPageChange(next) : setInternalStartPage(next);
   };
 
   const handleNext = () => {
-    if (
-      currentStartPage + numberOfColumnsPerPage <
-      calendarFramework.dates.flat().length
-    ) {
-      setCurrentStartPage(currentStartPage + 1);
+    if (currentStartPage + numberOfColumnsPerPage < calendarFramework.dates.flat().length) {
+      const next = Math.min(
+        currentStartPage + numberOfColumnsPerPage,
+        calendarFramework.dates.flat().length - numberOfColumnsPerPage
+      );
+      onPageChange ? onPageChange(next) : setInternalStartPage(next);
     }
   };
 
@@ -194,7 +205,7 @@ export default function Calendar({
       </div>
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative "
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
       >
         <div
           style={{ width: '3.00rem', height: '2.50rem' }}
@@ -202,8 +213,10 @@ export default function Calendar({
         ></div>
 
         <div
+          ref={scrollRef}
           data-calendar-scroll-container="true"
           className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600"
+          onScroll={onScroll ? (e) => onScroll((e.target as HTMLDivElement).scrollTop) : undefined}
         >
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark">
