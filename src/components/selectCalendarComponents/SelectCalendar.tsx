@@ -128,11 +128,7 @@ const handleDisappear = useCallback(() => {
   }, [handleMouseLeave]);
 
   return (
-    <div
-      className=" max-h-140"
-      ref={calendarRef}
-      style={{ touchAction: 'none' }}
-    >
+    <div className="min-h-0 max-h-none" ref={calendarRef}>
       <div className="flex flex-col">
         <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px] -ml-12">
           <div className="bg-white dark:bg-secondary_background-dark w-full flex pl-12">

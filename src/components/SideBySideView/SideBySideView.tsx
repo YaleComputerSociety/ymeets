@@ -389,20 +389,33 @@ export default function SideBySideView({
   const [sharedPage, setSharedPage] = useState(0);
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
-  const isSyncingScroll = useRef(false);
+  /** Prevents ping-pong when programmatic scrollTop fires a scroll event on the peer after the sync tick. */
+  const scrollSyncSource = useRef<'left' | 'right' | null>(null);
 
   const handleLeftScroll = useCallback((scrollTop: number) => {
-    if (isSyncingScroll.current) return;
-    isSyncingScroll.current = true;
-    if (rightScrollRef.current) rightScrollRef.current.scrollTop = scrollTop;
-    isSyncingScroll.current = false;
+    if (scrollSyncSource.current === 'right') return;
+    const peer = rightScrollRef.current;
+    if (!peer || Math.abs(peer.scrollTop - scrollTop) < 1) return;
+    scrollSyncSource.current = 'left';
+    peer.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollSyncSource.current === 'left') scrollSyncSource.current = null;
+      });
+    });
   }, []);
 
   const handleRightScroll = useCallback((scrollTop: number) => {
-    if (isSyncingScroll.current) return;
-    isSyncingScroll.current = true;
-    if (leftScrollRef.current) leftScrollRef.current.scrollTop = scrollTop;
-    isSyncingScroll.current = false;
+    if (scrollSyncSource.current === 'left') return;
+    const peer = leftScrollRef.current;
+    if (!peer || Math.abs(peer.scrollTop - scrollTop) < 1) return;
+    scrollSyncSource.current = 'right';
+    peer.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollSyncSource.current === 'right') scrollSyncSource.current = null;
+      });
+    });
   }, []);
 
   // Filter charted users based on people status
