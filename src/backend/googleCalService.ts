@@ -3,6 +3,7 @@
 
 import { time } from "console";
 import { getUserTimezone } from "../components/utils/functions/timzoneConversions";
+import { getAccountId } from '../backend/events';
 
 
 // Why we feel this is secure: https://stackoverflow.com/questions/18280827/localstorage-vs-cookies-for-oauth2-in-html5-web-app
@@ -39,6 +40,7 @@ class GoogleCalendarService {
   private initPromise: Promise<boolean> | null = null;
   private accessChangeListeners: AccessChangeListener[] = [];
   private tokenClient: google.accounts.oauth2.TokenClient | null = null;
+  private codeClient: any;
 
   constructor() {
     // Check if access was previously granted
@@ -244,55 +246,72 @@ class GoogleCalendarService {
   }
 
   private async _initializeClientImpl(): Promise<boolean> {
-    if (!this.apiLoaded) {
-      const loaded = await this.loadScripts();
-      if (!loaded) {
-        console.error('Failed to load necessary scripts before initializing');
-        return false;
-      }
-    }
-
-    try {
-      // Initialize GAPI client with API key and discovery docs
-      await window.gapi.client.init({
-        apiKey: GOOGLE_API_KEY,
-        discoveryDocs: DISCOVERY_DOCS,
-      });
-      
-      // Initialize the token client
-      this.tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID || '',
-        scope: CALENDAR_SCOPE,
-        prompt: '', // Empty prompt means don't show UI automatically
-        callback: (tokenResponse: any) => {
-          // This callback gets triggered when you get a token
-          if (tokenResponse && !tokenResponse.error) {
-            // We have a token, so we have access
-            this.hasAccess = true;
-            
-            // Store token expiry for better tracking
-            if (tokenResponse.expires_in) {
-              const expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
-              localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
-            }
-          } else if (tokenResponse?.error && 
-                    tokenResponse.error !== 'popup_closed_by_user' && 
-                    tokenResponse.error !== 'access_denied') {
-            console.error('Token error:', tokenResponse?.error);
-            this.hasAccess = false;
-          }
-        },
-      });
-      
-      this.initialized = true;
-      return true;
-    } catch (error) {
-      console.error('Error initializing client:', error);
-      this.initialized = false;
-      this.hasAccess = false;
+  if (!this.apiLoaded) {
+    const loaded = await this.loadScripts();
+    if (!loaded) {
+      console.error('Failed to load necessary scripts');
       return false;
     }
   }
+
+  try {
+    
+    await window.gapi.client.init({
+      apiKey: GOOGLE_API_KEY,
+      discoveryDocs: DISCOVERY_DOCS,
+    });
+
+    
+    this.codeClient = (window.google.accounts.oauth2 as any).initCodeClient({
+      client_id: GOOGLE_CLIENT_ID || '',
+      scope: CALENDAR_SCOPE,
+      ux_mode: 'popup',
+      select_account: true, 
+      access_type: 'offline', 
+      prompt: 'consent',
+      callback: async (response: any) => {
+        if (response.code) {
+          console.log('Authorization code received:', response.code);
+          
+          // 3. Send the code to your Node.js server
+          await this.sendCodeToBackend(response.code);
+        } else if (response.error) {
+          console.error('Code Client Error:', response.error);
+        }
+      },
+    });
+
+    this.initialized = true;
+    return true;
+  } catch (error) {
+    console.error('Error initializing client:', error);
+    this.initialized = false;
+    return false;
+  }
+}
+
+// Helper method
+// Add userId as a second parameter
+private async sendCodeToBackend(code: string): Promise<boolean> {
+  try {
+    const { httpsCallable } = await import('firebase/functions');
+    const { functions } = await import('./functions');
+    const connectCalendarFn = httpsCallable(functions, 'connectCalendar');
+
+    const result = await connectCalendarFn({ code });
+    const data = result.data as any;
+    console.log('connectCalendar result:', data);
+
+    if (data.success) {
+      this.hasAccess = true;
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error('Failed to exchange code with backend:', err);
+    return false;
+  }
+}
 
   // Check if token is expired or about to expire
   private isTokenExpired(): boolean {
@@ -358,109 +377,48 @@ class GoogleCalendarService {
 
   // Request Calendar access with better error handling
   public async requestCalendarAccess(): Promise<boolean> {
-    if (!this.initialized) {
-      const initialized = await this.initializeClient();
-      if (!initialized) {
-        throw new Error('Failed to initialize Google API client');
-      }
+  try {
+    // 1. Ensure the client is initialized
+    if (!this.codeClient) {
+      const initialized = await this._initializeClientImpl();
+      if (!initialized) return false;
     }
-    
-    // If we already have access and token is not expired, just return true
-    if (this._hasAccess && !this.isTokenExpired()) {
-      console.log('Calendar access already granted with valid token');
-      return true;
-    }
-    
-    // If token is expired, try silent refresh first
-    if (this._hasAccess && this.isTokenExpired()) {
-      console.log('Token expired, attempting silent refresh...');
-      const refreshed = await this.attemptSilentRefresh();
-      if (refreshed) {
-        console.log('Token refreshed successfully');
-        return true;
-      }
-    }
-    
-    try {
-      if (!this.tokenClient) {
-        throw new Error('Token client not initialized');
-      }
+
+    // 2. Return a Promise that resolves when the backend handshake is done
+    return new Promise<boolean>((resolve) => {
+      // We override the callback to resolve this specific promise
+      const originalCallback = this.codeClient.callback;
       
-      // Request an access token - this will show the popup
-      return new Promise<boolean>((resolve) => {
-        this.tokenClient!.callback = (tokenResponse) => {
-          if (tokenResponse && !tokenResponse.error) {
-            this.hasAccess = true;
-            
-            // Store token expiry
-            if (tokenResponse.expires_in) {
-              const expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
-              localStorage.setItem(TOKEN_EXPIRY_KEY, expiresAt.toString());
-            }
-            
-            resolve(true);
-          } else {
-            console.error('Error getting token:', tokenResponse?.error);
-            this.hasAccess = false;
-            resolve(false);
-          }
-        };
+      this.codeClient.callback = async (response: any) => {
+        if (response.code) {
+          // Send to Node.js backend
+          const success = await this.sendCodeToBackend(response.code);
+          this.hasAccess = success;
+          resolve(success);
+        } else {
+          console.error('Code request failed or was closed');
+          this.hasAccess = false;
+          resolve(false);
+        }
         
-        // Explicitly prompt the user for consent
-        this.tokenClient!.requestAccessToken({ prompt: 'consent' });
-      });
-    } catch (error) {
-      console.error('Error in requestCalendarAccess:', error);
-      this.hasAccess = false;
-      return false;
-    }
+        // Restore the original callback if necessary
+        this.codeClient.callback = originalCallback;
+      };
+
+      // 3. Trigger the popup
+      // 'prompt: consent' ensures you get a refresh_token every time during testing
+      this.codeClient.requestCode();
+    });
+  } catch (error) {
+    console.error('Error in requestCalendarAccess:', error);
+    this.hasAccess = false;
+    return false;
   }
+}
 
   // Ensure we have valid access, with fallback strategies
   private async ensureAccess(): Promise<boolean> {
-    // If we think we have access, check if token is still valid
-    if (this._hasAccess) {
-      // Check if token is expired
-      if (this.isTokenExpired()) {
-        console.log('Token is expired, attempting refresh...');
-        
-        // Try silent refresh
-        const refreshed = await this.attemptSilentRefresh();
-        if (refreshed) {
-          console.log('Token refreshed successfully');
-          return true;
-        } else {
-          console.log('Token refresh failed, user interaction required');
-          this.hasAccess = false;
-          return false;
-        }
-      }
-      
-      // Token is not expired, check if it's actually set
-      if (window.gapi?.client) {
-        const token = window.gapi.client.getToken();
-        if (token && token.access_token) {
-          return true;
-        }
-        
-        // Try to restore from localStorage if not set
-        const storedToken = localStorage.getItem(TOKEN_KEY);
-        if (storedToken) {
-          try {
-            const parsedToken: StoredToken = JSON.parse(storedToken);
-            window.gapi.client.setToken(parsedToken);
-            return true;
-          } catch (error) {
-            console.error('Error restoring token:', error);
-            this.clearStoredTokenData();
-            this.hasAccess = false;
-          }
-        }
-      }
-    }
-
-    // If we don't have access or restoration failed
-    return false;
+  return this._hasAccess;
   }
 
   // Fetch list of calendars with better error handling
@@ -473,6 +431,12 @@ class GoogleCalendarService {
     const hasAccess = await this.ensureAccess();
     if (!hasAccess) {
       throw new Error('Calendar access not granted. Please request access first.');
+    }
+
+    const token = window.gapi.client.getToken();
+    if (!token) {
+  
+      throw new Error("Calendar access not granted. Please request access first.");
     }
 
     try {
@@ -489,6 +453,10 @@ class GoogleCalendarService {
       
       throw error;
     }
+  }
+
+  public setHasAccess(value: boolean) {
+  this.hasAccess = value; // this already calls notifyAccessChange() via the setter
   }
 
  private convertEventsToTimezone(events: any, targetTimezone: string) {

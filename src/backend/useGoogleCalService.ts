@@ -206,6 +206,11 @@ export function useGoogleCalendar() {
     }
   }, [syncAuthState]);
 
+  const markAsConnected = useCallback(() => {
+    calendarService.setHasAccess(true);
+    setHasAccess(true);
+  }, []);
+
   return {
     hasAccess,
     loading,
@@ -215,5 +220,6 @@ export function useGoogleCalendar() {
     getCalendars,
     getEvents,
     disconnect,
+    markAsConnected,
   };
 }

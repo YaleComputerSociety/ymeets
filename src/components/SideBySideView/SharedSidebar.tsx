@@ -23,6 +23,8 @@ import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
+import { functions } from '../../backend/functions';
+import { httpsCallable } from 'firebase/functions';
 
 interface Calendar {
   id: string;
@@ -104,43 +106,48 @@ export default function SharedSidebar({
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
-  const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
+  const { hasAccess, requestAccess, getCalendars, markAsConnected } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
+
+  const fetchCalendarFn = httpsCallable(functions, 'fetchCalendar');
+  const connectCalendarFn = httpsCallable(functions, 'connectCalendar');
 
   // Load saved calendar preferences on mount
   useEffect(() => {
-    const loadSavedCalendarPreferences = async () => {
-      const uid = getAccountId();
-      if (!uid || !hasAccess) return;
+  const checkExistingAccess = async () => {
+    // Wait until we know auth state — null means still loading
+    if (!currentUser) return;
 
-      try {
-        const savedCalendarIds = await getSelectedCalendarIDsByUserID(uid);
-        if (savedCalendarIds.length > 0 && setSelectedCalendarIds) {
-          setSelectedCalendarIds(savedCalendarIds);
-        }
-      } catch (error) {
-        console.error('Error loading saved calendar preferences:', error);
-      }
-    };
-
-    loadSavedCalendarPreferences();
-  }, [hasAccess, setSelectedCalendarIds]);
-
-  const fetchUserCalendars = async () => {
     try {
-      if (!hasAccess) {
-        return [];
+      const result = await fetchCalendarFn({});
+      const calendars = (result.data as any).calendars;
+      if (Array.isArray(calendars)) {
+        markAsConnected();
+        if (setGoogleCalendars) setGoogleCalendars(calendars);
       }
-      const calendars = await getCalendars();
-      if (setGoogleCalendars) {
-        setGoogleCalendars(calendars);
-      }
-      return calendars;
-    } catch (error) {
-      console.error('Error fetching Google Calendars:', error);
-      return [];
+    } catch (err: any) {
+      // not-found is expected for new users — not a real error
+      if (err?.code === 'functions/not-found') return;
+      console.error('Silent calendar restore failed:', err);
     }
   };
+  checkExistingAccess();
+}, [currentUser]);
+
+const fetchUserCalendars = async () => {
+  try {
+    const result = await fetchCalendarFn({});
+    const calendars = (result.data as any).calendars;
+    if (Array.isArray(calendars)) {
+      markAsConnected();
+      if (setGoogleCalendars) setGoogleCalendars(calendars);
+    }
+    return calendars;
+  } catch (error) {
+    console.error('Error fetching Google Calendars:', error);
+    return [];
+  }
+};
 
   const handleCalendarToggle = (calId: string) => {
     if (setSelectedCalendarIds) {
@@ -160,21 +167,30 @@ export default function SharedSidebar({
     }
   };
 
-  const handleSignIn = async () => {
-    if (currentUser && !hasAccess) {
-      await requestAccess();
-      await fetchUserCalendars();
-    } else {
-      const user = await login();
-      if (user) {
-        updateAnonymousUserToAuthUser(getAccountName());
-        const scopeGranted = await requestAccess();
-        if (scopeGranted) {
-          await fetchUserCalendars();
-        }
-      }
+const handleSignIn = async () => {
+  if (!currentUser) {
+    const user = await login();
+    if (!user) return;
+    updateAnonymousUserToAuthUser(getAccountName());
+  }
+
+  try {
+    const result = await fetchCalendarFn({});
+    const calendars = (result.data as any).calendars;
+    if (Array.isArray(calendars)) {
+      markAsConnected();
+      if (setGoogleCalendars) setGoogleCalendars(calendars);
+      return;
     }
-  };
+  } catch (err) {
+    console.log('Silent fetch failed, proceeding to OAuth popup...');
+  }
+
+  const scopeGranted = await requestAccess();
+  if (scopeGranted) {
+    await fetchUserCalendars();
+  }
+};
 
   const filteredChartedUsers = {
     ...chartedUsers,

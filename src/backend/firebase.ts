@@ -40,5 +40,5 @@ const db = getFirestore(app);
 export const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, db, analytics, googleProvider };
+export { auth, db, analytics, googleProvider, app };
 

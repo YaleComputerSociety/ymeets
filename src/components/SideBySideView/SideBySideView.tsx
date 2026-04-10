@@ -25,9 +25,10 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
-import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { functions } from '../../backend/functions';
+import { httpsCallable } from 'firebase/functions';
 
 interface Calendar {
   id: string;
@@ -131,6 +132,7 @@ export default function SideBySideView({
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
+  const fetchCalendarFn = httpsCallable(functions, 'fetchCalendar');
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
   const [expandedCalendar, setExpandedCalendar] = useState<
@@ -138,8 +140,7 @@ export default function SideBySideView({
   >(null);
 
   // Google Calendar hook for fetching events
-  const { hasAccess, requestAccess, getEvents, getCalendars } =
-    useGoogleCalendar();
+  // const { hasAccess, requestAccess, getEvents, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
   // Helper functions for autofill
@@ -204,91 +205,65 @@ export default function SideBySideView({
     return newAvailability;
   };
 
-  // Fetch Google Calendar events when selected calendars change
-  const fetchGoogleCalEvents = useCallback(
-    async (calIds: string[]) => {
-      if (!hasAccess || calIds.length === 0) {
-        setGoogleCalendarEvents([]);
-        return [];
+  const fetchEventsFn = httpsCallable(functions, 'fetchEvents');
+
+const fetchGoogleCalEvents = useCallback(
+  async (calIds: string[]) => {
+    if (calIds.length === 0) {
+      setGoogleCalendarEvents([]);
+      return [];
+    }
+
+    const dates = calendarFramework.dates.flat();
+    if (dates.length === 0) return [];
+
+    const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
+    const startDate = new Date(Math.min(...dateTimestamps));
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(Math.max(...dateTimestamps));
+    endDate.setHours(23, 59, 59, 999);
+
+    const allEvents: calendar_v3.Schema$Event[] = [];
+
+    for (const calId of calIds) {
+      try {
+        const result = await fetchEventsFn({
+          calendarId: calId,
+          timeMin: startDate.toISOString(),
+          timeMax: endDate.toISOString(),
+          timezone: calendarFramework.timezone,
+        });
+
+        const events = (result.data as any).events || [];
+
+        const singleDayEvents = events.filter((event: any) => {
+          if (!event.start?.dateTime || !event.end?.dateTime) return false;
+          const start = new Date(event.start.dateTime);
+          const end = new Date(event.end.dateTime);
+          return start.getDay() === end.getDay();
+        });
+
+        allEvents.push(...singleDayEvents);
+      } catch (error) {
+        console.error('Error fetching events for calendar:', calId, error);
       }
+    }
 
-      const dates = calendarFramework.dates.flat();
-      if (dates.length === 0) return [];
-
-      const dateTimestamps = dates.map((d) => (d.date as Date).getTime());
-      const startDate = new Date(Math.min(...dateTimestamps));
-      startDate.setHours(0, 0, 0, 0);
-      const timeMin = startDate.toISOString();
-
-      const endDate = new Date(Math.max(...dateTimestamps));
-      endDate.setHours(23, 59, 59, 999);
-      const timeMax = endDate.toISOString();
-
-      const allEvents: calendar_v3.Schema$Event[] = [];
-
-      for (const calId of calIds) {
-        try {
-          const events = await getEvents(
-            calId,
-            timeMin,
-            timeMax,
-            calendarFramework.timezone
-          );
-
-          // Filter out multi-day events
-          const singleDayEvents = events.filter((event) => {
-            if (!event.start?.dateTime || !event.end?.dateTime) return false;
-            const start = new Date(event.start.dateTime);
-            const end = new Date(event.end.dateTime);
-            return start.getDay() === end.getDay();
-          });
-
-          allEvents.push(...singleDayEvents);
-        } catch (error) {
-          console.error('Error fetching events for calendar:', calId, error);
-        }
-      }
-
-      setGoogleCalendarEvents(allEvents);
-      return allEvents;
-    },
-    [
-      hasAccess,
-      calendarFramework.dates,
-      calendarFramework.timezone,
-      getEvents,
-      setGoogleCalendarEvents,
-    ]
-  );
-
-  // Fetch calendars and events when access is available
-  useEffect(() => {
-    const initializeCalendars = async () => {
-      if (hasAccess && googleCalendars.length === 0) {
-        try {
-          const calendars = await getCalendars();
-          setGoogleCalendars(calendars);
-        } catch (error) {
-          console.error('Error fetching calendars:', error);
-        }
-      }
-    };
-    initializeCalendars();
-  }, [hasAccess, googleCalendars.length, getCalendars, setGoogleCalendars]);
+    setGoogleCalendarEvents(allEvents);
+    return allEvents;
+  },
+  [calendarFramework.dates, calendarFramework.timezone, setGoogleCalendarEvents]
+);
 
   // Fetch events when selected calendar IDs change
   useEffect(() => {
-    if (hasAccess && selectedCalendarIds.length > 0) {
-      fetchGoogleCalEvents(selectedCalendarIds);
-    } else if (selectedCalendarIds.length === 0) {
-      setGoogleCalendarEvents([]);
-    }
-  }, [
-    hasAccess,
-    selectedCalendarIds,
-    fetchGoogleCalEvents,
-    setGoogleCalendarEvents,
-  ]);
+  if (selectedCalendarIds.length > 0) {
+    fetchGoogleCalEvents(selectedCalendarIds);
+  } else {
+    setGoogleCalendarEvents([]);
+  }
+}, [selectedCalendarIds, fetchGoogleCalEvents, setGoogleCalendarEvents]);
 
   // Get current user index
   const getCurrentUserIndex = useCallback(() => {
@@ -331,17 +306,16 @@ export default function SideBySideView({
       updateAnonymousUserToAuthUser(getAccountName());
     }
 
-    if (!hasAccess) {
-      const scopeGranted = await requestAccess();
-      if (!scopeGranted) return;
-    }
+    // Remove the hasAccess / requestAccess block entirely
 
     const calIds = selectedCalendarIds.length > 0 ? selectedCalendarIds : [];
 
     if (calIds.length === 0) {
-      // If no calendars selected, try to fetch them first
-      const calendars = await getCalendars();
-      setGoogleCalendars(calendars);
+      const result = await fetchCalendarFn({});
+      const calendars = (result.data as any).calendars;
+      if (Array.isArray(calendars)) {
+        setGoogleCalendars(calendars);
+      }
       return;
     }
 
