@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { deleteEvent } from '../../../backend/events';
 import DeletePopup from './DeletePopup';
 
 interface EventOptionsMenuProps {
   eventCode: string | undefined;
+  isAdmin: boolean;
+  userHasFilled?: boolean;
+  onCancel?: () => Promise<void>;
 }
 
-export default function EventOptionsMenu({ eventCode }: EventOptionsMenuProps) {
+export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, onCancel }: EventOptionsMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showCancelPopup, setShowCancelPopup] = useState(false);
   const nav = useNavigate();
+
+  const showMenu = isAdmin || (!!userHasFilled && !!onCancel);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -39,6 +45,8 @@ export default function EventOptionsMenu({ eventCode }: EventOptionsMenuProps) {
     }
   };
 
+  if (!showMenu) return null;
+
   return (
     <>
       <div className="relative flex-shrink-0">
@@ -53,28 +61,44 @@ export default function EventOptionsMenu({ eventCode }: EventOptionsMenuProps) {
         {isMenuOpen && (
           <div
             id="event-menu-dropdown"
-            className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+            className="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
           >
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                nav(`/edit/${eventCode}`);
-              }}
-              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
-            >
-              <IconPencil size={16} />
-              Edit Event
-            </button>
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                setShowDeletePopup(true);
-              }}
-              className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
-            >
-              <IconTrash size={16} />
-              Delete Event
-            </button>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    nav(`/edit/${eventCode}`);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
+                >
+                  <IconPencil size={16} />
+                  Edit Event
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setShowDeletePopup(true);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                >
+                  <IconTrash size={16} />
+                  Delete Event
+                </button>
+              </>
+            )}
+            {!isAdmin && userHasFilled && onCancel && (
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setShowCancelPopup(true);
+                }}
+                className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+              >
+                <IconX size={16} />
+                Cancel
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -85,6 +109,19 @@ export default function EventOptionsMenu({ eventCode }: EventOptionsMenuProps) {
         isOpen={showDeletePopup}
         onConfirm={handleDeleteEvent}
         onCancel={() => setShowDeletePopup(false)}
+      />
+
+      <DeletePopup
+        title="Cancel Availability"
+        message="Are you sure you want to cancel? This will delete the time you have marked for this event."
+        isOpen={showCancelPopup}
+        onConfirm={async () => {
+          setShowCancelPopup(false);
+          if (onCancel) await onCancel();
+        }}
+        onCancel={() => setShowCancelPopup(false)}
+        confirmText="Cancel"
+        cancelText="Go Back"
       />
     </>
   );

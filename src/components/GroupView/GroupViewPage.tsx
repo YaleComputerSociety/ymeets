@@ -15,6 +15,7 @@ import {
 } from '../../types';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getEventObjectForGCal,
   getParticipantIndex,
@@ -24,6 +25,7 @@ import {
   getChosenLocation,
   getEmailAdmin,
   setEmailAdmin,
+  wrappedSaveDeclinedParticipantDetails,
 } from '../../backend/events';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
@@ -115,6 +117,7 @@ export default function GroupViewPage({
   userHasFilled: boolean;
   setUserHasFilled: Dispatch<SetStateAction<boolean>>;
 }) {
+  const navigate = useNavigate();
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
@@ -317,7 +320,15 @@ export default function GroupViewPage({
                 >
                   {eventName}
                 </div>
-                {isAdmin && <EventOptionsMenu eventCode={code} />}
+                <EventOptionsMenu
+                  eventCode={code}
+                  isAdmin={isAdmin}
+                  userHasFilled={userHasFilled}
+                  onCancel={async () => {
+                    await wrappedSaveDeclinedParticipantDetails();
+                    navigate('/');
+                  }}
+                />
               </div>
               {eventDescription && (
                 <div
