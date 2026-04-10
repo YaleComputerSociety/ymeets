@@ -1,6 +1,7 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3, google } from 'googleapis';
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
   calanderState,
@@ -28,6 +29,7 @@ import {
   setUserSelectedCalendarIDs,
   workingEvent,
   checkIfAdmin,
+  wrappedSaveDeclinedParticipantDetails,
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import Calendar from '../selectCalendarComponents/CalendarApp';
@@ -105,6 +107,7 @@ function TimeSelectPage({
   hasAvailability: boolean;
   setHasAvailability: Dispatch<SetStateAction<boolean>>;
 }) {
+  const navigate = useNavigate();
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -591,7 +594,15 @@ function TimeSelectPage({
               >
                 {eventName}
               </div>
-              {checkIfAdmin() && <EventOptionsMenu eventCode={code} />}
+              <EventOptionsMenu
+                eventCode={code}
+                isAdmin={checkIfAdmin()}
+                userHasFilled={hasAvailability}
+                onCancel={async () => {
+                  await wrappedSaveDeclinedParticipantDetails();
+                  navigate('/');
+                }}
+              />
             </div>
             {eventDescription && (
               <div

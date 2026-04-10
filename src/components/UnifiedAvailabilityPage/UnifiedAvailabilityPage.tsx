@@ -338,6 +338,7 @@ export default function UnifiedAvailabilityPage() {
           onSave={handleSideBySideSave}
           onDecline={() => fetchData(false)}
           isSaving={isSaving}
+          userHasFilled={userHasFilled}
           hasUnsavedChanges={hasUnsavedChanges}
           setHasUnsavedChanges={setHasUnsavedChanges}
         />
