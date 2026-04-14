@@ -118,8 +118,6 @@ export default function AccountsPage() {
                 const next =
                   events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
                 setEvents(next);
-                const accountID = getAccountId();
-                if (accountID) setCachedAccountEvents(accountID, next);
               })
               .catch((err) => {});
             setSelectedEventToDelete(null);
@@ -242,9 +240,6 @@ export default function AccountsPage() {
                                       events?.filter((e) => e.id !== event.id) ??
                                       [];
                                     setEvents(next);
-                                    const accountID = getAccountId();
-                                    if (accountID)
-                                      setCachedAccountEvents(accountID, next);
                                   })
                                   .catch((err) => {});
                               } else {
