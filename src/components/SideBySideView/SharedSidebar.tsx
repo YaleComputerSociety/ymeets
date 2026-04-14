@@ -77,6 +77,7 @@ interface SharedSidebarProps {
   userHasSignedIn: boolean;
   onUserSignIn: () => void;
 
+  userHasFilled: boolean;
   onDecline: () => void;
 }
 
@@ -106,6 +107,7 @@ export default function SharedSidebar({
   setSelectedLocations,
   userHasSignedIn,
   onUserSignIn,
+  userHasFilled,
   onDecline,
 }: SharedSidebarProps) {
   const navigate = useNavigate();
@@ -218,7 +220,16 @@ export default function SharedSidebar({
             >
               {eventName}
             </div>
-            {isAdmin && <EventOptionsMenu eventCode={code} />}
+            <EventOptionsMenu
+              eventCode={code}
+              isAdmin={isAdmin}
+              userHasFilled={userHasFilled}
+              onCancel={async () => {
+                await wrappedSaveDeclinedParticipantDetails();
+                onDecline();
+                navigate('/');
+              }}
+            />
           </div>
           {eventDescription && (
             <div
@@ -382,8 +393,8 @@ export default function SharedSidebar({
         </div>
       )}
 
-      {/* Decline Button */}
-      {!chartedUsers?.hovering && !isAdmin && userHasSignedIn && getAccountId() !== '' && (
+      {/* Decline Button - only shown when user hasnt filled availability yet. once filled it moves to the dropdown */}
+      {!chartedUsers?.hovering && !isAdmin && userHasSignedIn && getAccountId() !== '' && !userHasFilled && (
         <div>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
             Decline Invitation{' '}

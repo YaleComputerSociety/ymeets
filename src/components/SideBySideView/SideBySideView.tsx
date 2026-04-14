@@ -88,6 +88,7 @@ interface SideBySideViewProps {
   onSave: () => Promise<void>;
   onDecline: () => void;
   isSaving: boolean;
+  userHasFilled: boolean;
 
   // Unsaved changes tracking
   hasUnsavedChanges: boolean;
@@ -129,6 +130,7 @@ export default function SideBySideView({
   onSave,
   onDecline,
   isSaving,
+  userHasFilled,
   hasUnsavedChanges,
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
@@ -470,6 +472,7 @@ export default function SideBySideView({
             setSelectedLocations={wrappedSetSelectedLocations}
             userHasSignedIn={userHasSignedIn}
             onUserSignIn={() => setUserHasSignedIn(true)}
+            userHasFilled={userHasFilled}
             onDecline={onDecline}
           />
         </div>
