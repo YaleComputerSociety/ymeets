@@ -2,6 +2,7 @@ import {
   useState,
   useMemo,
   useEffect,
+  useRef,
   Dispatch,
   SetStateAction,
   useCallback,
@@ -384,6 +385,39 @@ export default function SideBySideView({
     lastPosition: null,
   });
 
+  // Shared pagination and scroll sync
+  const [sharedPage, setSharedPage] = useState(0);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
+  /** Prevents ping-pong when programmatic scrollTop fires a scroll event on the peer after the sync tick. */
+  const scrollSyncSource = useRef<'left' | 'right' | null>(null);
+
+  const handleLeftScroll = useCallback((scrollTop: number) => {
+    if (scrollSyncSource.current === 'right') return;
+    const peer = rightScrollRef.current;
+    if (!peer || Math.abs(peer.scrollTop - scrollTop) < 1) return;
+    scrollSyncSource.current = 'left';
+    peer.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollSyncSource.current === 'left') scrollSyncSource.current = null;
+      });
+    });
+  }, []);
+
+  const handleRightScroll = useCallback((scrollTop: number) => {
+    if (scrollSyncSource.current === 'left') return;
+    const peer = leftScrollRef.current;
+    if (!peer || Math.abs(peer.scrollTop - scrollTop) < 1) return;
+    scrollSyncSource.current = 'right';
+    peer.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollSyncSource.current === 'right') scrollSyncSource.current = null;
+      });
+    });
+  }, []);
+
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
     () => ({
@@ -540,6 +574,10 @@ export default function SideBySideView({
                         isGeneralDays={isGeneralDays}
                         setCalendarHeight={setCalendarHeight}
                         calendarLabel="Your Availability"
+                        currentStartPage={sharedPage}
+                        onPageChange={setSharedPage}
+                        scrollRef={leftScrollRef}
+                        onScroll={handleLeftScroll}
                       />
                     </div>
                   </div>
@@ -603,6 +641,10 @@ export default function SideBySideView({
                         setChartedUsers={setChartedUsers}
                         chartedUsers={chartedUsers}
                         calendarLabel="Group Availability"
+                        currentStartPage={sharedPage}
+                        onPageChange={setSharedPage}
+                        scrollRef={rightScrollRef}
+                        onScroll={handleRightScroll}
                       />
                     </div>
                   </div>
