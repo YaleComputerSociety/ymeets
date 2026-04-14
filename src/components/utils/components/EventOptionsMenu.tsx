@@ -96,7 +96,7 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
                 className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
               >
                 <IconX size={16} />
-                Remove Response
+                Decline Event 
               </button>
             )}
           </div>
@@ -112,16 +112,16 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
       />
 
       <DeletePopup
-        title="Remove Response"
-        message="Are you sure you want to remove this response? This will delete the time you have marked for this event, and delete this event from your list."
+        title="Decline Event"
+        message="Are you sure you want to decline this event? This will remove your availability and mark you as declined for this event."
         isOpen={showCancelPopup}
         onConfirm={async () => {
           setShowCancelPopup(false);
           if (onCancel) await onCancel();
         }}
         onCancel={() => setShowCancelPopup(false)}
-        confirmText="Remove"
-        cancelText="Go Back"
+        confirmText="Yes, decline event"
+        cancelText="No"
       />
     </>
   );
