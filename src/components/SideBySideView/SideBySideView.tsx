@@ -25,7 +25,7 @@ import SharedSidebar from './SharedSidebar';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
+import { IconArrowsMaximize, IconArrowsMinimize, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -143,6 +143,12 @@ export default function SideBySideView({
   const [expandedCalendar, setExpandedCalendar] = useState<
     'left' | 'right' | null
   >(null);
+
+  // Mobile tab state
+  const [mobileTab, setMobileTab] = useState<'yours' | 'group'>(
+    userHasSignedIn ? 'yours' : 'group'
+  );
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
 
   // Google Calendar hook for fetching events
   const { hasAccess, requestAccess, getEvents, getCalendars } =
@@ -436,6 +442,157 @@ export default function SideBySideView({
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
+      {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
+      <div className="lg:hidden flex flex-col">
+        {/* Tab bar */}
+        <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark sticky top-0 z-30">
+          {userHasSignedIn && (
+            <button
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                mobileTab === 'yours'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+              onClick={() => setMobileTab('yours')}
+            >
+              Your Availability
+            </button>
+          )}
+          <button
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              mobileTab === 'group'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-gray-500 dark:text-gray-400'
+            }`}
+            onClick={() => setMobileTab('group')}
+          >
+            Group Availability
+          </button>
+        </div>
+
+        {/* Calendar area */}
+        <div className="w-full">
+          {mobileTab === 'yours' && userHasSignedIn && (
+            <Calendar
+              compactMode={false}
+              theCalendarState={[
+                timeSelectCalendarState,
+                wrappedSetTimeSelectCalendarState,
+              ]}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              chartedUsersData={undefined}
+              draggable={true}
+              user={getCurrentUserIndex()}
+              isAdmin={false}
+              theDragState={[leftDragState, setLeftDragState]}
+              theGoogleCalendarEvents={[
+                googleCalendarEvents,
+                setGoogleCalendarEvents,
+              ]}
+              onClick={() => {}}
+              theShowUserChart={undefined}
+              isGeneralDays={isGeneralDays}
+              setCalendarHeight={setCalendarHeight}
+              calendarLabel="Your Availability"
+              currentStartPage={sharedPage}
+              onPageChange={setSharedPage}
+              scrollRef={leftScrollRef}
+              onScroll={handleLeftScroll}
+            />
+          )}
+          {mobileTab === 'group' && (
+            <Calendar
+              compactMode={false}
+              theCalendarState={[groupViewCalendarState, noop]}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+              draggable={false}
+              user={getCurrentUserIndex()}
+              isAdmin={true}
+              theDragState={[rightDragState, setRightDragState]}
+              theGoogleCalendarEvents={[[], noop]}
+              onClick={() => {
+                if (showUserChart === true) return;
+                setShowUserChart(true);
+                setTimeout(() => setShowUserChart(false), 3000);
+              }}
+              theShowUserChart={[showUserChart, setShowUserChart]}
+              isGeneralDays={false}
+              setChartedUsers={setChartedUsers}
+              chartedUsers={chartedUsers}
+              calendarLabel="Group Availability"
+              currentStartPage={sharedPage}
+              onPageChange={setSharedPage}
+              scrollRef={rightScrollRef}
+              onScroll={handleRightScroll}
+            />
+          )}
+        </div>
+
+        {/* Collapsible details panel */}
+        <div className="border-t border-gray-200 dark:border-gray-700">
+          <button
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50"
+            onClick={() => setMobileDetailsOpen((o) => !o)}
+          >
+            <span>Details</span>
+            {mobileDetailsOpen ? (
+              <IconChevronUp size={16} />
+            ) : (
+              <IconChevronDown size={16} />
+            )}
+          </button>
+          {mobileDetailsOpen && (
+            <div className="px-4 py-4">
+              <SharedSidebar
+                eventName={eventName}
+                eventDescription={eventDescription}
+                code={code}
+                isAdmin={isAdmin}
+                allPeople={allPeople}
+                declinedPeople={declinedPeople}
+                peopleStatus={peopleStatus}
+                setPeopleStatus={setPeopleStatus}
+                locationOptions={locationOptions}
+                locationVotes={locationVotes}
+                adminChosenLocation={adminChosenLocation}
+                setAdminChosenLocation={setAdminChosenLocation}
+                chartedUsers={chartedUsers}
+                setChartedUsers={setChartedUsers}
+                calendarHeight={calendarHeight}
+                participantToggleClicked={participantToggleClicked}
+                setParticipantToggleClicked={setParticipantToggleClicked}
+                googleCalendars={googleCalendars}
+                setGoogleCalendars={setGoogleCalendars}
+                selectedCalendarIds={selectedCalendarIds}
+                setSelectedCalendarIds={setSelectedCalendarIds}
+                selectedLocations={selectedLocations}
+                setSelectedLocations={wrappedSetSelectedLocations}
+                userHasSignedIn={userHasSignedIn}
+                onUserSignIn={() => setUserHasSignedIn(true)}
+                userHasFilled={userHasFilled}
+                onDecline={onDecline}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Floating save button */}
+        {userHasSignedIn && hasUnsavedChanges && (
+          <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 px-4">
+            <button
+              onClick={onSave}
+              disabled={isSaving}
+              className="w-full max-w-sm py-3 rounded-xl bg-primary text-white font-medium shadow-lg disabled:opacity-60"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── DESKTOP LAYOUT (hidden below lg) ── */}
+      <div className="hidden lg:block w-full">
       {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
       <div className="lg:grid lg:grid-cols-4 lg:gap-0 flex flex-col">
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
@@ -656,6 +813,7 @@ export default function SideBySideView({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
