@@ -21,11 +21,12 @@ import {
   updateAnonymousUserToAuthUser,
 } from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
+import DateBar from '../selectCalendarComponents/DateBar';
 import SharedSidebar from './SharedSidebar';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { IconArrowsMaximize, IconArrowsMinimize, IconArrowLeft, IconArrowRight, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -149,6 +150,50 @@ export default function SideBySideView({
     userHasSignedIn ? 'yours' : 'group'
   );
   const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
+
+  // Mobile sticky tab bar + calendar header logic
+  const [tabBarFixed, setTabBarFixed] = useState(false);
+  const [mobileColumnsPerPage, setMobileColumnsPerPage] = useState(4);
+  const tabBarSentinelRef = useRef<HTMLDivElement>(null); // top sentinel (where tab bar lives)
+  const calendarBottomSentinelRef = useRef<HTMLDivElement>(null); // bottom of calendar area
+
+  useEffect(() => {
+    const topSentinel = tabBarSentinelRef.current;
+    const bottomSentinel = calendarBottomSentinelRef.current;
+    if (!topSentinel || !bottomSentinel) return;
+
+    // Track how many sentinels are "above" the viewport
+    let topAbove = false;
+    let bottomAbove = false;
+
+    const update = () => {
+      // Fix tab bar only when top has scrolled off but bottom hasn't yet
+      setTabBarFixed(topAbove && !bottomAbove);
+    };
+
+    const topObs = new IntersectionObserver(
+      ([entry]) => {
+        topAbove = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        update();
+      },
+      { threshold: 0 }
+    );
+
+    const bottomObs = new IntersectionObserver(
+      ([entry]) => {
+        bottomAbove = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+        update();
+      },
+      { threshold: 0 }
+    );
+
+    topObs.observe(topSentinel);
+    bottomObs.observe(bottomSentinel);
+    return () => {
+      topObs.disconnect();
+      bottomObs.disconnect();
+    };
+  }, []);
 
   // Google Calendar hook for fetching events
   const { hasAccess, requestAccess, getEvents, getCalendars } =
@@ -444,31 +489,80 @@ export default function SideBySideView({
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
       <div className="lg:hidden flex flex-col">
-        {/* Tab bar */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark sticky top-0 z-30">
-          {userHasSignedIn && (
+        {/* Sentinel: top of tab bar — when this scrolls off screen, tab bar goes fixed */}
+        <div ref={tabBarSentinelRef} />
+
+        {/* Grouped sticky header: tabs + calendar nav arrows */}
+        <div
+          className={`bg-white dark:bg-background-dark z-30 ${
+            tabBarFixed ? 'fixed top-0 left-0 right-0' : 'relative'
+          }`}
+        >
+          {/* Tab row */}
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            {userHasSignedIn && (
+              <button
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  mobileTab === 'yours'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+                onClick={() => setMobileTab('yours')}
+              >
+                Your Availability
+              </button>
+            )}
             <button
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                mobileTab === 'yours'
+                mobileTab === 'group'
                   ? 'text-primary border-b-2 border-primary'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
-              onClick={() => setMobileTab('yours')}
+              onClick={() => setMobileTab('group')}
             >
-              Your Availability
+              Group Availability
             </button>
-          )}
-          <button
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${
-              mobileTab === 'group'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-            onClick={() => setMobileTab('group')}
-          >
-            Group Availability
-          </button>
+          </div>
+          {/* Calendar nav + date bar row — left/right offsets match the scroll container (pl-7 + 3rem time col, pr-9) */}
+          <div className="relative flex items-center bg-white dark:bg-secondary_background-dark">
+            {/* Left arrow — absolutely positioned at left edge */}
+            <div className="absolute left-0 flex items-center h-full">
+              {sharedPage !== 0 ? (
+                <IconArrowLeft
+                  onClick={() => setSharedPage(Math.max(sharedPage - mobileColumnsPerPage, 0))}
+                  size={45}
+                  className="text-outline dark:text-text-dark p-3 ml-3 rounded-lg cursor-pointer"
+                />
+              ) : (
+                <div className="p-3 h-11 w-11" />
+              )}
+            </div>
+            {/* Date bar — padded to align with calendar columns (pl-7 + 3rem time col on left, pr-9 on right) */}
+            <div className="w-full py-1" style={{ paddingLeft: 'calc(1.75rem + 3rem)', paddingRight: '2.25rem' }}>
+              <DateBar
+                dates={calendarFramework.dates.flat().slice(sharedPage, sharedPage + mobileColumnsPerPage)}
+                isGeneralDays={isGeneralDays}
+              />
+            </div>
+            {/* Right arrow — absolutely positioned at right edge */}
+            <div className="absolute right-0 flex items-center h-full">
+              {sharedPage + mobileColumnsPerPage < calendarFramework.dates.flat().length ? (
+                <IconArrowRight
+                  onClick={() => setSharedPage(Math.min(
+                    sharedPage + mobileColumnsPerPage,
+                    calendarFramework.dates.flat().length - mobileColumnsPerPage
+                  ))}
+                  size={45}
+                  className="text-outline dark:text-text-dark p-3 mr-3 rounded-lg cursor-pointer"
+                />
+              ) : (
+                <div className="p-3 h-11 w-11" />
+              )}
+            </div>
+          </div>
         </div>
+        {/* Spacer prevents layout jump when header goes fixed */}
+        {tabBarFixed && <div className="h-[90px]" />}
 
         {/* Calendar area */}
         <div className="w-full">
@@ -493,11 +587,13 @@ export default function SideBySideView({
               theShowUserChart={undefined}
               isGeneralDays={isGeneralDays}
               setCalendarHeight={setCalendarHeight}
-              calendarLabel="Your Availability"
               currentStartPage={sharedPage}
               onPageChange={setSharedPage}
               scrollRef={leftScrollRef}
               onScroll={handleLeftScroll}
+              hideHeader
+              hideDateBar
+              onColumnsPerPage={setMobileColumnsPerPage}
             />
           )}
           {mobileTab === 'group' && (
@@ -520,14 +616,18 @@ export default function SideBySideView({
               isGeneralDays={false}
               setChartedUsers={setChartedUsers}
               chartedUsers={chartedUsers}
-              calendarLabel="Group Availability"
               currentStartPage={sharedPage}
               onPageChange={setSharedPage}
               scrollRef={rightScrollRef}
               onScroll={handleRightScroll}
+              hideHeader
+              hideDateBar
+              onColumnsPerPage={setMobileColumnsPerPage}
             />
           )}
         </div>
+        {/* Sentinel: bottom of calendar — when this scrolls off top, tab bar un-fixes */}
+        <div ref={calendarBottomSentinelRef} />
 
         {/* Collapsible details panel */}
         <div className="border-t border-gray-200 dark:border-gray-700">

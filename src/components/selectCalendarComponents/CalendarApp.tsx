@@ -49,6 +49,9 @@ interface CalendarProps {
   onPageChange?: (page: number) => void;
   scrollRef?: React.RefObject<HTMLDivElement>;
   onScroll?: (scrollTop: number) => void;
+  hideHeader?: boolean;
+  hideDateBar?: boolean;
+  onColumnsPerPage?: (n: number) => void;
 }
 
 export default function Calendar({
@@ -72,6 +75,9 @@ export default function Calendar({
   onPageChange,
   scrollRef,
   onScroll,
+  hideHeader = false,
+  hideDateBar = false,
+  onColumnsPerPage,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
@@ -141,6 +147,10 @@ export default function Calendar({
     };
   }, [compactMode]);
 
+  React.useEffect(() => {
+    onColumnsPerPage?.(numberOfColumnsPerPage);
+  }, [numberOfColumnsPerPage, onColumnsPerPage]);
+
   const [internalStartPage, setInternalStartPage] = React.useState(0);
   const currentStartPage = controlledPage ?? internalStartPage;
 
@@ -175,37 +185,39 @@ export default function Calendar({
       }}
     ref={ref}
     >
-      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-30 p-0">
-        {currentStartPage !== 0 ? (
-          <IconArrowLeft
-            onClick={handlePrev}
-            size={45}
-            className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
-          />
-        ) : (
-          <div className="p-3 h-11 w-11 z-10"></div>
-        )}
+      {!hideHeader && (
+        <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-30 p-0">
+          {currentStartPage !== 0 ? (
+            <IconArrowLeft
+              onClick={handlePrev}
+              size={45}
+              className="text-outline dark:text-text-dark p-3 ml-8 lg:ml-0 rounded-lg cursor-pointer"
+            />
+          ) : (
+            <div className="p-3 h-11 w-11 z-10"></div>
+          )}
 
-        {calendarLabel && (
-          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-            {calendarLabel}
-          </span>
-        )}
+          {calendarLabel && (
+            <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+              {calendarLabel}
+            </span>
+          )}
 
-        {currentStartPage + numberOfColumnsPerPage <
-        calendarFramework.dates.flat().length ? (
-          <IconArrowRight
-            onClick={handleNext}
-            size={45}
-            className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
-          />
-        ) : (
-          <div className="p-3 h-11 w-11 z-10"></div>
-        )}
-      </div>
+          {currentStartPage + numberOfColumnsPerPage <
+          calendarFramework.dates.flat().length ? (
+            <IconArrowRight
+              onClick={handleNext}
+              size={45}
+              className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer"
+            />
+          ) : (
+            <div className="p-3 h-11 w-11 z-10"></div>
+          )}
+        </div>
+      )}
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative touch-pan-y"
       >
         <div
           style={{ width: '3.00rem', height: '2.50rem' }}
@@ -219,8 +231,8 @@ export default function Calendar({
           style={{ overscrollBehavior: 'none' }}
           onScroll={onScroll ? (e) => onScroll((e.target as HTMLDivElement).scrollTop) : undefined}
         >
-          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
-          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark">
+          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark touch-pan-y"></div>
+          <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark touch-pan-y">
             {/* handles aligning it with the cal */}
 
             <>
@@ -289,6 +301,7 @@ export default function Calendar({
               isGeneralDays={isGeneralDays}
               setChartedUsers={setChartedUsers}
               chartedUsers={chartedUsers}
+              hideDateBar={hideDateBar}
             />
           </div>
         </div>
