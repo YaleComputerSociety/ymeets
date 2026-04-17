@@ -502,21 +502,6 @@ export default function AccountsPage() {
           )
         ) : undefined}
 
-        <div className="flex items-center justify-center">
-          {checkIfLoggedIn() ? (
-            <button
-              onClick={() => {
-                logout();
-                nav('/');
-              }}
-              className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
-            >
-              Logout
-            </button>
-          ) : (
-            <LoginButton />
-          )}
-        </div>
       </div>
     </div>
   );
