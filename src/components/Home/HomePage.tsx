@@ -27,13 +27,13 @@ function AutofillDemo() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center justify-between mb-3 gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
+        <div className="flex items-center gap-2 min-w-0">
           <span className="w-2.5 h-2.5 rounded-full bg-green-500 dark:bg-green-400 flex-shrink-0"></span>
-          <span className="text-sm text-gray-600 dark:text-gray-300">Google Calendar</span>
-          <span className="text-sm text-green-600 dark:text-green-400 font-medium">Connected</span>
+          <span className="text-sm text-gray-600 dark:text-gray-300 truncate">Google Calendar</span>
+          <span className="text-sm text-green-600 dark:text-green-400 font-medium flex-shrink-0">Connected</span>
         </div>
-        <button className="px-4 py-1.5 bg-primary text-white font-semibold rounded-full text-sm whitespace-nowrap">
+        <button className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-1.5 bg-primary text-white font-semibold rounded-full text-sm">
           Autofill Availability
         </button>
       </div>
@@ -167,12 +167,12 @@ function EmailInvitesDemo() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+        <div className="w-full flex-1 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
           jordan@gmail.com
         </div>
         <button
-          className="px-3 py-2 text-white text-sm font-medium rounded-lg transition-all duration-150"
+          className="w-full sm:w-auto px-3 py-2 text-white text-sm font-medium rounded-lg transition-all duration-150"
           style={{
             backgroundColor: clicked ? 'rgb(29,78,216)' : 'var(--color-primary, #5191F2)',
             transform: clicked ? 'scale(0.93)' : 'scale(1)',
