@@ -30,6 +30,10 @@ import { runTransaction } from 'firebase/firestore';
 import { doTimezoneChange } from '../components/utils/functions/timzoneConversions';
 import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 import { AccountsPageEvent } from '../components/Accounts/AccountsPage';
+import {
+  removeCachedAccountEvent,
+  upsertCachedAccountEvent,
+} from '../components/Accounts/accountEventsCache';
 // ASSUME names are unique within an event
 
 let workingEvent: Event = {
@@ -193,6 +197,11 @@ async function deleteEvent(id: EventId): Promise<void> {
   });
 
   removeEventFromUserCollection(getAccountId(), id);
+  // Keep local account events cache in sync (Accounts page).
+  const accountId = getAccountId();
+  if (accountId) {
+    removeCachedAccountEvent(accountId, id);
+  }
 }
 
 // Structure of the userEvents array in the user document
@@ -371,6 +380,18 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
           userEvents: arrayUnion(eventDetailsForUser),
         })
           .then(() => {
+            const row: AccountsPageEvent = {
+              name: eventDetails.name,
+              id,
+              dates: 'TBD',
+              startTime: 'TBD',
+              endTime: 'TBD',
+              location: 'TBD',
+              iAmCreator: true,
+              dateCreated: new Date(),
+              lastModified: new Date(),
+            };
+            upsertCachedAccountEvent(eventDetails.adminAccountId, row);
             resolve(newEvent);
           })
           .catch((err) => {

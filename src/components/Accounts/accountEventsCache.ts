@@ -55,3 +55,28 @@ export function setCachedAccountEvents(
     // Ignore quota / private mode errors
   }
 }
+
+// Removes a single event from the cached account events list (if present).
+export function removeCachedAccountEvent(accountID: string, eventId: string): void {
+  const cached = getCachedAccountEvents(accountID);
+  if (cached == null) return;
+  const target = eventId.toUpperCase();
+  const next = cached.filter((e) => (e.id || '').toUpperCase() !== target);
+  setCachedAccountEvents(accountID, next);
+}
+
+// Adds or updates a single event row in the cached account events list.
+// If there is no existing cache, this will create it.
+export function upsertCachedAccountEvent(
+  accountID: string,
+  event: AccountsPageEvent
+): void {
+  const cached = getCachedAccountEvents(accountID) ?? [];
+  const target = (event.id || '').toUpperCase();
+  const existingIdx = cached.findIndex((e) => (e.id || '').toUpperCase() === target);
+  const next =
+    existingIdx === -1
+      ? [event, ...cached]
+      : cached.map((e) => ((e.id || '').toUpperCase() === target ? event : e));
+  setCachedAccountEvents(accountID, next);
+}
