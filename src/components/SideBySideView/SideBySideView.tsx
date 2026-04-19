@@ -149,48 +149,7 @@ export default function SideBySideView({
   const [mobileTab, setMobileTab] = useState<'yours' | 'group' | 'info'>('info');
 
   // Mobile sticky tab bar + calendar header logic
-  const [tabBarFixed, setTabBarFixed] = useState(false);
   const [mobileColumnsPerPage, setMobileColumnsPerPage] = useState(4);
-  const tabBarSentinelRef = useRef<HTMLDivElement>(null); // top sentinel (where tab bar lives)
-  const calendarBottomSentinelRef = useRef<HTMLDivElement>(null); // bottom of calendar area
-
-  useEffect(() => {
-    const topSentinel = tabBarSentinelRef.current;
-    const bottomSentinel = calendarBottomSentinelRef.current;
-    if (!topSentinel || !bottomSentinel) return;
-
-    // Track how many sentinels are "above" the viewport
-    let topAbove = false;
-    let bottomAbove = false;
-
-    const update = () => {
-      // Fix tab bar only when top has scrolled off but bottom hasn't yet
-      setTabBarFixed(topAbove && !bottomAbove);
-    };
-
-    const topObs = new IntersectionObserver(
-      ([entry]) => {
-        topAbove = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-        update();
-      },
-      { threshold: 0 }
-    );
-
-    const bottomObs = new IntersectionObserver(
-      ([entry]) => {
-        bottomAbove = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-        update();
-      },
-      { threshold: 0 }
-    );
-
-    topObs.observe(topSentinel);
-    bottomObs.observe(bottomSentinel);
-    return () => {
-      topObs.disconnect();
-      bottomObs.disconnect();
-    };
-  }, []);
 
   // Google Calendar hook for fetching events
   const { hasAccess, requestAccess, getEvents, getCalendars } =
@@ -486,15 +445,8 @@ export default function SideBySideView({
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
       <div className="lg:hidden flex flex-col">
-        {/* Sentinel: top of tab bar — when this scrolls off screen, tab bar goes fixed */}
-        <div ref={tabBarSentinelRef} />
-
         {/* Grouped sticky header: tabs + calendar nav arrows */}
-        <div
-          className={`bg-white dark:bg-background-dark z-30 ${
-            tabBarFixed ? 'fixed top-0 left-0 right-0' : 'relative'
-          }`}
-        >
+        <div className="sticky top-0 bg-white dark:bg-background-dark z-30">
           {/* Tab row */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
@@ -505,7 +457,7 @@ export default function SideBySideView({
               }`}
               onClick={() => setMobileTab('info')}
             >
-              Info
+              Event Info
             </button>
             {userHasSignedIn && (
               <button
@@ -568,9 +520,6 @@ export default function SideBySideView({
             </div>
           </div>
         </div>
-        {/* Spacer prevents layout jump when header goes fixed */}
-        {tabBarFixed && <div className="h-[90px]" />}
-
         {/* Calendar area */}
         <div className="w-full">
           {mobileTab === 'yours' && userHasSignedIn && (

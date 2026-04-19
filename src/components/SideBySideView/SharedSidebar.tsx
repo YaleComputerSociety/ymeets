@@ -212,7 +212,7 @@ export default function SharedSidebar({
         <div className="w-full">
           <div className="flex items-start justify-between gap-2">
             <div
-              className="text-3xl font-bold flex-1 min-w-0"
+              className="text-3xl font-bold flex-1 min-w-0 dark:text-white"
               style={{
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',

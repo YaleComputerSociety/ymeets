@@ -756,7 +756,7 @@ export default function CalBlock({
     <div
       ref={dragRef}
       id={`${columnID}-${blockID}`}
-      className={`cursor-pointer select-none flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
+      className={`cursor-pointer select-none flex-1 w-full p-0 h-4 ${draggable ? 'touch-none' : 'touch-pan-y'} relative border-r border-[#7E7E7E] ${
         is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
       } transition-colors duration-200 ease-in-out`}
       style={{
