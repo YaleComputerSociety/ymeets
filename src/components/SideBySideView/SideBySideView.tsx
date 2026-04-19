@@ -490,7 +490,7 @@ export default function SideBySideView({
                 <IconArrowLeft
                   onClick={() => setSharedPage(Math.max(sharedPage - mobileColumnsPerPage, 0))}
                   size={45}
-                  className="text-outline dark:text-text-dark p-3 ml-3 rounded-lg cursor-pointer"
+                  className="text-outline dark:text-text-dark p-3 ml-6 rounded-lg cursor-pointer"
                 />
               ) : (
                 <div className="p-3 h-11 w-11" />
