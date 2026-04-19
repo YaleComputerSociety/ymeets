@@ -24,6 +24,7 @@ interface UserChartProps {
     React.Dispatch<React.SetStateAction<boolean>>,
   ];
   calendarHeight: number | null;
+  hideHeader?: boolean;
 }
 
 /**
@@ -39,6 +40,7 @@ const UserChart: React.FC<UserChartProps> = ({
   thePeopleStatus,
   theParticipantToggleClicked,
   calendarHeight,
+  hideHeader = false,
 }) => {
   const [chartedUsers, setChartedUsers] = chartedUsersData || [
     { available: [], unavailable: [] },
@@ -101,26 +103,28 @@ const UserChart: React.FC<UserChartProps> = ({
       )}
       <div className="flex flex-row text-sm justify-center z-[9999] items-center text-center bg-white dark:bg-secondary_background-dark rounded-lg mb-3 md:mb-4 w-full overflow-y-auto">
         <table className="table-fixed border-collapse w-full">
-          <thead>
-            <tr>
-              <th
-                className="border-b p-3 text-primary"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    'Available (' + String(chartedUsers.available.length) + ')',
-                }}
-              ></th>
-              <th
-                className="border-b p-3 text-text dark:text-text-dark"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    'Unvailable (' +
-                    String(chartedUsers.unavailable.length) +
-                    ')',
-                }}
-              ></th>
-            </tr>
-          </thead>
+          {!hideHeader && (
+            <thead>
+              <tr>
+                <th
+                  className="border-b p-3 text-primary"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      'Available (' + String(chartedUsers.available.length) + ')',
+                  }}
+                ></th>
+                <th
+                  className="border-b p-3 text-text dark:text-text-dark"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      'Unvailable (' +
+                      String(chartedUsers.unavailable.length) +
+                      ')',
+                  }}
+                ></th>
+              </tr>
+            </thead>
+          )}
           <tbody>
             {rows.map(([available, unavailable], idx) => (
               <ChartRow

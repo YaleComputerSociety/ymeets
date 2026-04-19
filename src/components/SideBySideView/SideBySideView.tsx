@@ -521,8 +521,8 @@ export default function SideBySideView({
             </div>
           </div>
         </div>
-        {/* Calendar area */}
-        <div className="w-full">
+        {/* Calendar area — extra bottom padding when sheet is open so bottom cells remain reachable */}
+        <div className="w-full" style={mobileTab === 'group' && chartedUsers?.hovering ? { paddingBottom: '40vh' } : undefined}>
           {mobileTab === 'yours' && userHasSignedIn && (
             <Calendar
               compactMode={false}
@@ -619,33 +619,35 @@ export default function SideBySideView({
 
         {/* Bottom sheet: availability panel on group tab tap */}
         {mobileTab === 'group' && chartedUsers?.hovering && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() =>
-                setChartedUsers({ ...chartedUsers, hovering: false })
-              }
-            />
-            {/* Sheet */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-secondary_background-dark rounded-t-2xl shadow-2xl pt-3 pb-8 animate-sheet-up flex flex-col max-h-[40vh]">
-              <div
-                className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4 cursor-pointer"
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-secondary_background-dark rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] border-t border-gray-200 dark:border-gray-600 pb-8 animate-sheet-up flex flex-col max-h-[40vh]">
+            {/* Sticky header: Available / Unavailable counts + X */}
+            <div className="flex items-center border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-secondary_background-dark px-4">
+              <span className="flex-1 text-center text-sm font-semibold p-3 text-primary">
+                Available ({filteredChartedUsers.available?.length ?? 0})
+              </span>
+              <span className="flex-1 text-center text-sm font-semibold p-3 text-text dark:text-text-dark">
+                Unavailable ({filteredChartedUsers.unavailable?.length ?? 0})
+              </span>
+              <button
+                className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 text-xs font-bold flex-shrink-0"
                 onClick={() =>
                   setChartedUsers({ ...chartedUsers, hovering: false })
                 }
-              />
-              <div className="overflow-y-auto flex-1 px-4">
-                <UserChart
-                  chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                  allPeople={allPeople}
-                  theParticipantToggleClicked={[participantToggleClicked, setParticipantToggleClicked]}
-                  calendarHeight={calendarHeight ?? null}
-                />
-              </div>
+              >
+                ✕
+              </button>
             </div>
-          </>
+            <div className="overflow-y-auto flex-1 px-4">
+              <UserChart
+                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                allPeople={allPeople}
+                theParticipantToggleClicked={[participantToggleClicked, setParticipantToggleClicked]}
+                calendarHeight={calendarHeight ?? null}
+                hideHeader
+              />
+            </div>
+          </div>
         )}
 
         {/* Floating save button */}
