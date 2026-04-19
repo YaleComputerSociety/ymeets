@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import TimeSelectPage from '../TimeSelect/TimeSelectPage';
-import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
 import { SideBySideView } from '../SideBySideView';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import eventAPI from '../../backend/eventAPI';
 import {
   getEventOnPageload,
@@ -38,11 +36,7 @@ import { calendar_v3 } from 'googleapis';
 const notifiedEventsThisSession = new Set<string>();
 
 export default function UnifiedAvailabilityPage() {
-  const location = useLocation();
   const { code } = useParams();
-
-  const initialMode = location.state?.isEditing ?? false;
-  const [isEditing, setIsEditing] = useState(initialMode);
 
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -119,8 +113,6 @@ export default function UnifiedAvailabilityPage() {
     timeSelectCalendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
   );
   const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false);
-  const [promptUserForLogin, setPromptUserForLogin] = useState(false);
-
   const nav = useNavigate();
 
   // Get current user index for saving
@@ -301,123 +293,45 @@ export default function UnifiedAvailabilityPage() {
 
   return (
     <div>
-      {/* Desktop: Side-by-side view */}
-      <div className="hidden lg:block">
-        <SideBySideView
-          timeSelectCalendarState={timeSelectCalendarState}
-          setTimeSelectCalendarState={setTimeSelectCalendarState}
-          groupViewCalendarState={groupViewCalendarState}
-          calendarFramework={timeSelectCalendarFramework}
-          setCalendarFramework={setTimeSelectCalendarFramework}
-          chartedUsers={chartedUsers}
-          setChartedUsers={setChartedUsers}
-          allPeople={allPeople}
-          declinedPeople={declinedPeople}
-          allUsers={allUsers}
-          peopleStatus={peopleStatus}
-          setPeopleStatus={setPeopleStatus}
-          eventName={eventName}
-          eventDescription={eventDescription}
-          locationOptions={locationOptions}
-          locationVotes={locationVotes}
-          adminChosenLocation={adminChosenLocation}
-          setAdminChosenLocation={setAdminChosenLocation}
-          code={code}
-          isAdmin={isAdmin}
-          isGeneralDays={isGeneralDays}
-          googleCalendarEvents={googleCalendarEvents}
-          setGoogleCalendarEvents={setGoogleCalendarEvents}
-          googleCalendars={googleCalendars}
-          setGoogleCalendars={setGoogleCalendars}
-          selectedCalendarIds={selectedCalendarIds}
-          setSelectedCalendarIds={setSelectedCalendarIds}
-          selectedLocations={selectedLocations}
-          setSelectedLocations={setSelectedLocations}
-          userHasSignedIn={userHasSignedIn}
-          setUserHasSignedIn={setUserHasSignedIn}
-          onSave={handleSideBySideSave}
-          onDecline={() => fetchData(false)}
-          isSaving={isSaving}
-          userHasFilled={userHasFilled}
-          hasUnsavedChanges={hasUnsavedChanges}
-          setHasUnsavedChanges={setHasUnsavedChanges}
-        />
-      </div>
-
-      {/* Mobile: Current behavior (toggle between edit/view) */}
-      <div className="lg:hidden">
-        {isEditing ? (
-          <TimeSelectPage
-            isEditing={isEditing}
-            toggleEditing={() => {
-              setIsEditing(false);
-              fetchData(false);
-            }}
-            onFetchComplete={() => {
-              if (getAccountName() === '' || getAccountName() === undefined) {
-                setPromptUserForLogin(true);
-              }
-            }}
-            code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
-            calendarState={timeSelectCalendarState}
-            setCalendarState={setTimeSelectCalendarState}
-            calendarFramework={timeSelectCalendarFramework}
-            setCalendarFramework={setTimeSelectCalendarFramework}
-            loading={loading}
-            setLoading={setLoading}
-            eventName={eventName}
-            setEventName={setEventName}
-            eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
-            locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            areSelectingGeneralDays={areSelectingGeneralDays}
-            setAreSelectingGeneralDays={setAreSelectingGeneralDays}
-            isGeneralDays={isGeneralDays}
-            setIsGeneralDays={setIsGeneralDays}
-            hasAvailability={hasAvailability}
-            setHasAvailability={setHasAvailability}
-          />
-        ) : (
-          <ConditionalGroupViewRenderer
-            isEditing={isEditing}
-            toggleEditing={() => {
-              setIsEditing(true);
-              fetchData(false);
-            }}
-            calendarState={groupViewCalendarState}
-            setCalendarState={setGroupViewCalendarState}
-            calendarFramework={groupViewCalendarFramework}
-            setCalendarFramework={setGroupViewCalendarFramework}
-            code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
-            eventName={eventName}
-            setEventName={setEventName}
-            eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
-            locationVotes={locationVotes}
-            setLocationVotes={setLocationVotes}
-            locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
-            loading={loading}
-            setLoading={setLoading}
-            allPeople={allPeople}
-            setAllPeople={setAllPeople}
-            declinedPeople={declinedPeople}
-            peopleStatus={peopleStatus}
-            setPeopleStatus={setPeopleStatus}
-            allUsers={allUsers}
-            setAllUsers={setAllUsers}
-            userHasFilled={userHasFilled}
-            setUserHasFilled={setUserHasFilled}
-          />
-        )}
-      </div>
+      <SideBySideView
+        timeSelectCalendarState={timeSelectCalendarState}
+        setTimeSelectCalendarState={setTimeSelectCalendarState}
+        groupViewCalendarState={groupViewCalendarState}
+        calendarFramework={timeSelectCalendarFramework}
+        setCalendarFramework={setTimeSelectCalendarFramework}
+        chartedUsers={chartedUsers}
+        setChartedUsers={setChartedUsers}
+        allPeople={allPeople}
+        declinedPeople={declinedPeople}
+        allUsers={allUsers}
+        peopleStatus={peopleStatus}
+        setPeopleStatus={setPeopleStatus}
+        eventName={eventName}
+        eventDescription={eventDescription}
+        locationOptions={locationOptions}
+        locationVotes={locationVotes}
+        adminChosenLocation={adminChosenLocation}
+        setAdminChosenLocation={setAdminChosenLocation}
+        code={code}
+        isAdmin={isAdmin}
+        isGeneralDays={isGeneralDays}
+        googleCalendarEvents={googleCalendarEvents}
+        setGoogleCalendarEvents={setGoogleCalendarEvents}
+        googleCalendars={googleCalendars}
+        setGoogleCalendars={setGoogleCalendars}
+        selectedCalendarIds={selectedCalendarIds}
+        setSelectedCalendarIds={setSelectedCalendarIds}
+        selectedLocations={selectedLocations}
+        setSelectedLocations={setSelectedLocations}
+        userHasSignedIn={userHasSignedIn}
+        setUserHasSignedIn={setUserHasSignedIn}
+        onSave={handleSideBySideSave}
+        onDecline={() => fetchData(false)}
+        isSaving={isSaving}
+        userHasFilled={userHasFilled}
+        hasUnsavedChanges={hasUnsavedChanges}
+        setHasUnsavedChanges={setHasUnsavedChanges}
+      />
     </div>
   );
 }

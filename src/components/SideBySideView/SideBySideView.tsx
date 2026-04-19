@@ -21,11 +21,13 @@ import {
   updateAnonymousUserToAuthUser,
 } from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
+import DateBar from '../selectCalendarComponents/DateBar';
 import SharedSidebar from './SharedSidebar';
+import UserChart from '../GroupView/UserChart';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
+import { IconArrowsMaximize, IconArrowsMinimize, IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -143,6 +145,12 @@ export default function SideBySideView({
   const [expandedCalendar, setExpandedCalendar] = useState<
     'left' | 'right' | null
   >(null);
+
+  // Mobile tab state
+  const [mobileTab, setMobileTab] = useState<'yours' | 'group' | 'info'>('info');
+
+  // Mobile sticky tab bar + calendar header logic
+  const [mobileColumnsPerPage, setMobileColumnsPerPage] = useState(4);
 
   // Google Calendar hook for fetching events
   const { hasAccess, requestAccess, getEvents, getCalendars } =
@@ -436,6 +444,231 @@ export default function SideBySideView({
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
+      {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
+      <div className="lg:hidden flex flex-col">
+        {/* Grouped sticky header: tabs + calendar nav arrows */}
+        <div className="sticky top-0 bg-white dark:bg-background-dark z-30">
+          {/* Tab row */}
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                mobileTab === 'info'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+              onClick={() => setMobileTab('info')}
+            >
+              Event Info
+            </button>
+            {userHasSignedIn && (
+              <button
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                  mobileTab === 'yours'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+                onClick={() => setMobileTab('yours')}
+              >
+                Your Availability
+              </button>
+            )}
+            <button
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                mobileTab === 'group'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+              onClick={() => setMobileTab('group')}
+            >
+              Group Availability
+            </button>
+          </div>
+          {/* Calendar nav + date bar row — left/right offsets match the scroll container (pl-7 + 3rem time col, pr-9) */}
+          <div className={`relative flex items-center bg-white dark:bg-secondary_background-dark ${mobileTab === 'info' ? 'hidden' : ''}`}>
+            {/* Left arrow — absolutely positioned at left edge */}
+            <div className="absolute left-0 flex items-center h-full">
+              {sharedPage !== 0 ? (
+                <IconArrowLeft
+                  onClick={() => setSharedPage(Math.max(sharedPage - mobileColumnsPerPage, 0))}
+                  size={45}
+                  className="text-outline dark:text-text-dark p-3 ml-6 rounded-lg cursor-pointer"
+                />
+              ) : (
+                <div className="p-3 h-11 w-11" />
+              )}
+            </div>
+            {/* Date bar — padded to align with calendar columns (pl-7 + 3rem time col on left, pr-9 on right) */}
+            <div className="w-full py-1" style={{ paddingLeft: 'calc(1.75rem + 3rem)', paddingRight: '2.25rem' }}>
+              <DateBar
+                dates={calendarFramework.dates.flat().slice(sharedPage, sharedPage + mobileColumnsPerPage)}
+                isGeneralDays={isGeneralDays}
+              />
+            </div>
+            {/* Right arrow — absolutely positioned at right edge */}
+            <div className="absolute right-0 flex items-center h-full">
+              {sharedPage + mobileColumnsPerPage < calendarFramework.dates.flat().length ? (
+                <IconArrowRight
+                  onClick={() => setSharedPage(Math.min(
+                    sharedPage + mobileColumnsPerPage,
+                    calendarFramework.dates.flat().length - mobileColumnsPerPage
+                  ))}
+                  size={45}
+                  className="text-outline dark:text-text-dark p-3 mr-3 rounded-lg cursor-pointer"
+                />
+              ) : (
+                <div className="p-3 h-11 w-11" />
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Calendar area — extra bottom padding when sheet is open so bottom cells remain reachable */}
+        <div className="w-full" style={mobileTab === 'group' && chartedUsers?.hovering ? { paddingBottom: '40vh' } : undefined}>
+          {mobileTab === 'yours' && userHasSignedIn && (
+            <Calendar
+              compactMode={false}
+              theCalendarState={[
+                timeSelectCalendarState,
+                wrappedSetTimeSelectCalendarState,
+              ]}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              chartedUsersData={undefined}
+              draggable={true}
+              user={getCurrentUserIndex()}
+              isAdmin={false}
+              theDragState={[leftDragState, setLeftDragState]}
+              theGoogleCalendarEvents={[
+                googleCalendarEvents,
+                setGoogleCalendarEvents,
+              ]}
+              onClick={() => {}}
+              theShowUserChart={undefined}
+              isGeneralDays={isGeneralDays}
+              setCalendarHeight={setCalendarHeight}
+              currentStartPage={sharedPage}
+              onPageChange={setSharedPage}
+              scrollRef={leftScrollRef}
+              onScroll={handleLeftScroll}
+              hideHeader
+              hideDateBar
+              onColumnsPerPage={setMobileColumnsPerPage}
+            />
+          )}
+          {mobileTab === 'group' && (
+            <Calendar
+              compactMode={false}
+              theCalendarState={[groupViewCalendarState, noop]}
+              theCalendarFramework={[calendarFramework, setCalendarFramework]}
+              chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+              draggable={false}
+              user={getCurrentUserIndex()}
+              isAdmin={true}
+              theDragState={[rightDragState, setRightDragState]}
+              theGoogleCalendarEvents={[[], noop]}
+              onClick={() => {
+                if (showUserChart === true) return;
+                setShowUserChart(true);
+                setTimeout(() => setShowUserChart(false), 3000);
+              }}
+              theShowUserChart={[showUserChart, setShowUserChart]}
+              isGeneralDays={false}
+              setChartedUsers={setChartedUsers}
+              chartedUsers={chartedUsers}
+              currentStartPage={sharedPage}
+              onPageChange={setSharedPage}
+              scrollRef={rightScrollRef}
+              onScroll={handleRightScroll}
+              hideHeader
+              hideDateBar
+              onColumnsPerPage={setMobileColumnsPerPage}
+            />
+          )}
+          {mobileTab === 'info' && (
+            <div className="px-4 py-4">
+              <SharedSidebar
+                eventName={eventName}
+                eventDescription={eventDescription}
+                code={code}
+                isAdmin={isAdmin}
+                allPeople={allPeople}
+                declinedPeople={declinedPeople}
+                peopleStatus={peopleStatus}
+                setPeopleStatus={setPeopleStatus}
+                locationOptions={locationOptions}
+                locationVotes={locationVotes}
+                adminChosenLocation={adminChosenLocation}
+                setAdminChosenLocation={setAdminChosenLocation}
+                chartedUsers={chartedUsers}
+                setChartedUsers={setChartedUsers}
+                calendarHeight={calendarHeight}
+                participantToggleClicked={participantToggleClicked}
+                setParticipantToggleClicked={setParticipantToggleClicked}
+                googleCalendars={googleCalendars}
+                setGoogleCalendars={setGoogleCalendars}
+                selectedCalendarIds={selectedCalendarIds}
+                setSelectedCalendarIds={setSelectedCalendarIds}
+                selectedLocations={selectedLocations}
+                setSelectedLocations={wrappedSetSelectedLocations}
+                userHasSignedIn={userHasSignedIn}
+                onUserSignIn={() => setUserHasSignedIn(true)}
+                userHasFilled={userHasFilled}
+                onDecline={onDecline}
+                hideUserChart
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom sheet: availability panel on group tab tap */}
+        {mobileTab === 'group' && chartedUsers?.hovering && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-secondary_background-dark rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] border-t border-gray-200 dark:border-gray-600 pb-8 animate-sheet-up flex flex-col max-h-[40vh]">
+            {/* Sticky header: Available / Unavailable counts + X */}
+            <div className="relative border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-secondary_background-dark">
+              <div className="flex">
+                <span className="flex-1 text-center text-sm font-semibold p-3 text-primary">
+                  Available ({filteredChartedUsers.available?.length ?? 0})
+                </span>
+                <span className="flex-1 text-center text-sm font-semibold p-3 text-text dark:text-text-dark">
+                  Unavailable ({filteredChartedUsers.unavailable?.length ?? 0})
+                </span>
+              </div>
+              <button
+                className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 text-xs font-bold"
+                onClick={() =>
+                  setChartedUsers({ ...chartedUsers, hovering: false })
+                }
+              >
+                ✕
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-4">
+              <UserChart
+                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                allPeople={allPeople}
+                theParticipantToggleClicked={[participantToggleClicked, setParticipantToggleClicked]}
+                calendarHeight={calendarHeight ?? null}
+                hideHeader
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Floating save button */}
+        {userHasSignedIn && hasUnsavedChanges && (
+          <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 px-4">
+            <button
+              onClick={onSave}
+              disabled={isSaving}
+              className="w-full max-w-sm py-3 rounded-xl bg-primary text-white font-medium shadow-lg disabled:opacity-60"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── DESKTOP LAYOUT (hidden below lg) ── */}
+      <div className="hidden lg:block w-full">
       {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
       <div className="lg:grid lg:grid-cols-4 lg:gap-0 flex flex-col">
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
@@ -656,6 +889,7 @@ export default function SideBySideView({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

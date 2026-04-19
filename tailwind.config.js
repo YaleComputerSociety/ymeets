@@ -23,6 +23,10 @@ module.exports = {
           '0%': { opacity: '0', transform: 'translateY(30px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' }
         },
+        'sheet-up': {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' }
+        },
         'slide-in-right': {
           '0%': { opacity: '0', transform: 'translateX(30px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' }
@@ -40,6 +44,7 @@ module.exports = {
         'slide-up-delay-1': 'slide-up 0.6s ease-out 0.1s forwards',
         'slide-up-delay-2': 'slide-up 0.6s ease-out 0.2s forwards',
         'slide-up-delay-3': 'slide-up 0.6s ease-out 0.3s forwards',
+        'sheet-up': 'sheet-up 0.25s ease-out forwards',
         'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
         'float': 'float 3s ease-in-out infinite'
       },

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconDotsVertical, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react';
 import { deleteEvent } from '../../../backend/events';
 import DeletePopup from './DeletePopup';
 
@@ -11,7 +16,12 @@ interface EventOptionsMenuProps {
   onCancel?: () => Promise<void>;
 }
 
-export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, onCancel }: EventOptionsMenuProps) {
+export default function EventOptionsMenu({
+  eventCode,
+  isAdmin,
+  userHasFilled,
+  onCancel,
+}: EventOptionsMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showCancelPopup, setShowCancelPopup] = useState(false);
@@ -56,7 +66,10 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
           className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           aria-label="Event options"
         >
-          <IconDotsVertical size={20} className="text-gray-500 dark:text-gray-400" />
+          <IconDotsVertical
+            size={20}
+            className="text-gray-500 dark:text-gray-400"
+          />
         </button>
         {isMenuOpen && (
           <div
@@ -96,7 +109,7 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
                 className="w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
               >
                 <IconX size={16} />
-                Decline Event 
+                Decline Event
               </button>
             )}
           </div>

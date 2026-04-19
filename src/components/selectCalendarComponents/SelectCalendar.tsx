@@ -57,6 +57,7 @@ interface SelectCalanderProps {
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
   chartedUsers?: userData;
+  hideDateBar?: boolean;
 }
 
 function SelectCalander({
@@ -77,6 +78,7 @@ function SelectCalander({
   isGeneralDays,
   setChartedUsers,
   chartedUsers,
+  hideDateBar = false,
 }: SelectCalanderProps) {
   const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
@@ -130,12 +132,14 @@ const handleDisappear = useCallback(() => {
   return (
     <div className="min-h-0 max-h-none" ref={calendarRef}>
       <div className="flex flex-col">
-        <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px] -ml-12">
-          <div className="bg-white dark:bg-secondary_background-dark w-full flex pl-12">
-            <div className="bg-white dark:bg-secondary_background-dark z-50 h-6"></div>
-            <DateBar dates={bucket} isGeneralDays={isGeneralDays} />
+        {!hideDateBar && (
+          <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px] -ml-12">
+            <div className="bg-white dark:bg-secondary_background-dark w-full flex pl-12">
+              <div className="bg-white dark:bg-secondary_background-dark z-50 h-6"></div>
+              <DateBar dates={bucket} isGeneralDays={isGeneralDays} />
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <div className="h-px bg-[#7E7E7E]"></div>
