@@ -23,6 +23,7 @@ import {
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import DateBar from '../selectCalendarComponents/DateBar';
 import SharedSidebar from './SharedSidebar';
+import UserChart from '../GroupView/UserChart';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
@@ -615,6 +616,37 @@ export default function SideBySideView({
             </div>
           )}
         </div>
+
+        {/* Bottom sheet: availability panel on group tab tap */}
+        {mobileTab === 'group' && chartedUsers?.hovering && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() =>
+                setChartedUsers({ ...chartedUsers, hovering: false })
+              }
+            />
+            {/* Sheet */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-secondary_background-dark rounded-t-2xl shadow-2xl pt-3 pb-8 animate-sheet-up flex flex-col max-h-[40vh]">
+              <div
+                className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4 cursor-pointer"
+                onClick={() =>
+                  setChartedUsers({ ...chartedUsers, hovering: false })
+                }
+              />
+              <div className="overflow-y-auto flex-1 px-4">
+                <UserChart
+                  chartedUsersData={[filteredChartedUsers, setChartedUsers]}
+                  thePeopleStatus={[peopleStatus, setPeopleStatus]}
+                  allPeople={allPeople}
+                  theParticipantToggleClicked={[participantToggleClicked, setParticipantToggleClicked]}
+                  calendarHeight={calendarHeight ?? null}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Floating save button */}
         {userHasSignedIn && hasUnsavedChanges && (
