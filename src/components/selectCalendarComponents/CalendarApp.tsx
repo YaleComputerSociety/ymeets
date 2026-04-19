@@ -181,7 +181,6 @@ export default function Calendar({
     <div className="flex flex-col space-y-0 mb-2"
     onMouseLeave={() => {
         handleStopHover();
-        console.log("Mouse Left Calendar");
       }}
     ref={ref}
     >

@@ -79,6 +79,7 @@ interface SharedSidebarProps {
 
   userHasFilled: boolean;
   onDecline: () => void;
+  hideUserChart?: boolean;
 }
 
 export default function SharedSidebar({
@@ -109,8 +110,10 @@ export default function SharedSidebar({
   onUserSignIn,
   userHasFilled,
   onDecline,
+  hideUserChart = false,
 }: SharedSidebarProps) {
   const navigate = useNavigate();
+  const hovering = hideUserChart ? false : (chartedUsers?.hovering ?? false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
@@ -208,7 +211,7 @@ export default function SharedSidebar({
       />
 
       {/* Event Title & Description */}
-      {!chartedUsers?.hovering && (
+      {!hovering && (
         <div className="w-full">
           <div className="flex items-start justify-between gap-2">
             <div
@@ -246,7 +249,7 @@ export default function SharedSidebar({
       )}
 
       {/* Add My Availability Button - shown when user is not signed in */}
-      {!chartedUsers?.hovering && !userHasSignedIn && (
+      {!hovering && !userHasSignedIn && (
         <div className="w-full">
           <ButtonSmall
             bgColor="primary"
@@ -260,7 +263,7 @@ export default function SharedSidebar({
       )}
 
       {/* Share Section */}
-      {!chartedUsers?.hovering && (
+      {!hovering && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Share
@@ -282,7 +285,7 @@ export default function SharedSidebar({
       )}
 
       {/* Admin Settings Section */}
-      {isAdmin && !chartedUsers?.hovering && (
+      {isAdmin && !hovering && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Settings
@@ -318,7 +321,7 @@ export default function SharedSidebar({
 
 
       {/* Google Calendar Section - only show when user is signed in */}
-      {!chartedUsers?.hovering && userHasSignedIn && (
+      {!hovering && userHasSignedIn && (
         <div className="w-full">
           <div
             className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer"
@@ -394,7 +397,7 @@ export default function SharedSidebar({
       )}
 
       {/* Decline Button - only shown when user hasnt filled availability yet. once filled it moves to the dropdown */}
-      {!chartedUsers?.hovering && !isAdmin && userHasSignedIn && getAccountId() !== '' && !userHasFilled && (
+      {!hovering && !isAdmin && userHasSignedIn && getAccountId() !== '' && !userHasFilled && (
         <div>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between cursor-pointer">
             Decline Invitation{' '}
@@ -420,7 +423,7 @@ export default function SharedSidebar({
       
 
       {/* Participants Section */}
-      {!chartedUsers?.hovering && allPeople && allPeople.length > 0 && (
+      {!hovering && allPeople && allPeople.length > 0 && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Participants (
@@ -495,7 +498,7 @@ export default function SharedSidebar({
 
 
       {/* Locations Section - grouped together */}
-      {locationOptions.length > 0 && !chartedUsers?.hovering && (
+      {locationOptions.length > 0 && !hovering && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             Locations
@@ -536,7 +539,7 @@ export default function SharedSidebar({
       )}
 
       {/* Hover User Chart - shows available/unavailable when hovering on calendar */}
-      {chartedUsers?.hovering && (
+      {!hideUserChart && chartedUsers?.hovering && (
         <div className="w-full">
           <UserChart
             chartedUsersData={[filteredChartedUsers, setChartedUsers]}

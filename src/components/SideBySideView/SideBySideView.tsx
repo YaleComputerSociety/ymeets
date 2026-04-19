@@ -612,6 +612,7 @@ export default function SideBySideView({
                 onUserSignIn={() => setUserHasSignedIn(true)}
                 userHasFilled={userHasFilled}
                 onDecline={onDecline}
+                hideUserChart
               />
             </div>
           )}
@@ -621,15 +622,17 @@ export default function SideBySideView({
         {mobileTab === 'group' && chartedUsers?.hovering && (
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-secondary_background-dark rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] border-t border-gray-200 dark:border-gray-600 pb-8 animate-sheet-up flex flex-col max-h-[40vh]">
             {/* Sticky header: Available / Unavailable counts + X */}
-            <div className="flex items-center border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-secondary_background-dark px-4">
-              <span className="flex-1 text-center text-sm font-semibold p-3 text-primary">
-                Available ({filteredChartedUsers.available?.length ?? 0})
-              </span>
-              <span className="flex-1 text-center text-sm font-semibold p-3 text-text dark:text-text-dark">
-                Unavailable ({filteredChartedUsers.unavailable?.length ?? 0})
-              </span>
+            <div className="relative border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-secondary_background-dark">
+              <div className="flex">
+                <span className="flex-1 text-center text-sm font-semibold p-3 text-primary">
+                  Available ({filteredChartedUsers.available?.length ?? 0})
+                </span>
+                <span className="flex-1 text-center text-sm font-semibold p-3 text-text dark:text-text-dark">
+                  Unavailable ({filteredChartedUsers.unavailable?.length ?? 0})
+                </span>
+              </div>
               <button
-                className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 text-xs font-bold flex-shrink-0"
+                className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 text-xs font-bold"
                 onClick={() =>
                   setChartedUsers({ ...chartedUsers, hovering: false })
                 }
