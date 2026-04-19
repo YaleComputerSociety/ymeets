@@ -227,8 +227,7 @@ export default function Calendar({
         <div
           ref={scrollRef}
           data-calendar-scroll-container="true"
-          className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full min-h-0 h-full max-h-none lg:max-h-140 overflow-y-auto overscroll-none touch-pan-y sm:pb-4 md:bg-white rounded-lg rounded-tr-none pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600"
-          style={{ overscrollBehavior: 'none' }}
+          className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full min-h-0 h-full max-h-none lg:max-h-140 overflow-y-auto lg:overscroll-none touch-pan-y sm:pb-4 md:bg-white rounded-lg rounded-tr-none pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600"
           onScroll={onScroll ? (e) => onScroll((e.target as HTMLDivElement).scrollTop) : undefined}
         >
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark touch-pan-y"></div>
