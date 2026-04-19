@@ -26,7 +26,7 @@ import SharedSidebar from './SharedSidebar';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize, IconArrowLeft, IconArrowRight, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { IconArrowsMaximize, IconArrowsMinimize, IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -146,10 +146,7 @@ export default function SideBySideView({
   >(null);
 
   // Mobile tab state
-  const [mobileTab, setMobileTab] = useState<'yours' | 'group'>(
-    userHasSignedIn ? 'yours' : 'group'
-  );
-  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'yours' | 'group' | 'info'>('info');
 
   // Mobile sticky tab bar + calendar header logic
   const [tabBarFixed, setTabBarFixed] = useState(false);
@@ -500,9 +497,19 @@ export default function SideBySideView({
         >
           {/* Tab row */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                mobileTab === 'info'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+              onClick={() => setMobileTab('info')}
+            >
+              Info
+            </button>
             {userHasSignedIn && (
               <button
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
                   mobileTab === 'yours'
                     ? 'text-primary border-b-2 border-primary'
                     : 'text-gray-500 dark:text-gray-400'
@@ -513,7 +520,7 @@ export default function SideBySideView({
               </button>
             )}
             <button
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
                 mobileTab === 'group'
                   ? 'text-primary border-b-2 border-primary'
                   : 'text-gray-500 dark:text-gray-400'
@@ -524,7 +531,7 @@ export default function SideBySideView({
             </button>
           </div>
           {/* Calendar nav + date bar row — left/right offsets match the scroll container (pl-7 + 3rem time col, pr-9) */}
-          <div className="relative flex items-center bg-white dark:bg-secondary_background-dark">
+          <div className={`relative flex items-center bg-white dark:bg-secondary_background-dark ${mobileTab === 'info' ? 'hidden' : ''}`}>
             {/* Left arrow — absolutely positioned at left edge */}
             <div className="absolute left-0 flex items-center h-full">
               {sharedPage !== 0 ? (
@@ -625,24 +632,7 @@ export default function SideBySideView({
               onColumnsPerPage={setMobileColumnsPerPage}
             />
           )}
-        </div>
-        {/* Sentinel: bottom of calendar — when this scrolls off top, tab bar un-fixes */}
-        <div ref={calendarBottomSentinelRef} />
-
-        {/* Collapsible details panel */}
-        <div className="border-t border-gray-200 dark:border-gray-700">
-          <button
-            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50"
-            onClick={() => setMobileDetailsOpen((o) => !o)}
-          >
-            <span>Details</span>
-            {mobileDetailsOpen ? (
-              <IconChevronUp size={16} />
-            ) : (
-              <IconChevronDown size={16} />
-            )}
-          </button>
-          {mobileDetailsOpen && (
+          {mobileTab === 'info' && (
             <div className="px-4 py-4">
               <SharedSidebar
                 eventName={eventName}
