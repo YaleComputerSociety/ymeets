@@ -6,7 +6,7 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
   let endHour = endTime.getHours();
   let endMinute = endTime.getMinutes();
 
-  const timeBlocks2D = [];
+  const timeBlocks2D: string[][] = [];
 
   // Special case: 12 AM to 12 AM (full 24-hour period)
   const isFullDay = startHour === 0 && startMinute === 0 && endHour === 0 && endMinute === 0;
@@ -16,7 +16,7 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
   
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const hourBlocks = [];
+    const hourBlocks: string[] = [];
 
     for (let i = 0; i < 4; i++) {
       const minutes = hour * 60 + i * 15;
