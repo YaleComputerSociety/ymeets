@@ -96,7 +96,7 @@ Run the Firebase emulator locally:
 npm run serve
 ```
 
-Check types submitting a PR:
+Check types, ideally before submitting a PR:
 ```bash
 npm run typeCheck
 ```
