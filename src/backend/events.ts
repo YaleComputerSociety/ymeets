@@ -1030,7 +1030,7 @@ async function setNewDates(newDates: Date[] | undefined) {
       workingEvent.details.startTime,
       workingEvent.details.endTime
     );
-    let availability = [];
+    let availability: Availability = [];
     for (let i = 0; i < timeBlocks.length; i++) {
       availability.push(new Array(newDates.length).fill(false));
     }
