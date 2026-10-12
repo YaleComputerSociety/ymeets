@@ -8,7 +8,7 @@ import {
 } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
-  calanderState,
+  calendarState,
   userData,
   calendarDimensions,
   dragProperties,
@@ -88,8 +88,8 @@ export default function GroupViewPage({
   isAdmin: boolean;
   isEditing: boolean;
   toggleEditing: () => void;
-  calendarState: calanderState;
-  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarState: calendarState;
+  setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   code: string | undefined;

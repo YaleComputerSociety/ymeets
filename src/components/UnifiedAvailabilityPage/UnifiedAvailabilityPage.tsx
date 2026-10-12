@@ -24,7 +24,7 @@ import {
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
-  calanderState,
+  calendarState,
   userData,
   calendarDimensions,
   Availability,
@@ -73,7 +73,7 @@ export default function UnifiedAvailabilityPage() {
 
   // groupview states
   const [groupViewCalendarState, setGroupViewCalendarState] =
-    useState<calanderState>([]);
+    useState<calendarState>([]);
   const [groupViewCalendarFramework, setGroupViewCalendarFramework] =
     useState<calendarDimensions>({
       dates: [],
@@ -104,7 +104,7 @@ export default function UnifiedAvailabilityPage() {
 
   // time select states
   const [timeSelectCalendarState, setTimeSelectCalendarState] =
-    useState<calanderState>([]);
+    useState<calendarState>([]);
   const [timeSelectCalendarFramework, setTimeSelectCalendarFramework] =
     useState<calendarDimensions>({
       dates: [],

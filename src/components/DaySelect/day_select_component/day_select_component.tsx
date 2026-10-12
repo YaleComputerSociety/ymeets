@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
-import CalanderComponent from '../calander_component';
+import CalendarComponent from '../calendar_component';
 import frontendEventAPI from '../../../backend/eventAPI';
 import {
   getAccountId,
@@ -554,7 +554,7 @@ export const DaySelectComponent = () => {
             </div>
 
             <div className="mx-auto rounded-lg border border-gray-300 dark:border-gray-600">
-              <CalanderComponent
+              <CalendarComponent
                 theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
                 theGeneralDays={[selectedDays, setSelectedDays]}
                 theEventName={[eventName, setEventName]}

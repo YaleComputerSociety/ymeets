@@ -2,7 +2,7 @@ import { checkIfAdmin, getEventOnPageload } from '../../backend/events';
 import GroupViewPage from './GroupViewPage';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { calanderState, calendarDimensions, userData } from '../../types';
+import { calendarState, calendarDimensions, userData } from '../../types';
 /**
  *
  * Determines which Group View to render depending on if an admin is logged in or not.
@@ -43,8 +43,8 @@ export default function ConditionalGroupViewRenderer({
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
-  calendarState: calanderState;
-  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarState: calendarState;
+  setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   code: string | undefined;

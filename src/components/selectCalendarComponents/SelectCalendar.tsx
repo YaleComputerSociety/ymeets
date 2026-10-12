@@ -5,9 +5,9 @@ import React, {
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
-  calandarDate,
+  calendarDate,
   calendarDimensions,
-  calanderState,
+  calendarState,
   userData,
 } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -19,17 +19,17 @@ import { useCallback } from 'react';
 import { useEffect } from 'react';
 import { set } from 'lodash';
 
-interface SelectCalanderProps {
+interface SelectCalendarProps {
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   isAdmin?: boolean;
-  bucket: calandarDate[];
+  bucket: calendarDate[];
   columnIndexOffset: number;
   user: number;
   startDate: Date;
@@ -59,7 +59,7 @@ interface SelectCalanderProps {
   chartedUsers?: userData;
 }
 
-function SelectCalander({
+function SelectCalendar({
   theCalendarState,
   chartedUsersData,
   theCalendarFramework,
@@ -77,7 +77,7 @@ function SelectCalander({
   isGeneralDays,
   setChartedUsers,
   chartedUsers,
-}: SelectCalanderProps) {
+}: SelectCalendarProps) {
   const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
   );
@@ -203,4 +203,4 @@ const handleDisappear = useCallback(() => {
   );
 }
 
-export default SelectCalander;
+export default SelectCalendar;
