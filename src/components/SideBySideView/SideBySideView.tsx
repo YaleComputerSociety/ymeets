@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
-  calanderState,
+  calendarState,
   userData,
   calendarDimensions,
   dragProperties,
@@ -38,9 +38,9 @@ interface Calendar {
 
 interface SideBySideViewProps {
   // Calendar states
-  timeSelectCalendarState: calanderState;
-  setTimeSelectCalendarState: Dispatch<SetStateAction<calanderState>>;
-  groupViewCalendarState: calanderState;
+  timeSelectCalendarState: calendarState;
+  setTimeSelectCalendarState: Dispatch<SetStateAction<calendarState>>;
+  groupViewCalendarState: calendarState;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
 
@@ -311,7 +311,7 @@ export default function SideBySideView({
 
   // Wrapped setter that marks changes as unsaved
   const wrappedSetTimeSelectCalendarState: Dispatch<
-    SetStateAction<calanderState>
+    SetStateAction<calendarState>
   > = useCallback(
     (action) => {
       setTimeSelectCalendarState(action);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
-  calanderState,
+  calendarState,
   userData,
   user,
   calendarDimensions,
@@ -14,8 +14,8 @@ interface CalBlockProps {
   blockID: number;
   columnID: number;
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   theCalendarFramework: [
     calendarDimensions,

@@ -1,9 +1,9 @@
 import {
   calendarDimensions,
-  calanderState,
+  calendarState,
   userData,
   calendar,
-  calandarDate,
+  calendarDate,
   Availability,
   Location,
   Event,
@@ -25,8 +25,8 @@ import { getUserTimezone } from '../components/utils/functions/timzoneConversion
 
 interface testData {
   userData: userData;
-  scheduleDataEmpty: calanderState;
-  scheduleDataFull: calanderState;
+  scheduleDataEmpty: calendarState;
+  scheduleDataFull: calendarState;
   dateData: calendarDimensions;
 }
 
@@ -36,7 +36,7 @@ export default class FrontendEventAPI {
   /**
    *
    * Returns an empty avaliability for a single user that conforms
-   * to a specific calander dimension.
+   * to a specific calendar dimension.
    *
    * @param dims
    * @returns Availability type
@@ -57,7 +57,7 @@ export default class FrontendEventAPI {
   /**
    *
    * Creates a new event in the backend. Events are objects that contain information that can form
-   * a calanderFramework.
+   * a calendarFramework.
    *
    * @param title
    * @param description
@@ -549,14 +549,14 @@ export default class FrontendEventAPI {
 
   /**
    *
-   * Obtain the calander dimension from the working event.
+   * Obtain the calendar dimension from the working event.
    *
    * @returns
    */
   static getCalendarDimensions(): calendarDimensions {
     const theDates: Date[] = getDates();
-    const theCalendarDates: calandarDate[][] = [];
-    let curCalendarBucket: calandarDate[] = [];
+    const theCalendarDates: calendarDate[][] = [];
+    let curCalendarBucket: calendarDate[] = [];
     const numOfCols = theDates.length;
 
     const startAndEndTimes = getStartAndEndTimes();
@@ -598,7 +598,7 @@ export default class FrontendEventAPI {
           curCalendarBucket.push({
             id: i,
             shortenedWeekDay: getShortDay[theDates[i].getDay()],
-            calanderDay: '',
+            calendarDay: '',
             month: '\u00A0', // Unicode non-breaking space
             date: theDates[i],
           });
@@ -609,7 +609,7 @@ export default class FrontendEventAPI {
               {
                 id: i,
                 shortenedWeekDay: getShortDay[theDates[i].getDay()],
-                calanderDay: '',
+                calendarDay: '',
                 month: '\u00A0', // Unicode non-breaking space
                 date: theDates[i],
               },
@@ -618,7 +618,7 @@ export default class FrontendEventAPI {
             curCalendarBucket.push({
               id: i,
               shortenedWeekDay: getShortDay[theDates[i].getDay()],
-              calanderDay: '',
+              calendarDay: '',
               month: '',
               date: theDates[i],
             });
@@ -635,7 +635,7 @@ export default class FrontendEventAPI {
           curCalendarBucket.push({
             id: i,
             shortenedWeekDay: getShortDay[theDates[i].getDay()],
-            calanderDay: theDates[i].getDate().toString(),
+            calendarDay: theDates[i].getDate().toString(),
             month: getMonth[theDates[i].getMonth()],
             date: theDates[i],
           });
@@ -653,7 +653,7 @@ export default class FrontendEventAPI {
             curCalendarBucket.push({
               id: i,
               shortenedWeekDay: getShortDay[theDates[i].getDay()],
-              calanderDay: theDates[i].getDate().toString(),
+              calendarDay: theDates[i].getDate().toString(),
               month: getMonth[theDates[i].getMonth()],
               date: theDates[i],
             });
@@ -663,7 +663,7 @@ export default class FrontendEventAPI {
               {
                 id: i,
                 shortenedWeekDay: getShortDay[theDates[i].getDay()],
-                calanderDay: theDates[i].getDate().toString(),
+                calendarDay: theDates[i].getDate().toString(),
                 month: getMonth[theDates[i].getMonth()],
                 date: theDates[i],
               },
@@ -689,7 +689,7 @@ export default class FrontendEventAPI {
 
   /**
    *
-   * Obtain a calander object from the working event, and contains the calanderState and the chartedUsers.
+   * Obtain a calendar object from the working event, and contains the calendarState and the chartedUsers.
    *
    * @returns
    */
@@ -716,7 +716,7 @@ export default class FrontendEventAPI {
       userData.userIDs.push(ids[i]);
     }
 
-    const availMatrix: calanderState = [];
+    const availMatrix: calendarState = [];
     for (let i = 0; i < avails.length; i++) {
       availMatrix.push(avails[i]);
     }
@@ -745,7 +745,7 @@ export default class FrontendEventAPI {
       });
     }
 
-    const availMatrix: calanderState = [];
+    const availMatrix: calendarState = [];
     for (let i = 0; i < avails.length; i++) {
       availMatrix.push(avails[i]);
     }

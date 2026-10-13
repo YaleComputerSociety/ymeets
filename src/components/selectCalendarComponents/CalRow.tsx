@@ -1,7 +1,7 @@
 import {
-  calandarDate,
+  calendarDate,
   calendarDimensions,
-  calanderState,
+  calendarState,
   userData,
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
@@ -14,10 +14,10 @@ import { getDates } from '../../backend/events';
 import { over } from 'lodash';
 
 interface CalRowProps {
-  bucket: calandarDate[];
+  bucket: calendarDate[];
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   draggable: boolean;
   isAdmin?: boolean;
@@ -273,7 +273,7 @@ export default function CalRow({
   }
 
   function computeCalBlockData(
-    date: calandarDate,
+    date: calendarDate,
     columnIndex: number
   ): CalBlockData {
     const {
@@ -314,7 +314,7 @@ export default function CalRow({
 
   return (
     <div className={`grid grid-cols-${bucket.length}`}>
-      {bucket.map((date: calandarDate, columnIndex: number) => {
+      {bucket.map((date: calendarDate, columnIndex: number) => {
         const blockData = computeCalBlockData(date, columnIndex);
 
         return (

@@ -1,6 +1,6 @@
-import { calandarDate } from '../../../types';
+import { calendarDate } from '../../../types';
 
-export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
+export function datesToCalendarDates(dates: Date[]): calendarDate[][] {
   const getShortDay: { [key: number]: string } = {
     0: 'SUN',
     1: 'MON',
@@ -26,8 +26,8 @@ export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
     11: 'DEC',
   };
 
-  const calendarBuckets: calandarDate[][] = [];
-  let currentBucket: calandarDate[] = [];
+  const calendarBuckets: calendarDate[][] = [];
+  let currentBucket: calendarDate[] = [];
 
   if (dates[0]?.getFullYear() === 2000) {
     // General day case
@@ -43,7 +43,7 @@ export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
           {
             id: i,
             shortenedWeekDay: getShortDay[currentDate.getDay()],
-            calanderDay: '',
+            calendarDay: '',
             month: '\u00A0', // Unicode non-breaking space
             date: currentDate,
           },
@@ -52,7 +52,7 @@ export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
         currentBucket.push({
           id: i,
           shortenedWeekDay: getShortDay[currentDate.getDay()],
-          calanderDay: '',
+          calendarDay: '',
           month: '',
           date: currentDate,
         });
@@ -78,7 +78,7 @@ export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
           {
             id: i,
             shortenedWeekDay: getShortDay[currentDate.getDay()],
-            calanderDay: currentDate.getDate().toString(),
+            calendarDay: currentDate.getDate().toString(),
             month: getMonth[currentDate.getMonth()],
             date: currentDate,
           },
@@ -87,7 +87,7 @@ export function datesToCalendarDates(dates: Date[]): calandarDate[][] {
         currentBucket.push({
           id: i,
           shortenedWeekDay: getShortDay[currentDate.getDay()],
-          calanderDay: currentDate.getDate().toString(),
+          calendarDay: currentDate.getDate().toString(),
           month: getMonth[currentDate.getMonth()],
           date: currentDate,
         });

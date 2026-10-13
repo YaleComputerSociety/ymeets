@@ -37,24 +37,24 @@ export interface Participant {
   declined?: boolean;
 }
 
-export type calanderState = Availability[]; // length = num of people
+export type calendarState = Availability[]; // length = num of people
 
 export type DateRange = {
   startDate: Date;
   endDate: Date;
 };
 
-export interface calandarDate {
+export interface calendarDate {
   id: number;
   shortenedWeekDay: string;
-  calanderDay: string;
+  calendarDay: string;
   month: string;
   year?: string;
   date?: Date;
 }
 
 export interface calendarDimensions {
-  dates: calandarDate[][];
+  dates: calendarDate[][];
   startTime: Date;
   endTime: Date;
   numOfBlocks: number;
@@ -84,11 +84,11 @@ export interface dragProperties {
 }
 
 export interface calendar {
-  availabilities: calanderState;
+  availabilities: calendarState;
   participants: userData;
 }
 
-// The User ID MUST match the schedule in the position calandarState
+// The User ID MUST match the schedule in the position calendarState
 
 // TODO : potential code smell -- just have array of users with attributes available / unavailable
 

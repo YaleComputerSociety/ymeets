@@ -4,11 +4,11 @@ import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
-  calanderState,
+  calendarState,
   userData,
   calendarDimensions,
   Availability,
-  calandarDate,
+  calendarDate,
   dragProperties,
 } from '../../types';
 import eventAPI from '../../backend/eventAPI';
@@ -88,8 +88,8 @@ function TimeSelectPage({
   code: string | undefined;
   chartedUsers: userData;
   setChartedUsers: Dispatch<SetStateAction<userData>>;
-  calendarState: calanderState;
-  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarState: calendarState;
+  setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   loading: boolean;
@@ -245,7 +245,7 @@ function TimeSelectPage({
         return {
           ...date,
           date: nextOccurrence,
-          calanderDay: nextOccurrence.getDate().toString(),
+          calendarDay: nextOccurrence.getDate().toString(),
           month: (nextOccurrence.getMonth() + 1).toString(),
           year: nextOccurrence.getFullYear().toString(),
           shortenedWeekDay: date.shortenedWeekDay,

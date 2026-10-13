@@ -5,8 +5,8 @@ import React, {
   useRef,
   useLayoutEffect} from 'react';
 import { calendar_v3 } from 'googleapis';
-import SelectCalander from './SelectCalendar';
-import { calendarDimensions, calanderState, userData } from '../../types';
+import SelectCalendar from './SelectCalendar';
+import { calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
@@ -18,8 +18,8 @@ interface CalendarProps {
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
   ];
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
@@ -265,7 +265,7 @@ export default function Calendar({
           </div>
 
           <div className="w-full flex-1">
-            <SelectCalander
+            <SelectCalendar
               theShowUserChart={theShowUserChart}
               onClick={onClick}
               renderTime={false}
