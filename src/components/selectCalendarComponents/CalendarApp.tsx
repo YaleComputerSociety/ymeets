@@ -6,11 +6,10 @@ import React, {
   useLayoutEffect} from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalendar from './SelectCalendar';
-import { calendarDimensions, calendarState, userData } from '../../types';
+import { DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
-import { dragProperties } from '../../types';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -28,8 +27,8 @@ interface CalendarProps {
   user: number;
   isAdmin: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
   theGoogleCalendarEvents: [
     calendar_v3.Schema$Event[],

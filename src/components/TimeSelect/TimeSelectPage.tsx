@@ -4,12 +4,12 @@ import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
   Availability,
   calendarDate,
-  dragProperties,
 } from '../../types';
 import eventAPI from '../../backend/eventAPI';
 import {
@@ -140,13 +140,7 @@ function TimeSelectPage({
     window.location.reload();
   };
   
-  const [dragState, setDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false, // true for selecting, false for deselecting
-    lastPosition: null,
-  });
+  const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]

@@ -9,10 +9,10 @@ import {
 } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
-  dragProperties,
 } from '../../types';
 import {
   getParticipantIndex,
@@ -370,22 +370,10 @@ export default function SideBySideView({
   };
 
   // Drag state for left calendar (TimeSelect - user editing)
-  const [leftDragState, setLeftDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  const [leftDragState, setLeftDragState] = useState<DraggedSelection | undefined>(undefined);
 
   // Drag state for right calendar (GroupView - read-only, no drag)
-  const [rightDragState, setRightDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  const [rightDragState, setRightDragState] = useState<DraggedSelection | undefined>(undefined);
 
   // Shared pagination and scroll sync
   const [sharedPage, setSharedPage] = useState(0);

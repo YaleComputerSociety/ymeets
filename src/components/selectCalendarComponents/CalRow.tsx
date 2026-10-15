@@ -1,4 +1,5 @@
 import {
+  DraggedSelection,
   calendarDate,
   calendarDimensions,
   calendarState,
@@ -6,7 +7,6 @@ import {
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
 import CalBlock from './CalBlock';
-import { dragProperties } from '../../types';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -30,8 +30,8 @@ interface CalRowProps {
   blockIDOffset: number;
   is30Minute: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
   theCalendarFramework: [
     calendarDimensions,

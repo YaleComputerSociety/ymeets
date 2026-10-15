@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
+  DraggedSelection,
   calendarState,
   userData,
   user,
   calendarDimensions,
-  dragProperties,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import _, { max } from 'lodash';
@@ -28,8 +28,8 @@ interface CalBlockProps {
   user: number;
   is30Minute: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
@@ -118,7 +118,7 @@ export default function CalBlock({
   const isInSelection = useCallback((): boolean => {
     if (blockID == -1) return false;
 
-    if (dragState.isSelecting && dragState.startPoint && dragState.endPoint) {
+    if (dragState !== undefined) {
       const currentBox = new BoundingBox(
         { col: dragState.startPoint[0], block: dragState.startPoint[1] },
         { col: dragState.endPoint[0], block: dragState.endPoint[1] }
@@ -223,8 +223,7 @@ export default function CalBlock({
     } else {
       if (
         isAdmin &&
-        dragState.startPoint &&
-        dragState.endPoint &&
+        dragState !== undefined &&
         new BoundingBox(
           { col: dragState.startPoint[0], block: dragState.startPoint[1] },
           { col: dragState.endPoint[0], block: dragState.endPoint[1] }
@@ -597,7 +596,7 @@ export default function CalBlock({
 
       if (isAdmin && dragStartPointRef.current) {
         setDragState((prev) => {
-          if (prev.startPoint && prev.endPoint) {
+          if (prev !== undefined) {
             const currentBox = new BoundingBox(
               { col: prev.startPoint[0], block: prev.startPoint[1] },
               { col: prev.endPoint[0], block: prev.endPoint[1] }

@@ -5,6 +5,7 @@ import React, {
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
+  DraggedSelection,
   calendarDate,
   calendarDimensions,
   calendarState,
@@ -13,7 +14,6 @@ import {
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CalRow from './CalRow';
 import DateBar from './DateBar';
-import { dragProperties } from '../../types';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
@@ -36,8 +36,8 @@ interface SelectCalendarProps {
   endDate: Date;
   renderTime: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
   theCalendarFramework: [
     calendarDimensions,
