@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
+  BoundingBox,
   calendarState,
   userData,
   user,
@@ -38,13 +39,6 @@ interface CalBlockProps {
   isEventEnd: boolean;
   eventName: string | null;
   additionalEventCount: number;
-}
-
-interface BoundingBox {
-  minCol: number;
-  maxCol: number;
-  minBlock: number;
-  maxBlock: number;
 }
 
 const AUTO_SCROLL_EDGE_PX = 56;
@@ -125,18 +119,18 @@ export default function CalBlock({
     if (blockID == -1) return false;
 
     if (dragState.isSelecting && dragState.startPoint && dragState.endPoint) {
-      const currentBox = getBoundingBox(
-        dragState.startPoint,
-        dragState.endPoint
+      const currentBox = new BoundingBox(
+        { col: dragState.startPoint[0], block: dragState.startPoint[1] },
+        { col: dragState.endPoint[0], block: dragState.endPoint[1] }
       );
-      if (isInBox(columnID, blockID, currentBox)) {
+      if (currentBox.contains({col: columnID, block: blockID})) {
         return dragState.selectionMode;
       }
     }
 
     if (isAdmin && dragState.completedSelections) {
       return dragState.completedSelections.some((box) =>
-        isInBox(columnID, blockID, box)
+        box.contains({col: columnID, block: blockID})
       );
     }
 
@@ -231,11 +225,10 @@ export default function CalBlock({
         isAdmin &&
         dragState.startPoint &&
         dragState.endPoint &&
-        isInBox(
-          columnID,
-          blockID,
-          getBoundingBox(dragState.startPoint, dragState.endPoint)
-        )
+        new BoundingBox(
+          { col: dragState.startPoint[0], block: dragState.startPoint[1] },
+          { col: dragState.endPoint[0], block: dragState.endPoint[1] }
+        ).contains({col: columnID, block: blockID})
       ) {
         setShadeColor('#73dd64');
       } else {
@@ -269,30 +262,6 @@ export default function CalBlock({
 
     return `#${result.join('')}`;
   }
-
-  // Selection box utilities
-  const getBoundingBox = (
-    start: readonly [number, number],
-    end: readonly [number, number]
-  ): BoundingBox => {
-    const [startCol, startBlock] = start;
-    const [endCol, endBlock] = end;
-    return {
-      minCol: Math.min(startCol, endCol),
-      maxCol: Math.max(startCol, endCol),
-      minBlock: Math.min(startBlock, endBlock),
-      maxBlock: Math.max(startBlock, endBlock),
-    };
-  };
-
-  const isInBox = (col: number, block: number, box: BoundingBox): boolean => {
-    return (
-      col >= box.minCol &&
-      col <= box.maxCol &&
-      block >= box.minBlock &&
-      block <= box.maxBlock
-    );
-  };
 
   const handleBlockClick = (e: any, fromTouch = false) => {
     if (blockID == -1) return;
@@ -428,11 +397,11 @@ export default function CalBlock({
         const newState = { ...prev };
         if (!newState[user]) newState[user] = [];
 
-        for (let col = currentBox.minCol; col <= currentBox.maxCol; col++) {
+        for (let col = currentBox.left; col <= currentBox.right; col++) {
           if (!newState[user][col]) newState[user][col] = [];
           for (
-            let block = currentBox.minBlock;
-            block <= currentBox.maxBlock;
+            let block = currentBox.top;
+            block <= currentBox.bottom;
             block++
           ) {
             newState[user][col][block] = selectionMode;
@@ -440,14 +409,14 @@ export default function CalBlock({
         }
 
         if (prevBox) {
-          for (let col = prevBox.minCol; col <= prevBox.maxCol; col++) {
+          for (let col = prevBox.left; col <= prevBox.right; col++) {
             if (!newState[user][col]) newState[user][col] = [];
             for (
-              let block = prevBox.minBlock;
-              block <= prevBox.maxBlock;
+              let block = prevBox.top;
+              block <= prevBox.bottom;
               block++
             ) {
-              if (!isInBox(col, block, currentBox)) {
+              if (!currentBox.contains({col, block})) {
                 newState[user][col][block] = !selectionMode;
               }
             }
@@ -484,12 +453,15 @@ export default function CalBlock({
       const startPoint = dragStartPointRef.current;
       const mode = selectionModeRef.current;
 
-      const intermediateBox = getBoundingBox(
-        [lastCol, lastBlock],
-        [newCol, newBlock]
+      const intermediateBox = new BoundingBox(
+        { col: lastCol, block: lastBlock },
+        { col: newCol, block: newBlock }
       );
 
-      const currentBox = getBoundingBox(startPoint, [newCol, newBlock]);
+      const currentBox = new BoundingBox(
+        { col: startPoint[0], block: startPoint[1] },
+        { col: newCol, block: newBlock }
+      );
       if (!isAdmin) {
         updateCalendarForBoundingBoxes(intermediateBox, null, mode);
         updateCalendarForBoundingBoxes(
@@ -626,7 +598,10 @@ export default function CalBlock({
       if (isAdmin && dragStartPointRef.current) {
         setDragState((prev) => {
           if (prev.startPoint && prev.endPoint) {
-            const currentBox = getBoundingBox(prev.startPoint, prev.endPoint);
+            const currentBox = new BoundingBox(
+              { col: prev.startPoint[0], block: prev.startPoint[1] },
+              { col: prev.endPoint[0], block: prev.endPoint[1] }
+            );
             return {
               ...prev,
               isSelecting: false,
@@ -697,12 +672,10 @@ export default function CalBlock({
         completedSelections: dragState.completedSelections || [],
       });
 
-      previousBoundingBox.current = {
-        minCol: columnID,
-        maxCol: columnID,
-        minBlock: blockID,
-        maxBlock: blockID,
-      };
+      previousBoundingBox.current = new BoundingBox(
+        { col: columnID, block: blockID },
+        { col: columnID, block: blockID }
+      );
 
       lastDragPoint.current = [columnID, blockID];
       document.addEventListener('mousemove', handleGlobalMouseMove);
