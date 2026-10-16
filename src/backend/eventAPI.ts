@@ -554,7 +554,7 @@ export default class FrontendEventAPI {
    * @returns
    */
   static getCalendarDimensions(): calendarDimensions {
-    const theDates: Date[] = getDates();
+    const theDates: Date[] = [...getDates()].sort((a, b) => a.getTime() - b.getTime());
     const theCalendarDates: calendarDate[][] = [];
     let curCalendarBucket: calendarDate[] = [];
     const numOfCols = theDates.length;
