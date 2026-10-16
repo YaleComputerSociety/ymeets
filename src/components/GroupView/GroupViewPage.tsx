@@ -8,6 +8,7 @@ import {
 } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
+  BoundingBox,
   DraggedSelection,
   calendarState,
   userData,
@@ -126,6 +127,7 @@ export default function GroupViewPage({
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentSelection = useState<BoundingBox | undefined>(undefined);
 
   const { login, currentUser } = useAuth();
 
@@ -180,20 +182,18 @@ export default function GroupViewPage({
     };
 
   async function handleSelectionSubmission() {
-    if (dragState === undefined) {
+    const selection = theMostRecentSelection[0];
+    if (selection === undefined) {
       setAlertMessage('No new time selection made!');
       return;
     }
 
-    const [startCol, startBlock] = dragState.startPoint;
-    const [endCol, endBlock] = dragState.endPoint;
-
-    if (startCol !== endCol) {
+    if (selection.left !== selection.right) {
       setAlertMessage('You must select times that occur on the same day!');
       return;
     }
 
-    const calDate = calendarFramework?.dates.flat()[startCol];
+    const calDate = calendarFramework?.dates.flat()[selection.left];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
@@ -201,8 +201,8 @@ export default function GroupViewPage({
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times.flat()[startBlock];
-    const selectedEndTimeHHMM: string = times.flat()[endBlock];
+    const selectedStartTimeHHMM: string = times.flat()[selection.top];
+    const selectedEndTimeHHMM: string = times.flat()[selection.bottom];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -259,7 +259,7 @@ export default function GroupViewPage({
     () => ({
       ...chartedUsers,
       users: allUsers?.users?.filter(
-        (user) => peopleStatus[user.name] === true && !declinedPeople.includes(user.name)
+        (user) => peopleStatus[user.name] && !declinedPeople.includes(user.name)
       ),
     }),
     [chartedUsers, peopleStatus, declinedPeople]
@@ -611,6 +611,7 @@ export default function GroupViewPage({
                 user={getCurrentUserIndex()}
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
+                theMostRecentSelection={theMostRecentSelection}
                 theGoogleCalendarEvents={[[], () => {}]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}

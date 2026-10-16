@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
+  BoundingBox,
   DraggedSelection,
   calendarState,
   userData,
@@ -370,10 +371,12 @@ export default function SideBySideView({
   };
 
   // Drag state for left calendar (TimeSelect - user editing)
-  const [leftDragState, setLeftDragState] = useState<DraggedSelection | undefined>(undefined);
+  const theLeftDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentLeftSelection = useState<BoundingBox | undefined>(undefined);
 
   // Drag state for right calendar (GroupView - read-only, no drag)
-  const [rightDragState, setRightDragState] = useState<DraggedSelection | undefined>(undefined);
+  const theRightDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentRightSelection = useState<BoundingBox | undefined>(undefined);
 
   // Shared pagination and scroll sync
   const [sharedPage, setSharedPage] = useState(0);
@@ -555,7 +558,8 @@ export default function SideBySideView({
                         draggable={true}
                         user={getCurrentUserIndex()}
                         isAdmin={false}
-                        theDragState={[leftDragState, setLeftDragState]}
+                        theDragState={theLeftDragState}
+                        theMostRecentSelection={theMostRecentLeftSelection}
                         theGoogleCalendarEvents={[
                           googleCalendarEvents,
                           setGoogleCalendarEvents,
@@ -618,7 +622,8 @@ export default function SideBySideView({
                         draggable={false}
                         user={getCurrentUserIndex()}
                         isAdmin={true}
-                        theDragState={[rightDragState, setRightDragState]}
+                        theDragState={theRightDragState}
+                        theMostRecentSelection={theMostRecentRightSelection}
                         theGoogleCalendarEvents={[[], noop]}
                         onClick={() => {
                           if (showUserChart === true) {

@@ -1,4 +1,4 @@
-import { Availability, BoundingBox, DraggedSelection } from './types';
+import { BoundingBox, DraggedSelection } from './types';
 
 test('BoundingBox instantiates from pre-sorted coordinates', () => {
   const topLeft = { col: 1, block: 3 };
@@ -68,125 +68,63 @@ test('BoundingBox iteration hits every contained point', () => {
   }
 });
 
-test('DraggedSelection.computeDirtyBlocks correctly computes dirty blocks from crossed selections', () => {
-  const initialAvailability: Availability = [
+test('DraggedSelection.create computes correct results', () => {
+  const availability = [
     [false, false, false],
-    [true, false, true],
+    [false, false, false],
+    [false, false, false],
     [false, false, false],
   ];
-  const availability = initialAvailability.map((row) => row.slice());
-
-  const horizontal = new BoundingBox(
-    { col: 0, block: 1 },
-    { col: 2, block: 1 }
-  );
-  [availability[0][1], availability[1][1], availability[2][1]] = [
-    true,
-    true,
-    true,
-  ];
-  const vertical = new BoundingBox({ col: 1, block: 0 }, { col: 1, block: 2 });
-
-  const dirtyBlocks = DraggedSelection.computeDirtyBlocks(
-    horizontal,
-    vertical,
-    initialAvailability,
-    true
-  );
-  // Intentionally not checking exact returns since that's an implementation detail.
-  for (const {
-    coords: { col, block },
-    setTo,
-  } of dirtyBlocks) {
-    availability[col][block] = setTo;
-  }
-
-  expect(availability).toStrictEqual([
+  const { selection, newAvailability } = DraggedSelection.create(availability, {
+    col: 1,
+    block: 2,
+  });
+  expect({ ...selection }).toStrictEqual({
+    left: 1,
+    right: 1,
+    top: 2,
+    bottom: 2,
+  });
+  expect(newAvailability).toStrictEqual([
     [false, false, false],
-    [true, true, true],
+    [false, false, true],
+    [false, false, false],
     [false, false, false],
   ]);
 });
 
-test('DraggedSelection.computeDirtyBlocks handles setsBlocksTo: false', () => {
-  const availability: Availability = [[false, true]];
-  const singleton = new BoundingBox({ col: 0, block: 0 }, { col: 0, block: 0 });
-  const wholeGrid = new BoundingBox({ col: 0, block: 0 }, { col: 0, block: 1 });
-  const dirtyBlocks = DraggedSelection.computeDirtyBlocks(
-    singleton,
-    wholeGrid,
-    availability,
-    false
-  );
-
-  for (const {
-    coords: { col, block },
-    setTo,
-  } of dirtyBlocks) {
-    availability[col][block] = setTo;
-  }
-
-  expect(availability).toStrictEqual([[false, false]]);
+test('DraggedSelection.create flips based on origin', () => {
+  const { newAvailability } = DraggedSelection.create([[true]], {
+    col: 0,
+    block: 0,
+  });
+  expect(newAvailability).toStrictEqual([[false]]);
 });
 
-test('DraggedSelection properly applies changes through several mouse moves', () => {
-  const availability: Availability = [
+test('DraggedSelection.computeSelection computes results correctly', () => {
+  const availability = [
     [false, true, false, true, false],
     [true, false, true, false, true],
     [false, true, false, true, false],
     [true, false, true, false, true],
     [false, true, false, true, false],
   ];
-
-  const drag = new DraggedSelection(
-    availability,
-    { col: 2, block: 2 },
-    ({ col, block }, setTo) => (availability[col][block] = setTo)
-  );
-  expect(availability).toStrictEqual([
-    [false, true, false, true, false],
-    [true, false, true, false, true],
-    [false, true, true, true, false],
-    [true, false, true, false, true],
-    [false, true, false, true, false],
-  ]);
-
-  drag.moveTo({ col: 4, block: 3 });
-  expect(availability).toStrictEqual([
-    [false, true, false, true, false],
-    [true, false, true, false, true],
-    [false, true, true, true, false],
-    [true, false, true, true, true],
-    [false, true, true, true, false],
-  ]);
-
-  drag.moveTo({ col: 3, block: 4 });
-  expect(availability).toStrictEqual([
+  const drag = new DraggedSelection(availability, { col: 2, block: 2 });
+  const { selection, newAvailability } = drag.computeSelection({
+    col: 3,
+    block: 4,
+  });
+  expect({ ...selection }).toStrictEqual({
+    left: 2,
+    right: 3,
+    top: 2,
+    bottom: 4,
+  });
+  expect(newAvailability).toStrictEqual([
     [false, true, false, true, false],
     [true, false, true, false, true],
     [false, true, true, true, true],
     [true, false, true, true, true],
     [false, true, false, true, false],
   ]);
-
-  drag.moveTo({ col: 0, block: 0 });
-  expect(availability).toStrictEqual([
-    [true, true, true, true, false],
-    [true, true, true, false, true],
-    [true, true, true, true, false],
-    [true, false, true, false, true],
-    [false, true, false, true, false],
-  ]);
-});
-
-test('DraggedSelection deselects blocks when starting on true', () => {
-  const availability = [[true, true]];
-  const drag = new DraggedSelection(
-    availability,
-    { col: 0, block: 0 },
-    ({ col, block }, setTo) => (availability[col][block] = setTo)
-  );
-  expect(availability).toStrictEqual([[false, true]]);
-  drag.moveTo({ col: 0, block: 1 });
-  expect(availability).toStrictEqual([[false, false]]);
 });

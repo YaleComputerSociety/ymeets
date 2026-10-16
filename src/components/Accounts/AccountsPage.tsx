@@ -95,7 +95,6 @@ export default function AccountsPage() {
       dateA = new Date(dateA);
       dateB = new Date(dateB);
 
-      console.log(dateA, dateB);
       if (dateA === undefined || dateB === undefined) {
         console.log('Date is undefined');
         return 0;

@@ -1,4 +1,5 @@
 import {
+  BoundingBox,
   DraggedSelection,
   calendarDate,
   calendarDimensions,
@@ -33,6 +34,10 @@ interface CalRowProps {
     DraggedSelection | undefined,
     React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+  ]
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -76,6 +81,7 @@ export default function CalRow({
   blockIDOffset,
   is30Minute,
   theDragState,
+  theMostRecentSelection,
   chartedUsersData,
   theGoogleCalendarEvents,
   time,
@@ -330,6 +336,7 @@ export default function CalRow({
             draggable={blockData.isDraggable}
             user={user}
             theDragState={theDragState}
+            theMostRecentSelection={theMostRecentSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
             associatedEvents={blockData.events}

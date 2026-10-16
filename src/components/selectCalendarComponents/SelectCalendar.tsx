@@ -5,6 +5,7 @@ import React, {
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
+  BoundingBox,
   DraggedSelection,
   calendarDate,
   calendarDimensions,
@@ -39,6 +40,10 @@ interface SelectCalendarProps {
     DraggedSelection | undefined,
     React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+  ]
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -71,6 +76,7 @@ function SelectCalendar({
   startDate,
   endDate,
   theDragState,
+  theMostRecentSelection,
   theGoogleCalendarEvents,
   onClick,
   theShowUserChart,
@@ -88,8 +94,6 @@ function SelectCalendar({
 
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  const [dragState, setDragState] = theDragState;
-
 const handleDisappear = useCallback(() => {
         if (chartedUsers && setChartedUsers) {
           setChartedUsers({
@@ -102,20 +106,7 @@ const handleDisappear = useCallback(() => {
         }
       }, [chartedUsers, setChartedUsers]);
 
-  const handleMouseLeave = useCallback(
-    (event: MouseEvent) => {
-      if (
-        calendarRef.current &&
-        !calendarRef.current.contains(event.relatedTarget as Node)
-      ) {
-        setDragState((prev) => ({ ...prev, isSelecting: false }));
-      }
-      handleDisappear();
-    },
-    [setDragState]
-  );
-
-
+  const handleMouseLeave = handleDisappear;
 
   useEffect(() => {
     const calendar = calendarRef.current;
@@ -168,7 +159,8 @@ const handleDisappear = useCallback(() => {
                                 blockID={blockIndexWithinHour * 4 + blockID}
                                 user={user}
                                 isAdmin={isAdmin}
-                                theDragState={[dragState, setDragState]}
+                                theDragState={theDragState}
+                                theMostRecentSelection={theMostRecentSelection}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 theGoogleCalendarEvents={

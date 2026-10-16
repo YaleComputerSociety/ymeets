@@ -1,15 +1,21 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
   DraggedSelection,
   calendarState,
+  copyAndReplace,
   userData,
   user,
   calendarDimensions,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
-import _, { max } from 'lodash';
 
 interface CalBlockProps {
   blockID: number;
@@ -31,6 +37,10 @@ interface CalBlockProps {
     DraggedSelection | undefined,
     React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+  ];
   isOnGcal: boolean;
   associatedEvents?: calendar_v3.Schema$Event[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -41,9 +51,6 @@ interface CalBlockProps {
   additionalEventCount: number;
 }
 
-const AUTO_SCROLL_EDGE_PX = 56;
-const AUTO_SCROLL_MAX_STEP_PX = 18;
-
 export default function CalBlock({
   blockID,
   columnID,
@@ -53,6 +60,7 @@ export default function CalBlock({
   isAdmin,
   user,
   theDragState,
+  theMostRecentSelection: [mostRecentSelection, setMostRecentSelection],
   isOnGcal,
   associatedEvents,
   onClick,
@@ -67,25 +75,11 @@ export default function CalBlock({
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
   const [dragState, setDragState] = theDragState;
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+  const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
-  const [showUserChart, setShowUserChart] = theShowUserChart ?? [null, null];
+  const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
-  const dragRef = useRef<HTMLDivElement>(null);
-  const lastDragPoint = useRef<[number, number] | null>(null);
-  const previousBoundingBox = useRef<BoundingBox | null>(null);
-  const dragStartTime = useRef<number | null>(null);
-  const isDraggingRef = useRef(false);
-  const dragStartPointRef = useRef<readonly [number, number] | null>(null);
-  const selectionModeRef = useRef(false);
-  const hasDraggedRef = useRef(false);
-  const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
-  const dragOriginClientRef = useRef<{ x: number; y: number } | null>(null);
-  const pointerHasMovedRef = useRef(false);
-  const autoScrollFrameRef = useRef<number | null>(null);
-  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -95,7 +89,7 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: [],
         unavailable: [...chartedUsers.users],
-        hovering : false,
+        hovering: false,
       });
     }
   }, []);
@@ -109,42 +103,28 @@ export default function CalBlock({
     };
   }, []);
 
-  // Helper functions for selection and color calculations
+  /**
+   * Returns `true` if this block is selected (even if it's not saved) for the current user's calendar. Returns `false`
+   * if it's not selected or if the block is -1.
+   */
   const isBlockSelected = useCallback((): boolean => {
-    if (blockID == -1) return false;
-    return calendarState[user]?.[columnID]?.[blockID] === true;
-  }, [calendarState, user, columnID, blockID]);
+    if (blockID === -1) return false;
+    return calendarState[user]?.[columnID]?.[blockID];
+  }, [user, columnID, blockID, calendarState]);
 
-  const isInSelection = useCallback((): boolean => {
-    if (blockID == -1) return false;
-
-    if (dragState !== undefined) {
-      const currentBox = new BoundingBox(
-        { col: dragState.startPoint[0], block: dragState.startPoint[1] },
-        { col: dragState.endPoint[0], block: dragState.endPoint[1] }
-      );
-      if (currentBox.contains({col: columnID, block: blockID})) {
-        return dragState.selectionMode;
-      }
-    }
-
-    if (isAdmin && dragState.completedSelections) {
-      return dragState.completedSelections.some((box) =>
-        box.contains({col: columnID, block: blockID})
-      );
-    }
-
-    return calendarState[user]?.[columnID]?.[blockID] || false;
-  }, [dragState, columnID, blockID, isAdmin, calendarState, user]);
-
+  /**
+   * Determines the default color for an unselected block.
+   */
   const getDefaultColor = useCallback(() => {
-    if (!draggable) {
-      return chartedUsers ? (theme === 'light' ? 'white' : '#2d3748') : theme === 'light' ? '#a8a8a8' : '#404040';
+    if (draggable || chartedUsers) {
+      return theme === 'light' ? 'white' : '#2d3748';
     }
-    return theme === 'light' ? 'white' : '#2d3748';
-  }, [theme, calendarFramework]);
+    return theme === 'light' ? '#a8a8a8' : '#404040';
+  }, [chartedUsers, draggable, theme]);
 
-
+  /**
+   * Determine the maximum number of users currently available during the same block in the calendar.
+   */
   // use Memo should ensure it only runs when calendarState changes
   const maxUsers = useMemo<number>(() => {
     let maxCount = 0;
@@ -152,10 +132,9 @@ export default function CalBlock({
     // define counts array
     const counts: number[][] = [];
 
-    // interate through all blocks and find number of users on each
+    // iterate through all blocks and find number of users on each
     for (let i = 0; i < calendarState.length; i++) {
       for (let j = 0; j < calendarState[i].length; j++) {
-
         // create row if needed
         if (!counts[j]) {
           counts[j] = new Array(calendarState[i][j].length).fill(0);
@@ -164,7 +143,6 @@ export default function CalBlock({
         for (let k = 0; k < calendarState[i][j].length; k++) {
           // check if user is on block
           if (calendarState[i][j][k]) {
-            
             // update to new value
             const newVal = (counts[j][k] ?? 0) + 1;
             counts[j][k] = newVal;
@@ -173,17 +151,16 @@ export default function CalBlock({
             if (newVal > maxCount) {
               maxCount = newVal;
             }
-            
           }
         }
       }
-      
     }
     return maxCount;
-    
-  }, [calendarState]); 
-   
+  }, [calendarState]);
 
+  /**
+   * Picks a shade of blue based on how many users are available during this block relative to the maximum.
+   */
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {
       return getDefaultColor();
@@ -193,7 +170,7 @@ export default function CalBlock({
 
     for (let i = 0; i < calendarState.length; i++) {
       if (
-        calendarState[i]?.[columnID]?.[blockID] === true &&
+        calendarState[i]?.[columnID]?.[blockID] &&
         chartedUsers?.users.some((u) => u.id === i)
       ) {
         selectedCount += 1;
@@ -218,61 +195,16 @@ export default function CalBlock({
       return;
     }
 
-    if (!isAdmin && draggable) {
-      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
+    if (isAdmin) {
+      const inRecentSelection = mostRecentSelection?.contains({
+        col: columnID,
+        block: blockID,
+      });
+      setShadeColor(inRecentSelection ? '#73dd64' : getGroupPercentageColor());
     } else {
-      if (
-        isAdmin &&
-        dragState !== undefined &&
-        new BoundingBox(
-          { col: dragState.startPoint[0], block: dragState.startPoint[1] },
-          { col: dragState.endPoint[0], block: dragState.endPoint[1] }
-        ).contains({col: columnID, block: blockID})
-      ) {
-        setShadeColor('#73dd64');
-      } else {
-        setShadeColor(getGroupPercentageColor());
-      }
+      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
     }
-  }, [
-    isAdmin,
-    draggable,
-    dragState.isSelecting,
-    isInSelection,
-    isBlockSelected,
-    getGroupPercentageColor,
-    getDefaultColor,
-    calendarFramework,
-  ]);
-
-  // Color interpolation helper
-  function interpolateColor(
-    color1: string,
-    color2: string,
-    factor: number
-  ): string {
-    const c1 = color1.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
-    const c2 = color2.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
-
-    const result = c1.map((value, index) => {
-      const hex = Math.round(value + factor * (c2[index] - value)).toString(16);
-      return hex.padStart(2, '0');
-    });
-
-    return `#${result.join('')}`;
-  }
-
-  const handleBlockClick = (e: any, fromTouch = false) => {
-    if (blockID == -1) return;
-    if (hasDraggedRef.current) return; 
-    onClick(e);
-
-    if (draggable && !isAdmin) {
-      const oldData = { ...calendarState };
-      oldData[user][columnID][blockID] = !oldData[user][columnID][blockID];
-      setCalendarState(oldData);
-    }
-  };
+  }, [isAdmin, isBlockSelected, getGroupPercentageColor, getDefaultColor]);
 
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
@@ -289,7 +221,7 @@ export default function CalBlock({
     const unavailableUsers: user[] = [];
 
     chartedUsers.users.forEach((user) => {
-      if (calendarState[user.id]?.[columnID]?.[blockID] === true) {
+      if (calendarState[user.id]?.[columnID]?.[blockID]) {
         availableUsers.push(user);
       } else {
         unavailableUsers.push(user);
@@ -301,7 +233,7 @@ export default function CalBlock({
       userIDs: chartedUsers.userIDs,
       available: availableUsers,
       unavailable: unavailableUsers,
-      hovering : true,
+      hovering: true,
     });
   }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
@@ -330,9 +262,7 @@ export default function CalBlock({
       const unavailableUsers: user[] = [];
 
       chartedUsers.users.forEach((user) => {
-        if (
-          calendarState[user.id]?.[obtainedColumnID]?.[obtainedBlockID] === true
-        ) {
+        if (calendarState[user.id]?.[obtainedColumnID]?.[obtainedBlockID]) {
           availableUsers.push(user);
         } else {
           unavailableUsers.push(user);
@@ -344,389 +274,61 @@ export default function CalBlock({
         userIDs: chartedUsers.userIDs,
         available: availableUsers,
         unavailable: unavailableUsers,
-        hovering : true,
+        hovering: true,
       });
     },
     [chartedUsers, setChartedUsers, calendarState]
   );
 
-  const handleMouseOrTouchLeaveBlock = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-  }, []);
-
-  const debouncedSetDragState = useCallback(
-    _.debounce((newState) => {
-      setDragState(newState);
-    }, 16),
-    []
-  );
-
-  const findScrollContainer = useCallback((startNode: Element | null) => {
-    const taggedContainer = startNode?.closest(
-      '[data-calendar-scroll-container="true"]'
-    ) as HTMLElement | null;
-    if (taggedContainer) {
-      return taggedContainer;
-    }
-
-    let current: HTMLElement | null =
-      (startNode as HTMLElement | null) ?? dragRef.current;
-
-    while (current) {
-      const { overflowY } = window.getComputedStyle(current);
-      const canScrollY = /(auto|scroll|overlay)/.test(overflowY);
-      if (canScrollY && current.scrollHeight > current.clientHeight) {
-        return current;
-      }
-      current = current.parentElement;
-    }
-
-    return (document.scrollingElement as HTMLElement | null) || null;
-  }, []);
-
-  const updateCalendarForBoundingBoxes = useCallback(
-    (
-      currentBox: BoundingBox,
-      prevBox: BoundingBox | null,
-      selectionMode: boolean
-    ) => {
-      setCalendarState((prev) => {
-        const newState = { ...prev };
-        if (!newState[user]) newState[user] = [];
-
-        for (let col = currentBox.left; col <= currentBox.right; col++) {
-          if (!newState[user][col]) newState[user][col] = [];
-          for (
-            let block = currentBox.top;
-            block <= currentBox.bottom;
-            block++
-          ) {
-            newState[user][col][block] = selectionMode;
-          }
-        }
-
-        if (prevBox) {
-          for (let col = prevBox.left; col <= prevBox.right; col++) {
-            if (!newState[user][col]) newState[user][col] = [];
-            for (
-              let block = prevBox.top;
-              block <= prevBox.bottom;
-              block++
-            ) {
-              if (!currentBox.contains({col, block})) {
-                newState[user][col][block] = !selectionMode;
-              }
-            }
-          }
-        }
-
-        return newState;
-      });
-    },
-    [user, setCalendarState]
-  );
-
-  const updateDragSelectionAtPoint = useCallback(
-    (clientX: number, clientY: number) => {
-      if (
-        !isDraggingRef.current ||
-        !lastDragPoint.current ||
-        !previousBoundingBox.current ||
-        !dragStartPointRef.current
-      ) {
-        return;
-      }
-
-      const element = document.elementFromPoint(clientX, clientY);
-      if (!element?.id?.includes('-')) return;
-
-      const [newCol, newBlock] = element.id.split('-').map(Number);
-      if (Number.isNaN(newCol) || Number.isNaN(newBlock)) return;
-
-      const [lastCol, lastBlock] = lastDragPoint.current;
-      if (newCol === lastCol && newBlock === lastBlock) return;
-      hasDraggedRef.current = true;
-
-      const startPoint = dragStartPointRef.current;
-      const mode = selectionModeRef.current;
-
-      const intermediateBox = new BoundingBox(
-        { col: lastCol, block: lastBlock },
-        { col: newCol, block: newBlock }
-      );
-
-      const currentBox = new BoundingBox(
-        { col: startPoint[0], block: startPoint[1] },
-        { col: newCol, block: newBlock }
-      );
-      if (!isAdmin) {
-        updateCalendarForBoundingBoxes(intermediateBox, null, mode);
-        updateCalendarForBoundingBoxes(
-          currentBox,
-          previousBoundingBox.current,
-          mode
-        );
-      }
-
-      previousBoundingBox.current = currentBox;
-
-      debouncedSetDragState((prev: dragProperties) => ({
-        ...prev,
-        endPoint: [newCol, newBlock],
-        lastPosition: [newCol, newBlock],
-      }));
-
-      lastDragPoint.current = [newCol, newBlock];
-    },
-    [isAdmin, debouncedSetDragState, updateCalendarForBoundingBoxes]
-  );
-
-  const stopAutoScroll = useCallback(() => {
-    if (autoScrollFrameRef.current !== null) {
-      window.cancelAnimationFrame(autoScrollFrameRef.current);
-      autoScrollFrameRef.current = null;
-    }
-  }, []);
-
-  const startAutoScroll = useCallback(() => {
-    stopAutoScroll();
-
-    const step = () => {
-      if (!isDraggingRef.current) {
-        autoScrollFrameRef.current = null;
-        return;
-      }
-
-      const pointer = pointerClientRef.current;
-      if (!pointer) {
-        autoScrollFrameRef.current = window.requestAnimationFrame(step);
-        return;
-      }
-
-      if (!pointerHasMovedRef.current) {
-        autoScrollFrameRef.current = window.requestAnimationFrame(step);
-        return;
-      }
-
-      let scrollContainer = scrollContainerRef.current;
-      if (!scrollContainer || !document.contains(scrollContainer)) {
-        const hoveredElement = document.elementFromPoint(pointer.x, pointer.y);
-        scrollContainer = findScrollContainer(hoveredElement);
-        scrollContainerRef.current = scrollContainer;
-      }
-
-      if (scrollContainer) {
-        const isDocumentScrollContainer =
-          scrollContainer === document.body ||
-          scrollContainer === document.documentElement ||
-          scrollContainer === document.scrollingElement;
-
-        const containerTop = isDocumentScrollContainer
-          ? 0
-          : scrollContainer.getBoundingClientRect().top;
-        const containerBottom = isDocumentScrollContainer
-          ? window.innerHeight
-          : scrollContainer.getBoundingClientRect().bottom;
-
-        let scrollDelta = 0;
-
-        if (pointer.y > containerBottom - AUTO_SCROLL_EDGE_PX) {
-          const normalizedDistance = Math.min(
-            1,
-            (pointer.y - (containerBottom - AUTO_SCROLL_EDGE_PX)) /
-              AUTO_SCROLL_EDGE_PX
-          );
-          scrollDelta = Math.ceil(normalizedDistance * AUTO_SCROLL_MAX_STEP_PX);
-        } else if (pointer.y < containerTop + AUTO_SCROLL_EDGE_PX) {
-          const normalizedDistance = Math.min(
-            1,
-            (containerTop + AUTO_SCROLL_EDGE_PX - pointer.y) /
-              AUTO_SCROLL_EDGE_PX
-          );
-          scrollDelta = -Math.ceil(normalizedDistance * AUTO_SCROLL_MAX_STEP_PX);
-        }
-
-        if (scrollDelta !== 0) {
-          const scrollTarget = isDocumentScrollContainer
-            ? document.scrollingElement
-            : scrollContainer;
-          const previousTop = scrollTarget?.scrollTop ?? 0;
-
-          if (scrollTarget) {
-            scrollTarget.scrollTop += scrollDelta;
-          } else {
-            window.scrollBy(0, scrollDelta);
-          }
-
-          if ((scrollTarget?.scrollTop ?? previousTop) !== previousTop) {
-            updateDragSelectionAtPoint(pointer.x, pointer.y);
-          }
-        }
-      }
-
-      autoScrollFrameRef.current = window.requestAnimationFrame(step);
-    };
-
-    autoScrollFrameRef.current = window.requestAnimationFrame(step);
-  }, [findScrollContainer, stopAutoScroll, updateDragSelectionAtPoint]);
-
-  const handleGlobalMouseMove = useCallback(
-    (event: MouseEvent) => {
-      const dragOrigin = dragOriginClientRef.current;
-      if (
-        dragOrigin &&
-        (Math.abs(event.clientX - dragOrigin.x) > 3 ||
-          Math.abs(event.clientY - dragOrigin.y) > 3)
-      ) {
-        pointerHasMovedRef.current = true;
-      }
-      pointerClientRef.current = { x: event.clientX, y: event.clientY };
-      updateDragSelectionAtPoint(event.clientX, event.clientY);
-    },
-    [updateDragSelectionAtPoint]
-  );
-
-  const handleDragEnd = useCallback(
-    () => {
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      isDraggingRef.current = false;
-      stopAutoScroll();
-
-      if (isAdmin && dragStartPointRef.current) {
-        setDragState((prev) => {
-          if (prev !== undefined) {
-            const currentBox = new BoundingBox(
-              { col: prev.startPoint[0], block: prev.startPoint[1] },
-              { col: prev.endPoint[0], block: prev.endPoint[1] }
-            );
-            return {
-              ...prev,
-              isSelecting: false,
-              completedSelections: [
-                ...(prev.completedSelections || []),
-                currentBox,
-              ],
-            };
-          }
-          return { ...prev, isSelecting: false };
-        });
-      } else {
-        setDragState((prev) => ({ ...prev, isSelecting: false }));
-      }
-      lastDragPoint.current = null;
-      previousBoundingBox.current = null;
-      dragStartTime.current = null;
-      dragStartPointRef.current = null;
-      pointerClientRef.current = null;
-      dragOriginClientRef.current = null;
-      pointerHasMovedRef.current = false;
-      scrollContainerRef.current = null;
-      debouncedSetDragState.cancel();
-    },
-    [
-      isAdmin,
-      setDragState,
-      debouncedSetDragState,
-      handleGlobalMouseMove,
-      stopAutoScroll,
-    ]
-  );
+  const handleDragEnd = useCallback(() => {
+    setDragState(undefined);
+  }, [setDragState]);
 
   const handleSelectionStart = useCallback(
-    (event: React.MouseEvent | React.TouchEvent) => {
+    (event: React.PointerEvent) => {
       if (!draggable) return;
       if (blockID == -1) return;
 
       event.preventDefault();
 
-      dragStartTime.current = Date.now();
-      const pointer =
-        'touches' in event && event.touches.length > 0
-          ? { x: event.touches[0].clientX, y: event.touches[0].clientY }
-          : 'clientX' in event
-            ? { x: event.clientX, y: event.clientY }
-            : null;
-      pointerClientRef.current = pointer;
-      dragOriginClientRef.current = pointer;
-      pointerHasMovedRef.current = false;
-      scrollContainerRef.current = findScrollContainer(
-        event.currentTarget as Element
+      const coords = { col: columnID, block: blockID };
+      const { drag, selection, newAvailability } = DraggedSelection.create(
+        calendarState[user],
+        coords
       );
-
-      const newSelectionMode = !isInSelection();
-
-      isDraggingRef.current = true;
-      hasDraggedRef.current = false;
-      dragStartPointRef.current = [columnID, blockID];
-      selectionModeRef.current = newSelectionMode;
-
-      setDragState({
-        isSelecting: true,
-        startPoint: [columnID, blockID],
-        endPoint: [columnID, blockID],
-        selectionMode: newSelectionMode,
-        lastPosition: [columnID, blockID],
-        completedSelections: dragState.completedSelections || [],
-      });
-
-      previousBoundingBox.current = new BoundingBox(
-        { col: columnID, block: blockID },
-        { col: columnID, block: blockID }
-      );
-
-      lastDragPoint.current = [columnID, blockID];
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', () => handleDragEnd(), { once: true });
-      startAutoScroll();
+      setDragState(drag);
+      setMostRecentSelection(selection);
+      setCalendarState(copyAndReplace(calendarState, user, newAvailability));
     },
-    [
-      draggable,
-      isAdmin,
-      isInSelection,
-      columnID,
-      blockID,
-      setDragState,
-      setCalendarState,
-      user,
-      dragState.completedSelections,
-      handleDragEnd,
-      handleGlobalMouseMove,
-      findScrollContainer,
-      startAutoScroll,
-    ]
+    [draggable, user, columnID, blockID, calendarState, setCalendarState]
   );
 
-  const handleSelectionMove = useCallback(
-    (event: React.TouchEvent) => {
-      const touch = event.touches[0];
-      const dragOrigin = dragOriginClientRef.current;
-      if (
-        dragOrigin &&
-        (Math.abs(touch.clientX - dragOrigin.x) > 3 ||
-          Math.abs(touch.clientY - dragOrigin.y) > 3)
-      ) {
-        pointerHasMovedRef.current = true;
+  const endDrag = useCallback(
+    (event: React.PointerEvent): void => {
+      if (blockID == -1) return;
+
+      event.preventDefault();
+      if (dragState !== undefined) {
+        handleDragEnd();
       }
-      pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
-      updateDragSelectionAtPoint(touch.clientX, touch.clientY);
+
+      setShowTooltip(false);
     },
-    [updateDragSelectionAtPoint]
+    [blockID, dragState, setShowTooltip]
   );
 
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      stopAutoScroll();
-    };
-  }, [handleGlobalMouseMove, stopAutoScroll]);
-
-  // ${isInSelection() && is30Minute ? 'border-t-white' : ''}
+  const endDragAndCancel = useCallback(
+    (event: PointerEvent): void => {
+      // The cast is okay since endDrag doesn't use any of:
+      // nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+      endDrag(event as any);
+      window.removeEventListener('pointerup', endDragAndCancel);
+    },
+    [endDrag]
+  );
 
   return (
     <div
-      ref={dragRef}
       id={`${columnID}-${blockID}`}
       className={`cursor-pointer select-none flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
         is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
@@ -741,94 +343,36 @@ export default function CalBlock({
             }
           : {}),
       }}
-      onClick={handleBlockClick}
-      onMouseDown={handleSelectionStart}
-      onMouseOver={() => {
+      // This cast is probably wrong, but fixing it is out of scope.
+      onClick={onClick as any}
+      onPointerDown={handleSelectionStart}
+      onPointerEnter={(event) => {
         if (isOnGcal) {
           setShowTooltip(true);
         }
-
-        handleDesktopHoverChartedUser();
+        if (dragState === undefined) {
+          return;
+        }
+        // onPointerUp doesn't catch pointerup on non-block elements, addEventHandler doesn't work with once: true, and
+        // onPointerCancel is redundant if this is present.
+        if (event.buttons === 0) {
+          endDrag(event);
+          return;
+        }
+        const { selection, newAvailability } = dragState.computeSelection({
+          col: columnID,
+          block: blockID,
+        });
+        setMostRecentSelection(selection);
+        setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }}
-      onMouseEnter={() => isOnGcal && setShowTooltip(true)}
-      onMouseLeave={() => {
-        handleMouseOrTouchLeaveBlock();
-        setShowTooltip(false);
-      }}
-      onTouchStart={(e) => {
-        if (blockID == -1) return;
-
-        const touch = e.touches[0];
-        dragStartTime.current = Date.now();
-        lastDragPoint.current = [touch.clientX, touch.clientY];
-        pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
-        dragOriginClientRef.current = { x: touch.clientX, y: touch.clientY };
-        pointerHasMovedRef.current = false;
-        scrollContainerRef.current = findScrollContainer(
-          e.currentTarget as Element
-        );
-        handleMobileHoverChartedUser(e);
-        onClick(e as any);
-      }}
+      onMouseEnter={handleDesktopHoverChartedUser}
       onTouchMove={(e) => {
-        if (blockID == -1) return;
-
-        if (theShowUserChart !== undefined) {
-          setShowUserChart?.(false);
-        }
-
-        const touch = e.touches[0];
-        const [startX, startY] = lastDragPoint.current || [0, 0];
-        const hasMoved =
-          Math.abs(touch.clientX - startX) > 10 ||
-          Math.abs(touch.clientY - startY) > 10;
-
-        if (hasMoved && !dragState.isSelecting) {
-          handleSelectionStart(e);
-        }
-
-        if (dragState.isSelecting) {
-          handleSelectionMove(e);
-        }
-
+        setShowUserChart?.(false);
         handleMobileHoverChartedUser(e);
-
-        if (isOnGcal && hasMoved) {
-          setShowTooltip(false);
-        }
       }}
-      onTouchEnd={(e) => {
-        if (blockID == -1) return;
-
-        e.preventDefault();
-
-        const touchDuration = Date.now() - (dragStartTime.current || 0);
-        const wasTap = touchDuration < 300 && !dragState.isSelecting;
-
-        if (wasTap) {
-          if (draggable && !isAdmin) {
-            setCalendarState((prev) => {
-              const newState = { ...prev };
-              if (!newState[user]) newState[user] = [];
-              if (!newState[user][columnID]) newState[user][columnID] = [];
-              newState[user][columnID][blockID] =
-                !newState[user][columnID][blockID];
-              return newState;
-            });
-            onClick(e as any);
-          }
-        } else if (dragState.isSelecting) {
-          handleDragEnd();
-          onClick(e as any);
-        }
-
-        stopAutoScroll();
-        dragStartTime.current = null;
-        lastDragPoint.current = null;
-        pointerClientRef.current = null;
-        dragOriginClientRef.current = null;
-        pointerHasMovedRef.current = false;
-        scrollContainerRef.current = null;
+      onPointerOut={() => {
+        setShowTooltip(false);
       }}
     >
       {(isEventStart || isOnGcal || isEventEnd) && (
@@ -882,4 +426,28 @@ export default function CalBlock({
       )}
     </div>
   );
+}
+
+/**
+ * Picks a color between the lower and upper bound.
+ *
+ * @param color1 - The "lower bound" for the color.
+ * @param color2 - The "upper bound" for the color.
+ * @param factor - Which color to pick. 0 means color1, 1 means color2, anything else is a mix.
+ */
+// Color interpolation helper
+function interpolateColor(
+  color1: string,
+  color2: string,
+  factor: number
+): string {
+  const c1 = color1.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
+  const c2 = color2.match(/\w\w/g)?.map((hex) => parseInt(hex, 16)) || [];
+
+  const result = c1.map((value, index) => {
+    const hex = Math.round(value + factor * (c2[index] - value)).toString(16);
+    return hex.padStart(2, '0');
+  });
+
+  return `#${result.join('')}`;
 }
