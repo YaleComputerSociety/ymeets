@@ -1,6 +1,7 @@
 export type EventId = string;
 export type Location = string;
 export type Availability = boolean[][];
+export type ReadonlyAvailability = readonly (readonly boolean[])[];
 
 export interface Event {
   // Firebase ID is EventID
@@ -38,6 +39,27 @@ export interface Participant {
 }
 
 export type calendarState = Availability[]; // length = num of people
+
+/**
+ * Shallow-copies `state`, replacing the grid for `user` with `availability`.
+ *
+ * @remarks
+ * Does not perform bounds checking.
+ *
+ * @param state - A calendar state to be shallow-copied.
+ * @param user - The user whose calendar should be overridden.
+ * @param availability - The user's new calendar.
+ * @returns A shallow copy of `state` whose `user`'th element is `availability`.
+ */
+export function copyAndReplace(
+  state: calendarState,
+  user: number,
+  availability: Availability
+): calendarState {
+  const newState = state.slice();
+  newState[user] = availability;
+  return newState;
+}
 
 export type DateRange = {
   startDate: Date;
@@ -119,7 +141,7 @@ export class BoundingBox {
   /**
    * Returns `true` if the box contains `coords` and `false` otherwise. Inclusive.
    *
-   * @param coords - the coordinates of a point to be tested for containment.
+   * @param coords - The coordinates of a point to be tested for containment.
    * @returns `true` if `coords` is in the box and `false` otherwise.
    */
   contains(coords: Coords): boolean {
@@ -143,12 +165,6 @@ export class BoundingBox {
     }
   }
 }
-// export interface dragProperties {
-//   dragStartedOnID: number[];
-//   dragEndedOnID: number[];
-//   dragStartedOn: boolean;
-//   blocksAffectedDuringDrag: Set<any>;
-// }
 
 export interface dragProperties {
   isSelecting: boolean;
@@ -157,6 +173,94 @@ export interface dragProperties {
   lastPosition: [number, number] | null; // Add this line
   selectionMode: boolean;
   completedSelections?: BoundingBox[];
+}
+
+/**
+ * Represents a user dragging their mouse across an availability grid to select or deselect blocks.
+ *
+ * Always inverts the origin. A drag that starts on `false` will select blocks, and a drag that starts on `true` will
+ * deselect blocks.
+ */
+export class DraggedSelection {
+  /**
+   * The initial state of the availability grid, kept so shrinking a drag doesn't erase old data.
+   * @private
+   */
+  private readonly initialAvailability: ReadonlyAvailability;
+  /**
+   * What newly-selected blocks should be set to. `true` makes this a selection; `false` makes this a deselection.
+   * @private
+   */
+  private readonly setsBlocksTo: boolean;
+  /**
+   * The block where the drag started.
+   * @private
+   */
+  private readonly origin: Readonly<Coords>;
+
+  /**
+   * Starts a new drag as if the user had started holding down left click. You probably want `DraggedSelection.create`
+   * instead; that function also computes the state of the grid immediately after the drag starts.
+   *
+   * @remarks
+   * `origin` must be in bounds for `initialAvailability`. Deep-copies `initialAvailability`.
+   *
+   * @param initialAvailability - The state of the availability grid before this drag began.
+   * @param origin - The coordinates of the block where the drag began.
+   */
+  constructor(initialAvailability: Availability, origin: Coords) {
+    this.initialAvailability = initialAvailability.map((row) => row.slice());
+    this.origin = origin;
+
+    this.setsBlocksTo =
+      !this.initialAvailability[this.origin.col][this.origin.block];
+  }
+
+  /**
+   * Simulates moving the destination of the drag to `destination`, as if a user had moved their mouse there while
+   * still holding left click. Returns the box that the drag selects and the the state of the availability grid after
+   * the selection.
+   *
+   * @param destination - The new far corner for the drag.
+   * @returns The bounds of the selection
+   */
+  computeSelection(destination: Coords): {
+    selection: BoundingBox;
+    newAvailability: Availability;
+  } {
+    const selection = new BoundingBox(this.origin, destination);
+    const newAvailability = this.initialAvailability.map((row) => row.slice());
+
+    for (const { col, block } of selection) {
+      newAvailability[col][block] = this.setsBlocksTo;
+    }
+
+    return { selection, newAvailability };
+  }
+
+  /**
+   * Starts a new drag as if the user had started holding down left click. Also computes the drag's bounding box and the
+   * grid's new state.
+   *
+   * @remarks
+   * `origin` must be in bounds for `initialAvailability`. Deep-copies `initialAvailability`.
+   *
+   * @param initialAvailability - The state of the availability grid before this drag began.
+   * @param origin - The coordinates of the block where the drag began.
+   * @returns The drag, its bounding box, and the new grid state immediately after the drag begins.
+   */
+  static create(
+    initialAvailability: Availability,
+    origin: Coords
+  ): {
+    drag: DraggedSelection;
+    selection: BoundingBox;
+    newAvailability: Availability;
+  } {
+    const drag = new DraggedSelection(initialAvailability, origin);
+    const { selection, newAvailability } = drag.computeSelection(origin);
+    return { drag, selection, newAvailability };
+  }
 }
 
 export interface calendar {

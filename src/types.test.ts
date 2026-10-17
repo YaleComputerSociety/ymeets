@@ -1,4 +1,4 @@
-import { BoundingBox } from './types';
+import { BoundingBox, DraggedSelection } from './types';
 
 test('BoundingBox instantiates from pre-sorted coordinates', () => {
   const topLeft = { col: 1, block: 3 };
@@ -66,4 +66,65 @@ test('BoundingBox iteration hits every contained point', () => {
   for (const point of expectedPoints) {
     expect(actualPoints).toContainEqual(point);
   }
+});
+
+test('DraggedSelection.create computes correct results', () => {
+  const availability = [
+    [false, false, false],
+    [false, false, false],
+    [false, false, false],
+    [false, false, false],
+  ];
+  const { selection, newAvailability } = DraggedSelection.create(availability, {
+    col: 1,
+    block: 2,
+  });
+  expect({ ...selection }).toStrictEqual({
+    left: 1,
+    right: 1,
+    top: 2,
+    bottom: 2,
+  });
+  expect(newAvailability).toStrictEqual([
+    [false, false, false],
+    [false, false, true],
+    [false, false, false],
+    [false, false, false],
+  ]);
+});
+
+test('DraggedSelection.create flips based on origin', () => {
+  const { newAvailability } = DraggedSelection.create([[true]], {
+    col: 0,
+    block: 0,
+  });
+  expect(newAvailability).toStrictEqual([[false]]);
+});
+
+test('DraggedSelection.computeSelection computes results correctly', () => {
+  const availability = [
+    [false, true, false, true, false],
+    [true, false, true, false, true],
+    [false, true, false, true, false],
+    [true, false, true, false, true],
+    [false, true, false, true, false],
+  ];
+  const drag = new DraggedSelection(availability, { col: 2, block: 2 });
+  const { selection, newAvailability } = drag.computeSelection({
+    col: 3,
+    block: 4,
+  });
+  expect({ ...selection }).toStrictEqual({
+    left: 2,
+    right: 3,
+    top: 2,
+    bottom: 4,
+  });
+  expect(newAvailability).toStrictEqual([
+    [false, true, false, true, false],
+    [true, false, true, false, true],
+    [false, true, true, true, true],
+    [true, false, true, true, true],
+    [false, true, false, true, false],
+  ]);
 });
