@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
@@ -77,7 +71,6 @@ export default function CalBlock({
   const [dragState, setDragState] = theDragState;
   const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
   const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
 
@@ -92,15 +85,6 @@ export default function CalBlock({
         hovering: false,
       });
     }
-  }, []);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
   }, []);
 
   /**
@@ -208,11 +192,6 @@ export default function CalBlock({
 
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
     if (blockID == -1) {
       return;
     }
