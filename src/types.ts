@@ -166,15 +166,6 @@ export class BoundingBox {
   }
 }
 
-export interface dragProperties {
-  isSelecting: boolean;
-  startPoint: [number, number] | null;
-  endPoint: [number, number] | null;
-  lastPosition: [number, number] | null; // Add this line
-  selectionMode: boolean;
-  completedSelections?: BoundingBox[];
-}
-
 /**
  * Represents a user dragging their mouse across an availability grid to select or deselect blocks.
  *
