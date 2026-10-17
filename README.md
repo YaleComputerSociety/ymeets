@@ -1,3 +1,5 @@
+[![Tests](https://github.com/YaleComputerSociety/ymeets/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/YaleComputerSociety/ymeets/actions/workflows/ci.yml)
+
 # ymeets - Yale Group Meetings Made Easy
 ymeets provides a clean interface for scheduling meetings with other people. We aim to make the platform the go-to place for Yalies to plan their organized gatherings, with features ranging from GAPI integration to Yale Academic Calendar support. 
 
