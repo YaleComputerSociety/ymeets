@@ -1,4 +1,6 @@
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarDate,
   calendarDimensions,
   calendarState,
@@ -6,7 +8,6 @@ import {
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
 import CalBlock from './CalBlock';
-import { dragProperties } from '../../types';
 import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
 import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
@@ -30,9 +31,13 @@ interface CalRowProps {
   blockIDOffset: number;
   is30Minute: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+  ]
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -76,6 +81,7 @@ export default function CalRow({
   blockIDOffset,
   is30Minute,
   theDragState,
+  theMostRecentSelection,
   chartedUsersData,
   theGoogleCalendarEvents,
   time,
@@ -330,6 +336,7 @@ export default function CalRow({
             draggable={blockData.isDraggable}
             user={user}
             theDragState={theDragState}
+            theMostRecentSelection={theMostRecentSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
             associatedEvents={blockData.events}
