@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
@@ -45,6 +51,9 @@ interface CalBlockProps {
   additionalEventCount: number;
 }
 
+const AUTO_SCROLL_EDGE_PX = 56;
+const AUTO_SCROLL_MAX_STEP_PX = 18;
+
 export default function CalBlock({
   blockID,
   columnID,
@@ -73,6 +82,12 @@ export default function CalBlock({
   const [showTooltip, setShowTooltip] = useState(false);
   const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
+  const dragRef = useRef<HTMLDivElement>(null);
+  const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
+  const dragOriginClientRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerHasMovedRef = useRef(false);
+  const autoScrollFrameRef = useRef<number | null>(null);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -146,7 +161,7 @@ export default function CalBlock({
    * Picks a shade of blue based on how many users are available during this block relative to the maximum.
    */
   const getGroupPercentageColor = useCallback(() => {
-    if (blockID == -1) {
+    if (blockID === -1) {
       return getDefaultColor();
     }
     let selectedCount = 0;
@@ -174,7 +189,7 @@ export default function CalBlock({
 
   // Update shade color when relevant props change
   useEffect(() => {
-    if (blockID == -1) {
+    if (blockID === -1) {
       setShadeColor(getDefaultColor());
       return;
     }
@@ -192,7 +207,7 @@ export default function CalBlock({
 
   const handleDesktopHoverChartedUser = useCallback(() => {
     if (!chartedUsers || !setChartedUsers) return;
-    if (blockID == -1) {
+    if (blockID === -1) {
       return;
     }
 
@@ -259,6 +274,115 @@ export default function CalBlock({
     [chartedUsers, setChartedUsers, calendarState]
   );
 
+  const findScrollContainer = useCallback((startNode: Element | null) => {
+    const taggedContainer = startNode?.closest(
+      '[data-calendar-scroll-container="true"]'
+    ) as HTMLElement | null;
+    if (taggedContainer) {
+      return taggedContainer;
+    }
+
+    let current: HTMLElement | null =
+      (startNode as HTMLElement | null) ?? dragRef.current;
+
+    while (current) {
+      const { overflowY } = window.getComputedStyle(current);
+      const canScrollY = /(auto|scroll|overlay)/.test(overflowY);
+      if (canScrollY && current.scrollHeight > current.clientHeight) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return (document.scrollingElement as HTMLElement | null) || null;
+  }, []);
+
+  function stopAutoScroll() {
+    if (autoScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(autoScrollFrameRef.current);
+      autoScrollFrameRef.current = null;
+    }
+  }
+
+  const startAutoScroll = useCallback(() => {
+    stopAutoScroll();
+
+    const step = () => {
+      if (dragState === undefined) {
+        autoScrollFrameRef.current = null;
+        return;
+      }
+
+      const pointer = pointerClientRef.current;
+      if (!pointer) {
+        autoScrollFrameRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+
+      if (!pointerHasMovedRef.current) {
+        autoScrollFrameRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+
+      let scrollContainer = scrollContainerRef.current;
+      if (!scrollContainer || !document.contains(scrollContainer)) {
+        const hoveredElement = document.elementFromPoint(pointer.x, pointer.y);
+        scrollContainer = findScrollContainer(hoveredElement);
+        scrollContainerRef.current = scrollContainer;
+      }
+
+      if (scrollContainer) {
+        const isDocumentScrollContainer =
+          scrollContainer === document.body ||
+          scrollContainer === document.documentElement ||
+          scrollContainer === document.scrollingElement;
+
+        const containerTop = isDocumentScrollContainer
+          ? 0
+          : scrollContainer.getBoundingClientRect().top;
+        const containerBottom = isDocumentScrollContainer
+          ? window.innerHeight
+          : scrollContainer.getBoundingClientRect().bottom;
+
+        let scrollDelta = 0;
+
+        if (pointer.y > containerBottom - AUTO_SCROLL_EDGE_PX) {
+          const normalizedDistance = Math.min(
+            1,
+            (pointer.y - (containerBottom - AUTO_SCROLL_EDGE_PX)) /
+              AUTO_SCROLL_EDGE_PX
+          );
+          scrollDelta = Math.ceil(normalizedDistance * AUTO_SCROLL_MAX_STEP_PX);
+        } else if (pointer.y < containerTop + AUTO_SCROLL_EDGE_PX) {
+          const normalizedDistance = Math.min(
+            1,
+            (containerTop + AUTO_SCROLL_EDGE_PX - pointer.y) /
+              AUTO_SCROLL_EDGE_PX
+          );
+          scrollDelta = -Math.ceil(
+            normalizedDistance * AUTO_SCROLL_MAX_STEP_PX
+          );
+        }
+
+        if (scrollDelta !== 0) {
+          const scrollTarget = isDocumentScrollContainer
+            ? document.scrollingElement
+            : scrollContainer;
+
+          if (scrollTarget) {
+            scrollTarget.scrollTop += scrollDelta;
+          } else {
+            window.scrollBy(0, scrollDelta);
+          }
+        }
+      }
+
+      autoScrollFrameRef.current = window.requestAnimationFrame(step);
+    };
+
+    autoScrollFrameRef.current = window.requestAnimationFrame(step);
+  }, [findScrollContainer, stopAutoScroll]);
+
   /**
    * Starts a new drag, updating the `dragState`, `mostRecentSelection`, and `calendarState` state variables as needed.
    * Special-cased to reject `calendarState` updates on group calendars.
@@ -266,7 +390,7 @@ export default function CalBlock({
   const handleSelectionStart = useCallback(
     (event: React.PointerEvent) => {
       if (!draggable) return;
-      if (blockID == -1) return;
+      if (blockID === -1) return;
 
       event.preventDefault();
 
@@ -281,8 +405,20 @@ export default function CalBlock({
       if (!isAdmin) {
         setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }
+
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      startAutoScroll();
     },
-    [draggable, user, columnID, blockID, calendarState, setCalendarState]
+    [
+      draggable,
+      user,
+      columnID,
+      blockID,
+      calendarState,
+      setCalendarState,
+      handleGlobalMouseMove,
+      startAutoScroll,
+    ]
   );
 
   /**
@@ -304,23 +440,43 @@ export default function CalBlock({
     [dragState, setCalendarState, setMostRecentSelection]
   );
 
+  function handleGlobalMouseMove(event: MouseEvent): void {
+    const dragOrigin = dragOriginClientRef.current;
+    if (
+      dragOrigin &&
+      (Math.abs(event.clientX - dragOrigin.x) > 3 ||
+        Math.abs(event.clientY - dragOrigin.y) > 3)
+    ) {
+      pointerHasMovedRef.current = true;
+    }
+    pointerClientRef.current = { x: event.clientX, y: event.clientY };
+  }
+
   /**
    * Ends the current drag.
    */
   const endDrag = useCallback(
     (event: React.PointerEvent): void => {
-      if (blockID == -1) return;
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      stopAutoScroll();
+
+      if (blockID === -1) return;
 
       event.preventDefault();
       setDragState(undefined);
 
       setShowTooltip(false);
+      pointerClientRef.current = null;
+      dragOriginClientRef.current = null;
+      pointerHasMovedRef.current = false;
+      scrollContainerRef.current = null;
     },
-    [blockID, setDragState, setShowTooltip]
+    [blockID, setDragState, setShowTooltip, stopAutoScroll]
   );
 
   return (
     <div
+      ref={dragRef}
       id={`${columnID}-${blockID}`}
       className={`cursor-pointer select-none flex-1 w-full p-0 h-4 touch-none relative border-r border-[#7E7E7E] ${
         is30Minute ? 'border-t border-t-[#7E7E7E]' : ''
@@ -354,10 +510,37 @@ export default function CalBlock({
         handleSelectionMove(dragState);
       }}
       onMouseEnter={handleDesktopHoverChartedUser}
+      onTouchStart={(e) => {
+        if (blockID === -1) return;
+
+        const touch = e.touches[0];
+        pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
+        dragOriginClientRef.current = { x: touch.clientX, y: touch.clientY };
+        pointerHasMovedRef.current = false;
+        scrollContainerRef.current = findScrollContainer(
+          e.currentTarget as Element
+        );
+        handleMobileHoverChartedUser(e);
+      }}
+
       onTouchMove={(e) => {
+        if (blockID === -1) return;
+
         setShowUserChart?.(false);
         handleMobileHoverChartedUser(e);
       }}
+
+      onTouchEnd={(e) => {
+        if (blockID === -1) return;
+        e.preventDefault();
+
+        stopAutoScroll();
+        pointerClientRef.current = null;
+        dragOriginClientRef.current = null;
+        pointerHasMovedRef.current = false;
+        scrollContainerRef.current = null;
+      }}
+
       onPointerOut={() => {
         setShowTooltip(false);
       }}
