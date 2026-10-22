@@ -32,11 +32,107 @@ import ARUSH from './Arush.jpeg';
 import JADEN from './Jaden.jpeg';
 import ISHANI from './Ishani.png';
 import CONNOR from './Connor.png';
+import SHILOH from './shiloh.png';
+import ANDREW from './andrew.png';
+import AYSHA from './aysha.jpeg';
+import RICHARD from './richard.png';
 
 const CURR_CONTRIBUTORS = [
   {
-    name: 'Jeet Parikh',
+    name: 'Ishani Singh',
     title: ['Product Lead'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/ishani-singh17/',
+    github: 'https://github.com/ising2025',
+    portfolio: undefined,
+    image: ISHANI,
+  },
+
+  {
+    name: 'Jaden Cohen',
+    title: ['Product Lead'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/jaden-cohen-705a27313/',
+    github: 'https://github.com/Invictus108',
+    portfolio: undefined,
+    image: JADEN,
+  },
+
+  {
+    name: 'Arush Srivastava',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
+    github: 'https://arushsri515.github.io/#',
+    portfolio: undefined,
+    image: ARUSH,
+  },
+
+  {
+    name: 'Julien Toussaint Dang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
+    github: 'https://github.com/JulienTD23',
+    portfolio: undefined,
+    image: JULIEN,
+  },
+
+  {
+    name: 'Connor White',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/connorlwhite/',
+    github: 'https://github.com/ConnorWhite9',
+    portfolio: undefined,
+    image: CONNOR,
+  },
+
+  {
+    name: 'Shiloh Huang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/shilohhuang/',
+    github: 'https://github.com/shilohhuang',
+    portfolio: undefined,
+    image: SHILOH,
+  },
+
+  {
+    name: 'Andrew Yim',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/anerdw/',
+    github: 'https://github.com/Andrew5057',
+    portfolio: undefined,
+    image: ANDREW,
+  },
+
+  {
+    name: 'Aysha Guvanchmyradova',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'www.linkedin.com/in/aysha-guvanchmyradova',
+    github: 'https://github.com/ayshaguvanchmyradova-alt',
+    portfolio: undefined,
+    image: AYSHA,
+  },
+
+  {
+    name: 'Richard Xu',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/richardxu257/?isSelfProfile=true',
+    github: 'https://github.com/richardxu257',
+    portfolio: undefined,
+    image: RICHARD,
+  },
+];
+
+const PAST_CONTRIBUTORS = [
+  {
+    name: 'Jeet Parikh',
+    title: ['Former Lead'],
     founding: false,
     portfolio: undefined,
     linkedin: 'https://www.linkedin.com/in/parikhjeet/',
@@ -46,10 +142,11 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Rylan Yang',
-    title: ['Product Lead'],
+    title: ['Former Lead'],
     founding: false,
     linkedin: 'https://www.linkedin.com/in/rylan-yang/',
     github: 'https://github.com/rylany27',
+    portfolio: undefined,
     image: RYLAN,
   },
 
@@ -72,53 +169,6 @@ const CURR_CONTRIBUTORS = [
     image: RONALD,
   },
 
-  {
-    name: 'Arush Srivastava',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
-    github: 'https://arushsri515.github.io/#',
-    image: ARUSH,
-  },
-
-  {
-    name: 'Julien Toussaint Dang',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
-    github: 'https://github.com/JulienTD23',
-    image: JULIEN,
-  },
-
-  {
-    name: 'Jaden Cohen',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/jaden-cohen-705a27313/',
-    github: 'https://github.com/Invictus108',
-    image: JADEN,
-  },
-
-  {
-    name: 'Ishani Singh',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/ishani-singh17/',
-    github: 'https://github.com/ising2025',
-    image: ISHANI,
-  },
-
-  {
-    name: 'Connor White',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/connorlwhite/',
-    github: 'https://github.com/ConnorWhite9',
-    image: CONNOR,
-  },
-];
-
-const PAST_CONTRIBUTORS = [
   {
     name: 'Hawa Khalif',
     title: ['Software Engineer'],
