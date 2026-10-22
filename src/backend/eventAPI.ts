@@ -554,7 +554,7 @@ export default class FrontendEventAPI {
    * @returns
    */
   static getCalendarDimensions(): calendarDimensions {
-    const theDates: Date[] = getDates();
+    const theDates: Date[] = [...getDates()].sort((a, b) => a.getTime() - b.getTime());
     const theCalendarDates: calendarDate[][] = [];
     let curCalendarBucket: calendarDate[] = [];
     const numOfCols = theDates.length;
@@ -593,6 +593,7 @@ export default class FrontendEventAPI {
 
     // if its a general day
     if (theDates[0].getFullYear() === 2000) {
+      const weekdayDates = [...theDates].sort((a, b) => a.getDay() - b.getDay());
       for (let i = 0; i < theDates.length; i++) {
         if (i == 0) {
           curCalendarBucket.push({
