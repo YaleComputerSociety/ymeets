@@ -4,12 +4,13 @@ import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
   Availability,
   calendarDate,
-  dragProperties,
 } from '../../types';
 import eventAPI from '../../backend/eventAPI';
 import {
@@ -140,13 +141,8 @@ function TimeSelectPage({
     window.location.reload();
   };
   
-  const [dragState, setDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false, // true for selecting, false for deselecting
-    lastPosition: null,
-  });
+  const theDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentSelection = useState<BoundingBox | undefined>(undefined);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
@@ -894,7 +890,8 @@ function TimeSelectPage({
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 draggable={true}
                 chartedUsersData={undefined}
-                theDragState={[dragState, setDragState]}
+                theDragState={theDragState}
+                theMostRecentSelection={theMostRecentSelection}
                 isAdmin={false}
                 theGoogleCalendarEvents={[
                   googleCalendarEvents,
