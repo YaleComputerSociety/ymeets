@@ -1,4 +1,9 @@
-import { BoundingBox, DraggedSelection } from './types';
+import {
+  Availability,
+  BoundingBox,
+  DraggedSelection,
+  copyAndReplace,
+} from './types';
 
 test('BoundingBox instantiates from pre-sorted coordinates', () => {
   const topLeft = { col: 1, block: 3 };
@@ -68,6 +73,19 @@ test('BoundingBox iteration hits every contained point', () => {
   }
 });
 
+test('copyAndReplace replaces the chosen array', () => {
+  const availability: Availability[] = [[], [], []];
+  const replaced = copyAndReplace(availability, 1, [[true]]);
+  expect(replaced).toStrictEqual([[], [[true]], []]);
+});
+
+test('copyAndReplace returns an independent copy', () => {
+  const availability: Availability[] = [[], [], []];
+  const replaced = copyAndReplace(availability, 0, [[true]]);
+  expect(replaced === availability).toBe(false);
+  expect(availability).toStrictEqual([[], [], []]);
+});
+
 test('DraggedSelection.create computes correct results', () => {
   const availability = [
     [false, false, false],
@@ -127,4 +145,13 @@ test('DraggedSelection.computeSelection computes results correctly', () => {
     [true, false, true, true, true],
     [false, true, false, true, false],
   ]);
+});
+
+test('DraggedSelection is independent of source grid', () => {
+  const availability = [[false, false, false]];
+  const drag = new DraggedSelection(availability, { col: 0, block: 1 });
+  availability[0] = [true, true, true];
+  const { newAvailability } = drag.computeSelection({ col: 0, block: 1 });
+  expect(newAvailability).toStrictEqual([[false, true, false]]);
+  expect(availability).toStrictEqual([[true, true, true]]);
 });
