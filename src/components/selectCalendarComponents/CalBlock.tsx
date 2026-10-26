@@ -439,7 +439,7 @@ export default function CalBlock({
         setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }
     },
-    [dragState, setCalendarState, setMostRecentSelection]
+    [calendarState, dragState, setCalendarState, setMostRecentSelection, user]
   );
 
   function handleGlobalMouseMove(event: MouseEvent): void {
