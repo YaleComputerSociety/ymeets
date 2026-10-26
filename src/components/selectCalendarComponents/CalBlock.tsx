@@ -407,6 +407,8 @@ export default function CalBlock({
       }
 
       document.addEventListener('mousemove', handleGlobalMouseMove);
+      // Casting to any since setting 'pointerup' doesn't add the necessary fields
+      window.addEventListener('pointerup', (e) => endDrag(e as any), { once: true });
       startAutoScroll();
     },
     [
@@ -494,17 +496,11 @@ export default function CalBlock({
       // This cast is probably wrong, but fixing it is out of scope.
       onClick={onClick as any}
       onPointerDown={handleSelectionStart}
-      onPointerEnter={(event) => {
+      onPointerEnter={() => {
         if (isOnGcal) {
           setShowTooltip(true);
         }
         if (dragState === undefined) {
-          return;
-        }
-        // onPointerUp doesn't catch pointerup on non-block elements, addEventHandler doesn't work with once: true, and
-        // onPointerCancel is redundant if this is present.
-        if (event.buttons === 0) {
-          endDrag(event);
           return;
         }
         handleSelectionMove(dragState);
