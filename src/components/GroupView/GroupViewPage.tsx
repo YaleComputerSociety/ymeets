@@ -127,7 +127,7 @@ export default function GroupViewPage({
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
-  const theMostRecentSelection = useState<BoundingBox | undefined>(undefined);
+  const [mostRecentSelection, setMostRecentSelection] = useState<BoundingBox | undefined>(undefined);
 
   const { login, currentUser } = useAuth();
 
@@ -182,18 +182,17 @@ export default function GroupViewPage({
     };
 
   async function handleSelectionSubmission() {
-    const selection = theMostRecentSelection[0];
-    if (selection === undefined) {
+    if (mostRecentSelection === undefined) {
       setAlertMessage('No new time selection made!');
       return;
     }
 
-    if (selection.left !== selection.right) {
+    if (mostRecentSelection.left !== mostRecentSelection.right) {
       setAlertMessage('You must select times that occur on the same day!');
       return;
     }
 
-    const calDate = calendarFramework?.dates.flat()[selection.left];
+    const calDate = calendarFramework?.dates.flat()[mostRecentSelection.left];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
@@ -201,8 +200,8 @@ export default function GroupViewPage({
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times.flat()[selection.top];
-    const selectedEndTimeHHMM: string = times.flat()[selection.bottom];
+    const selectedStartTimeHHMM: string = times.flat()[mostRecentSelection.top];
+    const selectedEndTimeHHMM: string = times.flat()[mostRecentSelection.bottom];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -611,7 +610,7 @@ export default function GroupViewPage({
                 user={getCurrentUserIndex()}
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
-                theMostRecentSelection={theMostRecentSelection}
+                theMostRecentSelection={[mostRecentSelection, setMostRecentSelection]}
                 theGoogleCalendarEvents={[[], () => {}]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}
