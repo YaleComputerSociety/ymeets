@@ -107,8 +107,7 @@ export default function CalBlock({
    * if it's not selected or if the block is -1.
    */
   const isBlockSelected = useCallback((): boolean => {
-    if (blockID === -1) return false;
-    return calendarState[user]?.[columnID]?.[blockID];
+    return calendarState[user]?.[columnID]?.[blockID] ?? false;
   }, [user, columnID, blockID, calendarState]);
 
   /**
@@ -383,6 +382,26 @@ export default function CalBlock({
     autoScrollFrameRef.current = window.requestAnimationFrame(step);
   }, [findScrollContainer, stopAutoScroll]);
 
+
+  /**
+   * For autoscrolling purposes, checks whether the pointer has moved far from its original location and declares that
+   * the pointer has moved if it has.
+   *
+   * @remarks
+   * Dependencies are all from `useRef`, so this will only be defined once.
+   */
+  const handleGlobalMouseMove = useCallback((event: MouseEvent): void => {
+    const dragOrigin = dragOriginClientRef.current;
+    if (
+      dragOrigin &&
+      (Math.abs(event.clientX - dragOrigin.x) > 3 ||
+        Math.abs(event.clientY - dragOrigin.y) > 3)
+    ) {
+      pointerHasMovedRef.current = true;
+    }
+    pointerClientRef.current = { x: event.clientX, y: event.clientY };
+  }, [dragOriginClientRef, pointerClientRef, pointerHasMovedRef]);
+
   /**
    * Starts a new drag, updating the `dragState`, `mostRecentSelection`, and `calendarState` state variables as needed.
    * Special-cased to reject `calendarState` updates on group calendars.
@@ -439,20 +458,8 @@ export default function CalBlock({
         setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }
     },
-    [calendarState, dragState, setCalendarState, setMostRecentSelection, user]
+    [calendarState, setCalendarState, setMostRecentSelection, user]
   );
-
-  function handleGlobalMouseMove(event: MouseEvent): void {
-    const dragOrigin = dragOriginClientRef.current;
-    if (
-      dragOrigin &&
-      (Math.abs(event.clientX - dragOrigin.x) > 3 ||
-        Math.abs(event.clientY - dragOrigin.y) > 3)
-    ) {
-      pointerHasMovedRef.current = true;
-    }
-    pointerClientRef.current = { x: event.clientX, y: event.clientY };
-  }
 
   /**
    * Ends the current drag.
