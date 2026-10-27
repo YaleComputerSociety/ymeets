@@ -85,6 +85,20 @@ export interface calendarDimensions {
 }
 
 /**
+ * Returns a fully-false availability grid with the given dimensions.
+ *
+ * @param numOfCols - The number of columns (major axis).
+ * @param numOfBlocks - The number of blocks (minor axis).
+ */
+export function makeAvailability(numOfCols: number, numOfBlocks: number): Availability {
+  const availability: Availability = new Array(numOfCols);
+  for (let i = 0; i < availability.length; i++) {
+    availability[i] = new Array(numOfBlocks).fill(false);
+  }
+  return availability;
+}
+
+/**
  * The coordinates of a cell in a 2D grid, usually column-major.
  */
 interface Coords {
