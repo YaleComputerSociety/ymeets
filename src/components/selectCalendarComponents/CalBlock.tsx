@@ -14,6 +14,7 @@ import {
   userData,
   user,
   calendarDimensions,
+  makeAvailability
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -446,7 +447,9 @@ export default function CalBlock({
 
       const coords = { col: columnID, block: blockID };
       const { drag, selection, newAvailability } = DraggedSelection.create(
-        calendarState[user],
+        // This hack is necessary for when a user isn't actually in the array yet.
+        // Ideally we'd handle this way further up, but that's out of scope.
+        calendarState[user] ?? makeAvailability(calendarFramework.numOfCols, calendarFramework.numOfBlocks),
         coords
       );
       setDragState(drag);
