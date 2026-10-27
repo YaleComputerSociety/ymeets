@@ -201,14 +201,16 @@ export default function CalBlock({
       return;
     }
 
-    if (isAdmin) {
+    if (!isAdmin && draggable) {
+      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
+    } else if (isAdmin) {
       const inRecentSelection = mostRecentSelection?.contains({
         col: columnID,
         block: blockID,
       });
       setShadeColor(inRecentSelection ? '#73dd64' : getGroupPercentageColor());
     } else {
-      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
+      setShadeColor(getGroupPercentageColor());
     }
   }, [
     blockID,
@@ -464,6 +466,9 @@ export default function CalBlock({
       document.addEventListener('pointerup', endDrag as any, {
         once: true,
       });
+      document.addEventListener('pointercancel', endDrag as any, {
+        once: true,
+      });
       startAutoScroll();
     },
     [
@@ -498,16 +503,17 @@ export default function CalBlock({
         setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }
     },
-    [calendarState, setCalendarState, setMostRecentSelection, user]
+    [blockID, calendarState, columnID, isAdmin, setCalendarState, setMostRecentSelection, user]
   );
 
   useEffect(() => {
     return () => {
       document.removeEventListener('pointermove', handleGlobalPointerMove);
       document.removeEventListener('pointerup', endDrag as any);
+      document.removeEventListener('pointercancel', endDrag as any);
       stopAutoScroll();
     };
-  }, [handleGlobalPointerMove, stopAutoScroll]);
+  }, [endDrag, handleGlobalPointerMove, stopAutoScroll]);
 
   return (
     <div
@@ -566,6 +572,11 @@ export default function CalBlock({
         if (blockID === -1) return;
         e.preventDefault();
 
+        if (!pointerHasMovedRef.current) {
+          // Unsafe, but it worked in the original version, so changing is out of scope
+          onClick(e as any);
+        }
+
         stopAutoScroll();
         pointerClientRef.current = null;
         dragOriginClientRef.current = null;
@@ -573,7 +584,7 @@ export default function CalBlock({
         scrollContainerRef.current = null;
       }}
 
-      onPointerOut={() => {
+      onPointerLeave={() => {
         setShowTooltip(false);
       }}
     >
