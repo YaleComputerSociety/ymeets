@@ -1,9 +1,10 @@
+import { Link } from 'react-router-dom';
 import CalendarIcon from './CalendarIcon';
 
 export default function NavLogo() {
   return (
     <div className="inline-flex items-center space-x-4 transition hover:scale-x-102">
-      <a href="/">
+      <Link to="/">
         <div
           className="flex flex-row items-center select-none text-text dark:text-text-dark \
                                 hover:text-primary"
@@ -13,7 +14,7 @@ export default function NavLogo() {
           </div>
           <span className="text-2xl font-bold font-display">ymeets</span>
         </div>
-      </a>
+      </Link>
     </div>
   );
 }
