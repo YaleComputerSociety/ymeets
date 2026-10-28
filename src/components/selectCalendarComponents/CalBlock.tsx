@@ -53,7 +53,9 @@ interface CalBlockProps {
 }
 
 const AUTO_SCROLL_EDGE_PX = 56;
-const AUTO_SCROLL_MAX_STEP_PX = 18;
+const AUTO_SCROLL_PX_PER_SECOND = 500;
+const AUTO_SCROLL_INTERSTEP_DELAY_MS = 100;
+const AUTO_SCROLL_MAX_STEP_PX = (AUTO_SCROLL_INTERSTEP_DELAY_MS * AUTO_SCROLL_PX_PER_SECOND / 1000) | 0;
 
 export default function CalBlock({
   blockID,
@@ -87,7 +89,7 @@ export default function CalBlock({
   const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
   const dragOriginClientRef = useRef<{ x: number; y: number } | null>(null);
   const pointerHasMovedRef = useRef(false);
-  const autoScrollFrameRef = useRef<number | null>(null);
+  const autoDragIntervalId = useRef<number | null>(null);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
 
   // Initialize chartedUsers
@@ -316,9 +318,9 @@ export default function CalBlock({
   }, []);
 
   const stopAutoScroll = useCallback(() => {
-    if (autoScrollFrameRef.current !== null) {
-      window.cancelAnimationFrame(autoScrollFrameRef.current);
-      autoScrollFrameRef.current = null;
+    if (autoDragIntervalId.current !== null) {
+      window.clearInterval(autoDragIntervalId.current);
+      autoDragIntervalId.current = null;
     }
   }, []);
 
@@ -326,19 +328,9 @@ export default function CalBlock({
     stopAutoScroll();
 
     const step = () => {
-      if (dragState === undefined) {
-        autoScrollFrameRef.current = null;
-        return;
-      }
-
       const pointer = pointerClientRef.current;
-      if (!pointer) {
-        autoScrollFrameRef.current = window.requestAnimationFrame(step);
-        return;
-      }
 
-      if (!pointerHasMovedRef.current) {
-        autoScrollFrameRef.current = window.requestAnimationFrame(step);
+      if (!pointer || !pointerHasMovedRef.current) {
         return;
       }
 
@@ -394,11 +386,9 @@ export default function CalBlock({
           }
         }
       }
-
-      autoScrollFrameRef.current = window.requestAnimationFrame(step);
     };
 
-    autoScrollFrameRef.current = window.requestAnimationFrame(step);
+    autoDragIntervalId.current = window.setInterval(window.requestAnimationFrame, AUTO_SCROLL_INTERSTEP_DELAY_MS, step);
   }, [dragState, findScrollContainer, stopAutoScroll]);
 
   /**
@@ -537,6 +527,11 @@ export default function CalBlock({
       onPointerDown={(e) => {
         startDrag(e);
         (e.target as Element).releasePointerCapture(e.pointerId);
+        pointerClientRef.current = { x: e.clientX, y: e.clientY };
+        dragOriginClientRef.current = { x: e.clientX, y: e.clientY };
+        scrollContainerRef.current = findScrollContainer(
+          e.currentTarget as Element
+        );
       }}
       onPointerEnter={() => {
         if (isOnGcal) {
@@ -550,14 +545,6 @@ export default function CalBlock({
       onMouseEnter={handleDesktopHoverChartedUser}
       onTouchStart={(e) => {
         if (blockID === -1) return;
-
-        const touch = e.touches[0];
-        pointerClientRef.current = { x: touch.clientX, y: touch.clientY };
-        dragOriginClientRef.current = { x: touch.clientX, y: touch.clientY };
-        pointerHasMovedRef.current = false;
-        scrollContainerRef.current = findScrollContainer(
-          e.currentTarget as Element
-        );
         handleMobileHoverChartedUser(e);
       }}
 
