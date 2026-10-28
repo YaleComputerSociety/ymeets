@@ -14,7 +14,7 @@ import {
   userData,
   user,
   calendarDimensions,
-  makeAvailability
+  makeAvailability,
 } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -55,7 +55,8 @@ interface CalBlockProps {
 const AUTO_SCROLL_EDGE_PX = 56;
 const AUTO_SCROLL_PX_PER_SECOND = 500;
 const AUTO_SCROLL_INTERSTEP_DELAY_MS = 100;
-const AUTO_SCROLL_MAX_STEP_PX = (AUTO_SCROLL_INTERSTEP_DELAY_MS * AUTO_SCROLL_PX_PER_SECOND / 1000) | 0;
+const AUTO_SCROLL_MAX_STEP_PX =
+  ((AUTO_SCROLL_INTERSTEP_DELAY_MS * AUTO_SCROLL_PX_PER_SECOND) / 1000) | 0;
 
 export default function CalBlock({
   blockID,
@@ -388,7 +389,11 @@ export default function CalBlock({
       }
     };
 
-    autoDragIntervalId.current = window.setInterval(window.requestAnimationFrame, AUTO_SCROLL_INTERSTEP_DELAY_MS, step);
+    autoDragIntervalId.current = window.setInterval(
+      window.requestAnimationFrame,
+      AUTO_SCROLL_INTERSTEP_DELAY_MS,
+      step
+    );
   }, [dragState, findScrollContainer, stopAutoScroll]);
 
   /**
@@ -441,7 +446,11 @@ export default function CalBlock({
       const { drag, selection, newAvailability } = DraggedSelection.create(
         // This hack is necessary for when a user isn't actually in the array yet.
         // Ideally we'd handle this way further up, but that's out of scope.
-        calendarState[user] ?? makeAvailability(calendarFramework.numOfCols, calendarFramework.numOfBlocks),
+        calendarState[user] ??
+          makeAvailability(
+            calendarFramework.numOfCols,
+            calendarFramework.numOfBlocks
+          ),
         coords
       );
       setDragState(drag);
@@ -493,7 +502,15 @@ export default function CalBlock({
         setCalendarState(copyAndReplace(calendarState, user, newAvailability));
       }
     },
-    [blockID, calendarState, columnID, isAdmin, setCalendarState, setMostRecentSelection, user]
+    [
+      blockID,
+      calendarState,
+      columnID,
+      isAdmin,
+      setCalendarState,
+      setMostRecentSelection,
+      user,
+    ]
   );
 
   useEffect(() => {
