@@ -196,8 +196,6 @@ export default function SharedSidebar({
     ),
   };
 
-  console.log(userHasSignedIn)
-
   return (
     <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
       <AlertPopup

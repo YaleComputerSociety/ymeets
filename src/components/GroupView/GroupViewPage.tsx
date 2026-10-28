@@ -8,10 +8,11 @@ import {
 } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
-  dragProperties,
 } from '../../types';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { useCallback } from 'react';
@@ -125,13 +126,8 @@ export default function GroupViewPage({
   const [showLocationChart, setShowLocationChart] = useState(false);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
-  const [dragState, setDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false, // true for selecting, false for deselecting
-    lastPosition: null,
-  });
+  const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
+  const [mostRecentSelection, setMostRecentSelection] = useState<BoundingBox | undefined>(undefined);
 
   const { login, currentUser } = useAuth();
 
@@ -186,20 +182,17 @@ export default function GroupViewPage({
     };
 
   async function handleSelectionSubmission() {
-    if (!dragState.endPoint || !dragState.startPoint) {
+    if (mostRecentSelection === undefined) {
       setAlertMessage('No new time selection made!');
       return;
     }
 
-    const [startCol, startBlock] = dragState.startPoint;
-    const [endCol, endBlock] = dragState.endPoint;
-
-    if (startCol !== endCol) {
+    if (mostRecentSelection.left !== mostRecentSelection.right) {
       setAlertMessage('You must select times that occur on the same day!');
       return;
     }
 
-    const calDate = calendarFramework?.dates.flat()[startCol];
+    const calDate = calendarFramework?.dates.flat()[mostRecentSelection.left];
     const timeBlocks = generateTimeBlocks(
       calendarFramework?.startTime,
       calendarFramework?.endTime
@@ -207,8 +200,8 @@ export default function GroupViewPage({
 
     const times = timeBlocks.flat();
 
-    const selectedStartTimeHHMM: string = times.flat()[startBlock];
-    const selectedEndTimeHHMM: string = times.flat()[endBlock];
+    const selectedStartTimeHHMM: string = times.flat()[mostRecentSelection.top];
+    const selectedEndTimeHHMM: string = times.flat()[mostRecentSelection.bottom];
 
     const [startHour, startMinute] = selectedStartTimeHHMM
       .split(':')
@@ -265,7 +258,7 @@ export default function GroupViewPage({
     () => ({
       ...chartedUsers,
       users: allUsers?.users?.filter(
-        (user) => peopleStatus[user.name] === true && !declinedPeople.includes(user.name)
+        (user) => peopleStatus[user.name] && !declinedPeople.includes(user.name)
       ),
     }),
     [chartedUsers, peopleStatus, declinedPeople]
@@ -600,13 +593,7 @@ export default function GroupViewPage({
                 onClick={() => {
                   if (isAdmin) {
                     // Reset drag selection when the calendar is clicked
-                    setDragState({
-                      isSelecting: false,
-                      startPoint: null,
-                      endPoint: null,
-                      selectionMode: false,
-                      lastPosition: null,
-                    });
+                    setDragState(undefined);
                   }
                   if (showUserChart === true) {
                     return;
@@ -623,6 +610,7 @@ export default function GroupViewPage({
                 user={getCurrentUserIndex()}
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
+                theMostRecentSelection={[mostRecentSelection, setMostRecentSelection]}
                 theGoogleCalendarEvents={[[], () => {}]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}

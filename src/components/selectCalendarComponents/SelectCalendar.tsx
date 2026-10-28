@@ -5,6 +5,8 @@ import React, {
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarDate,
   calendarDimensions,
   calendarState,
@@ -13,7 +15,6 @@ import {
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CalRow from './CalRow';
 import DateBar from './DateBar';
-import { dragProperties } from '../../types';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
@@ -36,9 +37,13 @@ interface SelectCalendarProps {
   endDate: Date;
   renderTime: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+  ]
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -71,6 +76,7 @@ function SelectCalendar({
   startDate,
   endDate,
   theDragState,
+  theMostRecentSelection,
   theGoogleCalendarEvents,
   onClick,
   theShowUserChart,
@@ -88,34 +94,17 @@ function SelectCalendar({
 
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  const [dragState, setDragState] = theDragState;
-
-const handleDisappear = useCallback(() => {
-        if (chartedUsers && setChartedUsers) {
-          setChartedUsers({
-            users: chartedUsers.users,
-            userIDs: chartedUsers.userIDs,
-            available: [],
-            unavailable: [...chartedUsers.users],
-            hovering : false,
-          });
-        }
-      }, [chartedUsers, setChartedUsers]);
-
-  const handleMouseLeave = useCallback(
-    (event: MouseEvent) => {
-      if (
-        calendarRef.current &&
-        !calendarRef.current.contains(event.relatedTarget as Node)
-      ) {
-        setDragState((prev) => ({ ...prev, isSelecting: false }));
-      }
-      handleDisappear();
-    },
-    [setDragState]
-  );
-
-
+  const handleMouseLeave = useCallback(() => {
+    if (chartedUsers && setChartedUsers) {
+      setChartedUsers({
+        users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
+        available: [],
+        unavailable: [...chartedUsers.users],
+        hovering : false,
+      });
+    }
+  }, [chartedUsers, setChartedUsers]);
 
   useEffect(() => {
     const calendar = calendarRef.current;
@@ -168,7 +157,8 @@ const handleDisappear = useCallback(() => {
                                 blockID={blockIndexWithinHour * 4 + blockID}
                                 user={user}
                                 isAdmin={isAdmin}
-                                theDragState={[dragState, setDragState]}
+                                theDragState={theDragState}
+                                theMostRecentSelection={theMostRecentSelection}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 theGoogleCalendarEvents={
