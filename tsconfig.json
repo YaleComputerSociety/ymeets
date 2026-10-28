@@ -28,7 +28,8 @@
   },
   
   "include": [
-    "src", "tailwind.config.js"  ,
-    "src", "Intl.d.ts"
+    "src", 
+    "tailwind.config.js",
+    "Intl.d.ts"
 ]
 }

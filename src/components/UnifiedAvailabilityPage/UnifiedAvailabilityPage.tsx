@@ -4,6 +4,7 @@ import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRende
 import { SideBySideView } from '../SideBySideView';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import eventAPI from '../../backend/eventAPI';
+import BestTimeFinder from '../BestTimeFinder';
 import {
   getEventOnPageload,
   getEventName,
@@ -298,9 +299,41 @@ export default function UnifiedAvailabilityPage() {
       </div>
     );
   }
+  console.log(
+      "Calendar dates:",
+      groupViewCalendarFramework.dates
+  );
 
+  console.log(
+      "Calendar dimensions:",
+      groupViewCalendarFramework.numOfCols,
+      groupViewCalendarFramework.numOfBlocks
+  );
+
+  console.log(
+      "Availability lengths:",
+      groupViewCalendarState.map(person =>
+          person.map(day => day.length)
+      )
+  );
   return (
     <div>
+      {/* Best Time Finder feature */}
+      {isAdmin && groupViewCalendarState.length > 0 && (
+        <BestTimeFinder
+          availabilities = {groupViewCalendarState}
+          personIdx = {allUsers.users.map((_,index) => index)}
+          personNames = {allUsers.users.map(user => user.name)}
+          dayLabels = {groupViewCalendarFramework.dates[0]?.map(
+            (date) => 
+              `${date.shortenedWeekDay}, ${date.month} ${date.calendarDay}`
+          ) ?? []}
+          
+          numBlocks = {groupViewCalendarFramework.numOfBlocks}
+          startHour = {groupViewCalendarFramework.startTime.getHours()}
+        />
+      )}
+
       {/* Desktop: Side-by-side view */}
       <div className="hidden lg:block">
         <SideBySideView
