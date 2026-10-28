@@ -394,7 +394,7 @@ export default function CalBlock({
       AUTO_SCROLL_INTERSTEP_DELAY_MS,
       step
     );
-  }, [dragState, findScrollContainer, stopAutoScroll]);
+  }, [findScrollContainer, stopAutoScroll]);
 
   /**
    * For autoscrolling purposes, checks whether the pointer has moved far from its original location and declares that
