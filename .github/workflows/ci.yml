@@ -8,9 +8,6 @@ on:
 
 permissions: {}
 
-env:
-  CI: true
-
 jobs:
   static_analysis:
     name: Static Analysis
