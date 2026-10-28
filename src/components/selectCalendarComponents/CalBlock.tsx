@@ -54,9 +54,9 @@ interface CalBlockProps {
 
 const AUTO_SCROLL_EDGE_PX = 56;
 const AUTO_SCROLL_PX_PER_SECOND = 500;
-const AUTO_SCROLL_INTERSTEP_DELAY_MS = 100;
+const AUTO_SCROLL_MS_PER_STEP = 100;
 const AUTO_SCROLL_MAX_STEP_PX =
-  ((AUTO_SCROLL_INTERSTEP_DELAY_MS * AUTO_SCROLL_PX_PER_SECOND) / 1000) | 0;
+  ((AUTO_SCROLL_MS_PER_STEP * AUTO_SCROLL_PX_PER_SECOND) / 1000) | 0;
 
 export default function CalBlock({
   blockID,
@@ -391,7 +391,7 @@ export default function CalBlock({
 
     autoDragIntervalId.current = window.setInterval(
       window.requestAnimationFrame,
-      AUTO_SCROLL_INTERSTEP_DELAY_MS,
+      AUTO_SCROLL_MS_PER_STEP,
       step
     );
   }, [findScrollContainer, stopAutoScroll]);
