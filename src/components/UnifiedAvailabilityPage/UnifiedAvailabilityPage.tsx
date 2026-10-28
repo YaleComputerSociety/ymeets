@@ -2,7 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import TimeSelectPage from '../TimeSelect/TimeSelectPage';
 import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
 import { SideBySideView } from '../SideBySideView';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  useBlocker,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import eventAPI from '../../backend/eventAPI';
 import {
   getEventOnPageload,
@@ -30,6 +35,7 @@ import {
   Availability,
 } from '../../types';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
+import UnsavedChangesPopup from '../utils/components/UnsavedChangesPopup';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import { calendar_v3 } from 'googleapis';
 
@@ -290,6 +296,56 @@ export default function UnifiedAvailabilityPage() {
     fetchData();
   }, []);
 
+  // Browser-level warning for closing the tab, refreshing, or leaving the site
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // In-app navigation guard (navbar links, nav() calls, back/forward within the app)
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+  );
+  const [leaveSaveError, setLeaveSaveError] = useState<string | undefined>();
+
+  const handleSaveAndLeave = async () => {
+    setLeaveSaveError(undefined);
+    try {
+      await handleSideBySideSave();
+      if (blocker.state === 'blocked') blocker.proceed();
+    } catch (err) {
+      console.error('Failed to save before leaving:', err);
+      setLeaveSaveError('Failed to save your changes. Please try again.');
+    }
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    setLeaveSaveError(undefined);
+    if (blocker.state === 'blocked') blocker.proceed();
+  };
+
+  const handleStay = () => {
+    setLeaveSaveError(undefined);
+    if (blocker.state === 'blocked') blocker.reset();
+  };
+
+  const unsavedChangesPopup = (
+    <UnsavedChangesPopup
+      isOpen={blocker.state === 'blocked'}
+      isSaving={isSaving}
+      error={leaveSaveError}
+      onSaveAndLeave={handleSaveAndLeave}
+      onLeave={handleLeaveWithoutSaving}
+      onStay={handleStay}
+    />
+  );
+
   if (loading) {
     return (
       <div className="w-full h-[60%] flex flex-col items-center justify-center">
@@ -301,6 +357,8 @@ export default function UnifiedAvailabilityPage() {
 
   return (
     <div>
+      {unsavedChangesPopup}
+
       {/* Desktop: Side-by-side view */}
       <div className="hidden lg:block">
         <SideBySideView

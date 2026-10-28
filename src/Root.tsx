@@ -1,9 +1,8 @@
 import './Root.css';
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
   Navigate,
   useParams,
 } from 'react-router-dom';
@@ -29,6 +28,35 @@ function GroupViewRedirect() {
   return <Navigate to={`/dashboard/${code}`} replace />;
 }
 
+// Shared layout so NavBar and One Tap stay inside the router context
+function Layout() {
+  return (
+    <>
+      <GoogleOneTapPrompt />
+      <NavBar></NavBar>
+      <Outlet />
+    </>
+  );
+}
+
+// Data router (instead of <BrowserRouter>) so pages can use useBlocker
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/dayselect', element: <DaySelectComponent /> },
+      { path: '/edit/:eventId', element: <DaySelectComponent /> },
+      { path: '/dashboard/:code', element: <UnifiedAvailabilityPage /> },
+      { path: '/groupview/:code', element: <GroupViewRedirect /> },
+      { path: '/useraccount', element: <AccountsPage /> },
+      { path: '/about-us', element: <AboutUsPage /> },
+      { path: '/privacy', element: <PrivacyPage /> },
+      { path: '*', element: <NotFound /> },
+    ],
+  },
+]);
+
 function Root() {
   const [isEditing, setIsEditing] = useState(false);
   return (
@@ -36,24 +64,7 @@ function Root() {
       <ThemeProvider>
         <div className="bg-background dark:bg-background-dark h-screen overflow-auto">
           {/* <Banner title="2.0 Release is Live" text="Please report bugs" /> */}
-          <Router>
-            <GoogleOneTapPrompt />
-            <NavBar></NavBar>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/dayselect" element={<DaySelectComponent />} />
-              <Route path="/edit/:eventId" element={<DaySelectComponent />} />
-              <Route
-                path="/dashboard/:code"
-                element={<UnifiedAvailabilityPage />}
-              />
-              <Route path="/groupview/:code" element={<GroupViewRedirect />} />
-              <Route path="/useraccount" element={<AccountsPage />} />
-              <Route path="/about-us" element={<AboutUsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Router>
+          <RouterProvider router={router} />
         </div>
       </ThemeProvider>
     </AuthProvider>

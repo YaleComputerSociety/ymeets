@@ -127,7 +127,8 @@ export default function NavBar() {
                 <a
                   href="#"
                   className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     nav('/useraccount');
                   }}
                 >
@@ -141,7 +142,8 @@ export default function NavBar() {
                 <a
                   href="#"
                   className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     login();
                   }}
                 >
@@ -192,7 +194,8 @@ export default function NavBar() {
                     <a
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         nav('/about-us');
                         setMenuState('closed');
                       }}
@@ -218,7 +221,8 @@ export default function NavBar() {
                         <a
                           href="#"
                           className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
                             logout();
                             setMenuState('closed');
                             nav('/');
