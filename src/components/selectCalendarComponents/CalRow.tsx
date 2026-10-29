@@ -241,15 +241,26 @@ export function isTimeInEvent(
   );
 }
 
-export function isTimeInBlock(
-  time: Date,
+export function doesEventStartInBlock(
+  eventStart: Date,
   blockStartMinutes: number,
   blockDurationMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
-  const timeMinutes = dateToMinutes(time);
+  const timeMinutes = dateToMinutes(eventStart);
 
   const timeDifference = timeMinutes - blockStartMinutes;
   return timeDifference >= 0 && timeDifference < blockDurationMinutes;
+}
+
+export function doesEventEndInBlock(
+  eventStart: Date,
+  blockStartMinutes: number,
+  blockDurationMinutes: number = MINUTES_PER_BLOCK
+): boolean {
+  const timeMinutes = dateToMinutes(eventStart);
+
+  const timeDifference = timeMinutes - blockStartMinutes;
+  return timeDifference > 0 && timeDifference <= blockDurationMinutes;
 }
 
 export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
@@ -289,12 +300,12 @@ function analyzeCalendarBlock(
   );
 
   const eventsStartingInBlock = sameDayEvents.filter((event) =>
-    isTimeInBlock(event.start, blockStartMinutes)
+    doesEventStartInBlock(event.start, blockStartMinutes)
   );
 
   const eventsEndingInBlock = sameDayEvents.filter(
     (event) =>
-      isTimeInBlock(event.end, blockStartMinutes) &&
+      doesEventEndInBlock(event.end, blockStartMinutes) &&
       !isInAnyEvent(event.end, sameDayEvents)
   );
 
