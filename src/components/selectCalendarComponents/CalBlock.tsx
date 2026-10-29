@@ -42,12 +42,12 @@ interface CalBlockProps {
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
   isOnGcal: boolean;
-  eventsStartingOnBlock?: string[];
+  eventNames: (string | null)[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
 }
 
@@ -68,14 +68,14 @@ export default function CalBlock({
   theDragState,
   theMostRecentSelection: [mostRecentSelection, setMostRecentSelection],
   isOnGcal,
-  eventsStartingOnBlock: eventNames,
+  eventNames,
   onClick,
   is30Minute,
   chartedUsersData,
   theShowUserChart,
   isEventStart,
   isEventEnd,
-  eventName,
+  eventStartingOnBlock: eventStartingOnDate,
   additionalEventCount,
 }: CalBlockProps) {
   const { theme } = useTheme();
@@ -611,14 +611,14 @@ export default function CalBlock({
         />
       )}
 
-      {isEventStart && eventName && (
+      {isEventStart && eventStartingOnDate && (
         <div
           className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventName}
+          {eventStartingOnDate}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
@@ -633,7 +633,7 @@ export default function CalBlock({
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {eventNames.map((name, index) => (
               <div key={index} className="mb-1 last:mb-0 truncate">
-                {name}
+                {name || 'Unnamed Event'}
               </div>
             ))}
           </div>

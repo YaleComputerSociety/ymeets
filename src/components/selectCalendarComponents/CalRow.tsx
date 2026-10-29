@@ -55,7 +55,7 @@ interface CalRowProps {
 
 interface CalBlockData {
   isOnGcal: boolean;
-  eventsStartingOnBlock: string[];
+  eventNames: (string | null)[];
   isEventStart: boolean;
   isEventEnd: boolean;
   eventName: string | null;
@@ -129,7 +129,7 @@ export default function CalRow({
       events,
       isEventStart,
       isEventEnd,
-      eventName,
+      eventStartingOnBlock,
       additionalEventCount,
     } = analyzeCalendarBlock(
       googleCalendarEvents ? googleCalendarEvents : [],
@@ -145,16 +145,14 @@ export default function CalRow({
     );
 
     const isDraggable = adjustedBlockID >= 0 && draggable;
-    const eventsStartingOnBlock = events.map(
-      (event) => event.name || 'Unnamed Event'
-    );
+    const eventNames = events.map((event) => event.name);
 
     return {
       isOnGcal,
-      eventsStartingOnBlock,
+      eventNames,
       isEventStart,
       isEventEnd,
-      eventName,
+      eventName: eventStartingOnBlock,
       additionalEventCount,
       adjustedBlockID,
       adjustedColumnID,
@@ -182,10 +180,10 @@ export default function CalRow({
             theMostRecentSelection={theMostRecentSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
-            eventsStartingOnBlock={blockData.eventsStartingOnBlock}
+            eventNames={blockData.eventNames}
             isEventStart={blockData.isEventStart}
             isEventEnd={blockData.isEventEnd}
-            eventName={blockData.eventName}
+            eventStartingOnBlock={blockData.eventName}
             additionalEventCount={blockData.additionalEventCount}
           />
         );
@@ -253,11 +251,11 @@ export function doesEventStartInBlock(
 }
 
 export function doesEventEndInBlock(
-  eventStart: Date,
+  eventEnd: Date,
   blockStartMinutes: number,
   blockDurationMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
-  const timeMinutes = dateToMinutes(eventStart);
+  const timeMinutes = dateToMinutes(eventEnd);
 
   const timeDifference = timeMinutes - blockStartMinutes;
   return timeDifference > 0 && timeDifference <= blockDurationMinutes;
@@ -269,13 +267,11 @@ export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
 
 interface BlockInfo {
   isOnGcal: boolean;
-  eventCount: number;
   events: Event[];
   isEventStart: boolean;
   isEventEnd: boolean;
   eventStart: Event | null;
-  eventEnd: Event | null;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
 }
 
@@ -310,17 +306,14 @@ function analyzeCalendarBlock(
   );
 
   const eventStart = eventsStartingInBlock[0] || null;
-  const eventEnd = eventsEndingInBlock[0] || null;
 
   return {
     isOnGcal: overlappingEvents.length > 0,
-    eventCount: overlappingEvents.length,
     events: overlappingEvents,
     isEventStart: eventsStartingInBlock.length > 0,
     isEventEnd: eventsEndingInBlock.length > 0,
     eventStart,
-    eventEnd,
-    eventName: eventStart?.name || null,
+    eventStartingOnBlock: eventStart?.name || null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
   };
 }
