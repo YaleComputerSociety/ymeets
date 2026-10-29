@@ -20,8 +20,7 @@ interface CalRowProps {
   draggable: boolean;
   isAdmin?: boolean;
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined;
+    [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined;
   user: number;
   columnIndexOffSet: number;
   blockID: number;
@@ -32,8 +31,8 @@ interface CalRowProps {
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
-  ]
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+  ];
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -48,8 +47,7 @@ interface CalRowProps {
   time: string;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    | undefined;
+    [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined;
   groupIndex: number;
 }
 
@@ -120,157 +118,6 @@ export default function CalRow({
     return [blockID, columnIndex];
   }
 
-  interface BlockInfo {
-    isOnGcal: boolean;
-    eventCount: number;
-    events: calendar_v3.Schema$Event[];
-    isEventStart: boolean;
-    isEventEnd: boolean;
-    eventStart: calendar_v3.Schema$Event | null;
-    eventEnd: calendar_v3.Schema$Event | null;
-    eventName: string | null;
-    additionalEventCount: number;
-  }
-
-  function timeToMinutes(timeString: string): number {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  function dateToMinutes(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
-  }
-
-  function isSameDate(date1: Date, date2: Date): boolean {
-    return date1.toDateString() === date2.toDateString();
-  }
-
-  function isTimeInEvent(
-    event: calendar_v3.Schema$Event,
-    timeString: string,
-    targetDate: Date
-  ): boolean {
-    if (!event.start?.dateTime || !event.end?.dateTime) return false;
-
-    const startTime = new Date(event.start.dateTime);
-    const endTime = new Date(event.end.dateTime);
-
-    // Only check events on the target date
-    if (!isSameDate(startTime, targetDate)) return false;
-
-    const blockStartMinutes = timeToMinutes(timeString);
-    const blockEndMinutes = blockStartMinutes + 15; // 15-minute blocks
-
-    const eventStartMinutes = dateToMinutes(startTime);
-    const eventEndMinutes = dateToMinutes(endTime);
-
-    // Block overlaps with event if any part of the 15-minute block intersects with the event
-    // Use <= for event end to include blocks that start exactly when event ends
-    return (
-      blockStartMinutes <= eventEndMinutes &&
-      blockEndMinutes > eventStartMinutes
-    );
-  }
-
-  function doesEventStartSoonAfter(
-    event: calendar_v3.Schema$Event,
-    blockStart: string,
-    toleranceMinutes = 14
-  ): boolean {
-    if (!event.start?.dateTime) return false;
-
-    const startTime = new Date(event.start.dateTime);
-    const eventStartMinutes = dateToMinutes(startTime);
-    const blockStartMinutes = timeToMinutes(blockStart);
-
-    const timeDifference = eventStartMinutes - blockStartMinutes;
-    return timeDifference >= 0 && timeDifference <= toleranceMinutes;
-  }
-
-  function doesEventEndSoonAfter(
-    event: calendar_v3.Schema$Event,
-    blockEnd: string,
-    toleranceMinutes = 14
-  ): boolean {
-    if (!event.end?.dateTime) return false;
-
-    const endTime = new Date(event.end.dateTime);
-    const eventEndMinutes = dateToMinutes(endTime);
-    const blockEndMinutes = timeToMinutes(blockEnd);
-
-    const timeDifference = eventEndMinutes - blockEndMinutes;
-    return timeDifference >= 0 && timeDifference <= toleranceMinutes;
-  }
-
-  function hasOverlappingEvent(
-    targetEvent: calendar_v3.Schema$Event,
-    allEvents: calendar_v3.Schema$Event[]
-  ): boolean {
-    if (!targetEvent.start?.dateTime || !targetEvent.end?.dateTime)
-      return false;
-
-    const targetEnd = new Date(targetEvent.end.dateTime);
-
-    return allEvents.some((event) => {
-      if (
-        event === targetEvent ||
-        !event.start?.dateTime ||
-        !event.end?.dateTime
-      )
-        return false;
-
-      const eventStart = new Date(event.start.dateTime);
-      const eventEnd = new Date(event.end.dateTime);
-
-      // Check if other event overlaps with target event's end time
-      return eventStart < targetEnd && eventEnd > targetEnd;
-    });
-  }
-
-  function analyzeCalendarBlock(
-    googleCalendarEvents: calendar_v3.Schema$Event[],
-    date: Date,
-    time: string
-  ): BlockInfo {
-    // Filter events for the target date
-    const dayEvents = googleCalendarEvents.filter((event) => {
-      if (!event.start?.dateTime) return false;
-      const eventDate = new Date(event.start.dateTime);
-      return isSameDate(eventDate, date);
-    });
-
-    // Find events that overlap with this 15-minute block
-    const overlappingEvents = dayEvents.filter((event) =>
-      isTimeInEvent(event, time, date)
-    );
-
-    // Find events starting near this time
-    const startingEvents = dayEvents.filter((event) =>
-      doesEventStartSoonAfter(event, time)
-    );
-
-    // Find events ending near this time (excluding overlapped ones)
-    const endingEvents = dayEvents.filter(
-      (event) =>
-        doesEventEndSoonAfter(event, time) && !hasOverlappingEvent(event, dayEvents)
-    );
-
-    const eventStart = startingEvents[0] || null;
-    const eventEnd = endingEvents[0] || null;
-
-    return {
-      isOnGcal: overlappingEvents.length > 0,
-      eventCount: overlappingEvents.length,
-      events: overlappingEvents,
-      isEventStart: startingEvents.length > 0,
-      isEventEnd: endingEvents.length > 0,
-      eventStart,
-      eventEnd,
-      eventName: eventStart?.summary || null,
-      additionalEventCount: Math.max(0, startingEvents.length - 1),
-    };
-  }
-
   function computeCalBlockData(
     date: calendarDate,
     columnIndex: number
@@ -309,7 +156,6 @@ export default function CalRow({
       isDraggable,
     };
   }
-
   return (
     <div className={`grid grid-cols-${bucket.length}`}>
       {bucket.map((date: calendarDate, columnIndex: number) => {
@@ -341,4 +187,148 @@ export default function CalRow({
       })}
     </div>
   );
+}
+
+function timeToMinutes(timeString: string): number {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function dateToMinutes(date: Date): number {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function isSameDate(date1: Date, date2: Date): boolean {
+  return date1.toDateString() === date2.toDateString();
+}
+
+function isTimeInEvent(
+  event: calendar_v3.Schema$Event,
+  timeString: string,
+  targetDate: Date
+): boolean {
+  if (!event.start?.dateTime || !event.end?.dateTime) return false;
+
+  const startTime = new Date(event.start.dateTime);
+  const endTime = new Date(event.end.dateTime);
+
+  // Only check events on the target date
+  if (!isSameDate(startTime, targetDate)) return false;
+
+  const blockStartMinutes = timeToMinutes(timeString);
+  const blockEndMinutes = blockStartMinutes + 15; // 15-minute blocks
+
+  const eventStartMinutes = dateToMinutes(startTime);
+  const eventEndMinutes = dateToMinutes(endTime);
+
+  return (
+    blockStartMinutes < eventEndMinutes && blockEndMinutes > eventStartMinutes
+  );
+}
+
+function doesEventStartSoonAfter(
+  event: calendar_v3.Schema$Event,
+  blockStart: string,
+  toleranceMinutes = 14
+): boolean {
+  if (!event.start?.dateTime) return false;
+
+  const startTime = new Date(event.start.dateTime);
+  const eventStartMinutes = dateToMinutes(startTime);
+  const blockStartMinutes = timeToMinutes(blockStart);
+
+  const timeDifference = eventStartMinutes - blockStartMinutes;
+  return timeDifference >= 0 && timeDifference <= toleranceMinutes;
+}
+
+function doesEventEndSoonAfter(
+  event: calendar_v3.Schema$Event,
+  blockEnd: string,
+  toleranceMinutes = 14
+): boolean {
+  if (!event.end?.dateTime) return false;
+
+  const endTime = new Date(event.end.dateTime);
+  const eventEndMinutes = dateToMinutes(endTime);
+  const blockEndMinutes = timeToMinutes(blockEnd);
+
+  const timeDifference = eventEndMinutes - blockEndMinutes;
+  return timeDifference >= 0 && timeDifference <= toleranceMinutes;
+}
+
+function hasOverlappingEvent(
+  targetEvent: calendar_v3.Schema$Event,
+  allEvents: calendar_v3.Schema$Event[]
+): boolean {
+  if (!targetEvent.start?.dateTime || !targetEvent.end?.dateTime) return false;
+
+  const targetEnd = new Date(targetEvent.end.dateTime);
+
+  return allEvents.some((event) => {
+    if (event === targetEvent || !event.start?.dateTime || !event.end?.dateTime)
+      return false;
+
+    const eventStart = new Date(event.start.dateTime);
+    const eventEnd = new Date(event.end.dateTime);
+
+    // Check if other event overlaps with target event's end time
+    return eventStart < targetEnd && eventEnd > targetEnd;
+  });
+}
+
+interface BlockInfo {
+  isOnGcal: boolean;
+  eventCount: number;
+  events: calendar_v3.Schema$Event[];
+  isEventStart: boolean;
+  isEventEnd: boolean;
+  eventStart: calendar_v3.Schema$Event | null;
+  eventEnd: calendar_v3.Schema$Event | null;
+  eventName: string | null;
+  additionalEventCount: number;
+}
+
+function analyzeCalendarBlock(
+  googleCalendarEvents: calendar_v3.Schema$Event[],
+  date: Date,
+  time: string
+): BlockInfo {
+  // Filter events for the target date
+  const dayEvents = googleCalendarEvents.filter((event) => {
+    if (!event.start?.dateTime) return false;
+    const eventDate = new Date(event.start.dateTime);
+    return isSameDate(eventDate, date);
+  });
+
+  // Find events that overlap with this 15-minute block
+  const overlappingEvents = dayEvents.filter((event) =>
+    isTimeInEvent(event, time, date)
+  );
+
+  // Find events starting near this time
+  const startingEvents = dayEvents.filter((event) =>
+    doesEventStartSoonAfter(event, time)
+  );
+
+  // Find events ending near this time (excluding overlapped ones)
+  const endingEvents = dayEvents.filter(
+    (event) =>
+      doesEventEndSoonAfter(event, time) &&
+      !hasOverlappingEvent(event, dayEvents)
+  );
+
+  const eventStart = startingEvents[0] || null;
+  const eventEnd = endingEvents[0] || null;
+
+  return {
+    isOnGcal: overlappingEvents.length > 0,
+    eventCount: overlappingEvents.length,
+    events: overlappingEvents,
+    isEventStart: startingEvents.length > 0,
+    isEventEnd: endingEvents.length > 0,
+    eventStart,
+    eventEnd,
+    eventName: eventStart?.summary || null,
+    additionalEventCount: Math.max(0, startingEvents.length - 1),
+  };
 }
