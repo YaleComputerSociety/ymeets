@@ -260,7 +260,7 @@ function determineCalendarEventsForBlock(
   const eventsEndingInBlock = sameDayEvents.filter(
     (event) =>
       doesEventEndInBlock(event.end, blockStartMinutes) &&
--      !isInAnyEvent(event.end, sameDayEvents)
+      -!isInAnyEvent(event.end, sameDayEvents)
   );
 
   const eventStart = eventsStartingInBlock[0] || null;
@@ -350,7 +350,7 @@ interface Event {
  *
  * @remarks
  * Specifically, true if the block starts strictly before the event ends and ends strictly after
- * the event starts. Assumes the block starts 
+ * the event starts. Assumes the block starts
  *
  * @param event - An event on the same day as the block.
  * @param blockStartMinutes - The time at which the block starts in minutes since 00:00, local time.
