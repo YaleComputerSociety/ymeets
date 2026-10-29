@@ -8,11 +8,8 @@ import {
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
 import CalBlock from './CalBlock';
-import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
-import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
-import { over } from 'lodash';
 
 interface CalRowProps {
   bucket: calendarDate[];
@@ -28,7 +25,6 @@ interface CalRowProps {
   user: number;
   columnIndexOffSet: number;
   blockID: number;
-  blockIDOffset: number;
   is30Minute: boolean;
   theDragState: [
     DraggedSelection | undefined,
@@ -78,7 +74,6 @@ export default function CalRow({
   columnIndexOffSet,
   theCalendarFramework,
   blockID,
-  blockIDOffset,
   is30Minute,
   theDragState,
   theMostRecentSelection,
@@ -88,9 +83,8 @@ export default function CalRow({
   onClick,
   groupIndex,
 }: CalRowProps) {
-  const [googleCalendarEvents, setGoogleCalendarEvents] =
-    theGoogleCalendarEvents || [];
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+  const [googleCalendarEvents] = theGoogleCalendarEvents || [];
+  const [calendarFramework] = theCalendarFramework;
 
   // adjusts blockID and columnID based on timezone canges and potential new colmns added for new days
   function adjustBlockIDColumnID(
@@ -215,7 +209,6 @@ export default function CalRow({
     if (!targetEvent.start?.dateTime || !targetEvent.end?.dateTime)
       return false;
 
-    const targetStart = new Date(targetEvent.start.dateTime);
     const targetEnd = new Date(targetEvent.end.dateTime);
 
     return allEvents.some((event) => {
@@ -285,7 +278,6 @@ export default function CalRow({
     const {
       isOnGcal,
       events,
-      eventCount,
       isEventStart,
       isEventEnd,
       eventName,
