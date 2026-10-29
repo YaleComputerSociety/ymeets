@@ -55,7 +55,7 @@ interface CalRowProps {
 
 interface CalBlockData {
   isOnGcal: boolean;
-  events: calendar_v3.Schema$Event[] | undefined;
+  eventsStartingOnBlock: string[];
   isEventStart: boolean;
   isEventEnd: boolean;
   eventName: string | null;
@@ -145,10 +145,13 @@ export default function CalRow({
     );
 
     const isDraggable = adjustedBlockID >= 0 && draggable;
+    const eventsStartingOnBlock = events.map(
+      (event) => event.name || 'Unnamed Event'
+    );
 
     return {
       isOnGcal,
-      events,
+      eventsStartingOnBlock,
       isEventStart,
       isEventEnd,
       eventName,
@@ -179,7 +182,7 @@ export default function CalRow({
             theMostRecentSelection={theMostRecentSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
-            associatedEvents={blockData.events}
+            eventsStartingOnBlock={blockData.eventsStartingOnBlock}
             isEventStart={blockData.isEventStart}
             isEventEnd={blockData.isEventEnd}
             eventName={blockData.eventName}
@@ -204,29 +207,27 @@ export function areSameDate(date1: Date, date2: Date): boolean {
   return date1.toDateString() === date2.toDateString();
 }
 
-interface EventTimes {
+interface Event {
+  name: string | null;
   start: Date;
   end: Date;
 }
 
-function extractTimes(event: calendar_v3.Schema$Event): EventTimes | undefined {
+function parse(event: calendar_v3.Schema$Event): Event | undefined {
   if (!event.start?.dateTime || !event.end?.dateTime) {
     return undefined;
   }
+  const name = event.summary || null;
   const start = new Date(event.start.dateTime);
   const end = new Date(event.end.dateTime);
-  return { start, end };
+  return { name, start, end };
 }
 
 export function isTimeInEvent(
-  event: EventTimes | undefined,
+  event: Event,
   blockStartMinutes: number,
   targetDate: Date
 ): boolean {
-  if (event === undefined) {
-    return false;
-  }
-
   // Only check events on the target date
   if (!areSameDate(event.start, targetDate)) return false;
 
@@ -241,44 +242,28 @@ export function isTimeInEvent(
 }
 
 export function isTimeInBlock(
-  time: Date | undefined,
+  time: Date,
   blockStartMinutes: number,
   blockDurationMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
-  if (time === undefined) {
-    return false;
-  }
-
   const timeMinutes = dateToMinutes(time);
 
   const timeDifference = timeMinutes - blockStartMinutes;
   return timeDifference >= 0 && timeDifference < blockDurationMinutes;
 }
 
-export function isInAnyEvent(
-  time: Date | undefined,
-  events: readonly (EventTimes | undefined)[]
-): boolean {
-  if (time === undefined) {
-    return false;
-  }
-
-  return events.some((event) => {
-    if (event === undefined) {
-      return false;
-    }
-    return event.start < time && event.end > time;
-  });
+export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
+  return events.some((event) => event.start < time && event.end > time);
 }
 
 interface BlockInfo {
   isOnGcal: boolean;
   eventCount: number;
-  events: calendar_v3.Schema$Event[];
+  events: Event[];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventStart: calendar_v3.Schema$Event | null;
-  eventEnd: calendar_v3.Schema$Event | null;
+  eventStart: Event | null;
+  eventEnd: Event | null;
   eventName: string | null;
   additionalEventCount: number;
 }
@@ -289,27 +274,28 @@ function analyzeCalendarBlock(
   blockStartMinutes: number
 ): BlockInfo {
   // Filter events for the target date
-  const dayEvents = googleCalendarEvents.filter((event) => {
+  const rawSameDayEvents = googleCalendarEvents.filter((event) => {
     if (!event.start?.dateTime) return false;
     const eventDate = new Date(event.start.dateTime);
     return areSameDate(eventDate, date);
   });
-  const eventTimes = dayEvents.map(extractTimes);
+  // TODO: Remove the cast after upgrading Typescript
+  const sameDayEvents = rawSameDayEvents
+    .map(parse)
+    .filter((event) => event !== undefined) as Event[];
 
-  // Find events that overlap with this block
-  const overlappingEvents = dayEvents.filter((_, i) =>
-    isTimeInEvent(eventTimes[i], blockStartMinutes, date)
+  const overlappingEvents = sameDayEvents.filter((event) =>
+    isTimeInEvent(event, blockStartMinutes, date)
   );
 
-  // Find events starting near this time
-  const eventsStartingInBlock = dayEvents.filter((_, i) =>
-    isTimeInBlock(eventTimes[i]?.start, blockStartMinutes)
+  const eventsStartingInBlock = sameDayEvents.filter((event) =>
+    isTimeInBlock(event.start, blockStartMinutes)
   );
 
-  const eventsEndingInBlock = dayEvents.filter(
-    (_, i) =>
-      isTimeInBlock(eventTimes[i]?.end, blockStartMinutes) &&
-      !isInAnyEvent(eventTimes[i]?.end, eventTimes)
+  const eventsEndingInBlock = sameDayEvents.filter(
+    (event) =>
+      isTimeInBlock(event.end, blockStartMinutes) &&
+      !isInAnyEvent(event.end, sameDayEvents)
   );
 
   const eventStart = eventsStartingInBlock[0] || null;
@@ -323,7 +309,7 @@ function analyzeCalendarBlock(
     isEventEnd: eventsEndingInBlock.length > 0,
     eventStart,
     eventEnd,
-    eventName: eventStart?.summary || null,
+    eventName: eventStart?.name || null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
   };
 }
