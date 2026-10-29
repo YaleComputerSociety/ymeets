@@ -257,7 +257,7 @@ function determineCalendarEventsForBlock(
     doesEventStartInBlock(event.start, blockStartMinutes)
   );
 
-  const eventsEndingInBlock = sameDayEvents.filter(
+  const eventEndingInBlock = sameDayEvents.find(
     (event) =>
       doesEventEndInBlock(event.end, blockStartMinutes) &&
       -!isInAnyEvent(event.end, sameDayEvents)
@@ -269,7 +269,7 @@ function determineCalendarEventsForBlock(
     isOnGcal: overlappingEvents.length > 0,
     events: overlappingEvents,
     isEventStart: eventsStartingInBlock.length > 0,
-    isEventEnd: eventsEndingInBlock.length > 0,
+    isEventEnd: eventEndingInBlock !== undefined,
     eventStart,
     eventStartingOnBlock: eventStart?.name || null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
