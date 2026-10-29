@@ -178,34 +178,34 @@ export default function CalRow({
     );
   }
 
-  function isEventStartingNear(
+  function doesEventStartSoonAfter(
     event: calendar_v3.Schema$Event,
-    timeString: string,
+    blockStart: string,
     toleranceMinutes = 14
   ): boolean {
     if (!event.start?.dateTime) return false;
 
     const startTime = new Date(event.start.dateTime);
     const eventStartMinutes = dateToMinutes(startTime);
-    const blockStartMinutes = timeToMinutes(timeString);
+    const blockStartMinutes = timeToMinutes(blockStart);
 
-    const timeDifference = Math.abs(eventStartMinutes - blockStartMinutes);
-    return timeDifference <= toleranceMinutes;
+    const timeDifference = eventStartMinutes - blockStartMinutes;
+    return timeDifference >= 0 && timeDifference <= toleranceMinutes;
   }
 
-  function isEventEndingNear(
+  function doesEventEndSoonAfter(
     event: calendar_v3.Schema$Event,
-    timeString: string,
+    blockEnd: string,
     toleranceMinutes = 14
   ): boolean {
     if (!event.end?.dateTime) return false;
 
     const endTime = new Date(event.end.dateTime);
     const eventEndMinutes = dateToMinutes(endTime);
-    const blockStartMinutes = timeToMinutes(timeString);
+    const blockEndMinutes = timeToMinutes(blockEnd);
 
-    const timeDifference = Math.abs(eventEndMinutes - blockStartMinutes);
-    return timeDifference <= toleranceMinutes;
+    const timeDifference = eventEndMinutes - blockEndMinutes;
+    return timeDifference >= 0 && timeDifference <= toleranceMinutes;
   }
 
   function hasOverlappingEvent(
@@ -253,13 +253,13 @@ export default function CalRow({
 
     // Find events starting near this time
     const startingEvents = dayEvents.filter((event) =>
-      isEventStartingNear(event, time)
+      doesEventStartSoonAfter(event, time)
     );
 
     // Find events ending near this time (excluding overlapped ones)
     const endingEvents = dayEvents.filter(
       (event) =>
-        isEventEndingNear(event, time) && !hasOverlappingEvent(event, dayEvents)
+        doesEventEndSoonAfter(event, time) && !hasOverlappingEvent(event, dayEvents)
     );
 
     const eventStart = startingEvents[0] || null;
