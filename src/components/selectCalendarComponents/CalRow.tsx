@@ -213,7 +213,93 @@ export default function CalRow({
 }
 
 /**
- * Converts a 24-hour HH:MM string to the number of minutes since 00:00.
+ * Events that overlap, start on, or end on a calendar block.
+ */
+interface BlockEventOverlap {
+  isOnGcal: boolean;
+  events: Event[];
+  isEventStart: boolean;
+  isEventEnd: boolean;
+  eventStart: Event | null;
+  eventStartingOnBlock: string | null;
+  additionalEventCount: number;
+}
+
+/**
+ * Finds Google Calendar events that overlap, start in, or end in a calendar block.
+ *
+ * @param googleCalendarEvents - A list of all Google Calendar events to be examined.
+ * @param date - The block's date. Events not on this date will be ignored.
+ * @param blockStartMinutes - The number of minutes between 00:00 local time and the block's start.
+ * @returns Calendar events overlapping the block and summary statistics about them.
+ */
+function determineCalendarEventsForBlock(
+  googleCalendarEvents: calendar_v3.Schema$Event[],
+  date: Date,
+  blockStartMinutes: number
+): BlockEventOverlap {
+  // Filter events for the target date
+  const rawSameDayEvents = googleCalendarEvents.filter((event) => {
+    if (!event.start?.dateTime) return false;
+    const eventDate = new Date(event.start.dateTime);
+    return areSameDate(eventDate, date);
+  });
+  // TODO: Remove the cast after upgrading Typescript
+  const sameDayEvents = rawSameDayEvents
+    .map(parse)
+    .filter((event) => event !== undefined) as Event[];
+
+  const overlappingEvents = sameDayEvents.filter((event) =>
+    doesBlockOverlapEvent(event, blockStartMinutes)
+  );
+
+  const eventsStartingInBlock = sameDayEvents.filter((event) =>
+    doesEventStartInBlock(event.start, blockStartMinutes)
+  );
+
+  const eventsEndingInBlock = sameDayEvents.filter(
+    (event) =>
+      doesEventEndInBlock(event.end, blockStartMinutes) &&
+-      !isInAnyEvent(event.end, sameDayEvents)
+  );
+
+  const eventStart = eventsStartingInBlock[0] || null;
+
+  return {
+    isOnGcal: overlappingEvents.length > 0,
+    events: overlappingEvents,
+    isEventStart: eventsStartingInBlock.length > 0,
+    isEventEnd: eventsEndingInBlock.length > 0,
+    eventStart,
+    eventStartingOnBlock: eventStart?.name || null,
+    additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
+  };
+}
+
+/**
+ * Given an event from the API, extracts relevant details. Interprets `.summary` properties as
+ * event names; if the property is missing, defaults to `null`. Returns `undefined` if start or
+ * end date strings are missing or are not valid according to `Date.parse`.
+ *
+ * @param event - An event from the API.
+ * @returns The event's name, start time, and end time.
+ */
+export function parse(event: calendar_v3.Schema$Event): Event | undefined {
+  if (!event.start?.dateTime || !event.end?.dateTime) {
+    return undefined;
+  }
+  const name = event.summary || null;
+  const start = new Date(event.start.dateTime);
+  const end = new Date(event.end.dateTime);
+  if (isNaN(start.valueOf()) || isNaN(end.valueOf())) {
+    return undefined;
+  }
+  return { name, start, end };
+}
+
+/**
+ * Converts a 24-hour HH:MM string to the number of minutes since 00:00. Makes no guarantees for
+ * invalid time strings.
  *
  * @param timeString - A 24-hours HH:MM string representing a time.
  * @returns The number of full minutes passed since 00:00.
@@ -259,30 +345,18 @@ interface Event {
 }
 
 /**
- * Given an event from the API, extracts relevant details. Returns undefined if the event's
- * start or end time is missing.
+ * Determines whether a block overlaps with an event. Exclusive on both
+ * ends of the event.
  *
- * @param event - An event from the API.
- */
-function parse(event: calendar_v3.Schema$Event): Event | undefined {
-  if (!event.start?.dateTime || !event.end?.dateTime) {
-    return undefined;
-  }
-  const name = event.summary || null;
-  const start = new Date(event.start.dateTime);
-  const end = new Date(event.end.dateTime);
-  return { name, start, end };
-}
-
-/**
- * Determines whether an event completely contains a block. The event and block must be from
- * the same day. Containment is exclusive on both sides.
+ * @remarks
+ * Specifically, true if the block starts strictly before the event ends and ends strictly after
+ * the event starts. Assumes the block starts 
  *
  * @param event - An event on the same day as the block.
  * @param blockStartMinutes - The time at which the block starts in minutes since 00:00, local time.
  * @param blockDurationMinutes - The length of the block in minutes.
  */
-export function isBlockWithinEvent(
+export function doesBlockOverlapEvent(
   event: Event,
   blockStartMinutes: number,
   blockDurationMinutes: number = MINUTES_PER_BLOCK
@@ -345,68 +419,4 @@ export function doesEventEndInBlock(
  */
 export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
   return events.some((event) => event.start < time && event.end > time);
-}
-
-/**
- * Events that overlap, start on, or end on a calendar block.
- */
-interface BlockEventOverlap {
-  isOnGcal: boolean;
-  events: Event[];
-  isEventStart: boolean;
-  isEventEnd: boolean;
-  eventStart: Event | null;
-  eventStartingOnBlock: string | null;
-  additionalEventCount: number;
-}
-
-/**
- * Finds Google Calendar events that overlap, start in, or end in a calendar block.
- *
- * @param googleCalendarEvents - A list of all Google Calendar events to be examined.
- * @param date - The block's date. Events not on this date will be ignored.
- * @param blockStartMinutes - The number of minutes between 00:00 local time and the block's start.
- * @returns Calendar events overlapping the block and summary statistics about them.
- */
-function determineCalendarEventsForBlock(
-  googleCalendarEvents: calendar_v3.Schema$Event[],
-  date: Date,
-  blockStartMinutes: number
-): BlockEventOverlap {
-  // Filter events for the target date
-  const rawSameDayEvents = googleCalendarEvents.filter((event) => {
-    if (!event.start?.dateTime) return false;
-    const eventDate = new Date(event.start.dateTime);
-    return areSameDate(eventDate, date);
-  });
-  // TODO: Remove the cast after upgrading Typescript
-  const sameDayEvents = rawSameDayEvents
-    .map(parse)
-    .filter((event) => event !== undefined) as Event[];
-
-  const overlappingEvents = sameDayEvents.filter((event) =>
-    isBlockWithinEvent(event, blockStartMinutes)
-  );
-
-  const eventsStartingInBlock = sameDayEvents.filter((event) =>
-    doesEventStartInBlock(event.start, blockStartMinutes)
-  );
-
-  const eventsEndingInBlock = sameDayEvents.filter(
-    (event) =>
-      doesEventEndInBlock(event.end, blockStartMinutes) &&
-      !isInAnyEvent(event.end, sameDayEvents)
-  );
-
-  const eventStart = eventsStartingInBlock[0] || null;
-
-  return {
-    isOnGcal: overlappingEvents.length > 0,
-    events: overlappingEvents,
-    isEventStart: eventsStartingInBlock.length > 0,
-    isEventEnd: eventsEndingInBlock.length > 0,
-    eventStart,
-    eventStartingOnBlock: eventStart?.name || null,
-    additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
-  };
 }
