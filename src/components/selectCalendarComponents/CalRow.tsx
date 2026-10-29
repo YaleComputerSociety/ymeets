@@ -11,8 +11,14 @@ import CalBlock from './CalBlock';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
 
+/**
+ * The number of minutes that a single calendar block represents.
+ */
 const MINUTES_PER_BLOCK = 15;
 
+/**
+ * The properties needed to render a CalRow.
+ */
 interface CalRowProps {
   bucket: calendarDate[];
   theCalendarState: [
@@ -53,6 +59,9 @@ interface CalRowProps {
   groupIndex: number;
 }
 
+/**
+ * Information about a single block on calendar.
+ */
 interface CalBlockData {
   isOnGcal: boolean;
   eventNames: (string | null)[];
@@ -65,6 +74,11 @@ interface CalBlockData {
   isDraggable: boolean;
 }
 
+/**
+ * One row of a calendar grid. Mostly just constructs and forwards properties to calendar blocks,
+ * but also computes information related to imported Google Calendar events so the blocks can be
+ * highlighted, bordered, and labeled appropriately.
+ */
 export default function CalRow({
   bucket,
   theCalendarState,
@@ -86,7 +100,9 @@ export default function CalRow({
   const [googleCalendarEvents] = theGoogleCalendarEvents || [];
   const [calendarFramework] = theCalendarFramework;
 
-  // adjusts blockID and columnID based on timezone canges and potential new colmns added for new days
+  /**
+   * Adjusts blockID and columnID based on timezone canges and potential new colmns added for new days.
+   */
   function adjustBlockIDColumnID(
     groupIndex: number,
     blockID: number,
@@ -120,6 +136,10 @@ export default function CalRow({
     return [blockID, columnIndex];
   }
 
+  /**
+   * Computes pertinent information about calendar blocks, accounting for contextual information
+   * like the calendar's dimensions and the row's group.
+   */
   function computeCalBlockData(
     date: calendarDate,
     columnIndex: number
@@ -131,7 +151,7 @@ export default function CalRow({
       isEventEnd,
       eventStartingOnBlock,
       additionalEventCount,
-    } = analyzeCalendarBlock(
+    } = determineCalendarEventsForBlock(
       googleCalendarEvents ? googleCalendarEvents : [],
       date.date ? date.date : new Date(),
       timeToMinutes(time)
@@ -192,25 +212,58 @@ export default function CalRow({
   );
 }
 
+/**
+ * Converts a 24-hour HH:MM string to the number of minutes since 00:00.
+ *
+ * @param timeString - A 24-hours HH:MM string representing a time.
+ * @returns The number of full minutes passed since 00:00.
+ */
 export function timeToMinutes(timeString: string): number {
   const [hours, minutes] = timeString.split(':').map(Number);
   return hours * 60 + minutes;
 }
 
+/**
+ * Finds the number of minutes between a Date object and that day's 00:00 in local time.
+ *
+ * @param date - Any Date.
+ * @returns In local time, the number of minutes since the start of the day.
+ */
 export function dateToMinutes(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
 }
 
+/**
+ * Determines whether two Dates occur on the same calendar day in local time.
+ */
 export function areSameDate(date1: Date, date2: Date): boolean {
   return date1.toDateString() === date2.toDateString();
 }
 
+/**
+ * Basic details about an event.
+ */
 interface Event {
+  /**
+   * The name of the event. null if the name is missing.
+   */
   name: string | null;
+  /**
+   * The date and time at which the event starts.
+   */
   start: Date;
+  /**
+   * The date and time at which the event ends.
+   */
   end: Date;
 }
 
+/**
+ * Given an event from the API, extracts relevant details. Returns undefined if the event's
+ * start or end time is missing.
+ *
+ * @param event - An event from the API.
+ */
 function parse(event: calendar_v3.Schema$Event): Event | undefined {
   if (!event.start?.dateTime || !event.end?.dateTime) {
     return undefined;
@@ -221,15 +274,20 @@ function parse(event: calendar_v3.Schema$Event): Event | undefined {
   return { name, start, end };
 }
 
-export function isTimeInEvent(
+/**
+ * Determines whether an event completely contains a block. The event and block must be from
+ * the same day. Containment is exclusive on both sides.
+ *
+ * @param event - An event on the same day as the block.
+ * @param blockStartMinutes - The time at which the block starts in minutes since 00:00, local time.
+ * @param blockDurationMinutes - The length of the block in minutes.
+ */
+export function isBlockWithinEvent(
   event: Event,
   blockStartMinutes: number,
-  targetDate: Date
+  blockDurationMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
-  // Only check events on the target date
-  if (!areSameDate(event.start, targetDate)) return false;
-
-  const blockEndMinutes = blockStartMinutes + MINUTES_PER_BLOCK;
+  const blockEndMinutes = blockStartMinutes + blockDurationMinutes;
 
   const eventStartMinutes = dateToMinutes(event.start);
   const eventEndMinutes = dateToMinutes(event.end);
@@ -239,6 +297,15 @@ export function isTimeInEvent(
   );
 }
 
+/**
+ * Determines whether an event starts in a block. The event and block must be from the same day.
+ * It is reasonable to outline the top of the block (to denote the start of an event) if and only
+ * if this method returns `true`.
+ *
+ * @remarks
+ * "Starts in a block" means that the start of the event and at least one non-start time in the
+ * event are within the block's bounds, inclusive.
+ */
 export function doesEventStartInBlock(
   eventStart: Date,
   blockStartMinutes: number,
@@ -250,6 +317,15 @@ export function doesEventStartInBlock(
   return timeDifference >= 0 && timeDifference < blockDurationMinutes;
 }
 
+/**
+ * Determines whether an event ends in a block. The event and block must be from the same day.
+ * If its reasonable to outline the bottom of the block (to denote the end of an event) if and only
+ * if this method returns `true`.
+ *
+ * @remarks
+ * "Ends in a block" means that the end of the event and at least one non-end time in the event are
+ * are within the block's bounds, inclusive.
+ */
 export function doesEventEndInBlock(
   eventEnd: Date,
   blockStartMinutes: number,
@@ -261,11 +337,20 @@ export function doesEventEndInBlock(
   return timeDifference > 0 && timeDifference <= blockDurationMinutes;
 }
 
+/**
+ * Determines whether a given time is contained (exclusive) within any event.
+ *
+ * @param - Any Date object.
+ * @param - Some events to test containment with.
+ */
 export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
   return events.some((event) => event.start < time && event.end > time);
 }
 
-interface BlockInfo {
+/**
+ * Events that overlap, start on, or end on a calendar block.
+ */
+interface BlockEventOverlap {
   isOnGcal: boolean;
   events: Event[];
   isEventStart: boolean;
@@ -275,11 +360,19 @@ interface BlockInfo {
   additionalEventCount: number;
 }
 
-function analyzeCalendarBlock(
+/**
+ * Finds Google Calendar events that overlap, start in, or end in a calendar block.
+ *
+ * @param googleCalendarEvents - A list of all Google Calendar events to be examined.
+ * @param date - The block's date. Events not on this date will be ignored.
+ * @param blockStartMinutes - The number of minutes between 00:00 local time and the block's start.
+ * @returns Calendar events overlapping the block and summary statistics about them.
+ */
+function determineCalendarEventsForBlock(
   googleCalendarEvents: calendar_v3.Schema$Event[],
   date: Date,
   blockStartMinutes: number
-): BlockInfo {
+): BlockEventOverlap {
   // Filter events for the target date
   const rawSameDayEvents = googleCalendarEvents.filter((event) => {
     if (!event.start?.dateTime) return false;
@@ -292,7 +385,7 @@ function analyzeCalendarBlock(
     .filter((event) => event !== undefined) as Event[];
 
   const overlappingEvents = sameDayEvents.filter((event) =>
-    isTimeInEvent(event, blockStartMinutes, date)
+    isBlockWithinEvent(event, blockStartMinutes)
   );
 
   const eventsStartingInBlock = sameDayEvents.filter((event) =>
