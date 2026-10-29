@@ -11,6 +11,8 @@ import CalBlock from './CalBlock';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
 
+const MINUTES_PER_BLOCK = 15;
+
 interface CalRowProps {
   bucket: calendarDate[];
   theCalendarState: [
@@ -216,7 +218,7 @@ function isTimeInEvent(
   if (!isSameDate(startTime, targetDate)) return false;
 
   const blockStartMinutes = timeToMinutes(timeString);
-  const blockEndMinutes = blockStartMinutes + 15; // 15-minute blocks
+  const blockEndMinutes = blockStartMinutes + MINUTES_PER_BLOCK;
 
   const eventStartMinutes = dateToMinutes(startTime);
   const eventEndMinutes = dateToMinutes(endTime);
@@ -229,7 +231,7 @@ function isTimeInEvent(
 function doesEventStartSoonAfter(
   event: calendar_v3.Schema$Event,
   blockStart: string,
-  toleranceMinutes = 14
+  toleranceMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
   if (!event.start?.dateTime) return false;
 
@@ -238,13 +240,13 @@ function doesEventStartSoonAfter(
   const blockStartMinutes = timeToMinutes(blockStart);
 
   const timeDifference = eventStartMinutes - blockStartMinutes;
-  return timeDifference >= 0 && timeDifference <= toleranceMinutes;
+  return timeDifference >= 0 && timeDifference < toleranceMinutes;
 }
 
 function doesEventEndSoonAfter(
   event: calendar_v3.Schema$Event,
   blockEnd: string,
-  toleranceMinutes = 14
+  toleranceMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
   if (!event.end?.dateTime) return false;
 
@@ -253,7 +255,7 @@ function doesEventEndSoonAfter(
   const blockEndMinutes = timeToMinutes(blockEnd);
 
   const timeDifference = eventEndMinutes - blockEndMinutes;
-  return timeDifference >= 0 && timeDifference <= toleranceMinutes;
+  return timeDifference >= 0 && timeDifference < toleranceMinutes;
 }
 
 function hasOverlappingEvent(
@@ -300,7 +302,7 @@ function analyzeCalendarBlock(
     return isSameDate(eventDate, date);
   });
 
-  // Find events that overlap with this 15-minute block
+  // Find events that overlap with this block
   const overlappingEvents = dayEvents.filter((event) =>
     isTimeInEvent(event, time, date)
   );
