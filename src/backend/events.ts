@@ -1089,6 +1089,8 @@ async function setEmailAdmin(emailAdmin: boolean) {
 }
 
 async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+  // Guests have no user document
+  if (!uid) return [];
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {

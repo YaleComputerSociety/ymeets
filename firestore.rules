@@ -3,8 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
       match /emails/{docId} {
-        allow read: if true;
-        allow write: if false;       // TEMP while importing, then lock down
+        // Only the invite modal reads this, and only event admins (always Google users) can open it
+        allow read: if request.auth != null
+            && request.auth.token.firebase.sign_in_provider != 'anonymous';
+        allow write: if false;
       }
 
 

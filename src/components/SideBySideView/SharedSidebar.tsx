@@ -77,6 +77,9 @@ interface SharedSidebarProps {
   // User signed-in state
   userHasSignedIn: boolean;
   onUserSignIn: () => void;
+  // Ask for a name right away when someone without one arrives to add their availability (e.g. just after
+  // creating an event without signing in)
+  promptForName?: boolean;
 
   userHasFilled: boolean;
   onDecline: () => void;
@@ -108,6 +111,7 @@ export default function SharedSidebar({
   setSelectedLocations,
   userHasSignedIn,
   onUserSignIn,
+  promptForName = false,
   userHasFilled,
   onDecline,
 }: SharedSidebarProps) {
@@ -116,7 +120,13 @@ export default function SharedSidebar({
   const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  // Only on desktop: on mobile this sidebar is mounted but hidden, and TimeSelectPage prompts instead
+  const [showLoginPopup, setShowLoginPopup] = useState(
+    () =>
+      promptForName &&
+      getAccountName() === '' &&
+      window.matchMedia('(min-width: 1024px)').matches
+  );
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();

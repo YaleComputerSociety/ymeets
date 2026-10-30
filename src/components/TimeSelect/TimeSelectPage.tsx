@@ -192,7 +192,13 @@ function TimeSelectPage({
       try {
         await fetchData();
 
-        if (getAccountName() === '' || getAccountName() === undefined) {
+        // On desktop this page is mounted but hidden (lg:hidden), so its popup would be invisible while still
+        // disabling clicks on the whole page (popup-open). SharedSidebar prompts desktop users instead.
+        const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+        if (
+          !isDesktop &&
+          (getAccountName() === '' || getAccountName() === undefined)
+        ) {
           setPromptUserForLogin(true);
         }
       } catch (err) {
