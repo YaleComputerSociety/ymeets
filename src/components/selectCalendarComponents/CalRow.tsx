@@ -98,7 +98,7 @@ export default function CalRow({
   onClick,
   groupIndex,
 }: CalRowProps) {
-  const [googleCalendarEvents] = theGoogleCalendarEvents || [[]];
+  const [googleCalendarEvents] = theGoogleCalendarEvents ?? [[]];
   // TODO: remove this cast after upgrading Typescript
   const parsedGoogleCalendarEvents = googleCalendarEvents
     .map(parse)
@@ -262,14 +262,14 @@ function determineCalendarEventsForBlock(
       !isInAnyEvent(event.end, sameDayEvents)
   );
 
-  const eventStart = eventsStartingInBlock[0] || null;
+  const eventStart = eventsStartingInBlock[0] ?? null;
 
   return {
     isOnGcal: overlappingEvents.length > 0,
     events: overlappingEvents,
     isEventStart: eventsStartingInBlock.length > 0,
     isEventEnd,
-    eventStartingOnBlock: eventStart?.name || null,
+    eventStartingOnBlock: eventStart?.name ?? null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
   };
 }
