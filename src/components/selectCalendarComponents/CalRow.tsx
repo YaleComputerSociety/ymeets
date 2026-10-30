@@ -234,7 +234,7 @@ interface BlockEventOverlap {
 /**
  * Finds Google Calendar events that overlap, start in, or end in a calendar block.
  *
- * @param googleCalendarEvents - A list of all Google Calendar events to be examined.
+ * @param events - A list of all Google Calendar events to be examined.
  * @param date - The block's date. Events not on this date will be ignored.
  * @param blockStartMinutes - The number of minutes between 00:00 local time and the block's start.
  * @returns Calendar events overlapping the block and summary statistics about them.
@@ -377,8 +377,7 @@ export function doesBlockOverlapEvent(
  * if this method returns `true`.
  *
  * @remarks
- * "Starts in a block" means that the start of the event and at least one non-start time in the
- * event are within the block's bounds, inclusive.
+ * Containment is inclusive at the block's start and exclusive at its end.
  */
 export function doesEventStartInBlock(
   eventStart: Date,
@@ -397,8 +396,7 @@ export function doesEventStartInBlock(
  * if this method returns `true`.
  *
  * @remarks
- * "Ends in a block" means that the end of the event and at least one non-end time in the event are
- * within the block's bounds, inclusive.
+ * Containment is inclusive at the block's end and exclusive at its start.
  */
 export function doesEventEndInBlock(
   eventEnd: Date,
