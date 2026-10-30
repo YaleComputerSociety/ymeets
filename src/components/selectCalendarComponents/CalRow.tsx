@@ -7,6 +7,7 @@ import {
   userData,
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
+import { useState } from 'react';
 import CalBlock from './CalBlock';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
@@ -97,8 +98,14 @@ export default function CalRow({
   onClick,
   groupIndex,
 }: CalRowProps) {
-  const [googleCalendarEvents] = theGoogleCalendarEvents || [];
+  const [googleCalendarEvents] = theGoogleCalendarEvents || [[]];
+  // TODO: remove this cast after upgrading Typescript
+  const parsedGoogleCalendarEvents = googleCalendarEvents
+    .map(parse)
+    .filter((e) => e !== undefined) as GoogleCalendarEvent[];
   const [calendarFramework] = theCalendarFramework;
+  // Intentionally stale when the date changes. Users won't expect calendar events to move around without a page reload.
+  const [currentDate] = useState<Date>(() => new Date());
 
   /**
    * Adjusts blockID and columnID based on timezone canges and potential new colmns added for new days.
@@ -152,8 +159,8 @@ export default function CalRow({
       eventStartingOnBlock,
       additionalEventCount,
     } = determineCalendarEventsForBlock(
-      googleCalendarEvents ? googleCalendarEvents : [],
-      date.date ? date.date : new Date(),
+      parsedGoogleCalendarEvents,
+      date.date ? date.date : currentDate,
       timeToMinutes(time)
     );
     const [adjustedBlockID, adjustedColumnID] = adjustBlockIDColumnID(
@@ -217,10 +224,10 @@ export default function CalRow({
  */
 interface BlockEventOverlap {
   isOnGcal: boolean;
-  events: Event[];
+  events: GoogleCalendarEvent[];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventStart: Event | null;
+  eventStart: GoogleCalendarEvent | null;
   eventStartingOnBlock: string | null;
   additionalEventCount: number;
 }
@@ -234,20 +241,13 @@ interface BlockEventOverlap {
  * @returns Calendar events overlapping the block and summary statistics about them.
  */
 function determineCalendarEventsForBlock(
-  googleCalendarEvents: calendar_v3.Schema$Event[],
+  events: GoogleCalendarEvent[],
   date: Date,
   blockStartMinutes: number
 ): BlockEventOverlap {
-  // Filter events for the target date
-  const rawSameDayEvents = googleCalendarEvents.filter((event) => {
-    if (!event.start?.dateTime) return false;
-    const eventDate = new Date(event.start.dateTime);
-    return areSameDate(eventDate, date);
-  });
-  // TODO: Remove the cast after upgrading Typescript
-  const sameDayEvents = rawSameDayEvents
-    .map(parse)
-    .filter((event) => event !== undefined) as Event[];
+  const sameDayEvents = events.filter((event) =>
+    areSameDate(event.start, date)
+  );
 
   const overlappingEvents = sameDayEvents.filter((event) =>
     doesBlockOverlapEvent(event, blockStartMinutes)
@@ -257,10 +257,10 @@ function determineCalendarEventsForBlock(
     doesEventStartInBlock(event.start, blockStartMinutes)
   );
 
-  const eventEndingInBlock = sameDayEvents.find(
+  const isEventEnd = sameDayEvents.some(
     (event) =>
       doesEventEndInBlock(event.end, blockStartMinutes) &&
-      -!isInAnyEvent(event.end, sameDayEvents)
+      !isInAnyEvent(event.end, sameDayEvents)
   );
 
   const eventStart = eventsStartingInBlock[0] || null;
@@ -269,7 +269,7 @@ function determineCalendarEventsForBlock(
     isOnGcal: overlappingEvents.length > 0,
     events: overlappingEvents,
     isEventStart: eventsStartingInBlock.length > 0,
-    isEventEnd: eventEndingInBlock !== undefined,
+    isEventEnd,
     eventStart,
     eventStartingOnBlock: eventStart?.name || null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
@@ -284,7 +284,9 @@ function determineCalendarEventsForBlock(
  * @param event - An event from the API.
  * @returns The event's name, start time, and end time.
  */
-export function parse(event: calendar_v3.Schema$Event): Event | undefined {
+export function parse(
+  event: calendar_v3.Schema$Event
+): GoogleCalendarEvent | undefined {
   if (!event.start?.dateTime || !event.end?.dateTime) {
     return undefined;
   }
@@ -329,7 +331,7 @@ export function areSameDate(date1: Date, date2: Date): boolean {
 /**
  * Basic details about an event.
  */
-interface Event {
+interface GoogleCalendarEvent {
   /**
    * The name of the event. null if the name is missing.
    */
@@ -357,7 +359,7 @@ interface Event {
  * @param blockDurationMinutes - The length of the block in minutes.
  */
 export function doesBlockOverlapEvent(
-  event: Event,
+  event: GoogleCalendarEvent,
   blockStartMinutes: number,
   blockDurationMinutes: number = MINUTES_PER_BLOCK
 ): boolean {
@@ -417,6 +419,9 @@ export function doesEventEndInBlock(
  * @param - Any Date object.
  * @param - Some events to test containment with.
  */
-export function isInAnyEvent(time: Date, events: readonly Event[]): boolean {
+export function isInAnyEvent(
+  time: Date,
+  events: readonly GoogleCalendarEvent[]
+): boolean {
   return events.some((event) => event.start < time && event.end > time);
 }
