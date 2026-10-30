@@ -40,7 +40,9 @@ function Root() {
             <GoogleOneTapPrompt />
             <NavBar></NavBar>
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              {/* The create page is the landing page; /dayselect keeps old links working */}
+              <Route path="/" element={<DaySelectComponent />} />
+              <Route path="/home" element={<HomePage />} />
               <Route path="/dayselect" element={<DaySelectComponent />} />
               <Route path="/edit/:eventId" element={<DaySelectComponent />} />
               <Route

@@ -7,6 +7,7 @@ import {
   Availability,
   Location,
   Event,
+  EventMode,
 } from '../types';
 import {
   createEvent,
@@ -70,6 +71,7 @@ export default class FrontendEventAPI {
    * @param zoomLink
    * @param timeZone
    * @param dateCreated
+   * @param mode 'lite' for events created without signing in; these have no admin
    * @returns Promise object that expands to a Event object.
    */
   static async createNewEvent(
@@ -83,14 +85,18 @@ export default class FrontendEventAPI {
     endTime: Date,
     zoomLink: string = '',
     timeZone: string,
-    dateCreated: Date
+    dateCreated: Date,
+    mode: EventMode = 'full'
   ): Promise<Event | null> {
     try {
       const ev: Event | null = await createEvent({
         name: title,
         description,
         adminName,
-        adminAccountId,
+        // Lite events have no admin; Firestore rules require this to be empty
+        adminAccountId: mode === 'lite' ? '' : adminAccountId,
+        // Firestore rejects undefined fields, so only set the mode for lite events
+        ...(mode === 'lite' ? { mode } : {}),
         dates,
         startTime,
         endTime,

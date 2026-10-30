@@ -14,6 +14,7 @@ import {
   getTimezone,
   getZoomLink,
   checkIfAdmin,
+  checkIfLoggedIn,
   getParsedAccountPageEventsForUser,
 } from '../../../backend/events';
 import { setCachedAccountEvents } from '../../Accounts/accountEventsCache';
@@ -24,6 +25,8 @@ import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
+import { useAuth } from '../../../backend/authContext';
+import { LITE_EVENT_LIFETIME_DAYS } from '../../../types';
 
 const DEFAULT_LOCATION_PRESETS = [
   '17 Hillhouse',
@@ -119,6 +122,10 @@ export const DaySelectComponent = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const navigate = useNavigate();
+
+  // Anonymous users are guests who entered a name, not Google accounts
+  const { currentUser, login } = useAuth();
+  const isGoogleUser = !!currentUser && !currentUser.isAnonymous;
   
   // Load event data if in edit mode
   useEffect(() => {
@@ -320,7 +327,9 @@ export const DaySelectComponent = () => {
       return;
     }
 
-    // Create new event
+    // Create new event. Decided at submit time so users can sign in while filling out the form.
+    const eventMode = checkIfLoggedIn() ? 'full' : 'lite';
+
     if (selectGeneralDays) {
       const generallySelectedDates: Date[] = [];
 
@@ -347,7 +356,8 @@ export const DaySelectComponent = () => {
           endDate,
           zoomLink,
           timezone,
-          new Date() // dateCreated
+          new Date(), // dateCreated
+          eventMode
         )
         .then((ev) => {
           const accountID = getAccountId();
@@ -376,7 +386,8 @@ export const DaySelectComponent = () => {
           endDate,
           zoomLink,
           timezone,
-          new Date() // dateCreated
+          new Date(), // dateCreated
+          eventMode
         )
         .then((ev) => {
           const accountID = getAccountId();
@@ -575,6 +586,21 @@ export const DaySelectComponent = () => {
                 {isEditMode ? 'Update Event' : 'Create Event'}
               </Button>
             </div>
+            {!isEditMode && !isGoogleUser && (
+              <p className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                You&apos;re not signed in, so this will be a quick event: anyone
+                with the link can respond, but it can&apos;t be edited and it
+                expires {LITE_EVENT_LIFETIME_DAYS} days after its last date.{' '}
+                <button
+                  type="button"
+                  onClick={() => login().catch(() => {})}
+                  className="font-medium text-primary underline"
+                >
+                  Sign in with Google
+                </button>{' '}
+                to create an event you can manage.
+              </p>
+            )}
           </div>
         </div>
       </div>

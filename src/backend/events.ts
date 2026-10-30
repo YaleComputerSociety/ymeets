@@ -23,6 +23,7 @@ import {
   EventDetails,
   EventId,
   Participant,
+  computeLiteExpiry,
 } from '../types';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
@@ -68,6 +69,15 @@ const checkIfAdmin = (): boolean => {
     }
   }
   return false;
+};
+
+// Lite events have no admin and expire; see `EventMode`
+const isLiteEvent = (): boolean => {
+  return workingEvent?.details.mode === 'lite';
+};
+
+const getExpireAt = (): Date | undefined => {
+  return workingEvent?.expireAt;
 };
 
 /**
@@ -139,6 +149,9 @@ async function getEventById(id: EventId): Promise<void> {
               ).toDate()
             : workingEvent.details.chosenEndDate;
           workingEvent.details.dates = dateToArray(workingEvent.details.dates);
+          workingEvent.expireAt = workingEvent.expireAt
+            ? (workingEvent.expireAt as unknown as Timestamp).toDate()
+            : workingEvent.expireAt;
 
           // Retrieve all participants as sub-collection
           await getParticipants(collection(db, 'events', id, 'participants'))
@@ -356,8 +369,21 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     participants: [],
   };
 
+  if (eventDetails.mode === 'lite') {
+    newEvent.expireAt = computeLiteExpiry(
+      eventDetails.dates,
+      eventDetails.dateCreated
+    );
+  }
+
   // Update local copy
   workingEvent = newEvent;
+
+  // Lite events have no admin, so there's no user document to add the event to
+  if (eventDetails.mode === 'lite') {
+    await setDoc(doc(collection(db, 'events'), id), newEvent);
+    return newEvent;
+  }
 
   // Update backend
   return await new Promise((resolve, reject) => {
@@ -564,6 +590,8 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
     declined: participant.declined || false,
+    // TTL doesn't delete subcollections, so lite participants expire alongside their event
+    ...(workingEvent.expireAt ? { expireAt: workingEvent.expireAt } : {}),
   });
 }
 
@@ -605,6 +633,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
         email: getAccountEmail(),
         accountId,
         availability: JSON.stringify(availability),
+        ...(workingEvent.expireAt ? { expireAt: workingEvent.expireAt } : {}),
       });
 
       transaction.update(eventDocRef, {
@@ -1090,6 +1119,8 @@ export {
   getAccountEmail,
   checkIfLoggedIn,
   checkIfAdmin,
+  isLiteEvent,
+  getExpireAt,
 
   // Misc
   getSelectedCalendarIDsByUserID,

@@ -7,7 +7,6 @@ import TimeSelectComponent from '../time_select_component';
 import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import { useState, useEffect, useRef } from 'react';
-import { checkIfLoggedIn } from '../../../backend/events';
 import GeneralPopup from '../general_popup_component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -70,19 +69,10 @@ export const CalendarComponent = ({
   theSelectGeneralDays,
   theGeneralDays,
 }: CalendarComponentProps) => {
-  const [showLoginPopup, setShowLoginPopup] = useState<boolean>(false);
-
   const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays;
   const [selectedDays, setSelectedDays] = theGeneralDays;
 
   const { theme } = useTheme();
-
-  useEffect(() => {
-    // TODO better practice is to use onAuthStateChange
-    setTimeout(() => {
-      setShowLoginPopup(!checkIfLoggedIn());
-    }, 500);
-  }, []);
 
   const today = new Date();
 
@@ -97,10 +87,6 @@ export const CalendarComponent = ({
       }
     }
     return null;
-  };
-
-  const handleLoginPopupClose = () => {
-    setShowLoginPopup(false);
   };
 
   const [showGeneralPopup, setGeneralPopup] = popUpOpen;
@@ -335,16 +321,8 @@ export const CalendarComponent = ({
           </div>
         </Popup>
       </div>
-      {/* Login popup */}
-      {showLoginPopup && (
-        <GeneralPopup
-          onClose={handleLoginPopupClose}
-          message={'Please log into Google to create events'}
-          isLogin={true}
-        />
-      )}
       {/* General popup */}
-      {!showLoginPopup && showGeneralPopup && (
+      {showGeneralPopup && (
         <GeneralPopup
           onClose={handleGeneralPopupClose}
           message={generalPopupMessage}

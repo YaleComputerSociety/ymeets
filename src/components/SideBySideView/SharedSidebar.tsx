@@ -27,6 +27,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
+import LiteEventNotice from '../utils/components/LiteEventNotice';
 
 interface Calendar {
   id: string;
@@ -242,6 +243,8 @@ export default function SharedSidebar({
           )}
         </div>
       )}
+
+      {!chartedUsers?.hovering && <LiteEventNotice />}
 
       {/* Add My Availability Button - shown when user is not signed in */}
       {!chartedUsers?.hovering && !userHasSignedIn && (

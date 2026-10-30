@@ -8,7 +8,14 @@ export interface Event {
   publicId: EventId; // field
   details: EventDetails; // map (nested object)
   participants: Participant[]; // subcollection
+  expireAt?: Date; // lite events only; Firestore TTL deletes the event after this time
 }
+
+/**
+ * `'lite'` events are created without signing in: they have no admin (`adminAccountId` is `''`), can't be edited after
+ * creation, and expire. A missing mode means `'full'`.
+ */
+export type EventMode = 'full' | 'lite';
 
 export interface EventDetails {
   name: string;
@@ -27,6 +34,7 @@ export interface EventDetails {
   participants: string[]; // firebase uids
   dateCreated: Date;
   emailAdmin?: boolean; // whether to email admin when participants submit availability
+  mode?: EventMode; // missing means 'full'
 }
 
 export interface Participant {
@@ -59,6 +67,44 @@ export function copyAndReplace(
   const newState = state.slice();
   newState[user] = availability;
   return newState;
+}
+
+/**
+ * How many days a lite event lives after the last day it covers (or after creation, for general-days events).
+ */
+export const LITE_EVENT_LIFETIME_DAYS = 30;
+
+/**
+ * Computes when a lite event should expire.
+ *
+ * @remarks
+ * Specific-date events expire `LITE_EVENT_LIFETIME_DAYS` after the end of their last date. General-days events (whose
+ * dates are placeholders in the year 2000) have no real last date, so they expire `LITE_EVENT_LIFETIME_DAYS` after
+ * creation.
+ *
+ * @param dates - The event's dates.
+ * @param dateCreated - When the event was created.
+ * @returns The time after which Firestore TTL may delete the event.
+ */
+export function computeLiteExpiry(dates: Date[], dateCreated: Date): Date {
+  const isGeneralDays =
+    dates.length === 0 || dates.every((date) => date.getFullYear() === 2000);
+
+  let base: Date;
+  if (isGeneralDays) {
+    base = new Date(dateCreated);
+  } else {
+    const lastDate = new Date(Math.max(...dates.map((date) => date.getTime())));
+    // Midnight at the end of the last date
+    base = new Date(
+      lastDate.getFullYear(),
+      lastDate.getMonth(),
+      lastDate.getDate() + 1
+    );
+  }
+
+  base.setDate(base.getDate() + LITE_EVENT_LIFETIME_DAYS);
+  return base;
 }
 
 export type DateRange = {

@@ -47,6 +47,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
+import LiteEventNotice from '../utils/components/LiteEventNotice';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
 /**
@@ -336,6 +337,8 @@ export default function GroupViewPage({
               )}
             </div>
           )}
+
+          {!chartedUsers.hovering && <LiteEventNotice />}
 
           {/* Primary Action */}
           {!chartedUsers.hovering && (
