@@ -53,7 +53,7 @@ test('parsing events with missing summaries sets name to null', () => {
   expect(missingName).toBeDefined();
   expect(missingName).toHaveProperty('name', null);
   expect(missingName!.start).not.toBeNaN();
-  expect(missingName!.start).not.toBeNaN();
+  expect(missingName!.end).not.toBeNaN();
 });
 
 test('timeToMinutes returns minutes since 00:00', () => {

@@ -68,7 +68,7 @@ interface CalBlockData {
   eventNames: (string | null)[];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
   adjustedBlockID: number;
   adjustedColumnID: number;
@@ -108,7 +108,7 @@ export default function CalRow({
   const [currentDate] = useState<Date>(() => new Date());
 
   /**
-   * Adjusts blockID and columnID based on timezone canges and potential new colmns added for new days.
+   * Adjusts blockID and columnID based on timezone changes and potential new columns added for new days.
    */
   function adjustBlockIDColumnID(
     groupIndex: number,
@@ -179,7 +179,7 @@ export default function CalRow({
       eventNames,
       isEventStart,
       isEventEnd,
-      eventName: eventStartingOnBlock,
+      eventStartingOnBlock: eventStartingOnBlock,
       additionalEventCount,
       adjustedBlockID,
       adjustedColumnID,
@@ -210,7 +210,7 @@ export default function CalRow({
             eventNames={blockData.eventNames}
             isEventStart={blockData.isEventStart}
             isEventEnd={blockData.isEventEnd}
-            eventStartingOnBlock={blockData.eventName}
+            eventStartingOnBlock={blockData.eventStartingOnBlock}
             additionalEventCount={blockData.additionalEventCount}
           />
         );
@@ -227,7 +227,6 @@ interface BlockEventOverlap {
   events: GoogleCalendarEvent[];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventStart: GoogleCalendarEvent | null;
   eventStartingOnBlock: string | null;
   additionalEventCount: number;
 }
@@ -270,7 +269,6 @@ function determineCalendarEventsForBlock(
     events: overlappingEvents,
     isEventStart: eventsStartingInBlock.length > 0,
     isEventEnd,
-    eventStart,
     eventStartingOnBlock: eventStart?.name || null,
     additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
   };
@@ -352,7 +350,7 @@ interface GoogleCalendarEvent {
  *
  * @remarks
  * Specifically, true if the block starts strictly before the event ends and ends strictly after
- * the event starts. Assumes the block starts
+ * the event starts.
  *
  * @param event - An event on the same day as the block.
  * @param blockStartMinutes - The time at which the block starts in minutes since 00:00, local time.
@@ -395,12 +393,12 @@ export function doesEventStartInBlock(
 
 /**
  * Determines whether an event ends in a block. The event and block must be from the same day.
- * If its reasonable to outline the bottom of the block (to denote the end of an event) if and only
+ * It is reasonable to outline the bottom of the block (to denote the end of an event) if and only
  * if this method returns `true`.
  *
  * @remarks
  * "Ends in a block" means that the end of the event and at least one non-end time in the event are
- * are within the block's bounds, inclusive.
+ * within the block's bounds, inclusive.
  */
 export function doesEventEndInBlock(
   eventEnd: Date,
@@ -416,8 +414,8 @@ export function doesEventEndInBlock(
 /**
  * Determines whether a given time is contained (exclusive) within any event.
  *
- * @param - Any Date object.
- * @param - Some events to test containment with.
+ * @param date - Any Date object.
+ * @param events - Some events to test containment with.
  */
 export function isInAnyEvent(
   time: Date,

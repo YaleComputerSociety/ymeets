@@ -75,7 +75,7 @@ export default function CalBlock({
   theShowUserChart,
   isEventStart,
   isEventEnd,
-  eventStartingOnBlock: eventStartingOnDate,
+  eventStartingOnBlock,
   additionalEventCount,
 }: CalBlockProps) {
   const { theme } = useTheme();
@@ -611,14 +611,14 @@ export default function CalBlock({
         />
       )}
 
-      {isEventStart && eventStartingOnDate && (
+      {isEventStart && eventStartingOnBlock && (
         <div
           className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventStartingOnDate}
+          {eventStartingOnBlock}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
