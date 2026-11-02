@@ -335,6 +335,7 @@ export default function UnifiedAvailabilityPage() {
           setSelectedLocations={setSelectedLocations}
           userHasSignedIn={userHasSignedIn}
           setUserHasSignedIn={setUserHasSignedIn}
+          promptForName={initialMode}
           onSave={handleSideBySideSave}
           onDecline={() => fetchData(false)}
           isSaving={isSaving}

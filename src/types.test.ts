@@ -2,8 +2,42 @@ import {
   Availability,
   BoundingBox,
   DraggedSelection,
+  computeLiteExpiry,
   copyAndReplace,
 } from './types';
+
+test('computeLiteExpiry expires 30 days after the end of the last date', () => {
+  const dates = [new Date(2026, 10, 3), new Date(2026, 10, 5)];
+  const created = new Date(2026, 9, 28, 14, 30);
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 11, 6));
+});
+
+test('computeLiteExpiry uses the latest date even when dates are unsorted', () => {
+  const dates = [new Date(2026, 10, 5, 9), new Date(2026, 10, 3)];
+  const created = new Date(2026, 9, 28);
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 11, 6));
+});
+
+test('computeLiteExpiry uses the creation date for general-days events', () => {
+  // General-days events store placeholder dates in the year 2000
+  const dates = [new Date(2000, 0, 3), new Date(2000, 0, 5)];
+  const created = new Date(2026, 9, 28, 14, 30);
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 10, 28));
+});
+
+test('computeLiteExpiry uses the creation date when all dates are in the past', () => {
+  const dates = [new Date(2026, 8, 1), new Date(2026, 8, 3)];
+  const created = new Date(2026, 9, 28, 14, 30);
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 10, 28));
+});
+
+test('computeLiteExpiry does not modify its inputs', () => {
+  const dates = [new Date(2026, 10, 3)];
+  const created = new Date(2026, 9, 28);
+  computeLiteExpiry(dates, created);
+  expect(dates).toEqual([new Date(2026, 10, 3)]);
+  expect(created).toEqual(new Date(2026, 9, 28));
+});
 
 test('BoundingBox instantiates from pre-sorted coordinates', () => {
   const topLeft = { col: 1, block: 3 };

@@ -21,6 +21,7 @@ import {
   IconMoon,
   IconSun,
   IconBook,
+  IconHome,
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -185,6 +186,19 @@ export default function NavBar() {
                       }}
                     >
                       <IconBook className="mr-2" size={17} /> Tutorial
+                    </a>
+
+                    <div className="border-t border-gray-200"></div>
+
+                    <a
+                      href="#"
+                      className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
+                      onClick={() => {
+                        nav('/home');
+                        setMenuState('closed');
+                      }}
+                    >
+                      <IconHome className="mr-2" size={17} /> Home
                     </a>
 
                     <div className="border-t border-gray-200"></div>

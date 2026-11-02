@@ -1,46 +1,98 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+      match /emails/{docId} {
+        allow read: if true;
+        allow write: if false;       // TEMP while importing, then lock down
+      }
+
+
+          match /users/{userID} {
+          allow read, write: if true;
+      }
+
       match /events/{eventID} {
+          // Lite events are created without signing in. They have no admin, can't be edited, and expire via TTL.
+          function isLite(event) {
+              return event.details.get('mode', 'full') == 'lite';
+          }
+
+          function isValidLiteCreate() {
+              let data = request.resource.data;
+              return data.keys().hasOnly(['publicId', 'details', 'participants', 'expireAt'])
+                  && data.keys().hasAll(['publicId', 'details', 'participants', 'expireAt'])
+                  && data.publicId == eventID
+                  && isLite(data)
+                  && data.details.adminAccountId == ''
+                  && data.participants.size() == 0
+                  && data.expireAt is timestamp
+                  // Stops spam from creating events that effectively never expire. Must match LITE_EVENT_MAX_EXPIRY_DAYS.
+                  && data.expireAt < request.time + duration.value(1100, 'd');
+          }
+
           // Only the creator of the event can delete it
-          allow delete: if request.auth != null 
+          allow delete: if request.auth != null
               && request.auth.uid == resource.data.details.adminAccountId; // must be creator
 
           allow read: if true; // anyone (even users before they log in) can read
-          allow create: if request.auth != null 
+          allow create: if (request.auth != null
               && request.auth.uid == request.resource.data.details.adminAccountId
+              && !isLite(request.resource.data)
               && request.resource.data.keys().hasOnly(['publicId', 'details', 'participants'])
-              && request.resource.data.keys().hasAll(['publicId', 'details', 'participants']); // required fields
+              && request.resource.data.keys().hasAll(['publicId', 'details', 'participants'])) // required fields
+              || isValidLiteCreate();
 
           // Creator can update with restrictions on protected fields
-          allow update: if request.auth != null 
+          allow update: if request.auth != null
               && request.auth.uid == resource.data.details.adminAccountId
               // Protected fields for the creator (cannot update 'adminAccountId' or 'publicId')
-              && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['publicId'])) 
+              && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['publicId', 'expireAt']))
               // Nested 'details' fields protection
-              && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['adminAccountId'])); 
+              && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['adminAccountId', 'mode']));
 
           // Any other user can update with restrictions on protected fields
           allow update: if request.auth != null
               // Protected fields for non-creators (cannot update 'publicId', 'adminAccountId', etc.)
-              && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['publicId'])) 
+              && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['publicId', 'expireAt']))
               // Nested 'details' fields protection for non-creators
-              && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['adminAccountId', 'plausibleLocations', 'zoomLink'])); 
+              && !(request.resource.data.details.diff(resource.data.details).affectedKeys().hasAny(['adminAccountId', 'plausibleLocations', 'zoomLink', 'mode']))
+              // Lite events are read-only, except Google users being added to the participants list when they respond
+              && (!isLite(resource.data)
+                  || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']));
 
         // Participants subcollection
         match /participants/{userId} {
+              // Rows expire with their event (TTL doesn't delete subcollections), so a row's expireAt must match the event's.
+              // It may be missing because cached PWA clients from before lite events don't write it; those rows aren't
+              // deleted by TTL. Checking for a missing field first skips the get() on full events.
+              function expiryMatchesEvent() {
+                  return request.resource.data.get('expireAt', null) == null
+                      || request.resource.data.expireAt
+                          == get(/databases/$(database)/documents/events/$(eventID)).data.get('expireAt', null);
+              }
+
               allow read: if true; // anyone can read
-              allow create: if request.auth != null; // logged-in users can create
+              allow create: if request.auth != null && expiryMatchesEvent(); // logged-in users can create
 
 							// Only the admin can delete (use get to retrieve parent doc)
-              allow delete: if request.auth.uid == get(/databases/$(database)/documents/events/$(eventID)).data.details.adminAccountId;
+              allow delete: if request.auth.uid == get(/databases/$(database)/documents/events/$(eventID)).data.details.adminAccountId
+              || (resource.data.accountId == "" && request.auth != null);
 
-              // Only the participant can update their availability
-              allow update: if request.auth != null 
-                  && (request.auth.uid == userId
-                      || (request.resource.data.accountName == resource.data.accountName)) // anonymous user matches participant
-                  // Protected fields for participants (cannot update 'accountId', 'email', etc.)
-                  && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['accountId', 'email', "name"])); 
+              allow update: if request.auth != null
+                  && expiryMatchesEvent()
+                  // Nobody can attach a row to a different account
+                  && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['accountId']))
+                  && (
+                      // Google users can update their own row
+                      request.auth.uid == userId
+                      // The admin can remap everyone's availability when they change the event's dates or times
+                      || (request.auth.uid == get(/databases/$(database)/documents/events/$(eventID)).data.details.adminAccountId
+                          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['availability']))
+                      // Guest rows are keyed by name, so anyone signed in can update them (like when2meet)
+                      || (resource.data.get('accountId', '') == ''
+                          && !(request.resource.data.diff(resource.data).affectedKeys().hasAny(['name', 'email'])))
+                  );
           }
       }
     }
