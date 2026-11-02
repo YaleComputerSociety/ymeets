@@ -78,9 +78,10 @@ export const LITE_EVENT_LIFETIME_DAYS = 30;
  * Computes when a lite event should expire.
  *
  * @remarks
- * Specific-date events expire `LITE_EVENT_LIFETIME_DAYS` after the end of their last date. General-days events (whose
+ * Specific-date events expire `LITE_EVENT_LIFETIME_DAYS` after the end of their last date (or of the creation date, if
+ * that's later). General-days events (whose
  * dates are placeholders in the year 2000) have no real last date, so they expire `LITE_EVENT_LIFETIME_DAYS` after
- * creation.
+ * the end of the day they were created.
  *
  * @param dates - The event's dates.
  * @param dateCreated - When the event was created.
@@ -90,21 +91,22 @@ export function computeLiteExpiry(dates: Date[], dateCreated: Date): Date {
   const isGeneralDays =
     dates.length === 0 || dates.every((date) => date.getFullYear() === 2000);
 
-  let base: Date;
-  if (isGeneralDays) {
-    base = new Date(dateCreated);
-  } else {
-    const lastDate = new Date(Math.max(...dates.map((date) => date.getTime())));
-    // Midnight at the end of the last date
-    base = new Date(
-      lastDate.getFullYear(),
-      lastDate.getMonth(),
-      lastDate.getDate() + 1
-    );
-  }
+  // Never before creation, so events for past dates don't expire immediately
+  const lastDay = isGeneralDays
+    ? dateCreated
+    : new Date(
+        Math.max(
+          dateCreated.getTime(),
+          ...dates.map((date) => date.getTime())
+        )
+      );
 
-  base.setDate(base.getDate() + LITE_EVENT_LIFETIME_DAYS);
-  return base;
+  // Midnight at the end of the last day, so the expiry always falls on a day boundary
+  return new Date(
+    lastDay.getFullYear(),
+    lastDay.getMonth(),
+    lastDay.getDate() + 1 + LITE_EVENT_LIFETIME_DAYS
+  );
 }
 
 export type DateRange = {

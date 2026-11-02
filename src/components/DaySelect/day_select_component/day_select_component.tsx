@@ -590,7 +590,8 @@ export const DaySelectComponent = () => {
               <p className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
                 You&apos;re not signed in, so this will be a quick event: anyone
                 with the link can respond, but it can&apos;t be edited and it
-                expires {LITE_EVENT_LIFETIME_DAYS} days after its last date.{' '}
+                expires {LITE_EVENT_LIFETIME_DAYS} days after its last date
+                (or after it&apos;s created, for general days).{' '}
                 <button
                   type="button"
                   onClick={() => login().catch(() => {})}

@@ -22,9 +22,13 @@ test('computeLiteExpiry uses the creation date for general-days events', () => {
   // General-days events store placeholder dates in the year 2000
   const dates = [new Date(2000, 0, 3), new Date(2000, 0, 5)];
   const created = new Date(2026, 9, 28, 14, 30);
-  expect(computeLiteExpiry(dates, created)).toEqual(
-    new Date(2026, 10, 27, 14, 30)
-  );
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 10, 28));
+});
+
+test('computeLiteExpiry uses the creation date when all dates are in the past', () => {
+  const dates = [new Date(2026, 8, 1), new Date(2026, 8, 3)];
+  const created = new Date(2026, 9, 28, 14, 30);
+  expect(computeLiteExpiry(dates, created)).toEqual(new Date(2026, 10, 28));
 });
 
 test('computeLiteExpiry does not modify its inputs', () => {

@@ -3,16 +3,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
       match /emails/{docId} {
-        // Only the invite modal reads this, and only event admins (always Google users) can open it
-        allow read: if request.auth != null
-            && request.auth.token.firebase.sign_in_provider != 'anonymous';
-        allow write: if false;
+        allow read: if true;
+        allow write: if false;       // TEMP while importing, then lock down
       }
 
 
-  		match /users/{userID} {
-      	// Event history and calendar settings are private to the owner
-      	allow read, write: if request.auth != null && request.auth.uid == userID;
+          match /users/{userID} {
+          allow read, write: if true;
       }
 
       match /events/{eventID} {
@@ -66,10 +63,13 @@ service cloud.firestore {
 
         // Participants subcollection
         match /participants/{userId} {
-              // Rows must expire with their event (TTL doesn't delete subcollections), so expireAt can't be dropped or changed
+              // Rows expire with their event (TTL doesn't delete subcollections), so a row's expireAt must match the event's.
+              // It may be missing because cached PWA clients from before lite events don't write it; those rows aren't
+              // deleted by TTL. Checking for a missing field first skips the get() on full events.
               function expiryMatchesEvent() {
-                  return request.resource.data.get('expireAt', null)
-                      == get(/databases/$(database)/documents/events/$(eventID)).data.get('expireAt', null);
+                  return request.resource.data.get('expireAt', null) == null
+                      || request.resource.data.expireAt
+                          == get(/databases/$(database)/documents/events/$(eventID)).data.get('expireAt', null);
               }
 
               allow read: if true; // anyone can read

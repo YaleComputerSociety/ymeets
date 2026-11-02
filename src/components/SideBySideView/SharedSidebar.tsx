@@ -23,6 +23,7 @@ import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
+import { useIsDesktop } from '../utils/functions/useIsDesktop';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
@@ -120,13 +121,11 @@ export default function SharedSidebar({
   const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
-  // Only on desktop: on mobile this sidebar is mounted but hidden, and TimeSelectPage prompts instead
   const [showLoginPopup, setShowLoginPopup] = useState(
-    () =>
-      promptForName &&
-      getAccountName() === '' &&
-      window.matchMedia('(min-width: 1024px)').matches
+    () => promptForName && getAccountName() === ''
   );
+  // Only on desktop: on mobile this sidebar is mounted but hidden, and TimeSelectPage prompts instead
+  const isDesktop = useIsDesktop();
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
@@ -563,7 +562,7 @@ export default function SharedSidebar({
       )}
 
       {/* Login Popup */}
-      {showLoginPopup && (
+      {showLoginPopup && isDesktop && (
         <LoginPopup
           onClose={(successFlag) => {
             setShowLoginPopup(false);
