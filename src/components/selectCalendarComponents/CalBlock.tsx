@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
   DraggedSelection,
@@ -43,12 +42,12 @@ interface CalBlockProps {
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
   isOnGcal: boolean;
-  associatedEvents?: calendar_v3.Schema$Event[];
+  eventNames: (string | null)[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
 }
 
@@ -69,14 +68,14 @@ export default function CalBlock({
   theDragState,
   theMostRecentSelection: [mostRecentSelection, setMostRecentSelection],
   isOnGcal,
-  associatedEvents,
+  eventNames,
   onClick,
   is30Minute,
   chartedUsersData,
   theShowUserChart,
   isEventStart,
   isEventEnd,
-  eventName,
+  eventStartingOnBlock,
   additionalEventCount,
 }: CalBlockProps) {
   const { theme } = useTheme();
@@ -612,19 +611,19 @@ export default function CalBlock({
         />
       )}
 
-      {isEventStart && eventName && (
+      {isEventStart && eventStartingOnBlock && (
         <div
           className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventName}
+          {eventStartingOnBlock}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
 
-      {showTooltip && associatedEvents && associatedEvents.length > 0 && (
+      {showTooltip && eventNames && eventNames.length > 0 && (
         <div
           className={`
           absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
@@ -632,9 +631,9 @@ export default function CalBlock({
         `}
         >
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            {associatedEvents.map((event, index) => (
+            {eventNames.map((name, index) => (
               <div key={index} className="mb-1 last:mb-0 truncate">
-                {event.summary}
+                {name || 'Unnamed Event'}
               </div>
             ))}
           </div>

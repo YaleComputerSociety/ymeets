@@ -153,7 +153,6 @@ function SelectCalendar({
                                 theCalendarState={theCalendarState}
                                 draggable={draggable}
                                 columnIndexOffSet={columnIndexOffset}
-                                blockIDOffset={blockIndexWithinHour}
                                 blockID={blockIndexWithinHour * 4 + blockID}
                                 user={user}
                                 isAdmin={isAdmin}
