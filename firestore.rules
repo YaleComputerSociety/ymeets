@@ -27,7 +27,7 @@ service cloud.firestore {
                   && data.details.adminAccountId == ''
                   && data.participants.size() == 0
                   && data.expireAt is timestamp
-                  // Stops spam from creating events that effectively never expire
+                  // Stops spam from creating events that effectively never expire. Must match LITE_EVENT_MAX_EXPIRY_DAYS.
                   && data.expireAt < request.time + duration.value(1100, 'd');
           }
 

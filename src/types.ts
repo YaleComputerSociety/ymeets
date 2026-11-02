@@ -75,6 +75,11 @@ export function copyAndReplace(
 export const LITE_EVENT_LIFETIME_DAYS = 30;
 
 /**
+ * The furthest ahead a lite event's expiry may be, in days from creation. Must match the cap in `firestore.rules`.
+ */
+export const LITE_EVENT_MAX_EXPIRY_DAYS = 1100;
+
+/**
  * Computes when a lite event should expire.
  *
  * @remarks

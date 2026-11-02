@@ -26,7 +26,11 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
 import { useAuth } from '../../../backend/authContext';
-import { LITE_EVENT_LIFETIME_DAYS } from '../../../types';
+import {
+  LITE_EVENT_LIFETIME_DAYS,
+  LITE_EVENT_MAX_EXPIRY_DAYS,
+  computeLiteExpiry,
+} from '../../../types';
 
 const DEFAULT_LOCATION_PRESETS = [
   '17 Hillhouse',
@@ -367,10 +371,28 @@ export const DaySelectComponent = () => {
             );
           }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
+        })
+        .catch(() => {
+          setAlertMessage('Failed to create event');
         });
     } else {
       if (selectedDates.length == 0) {
         setAlertMessage('Make sure to enter dates!');
+        return;
+      }
+
+      // Firestore rules reject lite events that expire too far ahead. Leave a day of slack for clock differences.
+      const maxLiteExpiry = new Date();
+      maxLiteExpiry.setDate(
+        maxLiteExpiry.getDate() + LITE_EVENT_MAX_EXPIRY_DAYS - 1
+      );
+      if (
+        eventMode === 'lite' &&
+        computeLiteExpiry(selectedDates, new Date()) > maxLiteExpiry
+      ) {
+        setAlertMessage(
+          'Quick events can only be scheduled up to about 3 years ahead. Sign in with Google to create one further out.'
+        );
         return;
       }
 
@@ -397,6 +419,9 @@ export const DaySelectComponent = () => {
             );
           }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
+        })
+        .catch(() => {
+          setAlertMessage('Failed to create event');
         });
     }
   };
