@@ -6,7 +6,7 @@ import {
   doesBlockOverlapEvent,
   doesEventStartInBlock,
   doesEventEndInBlock,
-} from './CalRow';
+} from './eventFiltering';
 
 /**
  * Returns a date string that is guaranteed to be Date.parse-valid, as defined by the spec.
