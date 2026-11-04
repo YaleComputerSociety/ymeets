@@ -1,7 +1,7 @@
 import { DateRange } from "../../../types";
 
 export function getDatesFromRange ({startDate, endDate}: DateRange) {
-  const dateWithDay = []
+  const dateWithDay: { date: Date, dayOfWeek: string }[] = []
   const currentDate = new Date(startDate)
   const lastDate = new Date(endDate)
 

@@ -29,8 +29,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       ? 'dark'
       : 'light';
 
-    // Use saved theme if available, else fall back to system preference
-    const initialTheme = savedTheme || systemPreference;
+    // Use saved theme if available, else fall back to dark mode
+    const initialTheme = savedTheme || 'dark';
 
     setTheme(initialTheme);
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import './calander_component.css';
+import './calendar_component.css';
 import Calendar from 'react-calendar';
 // import 'react-calendar/dist/Calendar.css';
 import CircleComponent from '../circle_component';
@@ -46,7 +46,7 @@ function getRangePosition(
   };
 }
 
-interface CalanderComponentProps {
+interface CalendarComponentProps {
   theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
   selectedStartDate: [Date, React.Dispatch<React.SetStateAction<Date>>];
   selectedEndDate: [Date, React.Dispatch<React.SetStateAction<Date>>];
@@ -60,7 +60,7 @@ interface CalanderComponentProps {
   theGeneralDays: [any, React.Dispatch<React.SetStateAction<any>>];
 }
 
-export const CalanderComponent = ({
+export const CalendarComponent = ({
   theEventName,
   selectedStartDate,
   selectedEndDate,
@@ -69,7 +69,7 @@ export const CalanderComponent = ({
   popUpMessage,
   theSelectGeneralDays,
   theGeneralDays,
-}: CalanderComponentProps) => {
+}: CalendarComponentProps) => {
   const [showLoginPopup, setShowLoginPopup] = useState<boolean>(false);
 
   const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays;

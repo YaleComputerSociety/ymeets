@@ -3,7 +3,8 @@
 
 declare global {
   interface Window {
-    FB: typeof FB
+    FB: typeof FB;
+    google?: any;
   }
 }
 

@@ -1,37 +1,56 @@
 import {
-  calandarDate,
+  BoundingBox,
+  DraggedSelection,
+  calendarDate,
   calendarDimensions,
-  calanderState,
+  calendarState,
   userData,
 } from '../../types';
 import { calendar_v3 } from 'googleapis';
+import { useState } from 'react';
 import CalBlock from './CalBlock';
-import { dragProperties } from '../../types';
-import { dateObjectToComparable } from '../utils/functions/dateObjecToComparable';
-import { isTimeBetweenDates } from '../utils/functions/isTimeBetweenDates';
+import {
+  GoogleCalendarEvent,
+  areSameDate,
+  doesBlockOverlapEvent,
+  doesEventEndInBlock,
+  doesEventStartInBlock,
+  isInAnyEvent,
+  parse,
+  timeToMinutes,
+} from '../utils/functions/eventFiltering';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
-import { over } from 'lodash';
 
+/**
+ * The number of minutes that a single calendar block represents.
+ */
+const MINUTES_PER_BLOCK = 15;
+
+/**
+ * The properties needed to render a CalRow.
+ */
 interface CalRowProps {
-  bucket: calandarDate[];
+  bucket: calendarDate[];
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   draggable: boolean;
   isAdmin?: boolean;
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined;
+    [userData, React.Dispatch<React.SetStateAction<userData>>] | undefined;
   user: number;
   columnIndexOffSet: number;
   blockID: number;
-  blockIDOffset: number;
   is30Minute: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+  ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
   theCalendarFramework: [
     calendarDimensions,
@@ -47,23 +66,30 @@ interface CalRowProps {
   time: string;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    | undefined;
+    [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined;
   groupIndex: number;
 }
 
+/**
+ * Information about a single block on calendar.
+ */
 interface CalBlockData {
   isOnGcal: boolean;
-  events: calendar_v3.Schema$Event[] | undefined;
+  eventNames: (string | null)[];
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
   adjustedBlockID: number;
   adjustedColumnID: number;
   isDraggable: boolean;
 }
 
+/**
+ * One row of a calendar grid. Mostly just constructs and forwards properties to calendar blocks,
+ * but also computes information related to imported Google Calendar events so the blocks can be
+ * highlighted, bordered, and labeled appropriately.
+ */
 export default function CalRow({
   bucket,
   theCalendarState,
@@ -73,20 +99,27 @@ export default function CalRow({
   columnIndexOffSet,
   theCalendarFramework,
   blockID,
-  blockIDOffset,
   is30Minute,
   theDragState,
+  theMostRecentSelection,
   chartedUsersData,
   theGoogleCalendarEvents,
   time,
   onClick,
   groupIndex,
 }: CalRowProps) {
-  const [googleCalendarEvents, setGoogleCalendarEvents] =
-    theGoogleCalendarEvents || [];
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
+  const [googleCalendarEvents] = theGoogleCalendarEvents ?? [[]];
+  // TODO: remove this cast after upgrading Typescript
+  const parsedGoogleCalendarEvents = googleCalendarEvents
+    .map(parse)
+    .filter((e) => e !== undefined) as GoogleCalendarEvent[];
+  const [calendarFramework] = theCalendarFramework;
+  // Intentionally stale when the date changes. Users won't expect calendar events to move around without a page reload.
+  const [currentDate] = useState<Date>(() => new Date());
 
-  // adjusts blockID and columnID based on timezone canges and potential new colmns added for new days
+  /**
+   * Adjusts blockID and columnID based on timezone changes and potential new columns added for new days.
+   */
   function adjustBlockIDColumnID(
     groupIndex: number,
     blockID: number,
@@ -120,174 +153,25 @@ export default function CalRow({
     return [blockID, columnIndex];
   }
 
-  interface BlockInfo {
-    isOnGcal: boolean;
-    eventCount: number;
-    events: calendar_v3.Schema$Event[];
-    isEventStart: boolean;
-    isEventEnd: boolean;
-    eventStart: calendar_v3.Schema$Event | null;
-    eventEnd: calendar_v3.Schema$Event | null;
-    eventName: string | null;
-    additionalEventCount: number;
-  }
-
-  function timeToMinutes(timeString: string): number {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  function dateToMinutes(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
-  }
-
-  function isSameDate(date1: Date, date2: Date): boolean {
-    return date1.toDateString() === date2.toDateString();
-  }
-
-  function isTimeInEvent(
-    event: calendar_v3.Schema$Event,
-    timeString: string,
-    targetDate: Date
-  ): boolean {
-    if (!event.start?.dateTime || !event.end?.dateTime) return false;
-
-    const startTime = new Date(event.start.dateTime);
-    const endTime = new Date(event.end.dateTime);
-
-    // Only check events on the target date
-    if (!isSameDate(startTime, targetDate)) return false;
-
-    const blockStartMinutes = timeToMinutes(timeString);
-    const blockEndMinutes = blockStartMinutes + 15; // 15-minute blocks
-
-    const eventStartMinutes = dateToMinutes(startTime);
-    const eventEndMinutes = dateToMinutes(endTime);
-
-    // Block overlaps with event if any part of the 15-minute block intersects with the event
-    // Use <= for event end to include blocks that start exactly when event ends
-    return (
-      blockStartMinutes <= eventEndMinutes &&
-      blockEndMinutes > eventStartMinutes
-    );
-  }
-
-  function isEventStartingNear(
-    event: calendar_v3.Schema$Event,
-    timeString: string,
-    toleranceMinutes = 14
-  ): boolean {
-    if (!event.start?.dateTime) return false;
-
-    const startTime = new Date(event.start.dateTime);
-    const eventStartMinutes = dateToMinutes(startTime);
-    const blockStartMinutes = timeToMinutes(timeString);
-
-    const timeDifference = Math.abs(eventStartMinutes - blockStartMinutes);
-    return timeDifference <= toleranceMinutes;
-  }
-
-  function isEventEndingNear(
-    event: calendar_v3.Schema$Event,
-    timeString: string,
-    toleranceMinutes = 14
-  ): boolean {
-    if (!event.end?.dateTime) return false;
-
-    const endTime = new Date(event.end.dateTime);
-    const eventEndMinutes = dateToMinutes(endTime);
-    const blockStartMinutes = timeToMinutes(timeString);
-
-    const timeDifference = Math.abs(eventEndMinutes - blockStartMinutes);
-    return timeDifference <= toleranceMinutes;
-  }
-
-  function hasOverlappingEvent(
-    targetEvent: calendar_v3.Schema$Event,
-    allEvents: calendar_v3.Schema$Event[]
-  ): boolean {
-    if (!targetEvent.start?.dateTime || !targetEvent.end?.dateTime)
-      return false;
-
-    const targetStart = new Date(targetEvent.start.dateTime);
-    const targetEnd = new Date(targetEvent.end.dateTime);
-
-    return allEvents.some((event) => {
-      if (
-        event === targetEvent ||
-        !event.start?.dateTime ||
-        !event.end?.dateTime
-      )
-        return false;
-
-      const eventStart = new Date(event.start.dateTime);
-      const eventEnd = new Date(event.end.dateTime);
-
-      // Check if other event overlaps with target event's end time
-      return eventStart < targetEnd && eventEnd > targetEnd;
-    });
-  }
-
-  function analyzeCalendarBlock(
-    googleCalendarEvents: calendar_v3.Schema$Event[],
-    date: Date,
-    time: string
-  ): BlockInfo {
-    // Filter events for the target date
-    const dayEvents = googleCalendarEvents.filter((event) => {
-      if (!event.start?.dateTime) return false;
-      const eventDate = new Date(event.start.dateTime);
-      return isSameDate(eventDate, date);
-    });
-
-    // Find events that overlap with this 15-minute block
-    const overlappingEvents = dayEvents.filter((event) =>
-      isTimeInEvent(event, time, date)
-    );
-
-    // Find events starting near this time
-    const startingEvents = dayEvents.filter((event) =>
-      isEventStartingNear(event, time)
-    );
-
-    // Find events ending near this time (excluding overlapped ones)
-    const endingEvents = dayEvents.filter(
-      (event) =>
-        isEventEndingNear(event, time) && !hasOverlappingEvent(event, dayEvents)
-    );
-
-    const eventStart = startingEvents[0] || null;
-    const eventEnd = endingEvents[0] || null;
-
-    return {
-      isOnGcal: overlappingEvents.length > 0,
-      eventCount: overlappingEvents.length,
-      events: overlappingEvents,
-      isEventStart: startingEvents.length > 0,
-      isEventEnd: endingEvents.length > 0,
-      eventStart,
-      eventEnd,
-      eventName: eventStart?.summary || null,
-      additionalEventCount: Math.max(0, startingEvents.length - 1),
-    };
-  }
-
+  /**
+   * Computes pertinent information about calendar blocks, accounting for contextual information
+   * like the calendar's dimensions and the row's group.
+   */
   function computeCalBlockData(
-    date: calandarDate,
+    date: calendarDate,
     columnIndex: number
   ): CalBlockData {
     const {
       isOnGcal,
       events,
-      eventCount,
       isEventStart,
       isEventEnd,
-      eventName,
+      eventStartingOnBlock,
       additionalEventCount,
-    } = analyzeCalendarBlock(
-      googleCalendarEvents ? googleCalendarEvents : [],
-      date.date ? date.date : new Date(),
-      time
+    } = determineCalendarEventsForBlock(
+      parsedGoogleCalendarEvents,
+      date.date ? date.date : currentDate,
+      timeToMinutes(time)
     );
     const [adjustedBlockID, adjustedColumnID] = adjustBlockIDColumnID(
       groupIndex,
@@ -298,23 +182,23 @@ export default function CalRow({
     );
 
     const isDraggable = adjustedBlockID >= 0 && draggable;
+    const eventNames = events.map((event) => event.name);
 
     return {
       isOnGcal,
-      events,
+      eventNames,
       isEventStart,
       isEventEnd,
-      eventName,
+      eventStartingOnBlock: eventStartingOnBlock,
       additionalEventCount,
       adjustedBlockID,
       adjustedColumnID,
       isDraggable,
     };
   }
-
   return (
     <div className={`grid grid-cols-${bucket.length}`}>
-      {bucket.map((date: calandarDate, columnIndex: number) => {
+      {bucket.map((date: calendarDate, columnIndex: number) => {
         const blockData = computeCalBlockData(date, columnIndex);
 
         return (
@@ -330,16 +214,72 @@ export default function CalRow({
             draggable={blockData.isDraggable}
             user={user}
             theDragState={theDragState}
+            theMostRecentSelection={theMostRecentSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
-            associatedEvents={blockData.events}
+            eventNames={blockData.eventNames}
             isEventStart={blockData.isEventStart}
             isEventEnd={blockData.isEventEnd}
-            eventName={blockData.eventName}
+            eventStartingOnBlock={blockData.eventStartingOnBlock}
             additionalEventCount={blockData.additionalEventCount}
           />
         );
       })}
     </div>
   );
+}
+
+/**
+ * Events that overlap, start on, or end on a calendar block.
+ */
+interface BlockEventOverlap {
+  isOnGcal: boolean;
+  events: GoogleCalendarEvent[];
+  isEventStart: boolean;
+  isEventEnd: boolean;
+  eventStartingOnBlock: string | null;
+  additionalEventCount: number;
+}
+
+/**
+ * Finds Google Calendar events that overlap, start in, or end in a calendar block.
+ *
+ * @param events - A list of all Google Calendar events to be examined.
+ * @param date - The block's date. Events not on this date will be ignored.
+ * @param blockStartMinutes - The number of minutes between 00:00 local time and the block's start.
+ * @returns Calendar events overlapping the block and summary statistics about them.
+ */
+function determineCalendarEventsForBlock(
+  events: GoogleCalendarEvent[],
+  date: Date,
+  blockStartMinutes: number
+): BlockEventOverlap {
+  const sameDayEvents = events.filter((event) =>
+    areSameDate(event.start, date)
+  );
+
+  const overlappingEvents = sameDayEvents.filter((event) =>
+    doesBlockOverlapEvent(event, blockStartMinutes, MINUTES_PER_BLOCK)
+  );
+
+  const eventsStartingInBlock = sameDayEvents.filter((event) =>
+    doesEventStartInBlock(event.start, blockStartMinutes, MINUTES_PER_BLOCK)
+  );
+
+  const isEventEnd = sameDayEvents.some(
+    (event) =>
+      doesEventEndInBlock(event.end, blockStartMinutes, MINUTES_PER_BLOCK) &&
+      !isInAnyEvent(event.end, sameDayEvents)
+  );
+
+  const eventStart = eventsStartingInBlock[0] ?? null;
+
+  return {
+    isOnGcal: overlappingEvents.length > 0,
+    events: overlappingEvents,
+    isEventStart: eventsStartingInBlock.length > 0,
+    isEventEnd,
+    eventStartingOnBlock: eventStart?.name ?? null,
+    additionalEventCount: Math.max(0, eventsStartingInBlock.length - 1),
+  };
 }

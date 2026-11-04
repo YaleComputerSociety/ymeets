@@ -1,7 +1,7 @@
-import { calandarDate } from '../../types';
+import { calendarDate } from '../../types';
 
 interface DateBarProps {
-  dates: calandarDate[];
+  dates: calendarDate[];
   isGeneralDays: boolean;
 }
 
@@ -16,7 +16,7 @@ export default function DateBar({ dates, isGeneralDays }: DateBarProps) {
             <p className="text-sm">{d.shortenedWeekDay}</p>
             {!isGeneralDays ? (
               <p className="text-xs">
-                {d.month} {d.calanderDay}
+                {d.month} {d.calendarDay}
               </p>
             ) : (
               <p>

@@ -1,17 +1,15 @@
-import React, { 
-  useEffect,
+import React, {
   Dispatch,
   SetStateAction,
   useCallback,
   useRef,
   useLayoutEffect} from 'react';
 import { calendar_v3 } from 'googleapis';
-import SelectCalander from './SelectCalendar';
-import { calendarDimensions, calanderState, userData } from '../../types';
+import SelectCalendar from './SelectCalendar';
+import { BoundingBox, DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
-import { dragProperties } from '../../types';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -19,8 +17,8 @@ interface CalendarProps {
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
   ];
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
@@ -29,8 +27,12 @@ interface CalendarProps {
   user: number;
   isAdmin: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+  ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
   theGoogleCalendarEvents: [
     calendar_v3.Schema$Event[],
@@ -44,6 +46,12 @@ interface CalendarProps {
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
   chartedUsers?: userData;
   setCalendarHeight?: Dispatch<SetStateAction<number | null>>;
+  compactMode?: boolean;
+  calendarLabel?: string;
+  currentStartPage?: number;
+  onPageChange?: (page: number) => void;
+  scrollRef?: React.RefObject<HTMLDivElement>;
+  onScroll?: (scrollTop: number) => void;
 }
 
 export default function Calendar({
@@ -54,6 +62,7 @@ export default function Calendar({
   user,
   isAdmin,
   theDragState,
+  theMostRecentSelection,
   theGoogleCalendarEvents,
   theShowUserChart,
   onClick,
@@ -61,11 +70,15 @@ export default function Calendar({
   setChartedUsers,
   chartedUsers,
   setCalendarHeight,
+  compactMode = false,
+  calendarLabel,
+  currentStartPage: controlledPage,
+  onPageChange,
+  scrollRef,
+  onScroll,
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
-
-  const [dragState, setDragState] = theDragState;
 
   const militaryConvert = (time: string) => {
     let hours = Number.parseInt(time.slice(0, 2));
@@ -87,9 +100,17 @@ export default function Calendar({
 
   const calculateColumnsPerPage = () => {
     const width = window.innerWidth;
-    if (width > 1200) return 7;
-    if (width > 900) return 5;
-    return 3;
+    if (compactMode) {
+      // Side-by-side mode: each calendar gets half the width
+      if (width > 1400) return 5;
+      if (width > 1200) return 4;
+      return 3;
+    }
+    // Expanded mode: calendar has full width, show up to 7 days max
+    if (width > 1000) return 7;
+    if (width > 800) return 6;
+    if (width > 600) return 5;
+    return 4;
   };
 
   const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
@@ -109,6 +130,9 @@ export default function Calendar({
     }, [chartedUsers, setChartedUsers]);
 
   React.useEffect(() => {
+    // Recalculate columns when compactMode changes (expand/collapse)
+    setNumberOfColumnsPerPage(calculateColumnsPerPage());
+
     const handleResize = () => {
       setNumberOfColumnsPerPage(calculateColumnsPerPage());
     };
@@ -117,20 +141,23 @@ export default function Calendar({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [compactMode]);
 
-  const [currentStartPage, setCurrentStartPage] = React.useState(0);
+  const [internalStartPage, setInternalStartPage] = React.useState(0);
+  const currentStartPage = controlledPage ?? internalStartPage;
 
   const handlePrev = () => {
-    setCurrentStartPage(Math.max(currentStartPage - 1, 0));
+    const next = Math.max(currentStartPage - numberOfColumnsPerPage, 0);
+    onPageChange ? onPageChange(next) : setInternalStartPage(next);
   };
 
   const handleNext = () => {
-    if (
-      currentStartPage + numberOfColumnsPerPage <
-      calendarFramework.dates.flat().length
-    ) {
-      setCurrentStartPage(currentStartPage + 1);
+    if (currentStartPage + numberOfColumnsPerPage < calendarFramework.dates.flat().length) {
+      const next = Math.min(
+        currentStartPage + numberOfColumnsPerPage,
+        calendarFramework.dates.flat().length - numberOfColumnsPerPage
+      );
+      onPageChange ? onPageChange(next) : setInternalStartPage(next);
     }
   };
 
@@ -144,13 +171,10 @@ export default function Calendar({
 
   return (
     <div className="flex flex-col space-y-0 mb-2"
-    onMouseLeave={() => {
-        handleStopHover();
-        console.log("Mouse Left Calendar");
-      }}
+    onMouseLeave={handleStopHover}
     ref={ref}
     >
-      <div className="sticky top-0 flex justify-between lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-40 p-0">
+      <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-30 p-0">
         {currentStartPage !== 0 ? (
           <IconArrowLeft
             onClick={handlePrev}
@@ -158,7 +182,13 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 ml-8  lg:ml-0 rounded-lg cursor-pointer"
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11 z-10"></div>
+        )}
+
+        {calendarLabel && (
+          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+            {calendarLabel}
+          </span>
         )}
 
         {currentStartPage + numberOfColumnsPerPage <
@@ -169,19 +199,25 @@ export default function Calendar({
             className="text-outline dark:text-text-dark p-3 mr-5 lg:mr-0 rounded-lg cursor-pointer "
           />
         ) : (
-          <div className="p-3 h-11"></div>
+          <div className="p-3 h-11 w-11 z-10"></div>
         )}
       </div>
       <div
         id="cal"
-        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative "
+        className="flex justify-center mb-4 md:m-5 ml-0 md:justify-start relative"
       >
         <div
           style={{ width: '3.00rem', height: '2.50rem' }}
-          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-30"
+          className="absolute mt-0 ml-0 top-0 left-0 bg-white dark:bg-secondary_background-dark rounded-tl-none rounded-tr-none z-20"
         ></div>
 
-        <div className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full h-full lg:overflow-auto sm:pb-4 md:bg-white rounded-lg rounded-tr-none lg:max-h-140 pr-9 pl-7 lg:p-0">
+        <div
+          ref={scrollRef}
+          data-calendar-scroll-container="true"
+          className="bg-white dark:bg-secondary_background-dark flex flex-row w-full max-w-full min-h-0 h-full max-h-none lg:max-h-140 overflow-y-auto overscroll-none touch-pan-y sm:pb-4 md:bg-white rounded-lg rounded-tr-none pr-9 pl-7 lg:p-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600"
+          style={{ overscrollBehavior: 'none' }}
+          onScroll={onScroll ? (e) => onScroll((e.target as HTMLDivElement).scrollTop) : undefined}
+        >
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark"></div>
           <div className="sticky left-0 z-20 bg-white dark:bg-secondary_background-dark">
             {/* handles aligning it with the cal */}
@@ -228,7 +264,7 @@ export default function Calendar({
           </div>
 
           <div className="w-full flex-1">
-            <SelectCalander
+            <SelectCalendar
               theShowUserChart={theShowUserChart}
               onClick={onClick}
               renderTime={false}
@@ -245,7 +281,8 @@ export default function Calendar({
               columnIndexOffset={currentStartPage}
               startDate={calendarFramework.startTime}
               endDate={calendarFramework.endTime}
-              theDragState={[dragState, setDragState]}
+              theDragState={theDragState}
+              theMostRecentSelection={theMostRecentSelection}
               theCalendarFramework={theCalendarFramework}
               chartedUsersData={chartedUsersData}
               theGoogleCalendarEvents={theGoogleCalendarEvents}

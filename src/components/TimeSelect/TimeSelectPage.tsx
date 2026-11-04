@@ -1,17 +1,26 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3, google } from 'googleapis';
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  Dispatch,
+  SetStateAction,
+  MutableRefObject,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
-  calanderState,
+  BoundingBox,
+  DraggedSelection,
+  calendarState,
   userData,
   calendarDimensions,
   Availability,
-  calandarDate,
-  dragProperties,
+  calendarDate,
 } from '../../types';
 import eventAPI from '../../backend/eventAPI';
-import { useNavigate, useParams } from 'react-router-dom';
 import {
   getAccountId,
   getAccountName,
@@ -27,11 +36,16 @@ import {
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
+  workingEvent,
+  checkIfAdmin,
+  wrappedSaveDeclinedParticipantDetails,
 } from '../../backend/events';
+import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
+import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
 import { getDates } from '../../backend/events';
 import {
@@ -46,6 +60,7 @@ import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { get } from 'lodash';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 
 /**
  *
@@ -76,6 +91,11 @@ function TimeSelectPage({
   setIsGeneralDays,
   hasAvailability,
   setHasAvailability,
+  setHasUnsavedChanges,
+  onSaveComplete,
+  onSavingChange,
+  onSettingsEdited,
+  saveRef,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
@@ -83,8 +103,8 @@ function TimeSelectPage({
   code: string | undefined;
   chartedUsers: userData;
   setChartedUsers: Dispatch<SetStateAction<userData>>;
-  calendarState: calanderState;
-  setCalendarState: Dispatch<SetStateAction<calanderState>>;
+  calendarState: calendarState;
+  setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   loading: boolean;
@@ -101,11 +121,53 @@ function TimeSelectPage({
   setIsGeneralDays: Dispatch<SetStateAction<boolean>>;
   hasAvailability: boolean;
   setHasAvailability: Dispatch<SetStateAction<boolean>>;
+  // Unsaved changes tracking (optional so the page still works standalone)
+  setHasUnsavedChanges?: (value: boolean) => void;
+  // Called after a successful save instead of toggleEditing, which may be guarded
+  onSaveComplete?: () => void;
+  // Reports when a save is in flight, so the unsaved-changes popup can't start another
+  onSavingChange?: (saving: boolean) => void;
+  // Reports location or calendar selection changes, which the parent can't compare
+  onSettingsEdited?: () => void;
+  // Exposes this page's save so the unsaved-changes popup can run it
+  saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
+  const navigate = useNavigate();
+
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Pending post-save exit from edit mode. Cleared on unmount (e.g. the user
+  // left mid-save), or it would reload the old event from the next page
+  const saveCompleteTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(saveCompleteTimerRef.current), []);
+
+  // Bumped on every edit, so a save can tell whether edits arrived while it ran
+  const editVersionRef = useRef(0);
+
+  /**
+   * Records an edit and marks changes as unsaved. Also cancels a pending
+   * "Saved!" exit, since leaving would reload and drop the new edit.
+   */
+  const markUnsaved = useCallback(() => {
+    editVersionRef.current += 1;
+    setHasUnsavedChanges?.(true);
+    clearTimeout(saveCompleteTimerRef.current);
+    setIsSaved(false);
+  }, [setHasUnsavedChanges]);
+
+  // Wrapped setter that marks changes as unsaved. Must be stable: CalBlock's
+  // drag listeners depend on it, and a new identity mid-drag detaches them.
+  const wrappedSetCalendarState: Dispatch<SetStateAction<calendarState>> =
+    useCallback(
+      (action) => {
+        setCalendarState(action);
+        markUnsaved();
+      },
+      [setCalendarState, markUnsaved]
+    );
 
   const closeGcalPopup = () => {
     setGcalPopupOpen(false);
@@ -121,8 +183,6 @@ function TimeSelectPage({
   } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
-  const nav = useNavigate();
-
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
@@ -136,19 +196,23 @@ function TimeSelectPage({
     window.location.reload();
   };
   
-  const [dragState, setDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false, // true for selecting, false for deselecting
-    lastPosition: null,
-  });
+  const theDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentSelection = useState<BoundingBox | undefined>(undefined);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
   >([]);
   const [idsOfCurrentlySelectedGCals, setIdsOfCurrentlySelectedGCals] =
     useState<string[]>([]);
+
+  // Wrapped setter for user-made calendar selections, which are saved with availability
+  const wrappedSetIdsOfCurrentlySelectedGCals: Dispatch<
+    SetStateAction<string[]>
+  > = (action) => {
+    setIdsOfCurrentlySelectedGCals(action);
+    onSettingsEdited?.();
+    markUnsaved();
+  };
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
@@ -158,6 +222,7 @@ function TimeSelectPage({
   );
 
   const [showSlowMessage, setShowSlowMessage] = useState(false);
+  const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -240,7 +305,7 @@ function TimeSelectPage({
         return {
           ...date,
           date: nextOccurrence,
-          calanderDay: nextOccurrence.getDate().toString(),
+          calendarDay: nextOccurrence.getDate().toString(),
           month: (nextOccurrence.getMonth() + 1).toString(),
           year: nextOccurrence.getFullYear().toString(),
           shortenedWeekDay: date.shortenedWeekDay,
@@ -501,7 +566,7 @@ function TimeSelectPage({
 
       const newCalendarState = { ...calendarState };
       newCalendarState[getCurrentUserIndex()] = newAvailability;
-      setCalendarState(newCalendarState);
+      wrappedSetCalendarState(newCalendarState);
     } finally {
       setIsFillingAvailability(false);
       setGcalPopupOpen(false);
@@ -517,25 +582,64 @@ function TimeSelectPage({
     return user;
   };
 
+  // Persists availability, locations, and calendar selection without any UI side effects
+  const persistChanges = async () => {
+    const versionAtSaveStart = editVersionRef.current;
+    onSavingChange?.(true);
+    try {
+      const user = getCurrentUserIndex();
+      const avail: Availability = calendarState
+        ? (calendarState[user] ?? [])
+        : [];
+
+      await wrappedSaveParticipantDetails(avail, selectedLocations);
+      await setUserSelectedCalendarIDs(
+        getAccountId(),
+        idsOfCurrentlySelectedGCals
+      );
+
+      // Email event admin if they opted in
+      if (workingEvent.details.emailAdmin === true) {
+        notifyAdminOfNewResponse(
+          workingEvent.details.adminAccountId,
+          getAccountId(),
+          getAccountName(),
+          workingEvent.details.name,
+          workingEvent.publicId
+        );
+      }
+
+      // Edits made while the save was in flight weren't saved, so keep them flagged
+      if (editVersionRef.current === versionAtSaveStart) {
+        setHasUnsavedChanges?.(false);
+      }
+    } finally {
+      onSavingChange?.(false);
+    }
+  };
+
+
+  if (saveRef) {
+    saveRef.current = persistChanges;
+  }
+
   const saveAvailAndLocationChanges = async () => {
     setIsSaving(true);
-    const user = getCurrentUserIndex();
-    const avail: Availability = calendarState
-      ? (calendarState[user] ?? [])
-      : [];
-
-    await wrappedSaveParticipantDetails(avail, selectedLocations);
-    await setUserSelectedCalendarIDs(
-      getAccountId(),
-      idsOfCurrentlySelectedGCals
-    );
+    const versionAtSaveStart = editVersionRef.current;
+    await persistChanges();
 
     setIsSaving(false);
+
+    // Edits made during the save are still unsaved, so don't claim "Saved!" or
+    // leave (which reloads and drops them); the Save button stays available
+    if (editVersionRef.current !== versionAtSaveStart) return;
+
     setIsSaved(true);
 
-    setTimeout(() => {
+    // Any edit during the "Saved!" window cancels this (see markUnsaved)
+    saveCompleteTimerRef.current = setTimeout(() => {
       setIsSaved(false);
-      toggleEditing();
+      (onSaveComplete ?? toggleEditing)();
     }, 600);
   };
 
@@ -561,53 +665,84 @@ function TimeSelectPage({
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
-          className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-3 flex flex-col lg:items-start lg:justify-start
+          className="lg:p-0 p-4 lg:ml-5 lg:mt-5 lg:col-span-1 gap-y-4 flex flex-col lg:items-start lg:justify-start
            items-center justify-center mb-3 text-text dark:text-text-dark"
+          style={
+            calendarHeight
+              ? { maxHeight: calendarHeight + 60, height: 'fit-content' }
+              : undefined
+          }
         >
-          <div
-            className="text-4xl font-bold text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventName}
-          </div>
-          <div
-            className="text-xl text-center lg:text-left"
-            style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-          >
-            {eventDescription}
+          {/* Event Title & Description */}
+          <div className="w-full">
+            <div className="flex items-start justify-between gap-2">
+              <div
+                className="text-3xl font-bold text-center lg:text-left flex-1 min-w-0"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              >
+                {eventName}
+              </div>
+              <EventOptionsMenu
+                eventCode={code}
+                isAdmin={checkIfAdmin()}
+                userHasFilled={hasAvailability}
+                onCancel={async () => {
+                  await wrappedSaveDeclinedParticipantDetails();
+                  navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
+                }}
+              />
+            </div>
+            {eventDescription && (
+              <div
+                className="text-base text-gray-600 dark:text-gray-400 text-center lg:text-left mt-1"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              >
+                {eventDescription}
+              </div>
+            )}
           </div>
 
-          <CopyCodeButton />
-
+          {/* Primary Action */}
           <ButtonSmall
             bgColor="primary"
             textColor="white"
             onClick={toggleEditing}
+            className="w-full"
           >
             {isEditing ? 'View Availabilities' : 'Edit Your Availability'}
           </ButtonSmall>
 
+          {/* Location Selection */}
           {locationOptions.length > 0 && (
             <div className="w-full z-50">
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Your Preferred Locations
+              </div>
               <LocationSelectionComponent
                 locations={locationOptions}
-                update={setSelectedLocations}
+                update={(selected) => {
+                  setSelectedLocations(selected);
+                  onSettingsEdited?.();
+                  markUnsaved();
+                }}
               />
             </div>
           )}
 
-          <div className="hidden lg:flex flex-col w-full bg-secondary_background dark:bg-secondary_background-dark p-4 py-2 rounded-lg">
-            <h2 className="text-md font-semibold text-gray-600 dark:text-gray-300">
+          {/* Your Calendars Section */}
+          <div className="hidden lg:flex flex-col w-full min-h-0 flex-1">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
               Your Calendars
-            </h2>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col min-h-0 flex-1">
             {currentUser && hasAccess ? (
-              <ul className="space-y-1 max-h-80 overflow-y-auto">
+              <ul className="space-y-1 overflow-y-auto">
                 {googleCalendars.map((cal) => (
                   <li
                     key={cal.id}
                     className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
                     onClick={() => {
-                      setIdsOfCurrentlySelectedGCals((prevState) => {
+                      wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                         if (prevState?.includes(cal.id)) {
                           return prevState.filter((id) => id !== cal.id);
                         } else {
@@ -662,6 +797,7 @@ function TimeSelectPage({
                 </button>
               </div>
             )}
+            </div>
           </div>
         </div>
 
@@ -845,18 +981,20 @@ function TimeSelectPage({
               <Calendar
                 theShowUserChart={undefined}
                 onClick={() => {}}
-                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarState={[calendarState, wrappedSetCalendarState]}
                 user={getCurrentUserIndex()}
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 draggable={true}
                 chartedUsersData={undefined}
-                theDragState={[dragState, setDragState]}
+                theDragState={theDragState}
+                theMostRecentSelection={theMostRecentSelection}
                 isAdmin={false}
                 theGoogleCalendarEvents={[
                   googleCalendarEvents,
                   setGoogleCalendarEvents,
                 ]}
                 isGeneralDays={isGeneralDays}
+                setCalendarHeight={setCalendarHeight}
               />
             </div>
           </div>
@@ -876,7 +1014,7 @@ function TimeSelectPage({
               key={cal.id}
               className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
               onClick={() => {
-                setIdsOfCurrentlySelectedGCals((prevState) => {
+                wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
                   } else {

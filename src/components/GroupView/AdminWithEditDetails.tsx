@@ -1,6 +1,6 @@
 // import React from 'react';
 // import { useState, useEffect } from 'react';
-// import { calanderState, userData, calendarDimensions } from '../../types';
+// import { calendarState, userData, calendarDimensions } from '../../types';
 // import eventAPI from '../../firebase/eventAPI';
 // import TimeSelectComponent from '../DaySelect/time_select_component';
 // import { FaRegEdit } from 'react-icons/fa';
@@ -9,7 +9,7 @@
 // import { Calendar } from 'react-multi-date-picker';
 // import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-// import Calender from '../selectCalendarComponents/CalendarApp';
+// import Calendar from '../selectCalendarComponents/CalendarApp';
 // import dayjs from 'dayjs';
 // import Select from 'react-dropdown-select';
 // import {
@@ -54,7 +54,7 @@
 //  * @returns Page Component
 //  */
 // export default function AdminGroupViewPage() {
-//   const [calendarState, setCalendarState] = useState<calanderState | undefined>(
+//   const [calendarState, setCalendarState] = useState<calendarState | undefined>(
 //     undefined
 //   );
 //   const [calendarFramework, setCalendarFramework] = useState<
@@ -468,7 +468,7 @@
 //             </div>
 //             <div className="max-w-[100%] lg:max-w-[50%] ">
 //               <div className="flex flex-col content-center grow overflow-x-auto md:content-end">
-//                 <Calender
+//                 <Calendar
 //                   title={''}
 //                   //@ts-expect-error
 //                   theCalendarState={[calendarState, setCalendarState]}

@@ -59,7 +59,7 @@ export default function DeletePopup({
       />
 
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+        className={`relative bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl dark:shadow-[0_0_80px_20px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
           isAnimating
             ? 'opacity-100 scale-100 translate-y-0'
             : 'opacity-0 scale-95 translate-y-4'

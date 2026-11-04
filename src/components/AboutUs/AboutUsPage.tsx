@@ -29,11 +29,110 @@ import RYLAN from './Rylan_Headshot.jpg';
 import JAMES from './James.jpg';
 import RONALD from './Ronald.png';
 import ARUSH from './Arush.jpeg';
+import JADEN from './Jaden.jpeg';
+import ISHANI from './Ishani.png';
+import CONNOR from './Connor.png';
+import SHILOH from './shiloh.png';
+import ANDREW from './andrew.png';
+import AYSHA from './aysha.jpeg';
+import RICHARD from './richard.png';
 
 const CURR_CONTRIBUTORS = [
   {
+    name: 'Ishani Singh',
+    title: ['Product Lead'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/ishani-singh17/',
+    github: 'https://github.com/ising2025',
+    portfolio: undefined,
+    image: ISHANI,
+  },
+
+  {
+    name: 'Jaden Cohen',
+    title: ['Product Lead'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/jaden-cohen-705a27313/',
+    github: 'https://github.com/Invictus108',
+    portfolio: undefined,
+    image: JADEN,
+  },
+
+  {
+    name: 'Arush Srivastava',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
+    github: 'https://arushsri515.github.io/#',
+    portfolio: undefined,
+    image: ARUSH,
+  },
+
+  {
+    name: 'Julien Toussaint Dang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
+    github: 'https://github.com/JulienTD23',
+    portfolio: undefined,
+    image: JULIEN,
+  },
+
+  {
+    name: 'Connor White',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/connorlwhite/',
+    github: 'https://github.com/ConnorWhite9',
+    portfolio: undefined,
+    image: CONNOR,
+  },
+
+  {
+    name: 'Shiloh Huang',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/shilohhuang/',
+    github: 'https://github.com/shilohhuang',
+    portfolio: undefined,
+    image: SHILOH,
+  },
+
+  {
+    name: 'Andrew Yim',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/anerdw/',
+    github: 'https://github.com/Andrew5057',
+    portfolio: undefined,
+    image: ANDREW,
+  },
+
+  {
+    name: 'Aysha Guvanchmyradova',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'www.linkedin.com/in/aysha-guvanchmyradova',
+    github: 'https://github.com/ayshaguvanchmyradova-alt',
+    portfolio: undefined,
+    image: AYSHA,
+  },
+
+  {
+    name: 'Richard Xu',
+    title: ['Software Engineer'],
+    founding: false,
+    linkedin: 'https://www.linkedin.com/in/richardxu257/?isSelfProfile=true',
+    github: 'https://github.com/richardxu257',
+    portfolio: undefined,
+    image: RICHARD,
+  },
+];
+
+const PAST_CONTRIBUTORS = [
+  {
     name: 'Jeet Parikh',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Former Lead'],
     founding: false,
     portfolio: undefined,
     linkedin: 'https://www.linkedin.com/in/parikhjeet/',
@@ -43,10 +142,11 @@ const CURR_CONTRIBUTORS = [
 
   {
     name: 'Rylan Yang',
-    title: ['Product Lead', 'Software Engineer'],
+    title: ['Former Lead'],
     founding: false,
     linkedin: 'https://www.linkedin.com/in/rylan-yang/',
     github: 'https://github.com/rylany27',
+    portfolio: undefined,
     image: RYLAN,
   },
 
@@ -65,30 +165,10 @@ const CURR_CONTRIBUTORS = [
     founding: false,
     linkedin:
       'https://www.linkedin.com/in/ronald-milgo-53a619245/?originalSubdomain=ke',
-    github: undefined,
+    github: 'https://github.com/ronaldmilgo',
     image: RONALD,
   },
 
-  {
-    name: 'Arush Srivastava',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/arush-srivastava-clt/',
-    github: 'https://arushsri515.github.io/#',
-    image: ARUSH,
-  },
-
-  {
-    name: 'Julien Toussaint Dang',
-    title: ['Software Engineer'],
-    founding: false,
-    linkedin: 'https://www.linkedin.com/in/julien-toussaint-dang/',
-    github: 'https://github.com/JulienTD23',
-    image: JULIEN,
-  },
-];
-
-const PAST_CONTRIBUTORS = [
   {
     name: 'Hawa Khalif',
     title: ['Software Engineer'],
@@ -228,7 +308,7 @@ function ContributorCard({
         transform transition-transform hover:scale-105 active:scale-100e"
     >
       <img
-        className="mb-2 min-w-full h-80 object-cover object-center rounded-t-lg"
+        className="mb-2 min-w-full h-60 object-cover object-center rounded-t-lg"
         src={image !== undefined ? image : no_person}
         height={400}
       />
@@ -300,25 +380,26 @@ export default function AboutUsPage() {
                             lg:flex-row"
         >
           <p className="text-xl text-gray-700 dark:text-text-dark">
-            Frustrated with unaesthetic group schedulers that lacked modern
-            integrations and were not tailored to the college student's needs,
-            we set out to provide our own solution. <br /> <br />
-            ymeets is a platform designed to make it easier to schedule group
-            events @ Yale by leveraging Google Calendar and allowing the
-            physical location for meetings to also be decided on. The app is
-            built and maintained by a small team of{' '}
+            We were frustrated with clunky group schedulers that felt outdated,
+            lacked modern integrations, and weren't built with college students
+            in mind. <span className="font-bold"> We built something better.</span>
+            <br /> <br />
+            ymeets makes group scheduling at Yale simple by integrating directly
+            with Google Calendar, so you can instantly see availability, pick a time, and choose a place—without endless back-and-forth.
+            <br /> <br />
+            The app is built and maintained by a small team of developers from{' '}
             <a
-              className="text-primary "
+              className="text-primary"
               href="https://yalecomputersociety.org/"
             >
-              y/cs (Yale Computer Society){' '}
+              Yale Computer Society (y/cs)
             </a>
-            developers. If you have concerns about our app uses your
-            information, please go to the following{' '}
+            . We take your privacy seriously—if you have any questions about how
+            your data is used, you can review our privacy policy{' '}
             <a className="text-primary" href="/privacy">
-              page
-            </a>{' '}
-            to view our privacy policy.
+              here
+            </a>
+            .
           </p>
           <img
             className="inline-block mb-6 md:ml-6"
@@ -327,6 +408,7 @@ export default function AboutUsPage() {
             width={300}
           ></img>
         </div>
+        <br />
         <br />
         <h1 className="text-5xl font-bold">Our Team</h1>
         <br />
@@ -351,7 +433,7 @@ export default function AboutUsPage() {
         <br />
         {/* Co-founders Section */}
         <h2 className="text-3xl font-bold mb-4">Co-founders</h2>
-        <div className="grid lg:grid-cols-2 md:grid-cols-2 mb-8">
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 mb-8">
           {PAST_CONTRIBUTORS.filter(
             (c) => c.name === 'Ethan Mathieu' || c.name === 'Rome Thorstenson'
           ).map((c) => (

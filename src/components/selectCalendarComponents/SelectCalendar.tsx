@@ -5,40 +5,45 @@ import React, {
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
-  calandarDate,
+  BoundingBox,
+  DraggedSelection,
+  calendarDate,
   calendarDimensions,
-  calanderState,
+  calendarState,
   userData,
 } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import CalRow from './CalRow';
 import DateBar from './DateBar';
-import { dragProperties } from '../../types';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
 import { set } from 'lodash';
 
-interface SelectCalanderProps {
+interface SelectCalendarProps {
   theCalendarState: [
-    calanderState,
-    React.Dispatch<React.SetStateAction<calanderState>>,
+    calendarState,
+    React.Dispatch<React.SetStateAction<calendarState>>,
   ];
   chartedUsersData:
     | [userData, React.Dispatch<React.SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   isAdmin?: boolean;
-  bucket: calandarDate[];
+  bucket: calendarDate[];
   columnIndexOffset: number;
   user: number;
   startDate: Date;
   endDate: Date;
   renderTime: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
   ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+  ]
   theCalendarFramework: [
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
@@ -59,7 +64,7 @@ interface SelectCalanderProps {
   chartedUsers?: userData;
 }
 
-function SelectCalander({
+function SelectCalendar({
   theCalendarState,
   chartedUsersData,
   theCalendarFramework,
@@ -71,13 +76,14 @@ function SelectCalander({
   startDate,
   endDate,
   theDragState,
+  theMostRecentSelection,
   theGoogleCalendarEvents,
   onClick,
   theShowUserChart,
   isGeneralDays,
   setChartedUsers,
   chartedUsers,
-}: SelectCalanderProps) {
+}: SelectCalendarProps) {
   const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
   );
@@ -88,34 +94,17 @@ function SelectCalander({
 
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  const [dragState, setDragState] = theDragState;
-
-const handleDisappear = useCallback(() => {
-        if (chartedUsers && setChartedUsers) {
-          setChartedUsers({
-            users: chartedUsers.users,
-            userIDs: chartedUsers.userIDs,
-            available: [],
-            unavailable: [...chartedUsers.users],
-            hovering : false,
-          });
-        }
-      }, [chartedUsers, setChartedUsers]);
-
-  const handleMouseLeave = useCallback(
-    (event: MouseEvent) => {
-      if (
-        calendarRef.current &&
-        !calendarRef.current.contains(event.relatedTarget as Node)
-      ) {
-        setDragState((prev) => ({ ...prev, isSelecting: false }));
-      }
-      handleDisappear();
-    },
-    [setDragState]
-  );
-
-
+  const handleMouseLeave = useCallback(() => {
+    if (chartedUsers && setChartedUsers) {
+      setChartedUsers({
+        users: chartedUsers.users,
+        userIDs: chartedUsers.userIDs,
+        available: [],
+        unavailable: [...chartedUsers.users],
+        hovering : false,
+      });
+    }
+  }, [chartedUsers, setChartedUsers]);
 
   useEffect(() => {
     const calendar = calendarRef.current;
@@ -128,14 +117,10 @@ const handleDisappear = useCallback(() => {
   }, [handleMouseLeave]);
 
   return (
-    <div
-      className=" max-h-140"
-      ref={calendarRef}
-      style={{ touchAction: 'none' }}
-    >
+    <div className="min-h-0 max-h-none" ref={calendarRef}>
       <div className="flex flex-col">
-        <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px]">
-          <div className="bg-white dark:bg-secondary_background-dark w-full flex ">
+        <div className="sticky h-full mb-2 flex flex-row z-30 lg:top-[0px] top-[44px] -ml-12">
+          <div className="bg-white dark:bg-secondary_background-dark w-full flex pl-12">
             <div className="bg-white dark:bg-secondary_background-dark z-50 h-6"></div>
             <DateBar dates={bucket} isGeneralDays={isGeneralDays} />
           </div>
@@ -168,11 +153,11 @@ const handleDisappear = useCallback(() => {
                                 theCalendarState={theCalendarState}
                                 draggable={draggable}
                                 columnIndexOffSet={columnIndexOffset}
-                                blockIDOffset={blockIndexWithinHour}
                                 blockID={blockIndexWithinHour * 4 + blockID}
                                 user={user}
                                 isAdmin={isAdmin}
-                                theDragState={[dragState, setDragState]}
+                                theDragState={theDragState}
+                                theMostRecentSelection={theMostRecentSelection}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 theGoogleCalendarEvents={
@@ -207,4 +192,4 @@ const handleDisappear = useCallback(() => {
   );
 }
 
-export default SelectCalander;
+export default SelectCalendar;

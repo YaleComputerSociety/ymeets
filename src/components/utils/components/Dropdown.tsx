@@ -11,6 +11,7 @@ interface DropdownProps<T> {
   searchable?: boolean;
   searchPlaceholder?: string;
   getSearchableText?: (option: T) => string;
+  compact?: boolean;
 }
 
 function Dropdown<T>({
@@ -23,6 +24,7 @@ function Dropdown<T>({
   searchable = false,
   searchPlaceholder = 'Search...',
   getSearchableText,
+  compact = false,
 }: DropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,7 +91,7 @@ function Dropdown<T>({
     <div className={`relative w-full`} ref={dropdownRef}>
       <button
         onClick={handleToggle}
-        className={`w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-left flex items-center justify-between ${className}`}
+        className={`w-full ${compact && 'text-sm'} p-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-left flex items-center justify-between ${className}`}
       >
         <span>
           {selectedOption
