@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import './general_popup_component.css';
 import LOGO from './googlelogo.png';
@@ -17,7 +17,7 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
   // Access properties or functions from the context
 
@@ -28,7 +28,7 @@ export const GeneralPopup: React.FC<GeneralPopupProps> = ({
     });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Add the class when the component mounts
     document.body.classList.add('popup-open');
 
