@@ -2,7 +2,7 @@ import React from 'react';
 import NavLogo from './NavLogo';
 import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../backend/firebase';
 import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
@@ -25,6 +25,10 @@ import {
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { log } from 'console';
+import {
+  LOGOUT_ON_ARRIVAL,
+  shouldLogoutOnArrival,
+} from '../utils/functions/navigationState';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
@@ -33,8 +37,24 @@ export default function NavBar() {
   const [menuState, setMenuState] = useState('closed');
 
   const nav = useNavigate();
+  const location = useLocation();
 
   const { login, logout, currentUser } = useAuth();
+
+  // Log out only once the navigation home has gone through, so choosing
+  // "Stay" at the unsaved-changes prompt keeps the user signed in
+  useEffect(() => {
+    if (!shouldLogoutOnArrival(location.state)) return;
+    nav(
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+      },
+      { replace: true, state: null }
+    );
+    logout().catch((error) => console.error('Error logging out:', error));
+  }, [location]);
 
   const [showTutorial, setTutorial] = useState(false);
 
@@ -123,19 +143,37 @@ export default function NavBar() {
               )}
             </div>
             <div>
-              <a
-                href="#"
-                className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                onClick={() => {
-                  nav('/useraccount');
-                }}
-              >
-                <IconCalendarEvent
-                  size={25}
-                  className="opacity-80 dark:opacity-100"
-                />{' '}
-                <span className="text-sm hidden sm:block ml-2">My Events</span>
-              </a>
+              {checkIfLoggedIn() ? (
+                <a
+                  href="#"
+                  className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    nav('/useraccount');
+                  }}
+                >
+                  <IconCalendarEvent
+                    size={25}
+                    className="opacity-80 dark:opacity-100"
+                  />{' '}
+                  <span className="text-sm hidden sm:block ml-2">My Events</span>
+                </a>
+              ) : (
+                <a
+                  href="#"
+                  className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    login();
+                  }}
+                >
+                  <IconLogin2
+                    size={25}
+                    className="opacity-80 dark:opacity-100"
+                  />{' '}
+                  <span className="text-sm hidden sm:block ml-2">Sign In</span>
+                </a>
+              )}
             </div>
             <div className="relative">
               <button
@@ -176,7 +214,8 @@ export default function NavBar() {
                     <a
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         nav('/about-us');
                         setMenuState('closed');
                       }}
@@ -196,32 +235,21 @@ export default function NavBar() {
                     >
                       <IconMessageReport className="mr-2" size={17} /> Feedback
                     </a>
-                    <div className="border-t border-gray-200"></div>
-                    {checkIfLoggedIn() ? (
-                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                      <a
-                        href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                        onClick={() => {
-                          logout();
-                          setMenuState('closed');
-                          nav('/');
-                        }}
-                      >
-                        <IconLogout className="mr-2" size={17} /> Logout
-                      </a>
-                    ) : (
-                      // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                      <a
-                        href="#"
-                        className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                        onClick={() => {
-                          login();
-                          setMenuState('closed');
-                        }}
-                      >
-                        <IconLogin2 className="mr-2" size={17} /> Login
-                      </a>
+                    {checkIfLoggedIn() && (
+                      <>
+                        <div className="border-t border-gray-200"></div>
+                        <a
+                          href="#"
+                          className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setMenuState('closed');
+                            nav('/', { state: LOGOUT_ON_ARRIVAL });
+                          }}
+                        >
+                          <IconLogout className="mr-2" size={17} /> Logout
+                        </a>
+                      </>
                     )}
                   </div>
                 </div>

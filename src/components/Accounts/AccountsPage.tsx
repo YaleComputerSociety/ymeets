@@ -22,6 +22,10 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import DeletePopup from '../utils/components/DeletePopup';
+import {
+  getCachedAccountEvents,
+  setCachedAccountEvents,
+} from './accountEventsCache';
 
 import EventsCalendar from './EventsCalendar';
 import EventLabels, { LabelBadges, LabelColors } from './EventLabels';
@@ -52,15 +56,20 @@ export interface AccountsPageEvent {
  */
 export default function AccountsPage() {
   useEffect(() => {
-    const retrieveAndSetEvents = async () => {
+    const retrieveAndSetEvents = () => {
       const accountID = getAccountId();
 
       if (accountID && accountID !== '') {
-        await getParsedAccountPageEventsForUser(accountID).then(
-          (parsedEvents) => {
-            setEvents(parsedEvents);
-          }
-        );
+        // Show cached events immediately if we have them
+        const cached = getCachedAccountEvents(accountID);
+        if (cached != null) {
+          setEvents(cached);
+        }
+        // Always fetch fresh data and replace when ready
+        getParsedAccountPageEventsForUser(accountID).then((parsedEvents) => {
+          setCachedAccountEvents(accountID, parsedEvents);
+          setEvents(parsedEvents);
+        });
       } else {
         setEvents([]);
       }
@@ -174,9 +183,9 @@ export default function AccountsPage() {
             deleteEvent(selectedEventToDelete.id)
               .then(() => {
                 setHasDeletedEvent(true);
-                setEvents(
-                  events?.filter((e) => e.id !== selectedEventToDelete.id)
-                );
+                const next =
+                  events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
+                setEvents(next);
               })
               .catch((err) => {});
             setSelectedEventToDelete(null);

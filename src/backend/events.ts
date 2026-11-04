@@ -31,6 +31,10 @@ import { runTransaction } from 'firebase/firestore';
 import { doTimezoneChange } from '../components/utils/functions/timzoneConversions';
 import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 import { AccountsPageEvent } from '../components/Accounts/AccountsPage';
+import {
+  removeCachedAccountEvent,
+  upsertCachedAccountEvent,
+} from '../components/Accounts/accountEventsCache';
 // ASSUME names are unique within an event
 
 let workingEvent: Event = {
@@ -194,6 +198,11 @@ async function deleteEvent(id: EventId): Promise<void> {
   });
 
   removeEventFromUserCollection(getAccountId(), id);
+  // Keep local account events cache in sync (Accounts page).
+  const accountId = getAccountId();
+  if (accountId) {
+    removeCachedAccountEvent(accountId, id);
+  }
 }
 
 // Structure of the userEvents array in the user document
@@ -379,6 +388,18 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
           userEvents: arrayUnion(eventDetailsForUser),
         })
           .then(() => {
+            const row: AccountsPageEvent = {
+              name: eventDetails.name,
+              id,
+              dates: 'TBD',
+              startTime: 'TBD',
+              endTime: 'TBD',
+              location: 'TBD',
+              iAmCreator: true,
+              dateCreated: new Date(),
+              lastModified: new Date(),
+            };
+            upsertCachedAccountEvent(eventDetails.adminAccountId, row);
             resolve(newEvent);
           })
           .catch((err) => {
@@ -471,10 +492,10 @@ async function updateUserCollectionEventsWith(accountId: string) {
 
     const data = snap.data();
     console.log('Data: ', data);
-    
+
     const userEvents: UserEvent[] = data.userEvents || [];
 
-    const existingIdx = userEvents.findIndex(ev => ev.code === eventCode);
+    const existingIdx = userEvents.findIndex((ev) => ev.code === eventCode);
 
     // Update existing entry
     if (existingIdx !== -1) {
@@ -505,13 +526,14 @@ async function updateUserCollectionEventsWith(accountId: string) {
 // For internal use
 // Updates the participants list of the working event
 // with the participant passed in, overwriting if they already exist
-async function saveParticipantDetails(participant: Participant): Promise<void> {
+async function saveParticipantDetails(participant: Participant, skipUserCollection = false): Promise<void> {
   participant.email = getAccountEmail();
 
   // Update local copy first
-  let existingIndex = workingEvent.participants.findIndex(part =>
-    (participant.accountId && part.accountId === participant.accountId) ||
-    (!participant.accountId && part.name === participant.name)
+  let existingIndex = workingEvent.participants.findIndex(
+    (part) =>
+      (participant.accountId && part.accountId === participant.accountId) ||
+      (!participant.accountId && part.name === participant.name)
   );
 
   if (existingIndex !== -1) {
@@ -529,8 +551,9 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
   }
 
   // Always await — avoids race conditions
+  // if this is a declined call, its can't update user collection with events or it overwrites event deletion
   const accountId = getAccountId();
-  if (accountId) {
+  if (accountId && !skipUserCollection) {
     await updateUserCollectionEventsWith(accountId);
   }
 
@@ -548,8 +571,10 @@ async function saveParticipantDetails(participant: Participant): Promise<void> {
     email: getAccountEmail(),
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
+    declined: participant.declined || false,
   });
 }
+
 
 async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName();
@@ -622,7 +647,30 @@ async function wrappedSaveParticipantDetails(
     email: getAccountEmail(),
     availability: availability, // Pass as array, not stringified
     location: locations !== undefined ? locations : [],
+    declined: false,
   });
+}
+
+async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
+  let name = getAccountName();
+  if (!name) {
+    console.warn('User not signed in');
+    name = 'John Doe';
+  }
+
+  // remove event from their firestore
+  const accountId = getAccountId();
+  await removeEventFromUserCollection(accountId, workingEvent.publicId);
+
+  // skipUserCollection=true prevents re-adding the event to userEvents
+  await saveParticipantDetails({
+    name,
+    accountId: getAccountId(),
+    email: getAccountEmail(),
+    availability: [], 
+    location: [],
+    declined: true,
+  }, true);
 }
 
 // Sets the official date for the event; must be called by the admin
@@ -990,7 +1038,7 @@ async function setNewDates(newDates: Date[] | undefined) {
       workingEvent.details.startTime,
       workingEvent.details.endTime
     );
-    let availability = [];
+    let availability: Availability = [];
     for (let i = 0; i < timeBlocks.length; i++) {
       availability.push(new Array(newDates.length).fill(false));
     }
@@ -1004,6 +1052,19 @@ async function undoAdminSelections() {
   workingEvent.details.chosenStartDate = new Date(1970, 1, 1, 10, 15, 30);
   workingEvent.details.chosenEndDate = new Date(1970, 1, 1, 10, 15, 30);
   await saveEventDetails(workingEvent.details);
+}
+
+function getEmailAdmin(): boolean {
+  return workingEvent.details.emailAdmin === true;
+}
+
+async function setEmailAdmin(emailAdmin: boolean) {
+  workingEvent.details.emailAdmin = emailAdmin;
+  // Update only the emailAdmin field to avoid issues with undefined optional fields
+  const eventsRef = collection(db, 'events');
+  await updateDoc(doc(eventsRef, workingEvent.publicId), {
+    'details.emailAdmin': emailAdmin,
+  });
 }
 
 async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
@@ -1070,9 +1131,11 @@ export {
   getEmails,
   getZoomLink,
   getTimezone,
+  getEmailAdmin,
 
   // All Participants (Async)
   wrappedSaveParticipantDetails,
+  wrappedSaveDeclinedParticipantDetails,
   updateAnonymousUserToAuthUser,
   // setAvailability,
   // setLocationPreference,
@@ -1087,6 +1150,7 @@ export {
   setNewStartTimes,
   setNewEndTimes,
   setNewDates,
+  setEmailAdmin,
   getParticipantIndex,
   removeEventFromUserCollection,
 };

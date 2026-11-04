@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import './day_select_component.css';
-import CalanderComponent from '../calander_component';
+import CalendarComponent from '../calendar_component';
 import frontendEventAPI from '../../../backend/eventAPI';
-import { 
-  getAccountId, 
-  getAccountName, 
+import {
+  getAccountId,
+  getAccountName,
   getEventById,
   getEventName,
   getEventDescription,
@@ -13,8 +13,10 @@ import {
   getLocationOptions,
   getTimezone,
   getZoomLink,
-  checkIfAdmin
+  checkIfAdmin,
+  getParsedAccountPageEventsForUser,
 } from '../../../backend/events';
+import { setCachedAccountEvents } from '../../Accounts/accountEventsCache';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
@@ -22,6 +24,16 @@ import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
+
+const DEFAULT_LOCATION_PRESETS = [
+  '17 Hillhouse',
+  'Bass',
+  'HQ',
+  'LC',
+  'Sterling',
+  'TSAI City',
+  'WLH',
+] as const;
 
 export const DaySelectComponent = () => {
   const location = useLocation();
@@ -67,13 +79,7 @@ export const DaySelectComponent = () => {
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
   const [locationOptions, setLocationOptions] = useState<string[]>([
-    '17 Hillhouse',
-    'Bass',
-    'HQ',
-    'LC',
-    'Sterling',
-    'TSAI City',
-    'WLH',
+    ...DEFAULT_LOCATION_PRESETS,
   ]);
 
   const [selectedDays, setSelectedDays] = useState<
@@ -162,8 +168,13 @@ export const DaySelectComponent = () => {
           setZoomLink(zoomLinkFromDb || '');
           setStartDate(newStartDate);
           setEndDate(newEndDate);
-          updateLocationsState(locationsFromDb || []);
-          setLocationOptions(locationsFromDb || []);
+          const loadedLocs = Array.isArray(locationsFromDb)
+            ? locationsFromDb
+            : [];
+          updateLocationsState(loadedLocs);
+          setLocationOptions([
+            ...new Set([...DEFAULT_LOCATION_PRESETS, ...loadedLocs]),
+          ]);
           setTimezone(timezoneFromDb || Intl.DateTimeFormat().resolvedOptions().timeZone);
           
           // Check if this is a "General Days" event (dates with year 2000)
@@ -339,6 +350,12 @@ export const DaySelectComponent = () => {
           new Date() // dateCreated
         )
         .then((ev) => {
+          const accountID = getAccountId();
+          if (accountID) {
+            getParsedAccountPageEventsForUser(accountID).then((events) =>
+              setCachedAccountEvents(accountID, events)
+            );
+          }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     } else {
@@ -362,6 +379,12 @@ export const DaySelectComponent = () => {
           new Date() // dateCreated
         )
         .then((ev) => {
+          const accountID = getAccountId();
+          if (accountID) {
+            getParsedAccountPageEventsForUser(accountID).then((events) =>
+              setCachedAccountEvents(accountID, events)
+            );
+          }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
         });
     }
@@ -426,6 +449,16 @@ export const DaySelectComponent = () => {
                   onChange={(e) => setEventName(e.target.value)}
                   maxLength={40}
                 />
+
+                {/* <label
+                  htmlFor="event-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Emails of Attendees
+                </label>
+
+                <SearchBar/> */}
+
               </div>
 
               <div className="space-y-2">
@@ -463,9 +496,11 @@ export const DaySelectComponent = () => {
                 <div className="z-40">
                   <LocationSelectionComponent
                     locations={locationOptions}
+                    value={locations}
                     update={updateLocationsState}
                     create={true}
                     placeholder="Locations (Optional)"
+                    variant="form"
                   />
                 </div>
                 <div className="flex items-center text-sm text-gray-400 dark:text-gray-400 mt-1">
@@ -519,7 +554,7 @@ export const DaySelectComponent = () => {
             </div>
 
             <div className="mx-auto rounded-lg border border-gray-300 dark:border-gray-600">
-              <CalanderComponent
+              <CalendarComponent
                 theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
                 theGeneralDays={[selectedDays, setSelectedDays]}
                 theEventName={[eventName, setEventName]}
