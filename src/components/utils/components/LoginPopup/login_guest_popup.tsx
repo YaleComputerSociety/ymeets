@@ -21,14 +21,13 @@ interface LoginPopupProps {
 
 export const LoginPopup: React.FC<LoginPopupProps> = ({
   onClose,
-  enableAnonymousSignIn = false,
   code,
   onOverlayClick,
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
 
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
   const [showManualInput, setShowManualInput] = useState(false);

@@ -1,7 +1,5 @@
 import { IconMail } from '@tabler/icons-react';
 
-import { useParams } from 'react-router-dom';
-
 type AutoDraftEmailProps = {
   customEventCode?: string;
   eventTitle?: string;
