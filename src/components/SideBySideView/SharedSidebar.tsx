@@ -50,7 +50,6 @@ interface SharedSidebarProps {
   locationOptions: string[];
   locationVotes: any;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation?: Dispatch<SetStateAction<string | undefined>>;
 
   // User chart
   chartedUsers: userData;
@@ -88,7 +87,6 @@ export default function SharedSidebar({
   locationOptions,
   locationVotes,
   adminChosenLocation,
-  setAdminChosenLocation,
   chartedUsers,
   calendarHeight,
   googleCalendars = [],
@@ -510,10 +508,7 @@ export default function SharedSidebar({
                 Group votes
               </div>
               <LocationChart
-                theSelectedLocation={[
-                  adminChosenLocation,
-                  setAdminChosenLocation || (() => {}),
-                ]}
+                selectedLocation={adminChosenLocation}
                 locationOptions={
                   locationOptions.length > 0 ? locationOptions : ['']
                 }

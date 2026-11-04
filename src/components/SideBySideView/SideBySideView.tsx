@@ -60,7 +60,6 @@ interface SideBySideViewProps {
   locationOptions: string[];
   locationVotes: any;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
 
   // Other
   code: string | undefined;
@@ -114,7 +113,6 @@ export default function SideBySideView({
   locationOptions,
   locationVotes,
   adminChosenLocation,
-  setAdminChosenLocation,
   code,
   isAdmin,
   isGeneralDays,
@@ -447,7 +445,6 @@ export default function SideBySideView({
             locationOptions={locationOptions}
             locationVotes={locationVotes}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             chartedUsers={chartedUsers}
             calendarHeight={calendarHeight}
             googleCalendars={googleCalendars}

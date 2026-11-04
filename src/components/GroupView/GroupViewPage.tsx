@@ -64,7 +64,6 @@ export default function GroupViewPage({
   locationVotes,
   locationOptions,
   adminChosenLocation,
-  setAdminChosenLocation,
   loading,
   allPeople,
   declinedPeople,
@@ -88,7 +87,6 @@ export default function GroupViewPage({
   locationVotes: any;
   locationOptions: string[];
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
   loading: boolean;
   allPeople: string[];
   declinedPeople: string[];
@@ -101,7 +99,6 @@ export default function GroupViewPage({
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
-  const [generalPopupMessage] = useState('');
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
   const [mostRecentSelection, setMostRecentSelection] = useState<BoundingBox | undefined>(undefined);
 
@@ -441,10 +438,7 @@ export default function GroupViewPage({
                 Locations
               </div>
               <LocationChart
-                theSelectedLocation={[
-                  adminChosenLocation,
-                  setAdminChosenLocation,
-                ]}
+                selectedLocation={adminChosenLocation}
                 locationOptions={
                   locationOptions.length > 0 ? locationOptions : ['']
                 }
@@ -594,10 +588,7 @@ export default function GroupViewPage({
           {locationOptions.length > 0 && (
             <div className="lg:hidden mt-4">
               <LocationChart
-                theSelectedLocation={[
-                  adminChosenLocation,
-                  setAdminChosenLocation,
-                ]}
+                selectedLocation={adminChosenLocation}
                 locationOptions={
                   locationOptions.length > 0 ? locationOptions : ['']
                 }
@@ -709,7 +700,7 @@ export default function GroupViewPage({
       {showGeneralPopup && (
         <GeneralPopup
           onClose={() => setShowGeneralPopup(false)}
-          message={generalPopupMessage}
+          message={''}
           isLogin={false}
         />
       )}

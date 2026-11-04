@@ -22,7 +22,6 @@ export default function ConditionalGroupViewRenderer({
   locationVotes,
   locationOptions,
   adminChosenLocation,
-  setAdminChosenLocation,
   loading,
   allPeople,
   declinedPeople,
@@ -45,7 +44,6 @@ export default function ConditionalGroupViewRenderer({
   locationVotes: any;
   locationOptions: string[];
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
   loading: boolean;
   allPeople: string[];
   declinedPeople: string[];
@@ -87,7 +85,6 @@ export default function ConditionalGroupViewRenderer({
       locationVotes={locationVotes}
       locationOptions={locationOptions}
       adminChosenLocation={adminChosenLocation}
-      setAdminChosenLocation={setAdminChosenLocation}
       loading={loading}
       allPeople={allPeople}
       declinedPeople={declinedPeople}

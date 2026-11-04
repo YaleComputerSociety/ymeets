@@ -312,7 +312,6 @@ export default function UnifiedAvailabilityPage() {
           locationOptions={locationOptions}
           locationVotes={locationVotes}
           adminChosenLocation={adminChosenLocation}
-          setAdminChosenLocation={setAdminChosenLocation}
           code={code}
           isAdmin={isAdmin}
           isGeneralDays={isGeneralDays}
@@ -375,7 +374,6 @@ export default function UnifiedAvailabilityPage() {
             locationVotes={locationVotes}
             locationOptions={locationOptions}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             loading={loading}
             allPeople={allPeople}
             declinedPeople={declinedPeople}

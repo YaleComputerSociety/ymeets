@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
-import React from 'react';
 import { checkIfAdmin } from '../../backend/events';
 import { Location } from '../../types';
 
 interface LocationChartProps {
-  theSelectedLocation?:
-    | [
-        string | undefined,
-        React.Dispatch<React.SetStateAction<string | undefined>>,
-      ]
-    | undefined;
+  selectedLocation?: string;
   locationOptions: any;
   locationVotes: any;
   selectionMade: boolean;
@@ -23,12 +17,11 @@ interface LocationChartProps {
  * @returns Page Support Component - Admin
  */
 export default function LocationChart({
-  theSelectedLocation,
+  selectedLocation,
   locationOptions,
   locationVotes,
   selectionMade,
 }: LocationChartProps) {
-  const [selectedLocation] = theSelectedLocation || ['', () => {}];
   const [isClicked, setIsClicked] = useState(selectedLocation !== '');
   const [showInput, setShowInput] = useState(false);
   const [building, setBuilding] = useState('');
