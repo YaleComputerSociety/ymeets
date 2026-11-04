@@ -8,9 +8,11 @@ export const SKIP_UNSAVED_CHANGES_PROMPT = { skipUnsavedChangesPrompt: true };
 // so cancelling at the unsaved-changes prompt keeps the user signed in.
 export const LOGOUT_ON_ARRIVAL = { logoutOnArrival: true };
 
+/** Whether a navigation's state asks to skip the unsaved-changes prompt. */
 export const shouldSkipUnsavedChangesPrompt = (state: unknown): boolean =>
   (state as { skipUnsavedChangesPrompt?: boolean } | null)
     ?.skipUnsavedChangesPrompt === true;
 
+/** Whether a navigation's state asks to log out once it completes. */
 export const shouldLogoutOnArrival = (state: unknown): boolean =>
   (state as { logoutOnArrival?: boolean } | null)?.logoutOnArrival === true;

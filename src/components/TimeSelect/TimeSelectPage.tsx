@@ -3,6 +3,8 @@ import { calendar_v3, google } from 'googleapis';
 import {
   useState,
   useEffect,
+  useCallback,
+  useRef,
   Dispatch,
   SetStateAction,
   MutableRefObject,
@@ -90,6 +92,8 @@ function TimeSelectPage({
   setHasAvailability,
   setHasUnsavedChanges,
   onSaveComplete,
+  onSavingChange,
+  onSettingsEdited,
   saveRef,
 }: {
   isEditing: boolean;
@@ -120,22 +124,49 @@ function TimeSelectPage({
   setHasUnsavedChanges?: (value: boolean) => void;
   // Called after a successful save instead of toggleEditing, which may be guarded
   onSaveComplete?: () => void;
+  // Reports when a save is in flight, so the unsaved-changes popup can't start another
+  onSavingChange?: (saving: boolean) => void;
+  // Reports location or calendar selection changes, which the parent can't compare
+  onSettingsEdited?: () => void;
   // Exposes this page's save so the unsaved-changes popup can run it
   saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
   const navigate = useNavigate();
 
-  // Wrapped setter that marks changes as unsaved
-  const wrappedSetCalendarState: Dispatch<SetStateAction<calendarState>> = (
-    action
-  ) => {
-    setCalendarState(action);
-    setHasUnsavedChanges?.(true);
-  };
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Pending post-save exit from edit mode. Cleared on unmount (e.g. the user
+  // left mid-save), or it would reload the old event from the next page
+  const saveCompleteTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(saveCompleteTimerRef.current), []);
+
+  // Bumped on every edit, so a save can tell whether edits arrived while it ran
+  const editVersionRef = useRef(0);
+
+  /**
+   * Records an edit and marks changes as unsaved. Also cancels a pending
+   * "Saved!" exit, since leaving would reload and drop the new edit.
+   */
+  const markUnsaved = useCallback(() => {
+    editVersionRef.current += 1;
+    setHasUnsavedChanges?.(true);
+    clearTimeout(saveCompleteTimerRef.current);
+    setIsSaved(false);
+  }, [setHasUnsavedChanges]);
+
+  // Wrapped setter that marks changes as unsaved. Must be stable: CalBlock's
+  // drag listeners depend on it, and a new identity mid-drag detaches them.
+  const wrappedSetCalendarState: Dispatch<SetStateAction<calendarState>> =
+    useCallback(
+      (action) => {
+        setCalendarState(action);
+        markUnsaved();
+      },
+      [setCalendarState, markUnsaved]
+    );
 
   const closeGcalPopup = () => {
     setGcalPopupOpen(false);
@@ -177,6 +208,15 @@ function TimeSelectPage({
   >([]);
   const [idsOfCurrentlySelectedGCals, setIdsOfCurrentlySelectedGCals] =
     useState<string[]>([]);
+
+  // Wrapped setter for user-made calendar selections, which are saved with availability
+  const wrappedSetIdsOfCurrentlySelectedGCals: Dispatch<
+    SetStateAction<string[]>
+  > = (action) => {
+    setIdsOfCurrentlySelectedGCals(action);
+    onSettingsEdited?.();
+    markUnsaved();
+  };
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
 
   const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
@@ -548,30 +588,40 @@ function TimeSelectPage({
 
   // Persists availability, locations, and calendar selection without any UI side effects
   const persistChanges = async () => {
-    const user = getCurrentUserIndex();
-    const avail: Availability = calendarState
-      ? (calendarState[user] ?? [])
-      : [];
+    const versionAtSaveStart = editVersionRef.current;
+    onSavingChange?.(true);
+    try {
+      const user = getCurrentUserIndex();
+      const avail: Availability = calendarState
+        ? (calendarState[user] ?? [])
+        : [];
 
-    await wrappedSaveParticipantDetails(avail, selectedLocations);
-    await setUserSelectedCalendarIDs(
-      getAccountId(),
-      idsOfCurrentlySelectedGCals
-    );
-
-    // Email event admin if they opted in
-    if (workingEvent.details.emailAdmin === true) {
-      notifyAdminOfNewResponse(
-        workingEvent.details.adminAccountId,
+      await wrappedSaveParticipantDetails(avail, selectedLocations);
+      await setUserSelectedCalendarIDs(
         getAccountId(),
-        getAccountName(),
-        workingEvent.details.name,
-        workingEvent.publicId
+        idsOfCurrentlySelectedGCals
       );
-    }
 
-    setHasUnsavedChanges?.(false);
+      // Email event admin if they opted in
+      if (workingEvent.details.emailAdmin === true) {
+        notifyAdminOfNewResponse(
+          workingEvent.details.adminAccountId,
+          getAccountId(),
+          getAccountName(),
+          workingEvent.details.name,
+          workingEvent.publicId
+        );
+      }
+
+      // Edits made while the save was in flight weren't saved, so keep them flagged
+      if (editVersionRef.current === versionAtSaveStart) {
+        setHasUnsavedChanges?.(false);
+      }
+    } finally {
+      onSavingChange?.(false);
+    }
   };
+
 
   if (saveRef) {
     saveRef.current = persistChanges;
@@ -579,12 +629,19 @@ function TimeSelectPage({
 
   const saveAvailAndLocationChanges = async () => {
     setIsSaving(true);
+    const versionAtSaveStart = editVersionRef.current;
     await persistChanges();
 
     setIsSaving(false);
+
+    // Edits made during the save are still unsaved, so don't claim "Saved!" or
+    // leave (which reloads and drops them); the Save button stays available
+    if (editVersionRef.current !== versionAtSaveStart) return;
+
     setIsSaved(true);
 
-    setTimeout(() => {
+    // Any edit during the "Saved!" window cancels this (see markUnsaved)
+    saveCompleteTimerRef.current = setTimeout(() => {
       setIsSaved(false);
       (onSaveComplete ?? toggleEditing)();
     }, 600);
@@ -669,7 +726,8 @@ function TimeSelectPage({
                 locations={locationOptions}
                 update={(selected) => {
                   setSelectedLocations(selected);
-                  setHasUnsavedChanges?.(true);
+                  onSettingsEdited?.();
+                  markUnsaved();
                 }}
               />
             </div>
@@ -688,7 +746,7 @@ function TimeSelectPage({
                     key={cal.id}
                     className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
                     onClick={() => {
-                      setIdsOfCurrentlySelectedGCals((prevState) => {
+                      wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                         if (prevState?.includes(cal.id)) {
                           return prevState.filter((id) => id !== cal.id);
                         } else {
@@ -959,7 +1017,7 @@ function TimeSelectPage({
               key={cal.id}
               className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
               onClick={() => {
-                setIdsOfCurrentlySelectedGCals((prevState) => {
+                wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
                   } else {

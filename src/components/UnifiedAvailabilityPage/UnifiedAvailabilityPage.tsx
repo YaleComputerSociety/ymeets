@@ -297,10 +297,53 @@ export default function UnifiedAvailabilityPage() {
     fetchData();
   }, []);
 
+  /**
+   * Serializes what the user has actually chosen: the selected cells of their
+   * availability and their desktop locations. Comparing selected cells rather
+   * than raw arrays matters because dragging can add `false` entries or holes
+   * (e.g. cells the stored arrays didn't have yet), which look identical on screen.
+   */
+  const getEditableSnapshot = () => {
+    const availability = timeSelectCalendarState?.[getCurrentUserIndex()];
+    const selectedCells: string[] = [];
+    Object.entries(availability ?? {}).forEach(([col, blocks]) => {
+      Object.entries(blocks ?? {}).forEach(([block, isSelected]) => {
+        if (isSelected === true) selectedCells.push(`${col}-${block}`);
+      });
+    });
+    return JSON.stringify({
+      selectedCells,
+      locations: [...selectedLocations].sort(),
+    });
+  };
+
+  // Snapshot of the last loaded or saved state. Whenever the unsaved flag is
+  // clear, the state on screen is what's in Firestore, so record it then.
+  // Stored as a string because CalBlock mutates availability arrays in place.
+  const savedSnapshotRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!hasUnsavedChanges) savedSnapshotRef.current = getEditableSnapshot();
+  }, [hasUnsavedChanges, timeSelectCalendarState, selectedLocations]);
+
+  // Mobile location and calendar choices live inside TimeSelectPage, so they
+  // can't be compared here; any change to them counts as unsaved
+  const mobileSettingsEditedRef = useRef(false);
+
+  /**
+   * Whether there's anything worth prompting about: an edit was made and it
+   * didn't end up back at the saved state (e.g. selecting times, then
+   * unselecting them all).
+   */
+  const hasMeaningfulUnsavedChanges = () =>
+    hasUnsavedChanges &&
+    (mobileSettingsEditedRef.current ||
+      getEditableSnapshot() !== savedSnapshotRef.current);
+
   // Browser-level warning for closing the tab, refreshing, or leaving the site
   useEffect(() => {
     if (!hasUnsavedChanges) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!hasMeaningfulUnsavedChangesRef.current()) return;
       e.preventDefault();
       e.returnValue = '';
     };
@@ -308,10 +351,14 @@ export default function UnifiedAvailabilityPage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
+  // The beforeunload listener outlives renders, so it reads the latest check through a ref
+  const hasMeaningfulUnsavedChangesRef = useRef(hasMeaningfulUnsavedChanges);
+  hasMeaningfulUnsavedChangesRef.current = hasMeaningfulUnsavedChanges;
+
   // In-app navigation guard (navbar links, nav() calls, back/forward within the app)
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges &&
+      hasMeaningfulUnsavedChanges() &&
       currentLocation.pathname !== nextLocation.pathname &&
       !shouldSkipUnsavedChangesPrompt(nextLocation.state)
   );
@@ -320,36 +367,107 @@ export default function UnifiedAvailabilityPage() {
   // Mobile: switching from editing to viewing reloads availability, so it's guarded too
   const [pendingViewSwitch, setPendingViewSwitch] = useState(false);
   const mobileSaveRef = useRef<(() => Promise<void>) | null>(null);
+  const [isSavingFromPopup, setIsSavingFromPopup] = useState(false);
+  // Mobile's own Save button runs outside the popup, so track it separately
   const [isSavingMobile, setIsSavingMobile] = useState(false);
 
+  // Whether the unsaved edits came from the mobile editor, which keeps its own
+  // locations and calendar selection, so the popup knows which save to run
+  const mobileHasEditsRef = useRef(false);
+
+  /** Marks unsaved changes made in the mobile editor. Stable, since TimeSelectPage's drag setter depends on it. */
+  const setMobileHasUnsavedChanges = useCallback((value: boolean) => {
+    mobileHasEditsRef.current = value;
+    setHasUnsavedChanges(value);
+  }, []);
+
+  /** Records a mobile location or calendar change, which always counts as unsaved. */
+  const markMobileSettingsEdited = useCallback(() => {
+    mobileSettingsEditedRef.current = true;
+  }, []);
+
+  // Any save (desktop or mobile) that clears the flag also clears mobile's edits
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      mobileHasEditsRef.current = false;
+      mobileSettingsEditedRef.current = false;
+    }
+  }, [hasUnsavedChanges]);
+  const isUnsavedChangesPopupOpen =
+    blocker.state === 'blocked' || pendingViewSwitch;
+
+  // Don't carry a previous attempt's save error into a newly opened popup
+  useEffect(() => {
+    if (isUnsavedChangesPopupOpen) setLeaveSaveError(undefined);
+  }, [isUnsavedChangesPopupOpen]);
+
+  /** Leaves mobile edit mode and reloads availability, without any guard. */
   const exitMobileEditing = () => {
     setIsEditing(false);
     fetchData(false);
   };
 
+  /** Leaves mobile edit mode, asking first if there are unsaved changes. */
   const requestExitMobileEditing = () => {
-    if (hasUnsavedChanges) {
+    if (hasMeaningfulUnsavedChanges()) {
       setPendingViewSwitch(true);
     } else {
+      // Edits that ended back at the saved state need no prompt; clear the flag
+      // so it doesn't linger after the reload
+      setHasUnsavedChanges(false);
       exitMobileEditing();
     }
   };
 
-  // Save through whichever layout the user is editing in
+  /**
+   * Saves the side-by-side edits without reloading. Unlike handleSideBySideSave,
+   * this never calls fetchData, which can navigate and reset the blocker
+   * before the popup gets to proceed.
+   */
+  const persistSideBySideChanges = async () => {
+    const user = getCurrentUserIndex();
+    const avail: Availability = timeSelectCalendarState
+      ? (timeSelectCalendarState[user] ?? [])
+      : [];
+    await wrappedSaveParticipantDetails(avail, selectedLocations);
+
+    // Email event admin if they opted in (only once per session to avoid spam)
+    const eventId = workingEvent.publicId;
+    if (
+      workingEvent.details.emailAdmin === true &&
+      !notifiedEventsThisSession.has(eventId)
+    ) {
+      notifyAdminOfNewResponse(
+        workingEvent.details.adminAccountId,
+        getAccountId(),
+        getAccountName(),
+        workingEvent.details.name,
+        eventId
+      );
+      notifiedEventsThisSession.add(eventId);
+    }
+
+    setHasUnsavedChanges(false);
+  };
+
+  /**
+   * Saves through whichever editor made the edits. Chosen by where the edits
+   * came from, not viewport width, since resizing can switch the visible layout.
+   */
   const saveUnsavedChanges = async () => {
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-    if (!isDesktop && isEditing && mobileSaveRef.current) {
-      setIsSavingMobile(true);
-      try {
+    setIsSavingFromPopup(true);
+    try {
+      if (mobileHasEditsRef.current && isEditing && mobileSaveRef.current) {
         await mobileSaveRef.current();
-      } finally {
-        setIsSavingMobile(false);
+      } else {
+        await persistSideBySideChanges();
       }
-    } else {
-      await handleSideBySideSave();
+    } finally {
+      setIsSavingFromPopup(false);
     }
   };
 
+  /** Completes whatever the popup interrupted: the mobile view switch or the blocked navigation. */
   const finishPendingAction = () => {
     if (pendingViewSwitch) {
       setPendingViewSwitch(false);
@@ -359,23 +477,33 @@ export default function UnifiedAvailabilityPage() {
     }
   };
 
+  // Set while the popup's own save runs, so the auto-continue effect below
+  // doesn't also finish the pending action (proceeding twice throws)
+  const isPopupSaveRunningRef = useRef(false);
+
+  /** Popup "Save & leave/view": saves, then continues; on failure stays and shows an error. */
   const handleSaveAndLeave = async () => {
     setLeaveSaveError(undefined);
+    isPopupSaveRunningRef.current = true;
     try {
       await saveUnsavedChanges();
       finishPendingAction();
     } catch (err) {
       console.error('Failed to save before leaving:', err);
       setLeaveSaveError('Failed to save your changes. Please try again.');
+    } finally {
+      isPopupSaveRunningRef.current = false;
     }
   };
 
+  /** Popup "Discard": continues without saving; unmounting or the reload drops the edits. */
   const handleLeaveWithoutSaving = () => {
     setLeaveSaveError(undefined);
     if (pendingViewSwitch) setHasUnsavedChanges(false);
     finishPendingAction();
   };
 
+  /** Popup "Stay": cancels the pending view switch or navigation. */
   const handleStay = () => {
     setLeaveSaveError(undefined);
     if (pendingViewSwitch) {
@@ -385,10 +513,24 @@ export default function UnifiedAvailabilityPage() {
     }
   };
 
+  // If a save started outside the popup (e.g. clicking Save, then a link)
+  // finishes with nothing left unsaved, carry on instead of asking again
+  const isAnySaveInFlight = isSaving || isSavingFromPopup || isSavingMobile;
+  useEffect(() => {
+    if (
+      isUnsavedChangesPopupOpen &&
+      !hasUnsavedChanges &&
+      !isAnySaveInFlight &&
+      !isPopupSaveRunningRef.current
+    ) {
+      finishPendingAction();
+    }
+  }, [isUnsavedChangesPopupOpen, hasUnsavedChanges, isAnySaveInFlight]);
+
   const unsavedChangesPopup = (
     <UnsavedChangesPopup
-      isOpen={blocker.state === 'blocked' || pendingViewSwitch}
-      isSaving={isSaving || isSavingMobile}
+      isOpen={isUnsavedChangesPopupOpen}
+      isSaving={isAnySaveInFlight}
       error={leaveSaveError}
       saveText={pendingViewSwitch ? 'Save & view' : 'Save & leave'}
       onSaveAndLeave={handleSaveAndLeave}
@@ -460,7 +602,9 @@ export default function UnifiedAvailabilityPage() {
             isEditing={isEditing}
             toggleEditing={requestExitMobileEditing}
             onSaveComplete={exitMobileEditing}
-            setHasUnsavedChanges={setHasUnsavedChanges}
+            setHasUnsavedChanges={setMobileHasUnsavedChanges}
+            onSavingChange={setIsSavingMobile}
+            onSettingsEdited={markMobileSettingsEdited}
             saveRef={mobileSaveRef}
             onFetchComplete={() => {
               if (getAccountName() === '' || getAccountName() === undefined) {

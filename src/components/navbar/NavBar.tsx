@@ -45,7 +45,14 @@ export default function NavBar() {
   // "Stay" at the unsaved-changes prompt keeps the user signed in
   useEffect(() => {
     if (!shouldLogoutOnArrival(location.state)) return;
-    nav(location.pathname, { replace: true, state: null });
+    nav(
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+      },
+      { replace: true, state: null }
+    );
     logout().catch((error) => console.error('Error logging out:', error));
   }, [location]);
 

@@ -1,5 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IconAlertTriangle, IconX } from '@tabler/icons-react';
+
+/**
+ * Finds the nearest scrolling ancestor. The app scrolls inside Root's
+ * container rather than document.body, so locking body alone does nothing.
+ */
+function findScrollContainer(el: HTMLElement | null): HTMLElement {
+  for (let node = el?.parentElement; node; node = node.parentElement) {
+    const { overflowY } = window.getComputedStyle(node);
+    if (overflowY === 'auto' || overflowY === 'scroll') return node;
+  }
+  return document.body;
+}
 
 interface UnsavedChangesPopupProps {
   isOpen: boolean;
@@ -11,6 +23,7 @@ interface UnsavedChangesPopupProps {
   onStay: () => void;
 }
 
+/** Stay / Discard / Save prompt shown when leaving with unsaved availability. */
 export default function UnsavedChangesPopup({
   isOpen,
   isSaving,
@@ -22,33 +35,39 @@ export default function UnsavedChangesPopup({
 }: UnsavedChangesPopupProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => setIsAnimating(true), 10);
+      const timer = setTimeout(() => setIsAnimating(true), 10);
+      return () => clearTimeout(timer);
     } else if (isVisible) {
       setIsAnimating(false);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        document.body.style.overflow = '';
-      }, 300);
+      const timer = setTimeout(() => setIsVisible(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen, isVisible]);
 
-  // Proceeding with navigation unmounts this while open, so restore scrolling
+  // Lock scrolling while shown; the cleanup also runs if proceeding with
+  // navigation unmounts this while open
   useEffect(() => {
+    if (!isVisible) return;
+    const container = findScrollContainer(rootRef.current);
+    const previousOverflow = container.style.overflow;
+    container.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = '';
+      container.style.overflow = previousOverflow;
     };
-  }, []);
+  }, [isVisible]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      ref={rootRef}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+    >
       <div
         className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
           isAnimating ? 'opacity-100' : 'opacity-0'

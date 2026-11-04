@@ -28,6 +28,13 @@ function GroupViewRedirect() {
   return <Navigate to={`/dashboard/${code}`} replace />;
 }
 
+// Remount the dashboard per event so state (including unsaved changes)
+// never carries over when navigating between two events' dashboards
+function DashboardRoute() {
+  const { code } = useParams();
+  return <UnifiedAvailabilityPage key={code} />;
+}
+
 // Shared layout so NavBar and One Tap stay inside the router context
 function Layout() {
   return (
@@ -47,7 +54,7 @@ const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/dayselect', element: <DaySelectComponent /> },
       { path: '/edit/:eventId', element: <DaySelectComponent /> },
-      { path: '/dashboard/:code', element: <UnifiedAvailabilityPage /> },
+      { path: '/dashboard/:code', element: <DashboardRoute /> },
       { path: '/groupview/:code', element: <GroupViewRedirect /> },
       { path: '/useraccount', element: <AccountsPage /> },
       { path: '/about-us', element: <AboutUsPage /> },
