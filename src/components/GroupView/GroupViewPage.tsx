@@ -14,10 +14,8 @@ import {
   dragProperties,
 } from '../../types';
 import Calendar from '../selectCalendarComponents/CalendarApp';
-import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  getEventObjectForGCal,
   getParticipantIndex,
   getAccountId,
   getAccountName,
@@ -30,7 +28,7 @@ import {
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
 import EditAvailability from './EditAvailability';
-import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
 import { useAuth } from '../../backend/authContext';
@@ -48,6 +46,9 @@ import AlertPopup from '../utils/components/AlertPopup';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
+import ParticipantFilterList, {
+  getFilterableParticipants,
+} from '../utils/components/ParticipantFilterList';
 
 /**
  * Group View (with all the availabilities) if you are logged in as the creator of the Event.
@@ -136,118 +137,20 @@ export default function GroupViewPage({
 
   const { login, currentUser } = useAuth();
 
-  const createCalendarEventUrl = useCallback((event: any) => {
-    const startDateTime = new Date(event.start.dateTime)
-      .toISOString()
-      .replace(/-|:|\.\d\d\d/g, '');
-    const endDateTime = new Date(event.end.dateTime)
-      .toISOString()
-      .replace(/-|:|\.\d\d\d/g, '');
-
-    const baseUrl = 'https://calendar.google.com/calendar/render';
-    const attendeesEmails = (event.attendees || [])
-      .map((attendee: { email: string }) => attendee.email)
-      .join(',');
-
-    const queryParams = new URLSearchParams({
-      action: 'TEMPLATE',
-      text: event.summary,
-      dates: `${startDateTime}/${endDateTime}`,
-      details: event.description,
-      location: event.location || '',
-      spropname: 'Add Event',
-      add: attendeesEmails,
-    });
-
-    return `${baseUrl}?${queryParams.toString()}`;
-  }, []);
-
-  const handleAddToCalendar = useCallback(
-    async (startDate: Date, endDate: Date, location: string | undefined) => {
-      const event = getEventObjectForGCal(startDate, endDate, location);
-      const calendarEventUrl = createCalendarEventUrl(event);
-
-      window.open(calendarEventUrl, '_blank');
-    },
-    [createCalendarEventUrl]
-  );
-
-  const today = new Date();
-    const getNextDayOccurrence = (targetDayNum: number): Date => {
-      const date = new Date(today);
-      const currentDayNum = today.getDay();
-
-      let daysToAdd = targetDayNum - currentDayNum;
-      if (daysToAdd <= 0) {
-        daysToAdd += 7;
-      }
-
-      date.setDate(date.getDate() + daysToAdd);
-      return date;
-    };
-
-  async function handleSelectionSubmission() {
-    if (!dragState.endPoint || !dragState.startPoint) {
-      setAlertMessage('No new time selection made!');
-      return;
-    }
-
-    const [startCol, startBlock] = dragState.startPoint;
-    const [endCol, endBlock] = dragState.endPoint;
-
-    if (startCol !== endCol) {
-      setAlertMessage('You must select times that occur on the same day!');
-      return;
-    }
-
-    const calDate = calendarFramework?.dates.flat()[startCol];
-    const timeBlocks = generateTimeBlocks(
-      calendarFramework?.startTime,
-      calendarFramework?.endTime
+  /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
+  function handleSelectionSubmission() {
+    const result = getGCalUrlForSelection(
+      dragState,
+      calendarFramework,
+      adminChosenLocation
     );
-
-    const times = timeBlocks.flat();
-
-    const selectedStartTimeHHMM: string = times.flat()[startBlock];
-    const selectedEndTimeHHMM: string = times.flat()[endBlock];
-
-    const [startHour, startMinute] = selectedStartTimeHHMM
-      .split(':')
-      .map(Number);
-    let [endHour, endMinute] = selectedEndTimeHHMM
-      ? selectedEndTimeHHMM.split(':').map(Number)
-      : [0, 0];
-
-    let selectedStartTimeDateObject = new Date(calDate?.date!);
-    if (selectedStartTimeDateObject.getFullYear() === 2000) {
-      selectedStartTimeDateObject = getNextDayOccurrence(selectedStartTimeDateObject.getDay());
+    if ('error' in result) {
+      setAlertMessage(result.error);
+      return;
     }
-    selectedStartTimeDateObject.setHours(startHour);
-    selectedStartTimeDateObject.setMinutes(startMinute);
-
-    let selectedEndTimeDateObject = new Date(calDate?.date!);
-    if (selectedEndTimeDateObject.getFullYear() === 2000) {
-      selectedEndTimeDateObject = getNextDayOccurrence(selectedEndTimeDateObject.getDay());
-    }
-
-    endMinute += 15;
-    if (endMinute == 60) {
-      endMinute = 0;
-      endHour += 1;
-      if (endHour == 25) {
-        endHour = 0;
-      }
-    }
-
-    selectedEndTimeDateObject.setHours(endHour);
-    selectedEndTimeDateObject.setMinutes(endMinute);
 
     if (getAccountId() !== '') {
-      await handleAddToCalendar(
-        selectedStartTimeDateObject,
-        selectedEndTimeDateObject,
-        adminChosenLocation
-      );
+      window.open(result.url, '_blank');
     } else {
       login();
     }
@@ -269,7 +172,12 @@ export default function GroupViewPage({
         (user) => peopleStatus[user.name] === true && !declinedPeople.includes(user.name)
       ),
     }),
-    [chartedUsers, peopleStatus, declinedPeople]
+    [chartedUsers, allUsers, peopleStatus, declinedPeople]
+  );
+  const participantCounts = getFilterableParticipants(
+    allPeople,
+    declinedPeople,
+    peopleStatus
   );
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
@@ -581,6 +489,12 @@ export default function GroupViewPage({
                     />
                   </div>
                   <div className="flex items-center space-x-2">
+                    <IconAdjustments
+                      size={30}
+                      className="cursor-pointer dark:text-text-dark"
+                      onClick={() => setShowParticipantFilter(true)}
+                      aria-label="Filter participants"
+                    />
                     {isAdmin ? (
                       <AddToGoogleCalendarButton
                         onClick={handleSelectionSubmission}
@@ -703,51 +617,21 @@ export default function GroupViewPage({
                 </button>
 
                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Filter Participants (
-                  {allPeople?.filter((name) => peopleStatus[name]).length}/
-                  {allPeople?.length})
+                  Filter Participants ({participantCounts.shownCount}/
+                  {participantCounts.people.length})
                 </div>
 
                 <div className="max-h-64 overflow-y-auto">
-                  {allPeople?.map((name, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 -mx-2"
-                      onClick={() => {
-                        if (
-                          allPeople.filter((person) => peopleStatus[person])
-                            .length === 1 &&
-                          peopleStatus[name]
-                        ) {
-                          setAlertMessage(
-                            "You can't remove the last participant"
-                          );
-                          return;
-                        }
-                        setPeopleStatus((prev) => ({
-                          ...prev,
-                          [name]: !prev[name],
-                        }));
-                      }}
-                    >
-                      <span
-                        className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
-                      >
-                        {name}
-                      </span>
-                      <div
-                        className={`w-5 h-5 rounded border flex items-center justify-center ${
-                          peopleStatus[name]
-                            ? 'bg-primary border-primary'
-                            : 'border-gray-300 dark:border-gray-600'
-                        }`}
-                      >
-                        {peopleStatus[name] && (
-                          <IconCheck size={14} className="text-white" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                  <ParticipantFilterList
+                    allPeople={allPeople}
+                    declinedPeople={declinedPeople}
+                    peopleStatus={peopleStatus}
+                    setPeopleStatus={setPeopleStatus}
+                    onRemoveLastParticipant={() =>
+                      setAlertMessage("You can't remove the last participant")
+                    }
+                    size="md"
+                  />
                 </div>
               </div>
             </div>

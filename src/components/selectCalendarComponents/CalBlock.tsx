@@ -151,15 +151,26 @@ export default function CalBlock({
   }, [theme, calendarFramework]);
 
 
-  // use Memo should ensure it only runs when calendarState changes
+  // Participants the group calendar is showing, as a stable key so hovering
+  // (which rebuilds chartedUsers) doesn't trigger a recount
+  const shownUserIdsKey = chartedUsers?.users.map((u) => u.id).join(',');
+
+  // use Memo should ensure it only runs when calendarState or the shown participants change
   const maxUsers = useMemo<number>(() => {
     let maxCount = 0;
+
+    // Only count shown participants, so the darkest shade means the most of them are free
+    const shownUserIds =
+      shownUserIdsKey !== undefined
+        ? new Set(shownUserIdsKey.split(',').filter(Boolean).map(Number))
+        : null;
 
     // define counts array
     const counts: number[][] = [];
 
     // interate through all blocks and find number of users on each
     for (let i = 0; i < calendarState.length; i++) {
+      if (shownUserIds && !shownUserIds.has(i)) continue;
       for (let j = 0; j < calendarState[i].length; j++) {
 
         // create row if needed
@@ -187,7 +198,7 @@ export default function CalBlock({
     }
     return maxCount;
     
-  }, [calendarState]); 
+  }, [calendarState, shownUserIdsKey]);
    
 
   const getGroupPercentageColor = useCallback(() => {
@@ -213,7 +224,7 @@ export default function CalBlock({
     const percentageSelected = selectedCount / maxUsers; //selectedCount / totalUsers;
 
     return interpolateColor('#bbd5fc', '#4b86de', percentageSelected);
-  }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users]);
+  }, [calendarState, columnID, blockID, getDefaultColor, chartedUsers?.users, maxUsers]);
 
   const [shadeColor, setShadeColor] = useState(getDefaultColor);
 

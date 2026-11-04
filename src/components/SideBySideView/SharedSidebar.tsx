@@ -28,6 +28,9 @@ import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
+import ParticipantFilterList, {
+  getFilterableParticipants,
+} from '../utils/components/ParticipantFilterList';
 
 interface Calendar {
   id: string;
@@ -197,7 +200,11 @@ export default function SharedSidebar({
     ),
   };
 
-  console.log(userHasSignedIn)
+  const participantCounts = getFilterableParticipants(
+    allPeople,
+    declinedPeople,
+    peopleStatus
+  );
 
   return (
     <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
@@ -424,50 +431,19 @@ export default function SharedSidebar({
       {!chartedUsers?.hovering && allPeople && allPeople.length > 0 && (
         <div className="w-full">
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-            Participants (
-
-            {allPeople.filter((name) => !declinedPeople.includes(name) && peopleStatus[name]).length}/
-            {allPeople.filter(name => !declinedPeople.includes(name)).length}
-            )
+            Participants ({participantCounts.shownCount}/
+            {participantCounts.people.length})
           </div>
           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-            {allPeople.filter((name) => !declinedPeople.includes(name)).map((name, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between py-1.5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1 -mx-1"
-                onClick={() => {
-                  if (
-                    allPeople.filter((person) => peopleStatus[person])
-                      .length === 1 &&
-                    peopleStatus[name]
-                  ) {
-                    setAlertMessage("You can't remove the last participant");
-                    return;
-                  }
-                  setPeopleStatus((prev) => ({
-                    ...prev,
-                    [name]: !prev[name],
-                  }));
-                }}
-              >
-                <span
-                  className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
-                >
-                  {name}
-                </span>
-                <div
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    peopleStatus[name]
-                      ? 'bg-primary border-primary'
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  {peopleStatus[name] && (
-                    <IconCheck size={12} className="text-white" />
-                  )}
-                </div>
-              </div>
-            ))}
+            <ParticipantFilterList
+              allPeople={allPeople}
+              declinedPeople={declinedPeople}
+              peopleStatus={peopleStatus}
+              setPeopleStatus={setPeopleStatus}
+              onRemoveLastParticipant={() =>
+                setAlertMessage("You can't remove the last participant")
+              }
+            />
           </div>
         </div>
       )}

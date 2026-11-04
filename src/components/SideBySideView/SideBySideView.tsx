@@ -25,10 +25,21 @@ import SharedSidebar from './SharedSidebar';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
+import {
+  IconAdjustments,
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+} from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
+import AddToGoogleCalendarButton from '../GroupView/AddToCalendarButton';
+import InformationPopup from '../utils/components/InformationPopup';
+import AlertPopup from '../utils/components/AlertPopup';
+import ParticipantFilterList, {
+  getFilterableParticipants,
+} from '../utils/components/ParticipantFilterList';
 
 interface Calendar {
   id: string;
@@ -378,7 +389,7 @@ export default function SideBySideView({
     lastPosition: null,
   });
 
-  // Drag state for right calendar (GroupView - read-only, no drag)
+  // Drag state for right calendar (GroupView - only admins can drag, to pick a meeting time)
   const [rightDragState, setRightDragState] = useState<dragProperties>({
     isSelecting: false,
     startPoint: null,
@@ -420,6 +431,55 @@ export default function SideBySideView({
     });
   }, []);
 
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  // Participant filter dropdown in the top bar
+  const [showParticipantFilter, setShowParticipantFilter] = useState(false);
+  const participantFilterRef = useRef<HTMLDivElement>(null);
+  const participantCounts = getFilterableParticipants(
+    allPeople,
+    declinedPeople,
+    peopleStatus
+  );
+
+  // Close the participant filter when clicking outside it or pressing Escape
+  useEffect(() => {
+    if (!showParticipantFilter) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!participantFilterRef.current?.contains(event.target as Node)) {
+        setShowParticipantFilter(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowParticipantFilter(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showParticipantFilter]);
+
+  /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
+  const handleExportToGCal = () => {
+    const result = getGCalUrlForSelection(
+      rightDragState,
+      calendarFramework,
+      adminChosenLocation
+    );
+    if ('error' in result) {
+      setAlertMessage(result.error);
+      return;
+    }
+
+    if (getAccountId() !== '') {
+      window.open(result.url, '_blank');
+    } else {
+      login();
+    }
+  };
+
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
     () => ({
@@ -436,6 +496,13 @@ export default function SideBySideView({
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
+      <AlertPopup
+        title="Alert"
+        message={alertMessage || ''}
+        isOpen={!!alertMessage}
+        onClose={() => setAlertMessage(null)}
+      />
+
       {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
       <div className="lg:grid lg:grid-cols-4 lg:gap-0 flex flex-col">
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
@@ -510,6 +577,57 @@ export default function SideBySideView({
                       })()}
                     />
                   </div>
+                  {participantCounts.people.length > 0 && (
+                    <div className="relative" ref={participantFilterRef}>
+                      <button
+                        onClick={() => setShowParticipantFilter((prev) => !prev)}
+                        className={`p-1 rounded-lg transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                          participantCounts.shownCount <
+                          participantCounts.people.length
+                            ? 'text-primary dark:text-primary-dark'
+                            : 'dark:text-text-dark'
+                        }`}
+                        title="Filter participants"
+                        aria-label="Filter participants"
+                        aria-expanded={showParticipantFilter}
+                      >
+                        <IconAdjustments size={30} />
+                      </button>
+                      {showParticipantFilter && (
+                        <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 p-3">
+                          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Filter Participants ({participantCounts.shownCount}/
+                            {participantCounts.people.length})
+                          </div>
+                          <div className="max-h-64 overflow-y-auto">
+                            <ParticipantFilterList
+                              allPeople={allPeople}
+                              declinedPeople={declinedPeople}
+                              peopleStatus={peopleStatus}
+                              setPeopleStatus={setPeopleStatus}
+                              onRemoveLastParticipant={() =>
+                                setAlertMessage(
+                                  "You can't remove the last participant"
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {isAdmin && (
+                    <div className="flex items-center space-x-2">
+                      <AddToGoogleCalendarButton onClick={handleExportToGCal} />
+                      <InformationPopup
+                        content={
+                          locationOptions.length === 0
+                            ? 'NOTE: Click and drag on the Group Availability calendar to select your ideal time to meet. Then, press Export to GCal.'
+                            : 'NOTE: Click and drag on the Group Availability calendar to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
+                        }
+                      />
+                    </div>
+                  )}
                   {userHasSignedIn && hasUnsavedChanges && (
                     <ButtonSmall
                       bgColor="primary"
@@ -627,7 +745,7 @@ export default function SideBySideView({
                           filteredChartedUsers,
                           setChartedUsers,
                         ]}
-                        draggable={false}
+                        draggable={isAdmin}
                         user={getCurrentUserIndex()}
                         isAdmin={true}
                         theDragState={[rightDragState, setRightDragState]}
