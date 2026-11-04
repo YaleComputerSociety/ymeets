@@ -49,7 +49,6 @@ interface CalendarComponentProps {
   selectedEndDate: [Date, React.Dispatch<React.SetStateAction<Date>>];
   theSelectedDates: [Date[], React.Dispatch<React.SetStateAction<Date[]>>];
   popUpOpen: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-  popUpMessage: string,
   selectGeneralDays: boolean,
   theGeneralDays: [any, React.Dispatch<React.SetStateAction<any>>];
 }
@@ -59,7 +58,6 @@ export const CalendarComponent = ({
   selectedEndDate,
   theSelectedDates,
   popUpOpen,
-  popUpMessage,
   selectGeneralDays,
   theGeneralDays,
 }: CalendarComponentProps) => {
@@ -328,8 +326,8 @@ export const CalendarComponent = ({
       {!showLoginPopup && showGeneralPopup && (
         <GeneralPopup
           onClose={handleGeneralPopupClose}
-          message={popUpMessage}
           isLogin={false}
+	  message={''}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './day_select_component.css';
 import CalendarComponent from '../calendar_component';
 import frontendEventAPI from '../../../backend/eventAPI';
@@ -17,12 +17,11 @@ import {
   getParsedAccountPageEventsForUser,
 } from '../../../backend/events';
 import { setCachedAccountEvents } from '../../Accounts/accountEventsCache';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import LocationSelectionComponent from '../../TimeSelect/LocationSelectionComponent';
 import Button from '../../utils/components/Button';
 import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
-import { IconInfoCircle } from '@tabler/icons-react';
 import AlertPopup from '../../utils/components/AlertPopup';
 
 const DEFAULT_LOCATION_PRESETS = [
@@ -36,7 +35,6 @@ const DEFAULT_LOCATION_PRESETS = [
 ] as const;
 
 export const DaySelectComponent = () => {
-  const location = useLocation();
   const { eventId } = useParams();
   const isEditMode = !!eventId;
   // Default event start/end time values
@@ -48,34 +46,12 @@ export const DaySelectComponent = () => {
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      setContainerWidth(containerRef.current.offsetWidth);
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [zoomLink, setZoomLink] = useState('');
   const [startDate, setStartDate] = useState(nineAM);
   const [endDate, setEndDate] = useState(fivePM);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [popUpMessage, setPopupMessage] = useState('');
   const [popUpIsOpen, setPopupIsOpen] = useState(false);
   const [locations, updateLocationsState] = useState<string[]>([]);
   const [locationOptions, setLocationOptions] = useState<string[]>([
@@ -561,7 +537,6 @@ export const DaySelectComponent = () => {
                 selectedEndDate={[endDate, setEndDate]}
                 theSelectedDates={[selectedDates, setSelectedDates]}
                 popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-                popUpMessage={popUpMessage}
               />
             </div>
             <div className="mt-4 mb-4 flex justify-center">
