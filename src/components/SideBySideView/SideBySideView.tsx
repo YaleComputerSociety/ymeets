@@ -31,7 +31,7 @@ import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
-interface Calendar {
+interface GoogleCalendar {
   id: string;
   summary: string;
   primary?: boolean;
@@ -72,8 +72,8 @@ interface SideBySideViewProps {
   setGoogleCalendarEvents: Dispatch<SetStateAction<calendar_v3.Schema$Event[]>>;
 
   // Google Calendar list state
-  googleCalendars: Calendar[];
-  setGoogleCalendars: Dispatch<SetStateAction<Calendar[]>>;
+  googleCalendars: GoogleCalendar[];
+  setGoogleCalendars: Dispatch<SetStateAction<GoogleCalendar[]>>;
   selectedCalendarIds: string[];
   setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
 
