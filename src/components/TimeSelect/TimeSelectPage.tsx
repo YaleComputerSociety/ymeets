@@ -43,7 +43,6 @@ import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 function TimeSelectPage({
   isEditing,
   toggleEditing,
-  onFetchComplete,
   code,
   calendarState,
   setCalendarState,
@@ -58,7 +57,6 @@ function TimeSelectPage({
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
-  onFetchComplete: () => void;
   code: string | undefined;
   calendarState: calendarState;
   setCalendarState: Dispatch<SetStateAction<calendarState>>;
@@ -92,10 +90,6 @@ function TimeSelectPage({
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
-
-  useEffect(() => {
-    onFetchComplete();
-  }, [onFetchComplete]);
 
   const endPromptUserForLogin = () => {
     setPromptUserForLogin(false);

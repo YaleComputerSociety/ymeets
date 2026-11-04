@@ -20,7 +20,6 @@ import {
   getParticipantIndex,
   checkIfAdmin,
   workingEvent,
-  wrappedSaveDeclinedParticipantDetails
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
@@ -118,8 +117,6 @@ export default function UnifiedAvailabilityPage() {
   const [isGeneralDays, setIsGeneralDays] = useState(
     timeSelectCalendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
   );
-  const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false);
-  const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   const nav = useNavigate();
 
@@ -257,12 +254,6 @@ export default function UnifiedAvailabilityPage() {
           }
           setTimeSelectCalendarFramework(dim);
 
-          /* The first date having a year be 2000 means that it was a general days selection */
-          setAreSelectingGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() === 2000 &&
-              theRange === undefined
-          );
-
           // if there's a selection already made, nav to groupview since you're not allowed to edit your avail
           if (theRange !== undefined && theRange[0].getFullYear() !== 1970) {
             nav('/dashboard/' + code);
@@ -352,11 +343,6 @@ export default function UnifiedAvailabilityPage() {
             toggleEditing={() => {
               setIsEditing(false);
               fetchData(false);
-            }}
-            onFetchComplete={() => {
-              if (getAccountName() === '' || getAccountName() === undefined) {
-                setPromptUserForLogin(true);
-              }
             }}
             code={code}
             calendarState={timeSelectCalendarState}
