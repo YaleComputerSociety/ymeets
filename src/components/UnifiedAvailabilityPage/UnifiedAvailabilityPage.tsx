@@ -36,6 +36,7 @@ import {
 } from '../../types';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import UnsavedChangesPopup from '../utils/components/UnsavedChangesPopup';
+import { shouldSkipUnsavedChangesPrompt } from '../utils/functions/navigationState';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import { calendar_v3 } from 'googleapis';
 
@@ -310,7 +311,9 @@ export default function UnifiedAvailabilityPage() {
   // In-app navigation guard (navbar links, nav() calls, back/forward within the app)
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+      hasUnsavedChanges &&
+      currentLocation.pathname !== nextLocation.pathname &&
+      !shouldSkipUnsavedChangesPrompt(nextLocation.state)
   );
   const [leaveSaveError, setLeaveSaveError] = useState<string | undefined>();
 
