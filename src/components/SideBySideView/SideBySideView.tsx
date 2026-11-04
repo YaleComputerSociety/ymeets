@@ -550,10 +550,7 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           wrappedSetTimeSelectCalendarState,
                         ]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+			calendarFramework={calendarFramework}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
@@ -608,10 +605,7 @@ export default function SideBySideView({
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+			calendarFramework={calendarFramework}
                         chartedUsersData={[
                           filteredChartedUsers,
                           setChartedUsers,

@@ -43,10 +43,7 @@ interface SelectCalendarProps {
     BoundingBox | undefined,
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
   ]
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
+  calendarFramework: calendarDimensions;
   googleCalendarEvents: calendar_v3.Schema$Event[],
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
@@ -60,7 +57,7 @@ interface SelectCalendarProps {
 function SelectCalendar({
   theCalendarState,
   chartedUsersData,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   bucket,
@@ -151,7 +148,7 @@ function SelectCalendar({
                                 isAdmin={isAdmin}
                                 theDragState={theDragState}
                                 theMostRecentSelection={theMostRecentSelection}
-                                theCalendarFramework={theCalendarFramework}
+				calendarFramework={calendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 googleCalendarEvents={googleCalendarEvents}
                                 borderStyle={

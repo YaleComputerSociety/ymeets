@@ -8,14 +8,10 @@ import { calendar_v3 } from 'googleapis';
 import SelectCalendar from './SelectCalendar';
 import { BoundingBox, DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-// import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 
 interface CalendarProps {
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
+  calendarFramework: calendarDimensions;
   theCalendarState: [
     calendarState,
     React.Dispatch<React.SetStateAction<calendarState>>,
@@ -52,7 +48,7 @@ interface CalendarProps {
 }
 
 export default function Calendar({
-  theCalendarFramework,
+  calendarFramework,
   theCalendarState,
   chartedUsersData,
   draggable,
@@ -74,7 +70,6 @@ export default function Calendar({
   scrollRef,
   onScroll,
 }: CalendarProps) {
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
 
   const militaryConvert = (time: string) => {
@@ -280,7 +275,7 @@ export default function Calendar({
               endDate={calendarFramework.endTime}
               theDragState={theDragState}
               theMostRecentSelection={theMostRecentSelection}
-              theCalendarFramework={theCalendarFramework}
+	      calendarFramework={calendarFramework}
               chartedUsersData={chartedUsersData}
               googleCalendarEvents={googleCalendarEvents}
               isGeneralDays={isGeneralDays}

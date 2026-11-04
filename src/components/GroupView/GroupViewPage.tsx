@@ -602,7 +602,7 @@ export default function GroupViewPage({
                   setTimeout(() => setShowUserChart(false), 3000);
                 }}
                 theCalendarState={[calendarState, setCalendarState]}
-                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+		calendarFramework={calendarFramework}
                 chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                 draggable={
                   isAdmin

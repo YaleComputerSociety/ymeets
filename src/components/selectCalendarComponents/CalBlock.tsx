@@ -24,10 +24,7 @@ interface CalBlockProps {
     calendarState,
     React.Dispatch<React.SetStateAction<calendarState>>,
   ];
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
+  calendarFramework: calendarDimensions,
   chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>];
   draggable: boolean;
   isAdmin?: boolean;
@@ -61,7 +58,7 @@ export default function CalBlock({
   blockID,
   columnID,
   theCalendarState,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   user,
@@ -81,7 +78,6 @@ export default function CalBlock({
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
   const [dragState, setDragState] = theDragState;
-  const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
   const dragRef = useRef<HTMLDivElement>(null);
