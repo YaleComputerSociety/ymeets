@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import TimeSelectPage from '../TimeSelect/TimeSelectPage';
 import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
-import { SideBySideView } from '../SideBySideView';
+import SideBySideView from '../SideBySideView/SideBySideView';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import eventAPI from '../../backend/eventAPI';
 import {
