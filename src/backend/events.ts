@@ -1113,14 +1113,11 @@ export {
   getAllAvailabilitiesIDs,
   getAvailabilityByAccountId,
   getAvailabilityByName,
-  getLocationVotesByName,
-  getLocationVotesByAccountId,
   getEventDescription,
   getEventName,
   getLocationOptions,
   getLocationsVotes,
   getEventObjectForGCal,
-  getEmails,
   getZoomLink,
   getTimezone,
   getEmailAdmin,
@@ -1133,18 +1130,9 @@ export {
   // setLocationPreference,
 
   // Admin Only (Async)
-  setChosenLocation,
-  setChosenDate,
   deleteEvent,
-  setNewEventName,
-  setNewEventDescription,
-  undoAdminSelections,
-  setNewStartTimes,
-  setNewEndTimes,
-  setNewDates,
   setEmailAdmin,
-  getParticipantIndex,
-  removeEventFromUserCollection,
+  getParticipantIndex
 };
 
 function dateToObject(dateArray: number[][]): Record<number, number[]> {
