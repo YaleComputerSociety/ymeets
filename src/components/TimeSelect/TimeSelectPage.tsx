@@ -1,30 +1,19 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
-import { calendar_v3, google } from 'googleapis';
+import { calendar_v3 } from 'googleapis';
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DateTime } from 'luxon';
 import {
   BoundingBox,
   DraggedSelection,
   calendarState,
-  userData,
   calendarDimensions,
   Availability,
-  calendarDate,
 } from '../../types';
-import eventAPI from '../../backend/eventAPI';
 import {
   getAccountId,
   getAccountName,
-  getAvailabilityByAccountId,
-  getAvailabilityByName,
-  getEventOnPageload,
   wrappedSaveParticipantDetails,
-  getEventName,
-  getEventDescription,
-  getLocationOptions,
   getParticipantIndex,
-  getChosenDayAndTime,
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
@@ -39,19 +28,13 @@ import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
-import { getDates } from '../../backend/events';
-import {
-  adjustBlockIDColumnID,
-  getUserTimezone,
-} from '../utils/functions/timzoneConversions';
+import { getUserTimezone, } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
-import { get } from 'lodash';
 
 /**
  *
@@ -62,51 +45,31 @@ function TimeSelectPage({
   toggleEditing,
   onFetchComplete,
   code,
-  chartedUsers,
-  setChartedUsers,
   calendarState,
   setCalendarState,
   calendarFramework,
   setCalendarFramework,
   loading,
-  setLoading,
   eventName,
-  setEventName,
   eventDescription,
-  setEventDescription,
   locationOptions,
-  setLocationOptions,
-  areSelectingGeneralDays,
-  setAreSelectingGeneralDays,
   isGeneralDays,
-  setIsGeneralDays,
   hasAvailability,
-  setHasAvailability,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
   onFetchComplete: () => void;
   code: string | undefined;
-  chartedUsers: userData;
-  setChartedUsers: Dispatch<SetStateAction<userData>>;
   calendarState: calendarState;
   setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
   eventName: string;
-  setEventName: Dispatch<SetStateAction<string>>;
   eventDescription: string;
-  setEventDescription: Dispatch<SetStateAction<string>>;
   locationOptions: string[];
-  setLocationOptions: Dispatch<SetStateAction<string[]>>;
-  areSelectingGeneralDays: boolean;
-  setAreSelectingGeneralDays: Dispatch<SetStateAction<boolean>>;
   isGeneralDays: boolean;
-  setIsGeneralDays: Dispatch<SetStateAction<boolean>>;
   hasAvailability: boolean;
-  setHasAvailability: Dispatch<SetStateAction<boolean>>;
 }) {
   const navigate = useNavigate();
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
@@ -120,11 +83,9 @@ function TimeSelectPage({
 
   const {
     hasAccess,
-    initialized,
     requestAccess,
     getCalendars,
     getEvents,
-    disconnect,
   } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
@@ -151,11 +112,8 @@ function TimeSelectPage({
     useState<string[]>([]);
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
 
-  const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
+  const shouldFillAvailability = false;
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
-  const [hasGCalScope, setHasGCalScope] = useState(
-    localStorage.getItem('hasGCalScope') === 'true'
-  );
 
   const [showSlowMessage, setShowSlowMessage] = useState(false);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
@@ -167,10 +125,6 @@ function TimeSelectPage({
 
     return () => clearTimeout(timer);
   }, []);
-
-  // New state to track if calendar scope request is in progress
-  const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
-    useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -328,7 +282,6 @@ function TimeSelectPage({
 
       if (!hasAccess) {
         console.warn('Attempting to fetch calendars without proper scope');
-        setHasGCalScope(false);
         return [];
       }
 
@@ -347,7 +300,6 @@ function TimeSelectPage({
           error.message.includes('unauthorized') ||
           error.message.includes('login required'))
       ) {
-        setHasGCalScope(false);
         localStorage.setItem('hasGCalScope', 'false');
       }
 
@@ -745,7 +697,7 @@ function TimeSelectPage({
                           // );
                         } else {
                           login()
-                            .then((User) => {
+                            .then(() => {
                               updateAnonymousUserToAuthUser(getAccountName());
                               requestAccess();
                               // .then(() =>
@@ -830,7 +782,7 @@ function TimeSelectPage({
                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
                             login()
-                              .then((User) => {
+                              .then(() => {
                                 updateAnonymousUserToAuthUser(getAccountName());
                               })
                               .catch((error) => {

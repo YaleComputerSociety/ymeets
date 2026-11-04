@@ -359,26 +359,16 @@ export default function UnifiedAvailabilityPage() {
               }
             }}
             code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarState={timeSelectCalendarState}
             setCalendarState={setTimeSelectCalendarState}
             calendarFramework={timeSelectCalendarFramework}
             setCalendarFramework={setTimeSelectCalendarFramework}
             loading={loading}
-            setLoading={setLoading}
             eventName={eventName}
-            setEventName={setEventName}
             eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
             locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            areSelectingGeneralDays={areSelectingGeneralDays}
-            setAreSelectingGeneralDays={setAreSelectingGeneralDays}
             isGeneralDays={isGeneralDays}
-            setIsGeneralDays={setIsGeneralDays}
             hasAvailability={hasAvailability}
-            setHasAvailability={setHasAvailability}
           />
         ) : (
           <ConditionalGroupViewRenderer
