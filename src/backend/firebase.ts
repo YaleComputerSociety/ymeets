@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore';
 
@@ -36,7 +36,4 @@ if (
 
 const db = getFirestore(app);
 
-export const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
-const googleProvider = new GoogleAuthProvider();
-
-export { auth, db, googleProvider };
+export { auth, db };
