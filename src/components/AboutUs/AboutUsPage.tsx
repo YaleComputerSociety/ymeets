@@ -1,8 +1,6 @@
 /* eslint-disable */
 
-import React from 'react';
 import no_person from './anon.jpeg';
-// import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
 
 import {
   IconBrandGithub,
@@ -296,7 +294,6 @@ interface ContributorCardProps {
 function ContributorCard({
   name,
   title,
-  founding,
   linkedin,
   portfolio,
   github,
