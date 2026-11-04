@@ -560,10 +560,7 @@ export default function SideBySideView({
                         isAdmin={false}
                         theDragState={theLeftDragState}
                         theMostRecentSelection={theMostRecentLeftSelection}
-                        theGoogleCalendarEvents={[
-                          googleCalendarEvents,
-                          setGoogleCalendarEvents,
-                        ]}
+                        googleCalendarEvents={googleCalendarEvents}
                         onClick={() => {}}
                         theShowUserChart={undefined}
                         isGeneralDays={isGeneralDays}
@@ -624,7 +621,7 @@ export default function SideBySideView({
                         isAdmin={true}
                         theDragState={theRightDragState}
                         theMostRecentSelection={theMostRecentRightSelection}
-                        theGoogleCalendarEvents={[[], noop]}
+			googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {
                             return;

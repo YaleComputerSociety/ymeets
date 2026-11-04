@@ -611,7 +611,7 @@ export default function GroupViewPage({
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
                 theMostRecentSelection={[mostRecentSelection, setMostRecentSelection]}
-                theGoogleCalendarEvents={[[], () => {}]}
+                googleCalendarEvents={[]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}
                 chartedUsers={chartedUsers}

@@ -44,7 +44,7 @@ interface CalBlockProps {
   isOnGcal: boolean;
   eventNames: (string | null)[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
-  theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  setShowUserChart?: React.Dispatch<React.SetStateAction<boolean>>;
   isEventStart: boolean;
   isEventEnd: boolean;
   eventStartingOnBlock: string | null;
@@ -72,7 +72,7 @@ export default function CalBlock({
   onClick,
   is30Minute,
   chartedUsersData,
-  theShowUserChart,
+  setShowUserChart,
   isEventStart,
   isEventEnd,
   eventStartingOnBlock,
@@ -83,7 +83,6 @@ export default function CalBlock({
   const [dragState, setDragState] = theDragState;
   const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
-  const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
   const dragRef = useRef<HTMLDivElement>(null);
   const pointerClientRef = useRef<{ x: number; y: number } | null>(null);

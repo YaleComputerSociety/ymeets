@@ -57,12 +57,7 @@ interface CalRowProps {
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
   ];
   borderStyle?: string;
-  theGoogleCalendarEvents:
-    | [
-        calendar_v3.Schema$Event[],
-        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-      ]
-    | undefined;
+  googleCalendarEvents: calendar_v3.Schema$Event[];
   time: string;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
@@ -103,12 +98,11 @@ export default function CalRow({
   theDragState,
   theMostRecentSelection,
   chartedUsersData,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   time,
   onClick,
   groupIndex,
 }: CalRowProps) {
-  const [googleCalendarEvents] = theGoogleCalendarEvents ?? [[]];
   // TODO: remove this cast after upgrading Typescript
   const parsedGoogleCalendarEvents = googleCalendarEvents
     .map(parse)

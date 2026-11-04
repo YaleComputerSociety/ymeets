@@ -893,10 +893,7 @@ function TimeSelectPage({
                 theDragState={theDragState}
                 theMostRecentSelection={theMostRecentSelection}
                 isAdmin={false}
-                theGoogleCalendarEvents={[
-                  googleCalendarEvents,
-                  setGoogleCalendarEvents,
-                ]}
+                googleCalendarEvents={googleCalendarEvents}
                 isGeneralDays={isGeneralDays}
                 setCalendarHeight={setCalendarHeight}
               />

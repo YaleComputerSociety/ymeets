@@ -18,7 +18,6 @@ import DateBar from './DateBar';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
-import { set } from 'lodash';
 
 interface SelectCalendarProps {
   theCalendarState: [
@@ -48,13 +47,7 @@ interface SelectCalendarProps {
     calendarDimensions,
     React.Dispatch<React.SetStateAction<calendarDimensions>>,
   ];
-  theGoogleCalendarEvents:
-    | [
-        calendar_v3.Schema$Event[],
-        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-      ]
-    | undefined;
-
+  googleCalendarEvents: calendar_v3.Schema$Event[],
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -77,7 +70,7 @@ function SelectCalendar({
   endDate,
   theDragState,
   theMostRecentSelection,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   onClick,
   theShowUserChart,
   isGeneralDays,
@@ -160,9 +153,7 @@ function SelectCalendar({
                                 theMostRecentSelection={theMostRecentSelection}
                                 theCalendarFramework={theCalendarFramework}
                                 chartedUsersData={chartedUsersData}
-                                theGoogleCalendarEvents={
-                                  theGoogleCalendarEvents
-                                }
+                                googleCalendarEvents={googleCalendarEvents}
                                 borderStyle={
                                   time.slice(3) === '30' ? 'dotted' : 'solid'
                                 }

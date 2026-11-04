@@ -34,10 +34,7 @@ interface CalendarProps {
     BoundingBox | undefined,
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
-  theGoogleCalendarEvents: [
-    calendar_v3.Schema$Event[],
-    React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-  ];
+  googleCalendarEvents: calendar_v3.Schema$Event[];
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -63,7 +60,7 @@ export default function Calendar({
   isAdmin,
   theDragState,
   theMostRecentSelection,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   theShowUserChart,
   onClick,
   isGeneralDays,
@@ -285,7 +282,7 @@ export default function Calendar({
               theMostRecentSelection={theMostRecentSelection}
               theCalendarFramework={theCalendarFramework}
               chartedUsersData={chartedUsersData}
-              theGoogleCalendarEvents={theGoogleCalendarEvents}
+              googleCalendarEvents={googleCalendarEvents}
               isGeneralDays={isGeneralDays}
               setChartedUsers={setChartedUsers}
               chartedUsers={chartedUsers}
