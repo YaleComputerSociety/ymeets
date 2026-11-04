@@ -27,6 +27,7 @@ import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 
 interface Calendar {
   id: string;
@@ -196,8 +197,6 @@ export default function SharedSidebar({
     ),
   };
 
-  console.log(userHasSignedIn)
-
   return (
     <div className="gap-y-4 flex flex-col w-full h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-gray-600">
       <AlertPopup
@@ -227,7 +226,7 @@ export default function SharedSidebar({
               onCancel={async () => {
                 await wrappedSaveDeclinedParticipantDetails();
                 onDecline();
-                navigate('/');
+                navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
               }}
             />
           </div>
@@ -408,7 +407,7 @@ export default function SharedSidebar({
           await wrappedSaveDeclinedParticipantDetails();
           setIsDeclinePopupOpen(false);
           onDecline();
-          navigate('/');
+          navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
         }}
         onCancel={() => setIsDeclinePopupOpen(false)}
         confirmText="Decline"

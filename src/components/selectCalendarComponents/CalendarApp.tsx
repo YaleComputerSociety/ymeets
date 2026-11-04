@@ -6,11 +6,10 @@ import React, {
   useLayoutEffect} from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalendar from './SelectCalendar';
-import { calendarDimensions, calendarState, userData } from '../../types';
+import { BoundingBox, DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 // import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
-import { dragProperties } from '../../types';
 
 interface CalendarProps {
   theCalendarFramework: [
@@ -28,8 +27,12 @@ interface CalendarProps {
   user: number;
   isAdmin: boolean;
   theDragState: [
-    dragProperties,
-    React.Dispatch<React.SetStateAction<dragProperties>>,
+    DraggedSelection | undefined,
+    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+  ];
+  theMostRecentSelection: [
+    BoundingBox | undefined,
+    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
   theGoogleCalendarEvents: [
     calendar_v3.Schema$Event[],
@@ -59,6 +62,7 @@ export default function Calendar({
   user,
   isAdmin,
   theDragState,
+  theMostRecentSelection,
   theGoogleCalendarEvents,
   theShowUserChart,
   onClick,
@@ -75,8 +79,6 @@ export default function Calendar({
 }: CalendarProps) {
   const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
-
-  const [dragState, setDragState] = theDragState;
 
   const militaryConvert = (time: string) => {
     let hours = Number.parseInt(time.slice(0, 2));
@@ -169,10 +171,7 @@ export default function Calendar({
 
   return (
     <div className="flex flex-col space-y-0 mb-2"
-    onMouseLeave={() => {
-        handleStopHover();
-        console.log("Mouse Left Calendar");
-      }}
+    onMouseLeave={handleStopHover}
     ref={ref}
     >
       <div className="sticky top-0 flex justify-between items-center lg:mr-5 lg:ml-5 ml-0 mr-0 bg-white dark:bg-secondary_background-dark rounded-t-lg z-30 p-0">
@@ -282,7 +281,8 @@ export default function Calendar({
               columnIndexOffset={currentStartPage}
               startDate={calendarFramework.startTime}
               endDate={calendarFramework.endTime}
-              theDragState={[dragState, setDragState]}
+              theDragState={theDragState}
+              theMostRecentSelection={theMostRecentSelection}
               theCalendarFramework={theCalendarFramework}
               chartedUsersData={chartedUsersData}
               theGoogleCalendarEvents={theGoogleCalendarEvents}
