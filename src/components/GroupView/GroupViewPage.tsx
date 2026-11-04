@@ -100,8 +100,6 @@ export default function GroupViewPage({
   const navigate = useNavigate();
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [generalPopupMessage] = useState('');
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
@@ -460,13 +458,7 @@ export default function GroupViewPage({
           {chartedUsers.hovering && (
             <div className="hidden lg:block w-full">
               <UserChart
-                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                allPeople={allPeople}
-                theParticipantToggleClicked={[
-                  participantToggleClicked,
-                  setParticipantToggleClicked,
-                ]}
+		chartedUsers={filteredChartedUsers}
                 calendarHeight={calendarHeight}
               />
             </div>
@@ -635,13 +627,7 @@ export default function GroupViewPage({
                   </button>
 
                   <UserChart
-                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                    allPeople={allPeople}
-                    theParticipantToggleClicked={[
-                      participantToggleClicked,
-                      setParticipantToggleClicked,
-                    ]}
+                    chartedUsers={filteredChartedUsers}
                     calendarHeight={calendarHeight}
                   />
                 </div>

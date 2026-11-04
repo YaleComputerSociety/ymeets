@@ -54,14 +54,9 @@ interface SharedSidebarProps {
 
   // User chart
   chartedUsers: userData;
-  setChartedUsers: Dispatch<SetStateAction<userData>>;
 
   // Layout sync
   calendarHeight?: number | null;
-
-  // For participant toggle
-  participantToggleClicked?: boolean;
-  setParticipantToggleClicked?: Dispatch<SetStateAction<boolean>>;
 
   // Google Calendar integration
   googleCalendars?: Calendar[];
@@ -95,10 +90,7 @@ export default function SharedSidebar({
   adminChosenLocation,
   setAdminChosenLocation,
   chartedUsers,
-  setChartedUsers,
   calendarHeight,
-  participantToggleClicked = true,
-  setParticipantToggleClicked,
   googleCalendars = [],
   setGoogleCalendars,
   selectedCalendarIds = [],
@@ -537,13 +529,7 @@ export default function SharedSidebar({
       {chartedUsers?.hovering && (
         <div className="w-full">
           <UserChart
-            chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-            thePeopleStatus={[peopleStatus, setPeopleStatus]}
-            allPeople={allPeople}
-            theParticipantToggleClicked={[
-              participantToggleClicked,
-              setParticipantToggleClicked || (() => {}),
-            ]}
+	    chartedUsers={filteredChartedUsers}
             calendarHeight={calendarHeight ?? null}
           />
         </div>

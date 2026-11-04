@@ -136,8 +136,6 @@ export default function SideBySideView({
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
   const [showUserChart, setShowUserChart] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
@@ -451,10 +449,7 @@ export default function SideBySideView({
             adminChosenLocation={adminChosenLocation}
             setAdminChosenLocation={setAdminChosenLocation}
             chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarHeight={calendarHeight}
-            participantToggleClicked={participantToggleClicked}
-            setParticipantToggleClicked={setParticipantToggleClicked}
             googleCalendars={googleCalendars}
             setGoogleCalendars={setGoogleCalendars}
             selectedCalendarIds={selectedCalendarIds}
