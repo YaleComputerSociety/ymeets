@@ -1,4 +1,3 @@
-import React from 'react';
 import NavLogo from './NavLogo';
 import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
@@ -9,38 +8,28 @@ import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
 
 import {
   IconMenu2,
-  IconInfoCircleFilled,
   IconInfoCircle,
-  IconCalendarWeek,
-  IconCalendarFilled,
   IconCalendarEvent,
   IconLogin2,
   IconLogout,
   IconMessageReport,
   IconMoonFilled,
-  IconMoon,
   IconSun,
   IconBook,
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { log } from 'console';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [menuState, setMenuState] = useState('closed');
 
   const nav = useNavigate();
 
-  const { login, logout, currentUser } = useAuth();
+  const { login, logout } = useAuth();
 
   const [showTutorial, setTutorial] = useState(false);
-
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
 
   const handleGearClick = () => {
     if (menuState === 'closed') {
