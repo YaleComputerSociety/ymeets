@@ -41,7 +41,7 @@ export function timeToMinutes(timeString: string): number {
  * @param date - Any Date.
  * @returns In local time, the number of minutes since the start of the day.
  */
-export function dateToMinutes(date: Date): number {
+function dateToMinutes(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
 }
 
