@@ -1,6 +1,12 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
 import { calendar_v3, google } from 'googleapis';
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import {
+  useState,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  MutableRefObject,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import {
@@ -51,6 +57,7 @@ import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { get } from 'lodash';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 
 /**
  *
@@ -81,6 +88,9 @@ function TimeSelectPage({
   setIsGeneralDays,
   hasAvailability,
   setHasAvailability,
+  setHasUnsavedChanges,
+  onSaveComplete,
+  saveRef,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
@@ -106,8 +116,22 @@ function TimeSelectPage({
   setIsGeneralDays: Dispatch<SetStateAction<boolean>>;
   hasAvailability: boolean;
   setHasAvailability: Dispatch<SetStateAction<boolean>>;
+  // Unsaved changes tracking (optional so the page still works standalone)
+  setHasUnsavedChanges?: (value: boolean) => void;
+  // Called after a successful save instead of toggleEditing, which may be guarded
+  onSaveComplete?: () => void;
+  // Exposes this page's save so the unsaved-changes popup can run it
+  saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
   const navigate = useNavigate();
+
+  // Wrapped setter that marks changes as unsaved
+  const wrappedSetCalendarState: Dispatch<SetStateAction<calendarState>> = (
+    action
+  ) => {
+    setCalendarState(action);
+    setHasUnsavedChanges?.(true);
+  };
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -506,7 +530,7 @@ function TimeSelectPage({
 
       const newCalendarState = { ...calendarState };
       newCalendarState[getCurrentUserIndex()] = newAvailability;
-      setCalendarState(newCalendarState);
+      wrappedSetCalendarState(newCalendarState);
     } finally {
       setIsFillingAvailability(false);
       setGcalPopupOpen(false);
@@ -522,8 +546,8 @@ function TimeSelectPage({
     return user;
   };
 
-  const saveAvailAndLocationChanges = async () => {
-    setIsSaving(true);
+  // Persists availability, locations, and calendar selection without any UI side effects
+  const persistChanges = async () => {
     const user = getCurrentUserIndex();
     const avail: Availability = calendarState
       ? (calendarState[user] ?? [])
@@ -546,12 +570,23 @@ function TimeSelectPage({
       );
     }
 
+    setHasUnsavedChanges?.(false);
+  };
+
+  if (saveRef) {
+    saveRef.current = persistChanges;
+  }
+
+  const saveAvailAndLocationChanges = async () => {
+    setIsSaving(true);
+    await persistChanges();
+
     setIsSaving(false);
     setIsSaved(true);
 
     setTimeout(() => {
       setIsSaved(false);
-      toggleEditing();
+      (onSaveComplete ?? toggleEditing)();
     }, 600);
   };
 
@@ -600,7 +635,7 @@ function TimeSelectPage({
                 userHasFilled={hasAvailability}
                 onCancel={async () => {
                   await wrappedSaveDeclinedParticipantDetails();
-                  navigate('/');
+                  navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
                 }}
               />
             </div>
@@ -632,7 +667,10 @@ function TimeSelectPage({
               </div>
               <LocationSelectionComponent
                 locations={locationOptions}
-                update={setSelectedLocations}
+                update={(selected) => {
+                  setSelectedLocations(selected);
+                  setHasUnsavedChanges?.(true);
+                }}
               />
             </div>
           )}
@@ -889,7 +927,7 @@ function TimeSelectPage({
               <Calendar
                 theShowUserChart={undefined}
                 onClick={() => {}}
-                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarState={[calendarState, wrappedSetCalendarState]}
                 user={getCurrentUserIndex()}
                 theCalendarFramework={[calendarFramework, setCalendarFramework]}
                 draggable={true}

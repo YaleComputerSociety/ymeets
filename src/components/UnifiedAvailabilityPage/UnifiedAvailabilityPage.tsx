@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import TimeSelectPage from '../TimeSelect/TimeSelectPage';
 import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
 import { SideBySideView } from '../SideBySideView';
@@ -317,11 +317,53 @@ export default function UnifiedAvailabilityPage() {
   );
   const [leaveSaveError, setLeaveSaveError] = useState<string | undefined>();
 
+  // Mobile: switching from editing to viewing reloads availability, so it's guarded too
+  const [pendingViewSwitch, setPendingViewSwitch] = useState(false);
+  const mobileSaveRef = useRef<(() => Promise<void>) | null>(null);
+  const [isSavingMobile, setIsSavingMobile] = useState(false);
+
+  const exitMobileEditing = () => {
+    setIsEditing(false);
+    fetchData(false);
+  };
+
+  const requestExitMobileEditing = () => {
+    if (hasUnsavedChanges) {
+      setPendingViewSwitch(true);
+    } else {
+      exitMobileEditing();
+    }
+  };
+
+  // Save through whichever layout the user is editing in
+  const saveUnsavedChanges = async () => {
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (!isDesktop && isEditing && mobileSaveRef.current) {
+      setIsSavingMobile(true);
+      try {
+        await mobileSaveRef.current();
+      } finally {
+        setIsSavingMobile(false);
+      }
+    } else {
+      await handleSideBySideSave();
+    }
+  };
+
+  const finishPendingAction = () => {
+    if (pendingViewSwitch) {
+      setPendingViewSwitch(false);
+      exitMobileEditing();
+    } else if (blocker.state === 'blocked') {
+      blocker.proceed();
+    }
+  };
+
   const handleSaveAndLeave = async () => {
     setLeaveSaveError(undefined);
     try {
-      await handleSideBySideSave();
-      if (blocker.state === 'blocked') blocker.proceed();
+      await saveUnsavedChanges();
+      finishPendingAction();
     } catch (err) {
       console.error('Failed to save before leaving:', err);
       setLeaveSaveError('Failed to save your changes. Please try again.');
@@ -330,19 +372,25 @@ export default function UnifiedAvailabilityPage() {
 
   const handleLeaveWithoutSaving = () => {
     setLeaveSaveError(undefined);
-    if (blocker.state === 'blocked') blocker.proceed();
+    if (pendingViewSwitch) setHasUnsavedChanges(false);
+    finishPendingAction();
   };
 
   const handleStay = () => {
     setLeaveSaveError(undefined);
-    if (blocker.state === 'blocked') blocker.reset();
+    if (pendingViewSwitch) {
+      setPendingViewSwitch(false);
+    } else if (blocker.state === 'blocked') {
+      blocker.reset();
+    }
   };
 
   const unsavedChangesPopup = (
     <UnsavedChangesPopup
-      isOpen={blocker.state === 'blocked'}
-      isSaving={isSaving}
+      isOpen={blocker.state === 'blocked' || pendingViewSwitch}
+      isSaving={isSaving || isSavingMobile}
       error={leaveSaveError}
+      saveText={pendingViewSwitch ? 'Save & view' : 'Save & leave'}
       onSaveAndLeave={handleSaveAndLeave}
       onLeave={handleLeaveWithoutSaving}
       onStay={handleStay}
@@ -410,10 +458,10 @@ export default function UnifiedAvailabilityPage() {
         {isEditing ? (
           <TimeSelectPage
             isEditing={isEditing}
-            toggleEditing={() => {
-              setIsEditing(false);
-              fetchData(false);
-            }}
+            toggleEditing={requestExitMobileEditing}
+            onSaveComplete={exitMobileEditing}
+            setHasUnsavedChanges={setHasUnsavedChanges}
+            saveRef={mobileSaveRef}
             onFetchComplete={() => {
               if (getAccountName() === '' || getAccountName() === undefined) {
                 setPromptUserForLogin(true);

@@ -5,6 +5,7 @@ interface UnsavedChangesPopupProps {
   isOpen: boolean;
   isSaving: boolean;
   error?: string;
+  saveText?: string;
   onSaveAndLeave: () => void;
   onLeave: () => void;
   onStay: () => void;
@@ -14,6 +15,7 @@ export default function UnsavedChangesPopup({
   isOpen,
   isSaving,
   error,
+  saveText = 'Save & leave',
   onSaveAndLeave,
   onLeave,
   onStay,
@@ -86,7 +88,7 @@ export default function UnsavedChangesPopup({
 
           <p className="text-md text-gray-600 dark:text-gray-300 leading-relaxed">
             You have changes to your availability that haven&apos;t been saved.
-            Do you want to save them before leaving?
+            Do you want to save them first?
           </p>
 
           {error && (
@@ -113,7 +115,7 @@ export default function UnsavedChangesPopup({
               disabled={isSaving}
               className="px-5 py-2.5 font-medium bg-primary text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all disabled:opacity-50"
             >
-              {isSaving ? 'Saving...' : 'Save & leave'}
+              {isSaving ? 'Saving...' : saveText}
             </button>
           </div>
         </div>
