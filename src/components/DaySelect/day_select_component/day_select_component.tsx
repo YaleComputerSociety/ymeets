@@ -555,14 +555,13 @@ export const DaySelectComponent = () => {
 
             <div className="mx-auto rounded-lg border border-gray-300 dark:border-gray-600">
               <CalendarComponent
-                theSelectGeneralDays={[selectGeneralDays, setSelectGeneralDays]}
+                selectGeneralDays={selectGeneralDays}
                 theGeneralDays={[selectedDays, setSelectedDays]}
-                theEventName={[eventName, setEventName]}
                 selectedStartDate={[startDate, setStartDate]}
                 selectedEndDate={[endDate, setEndDate]}
                 theSelectedDates={[selectedDates, setSelectedDates]}
                 popUpOpen={[popUpIsOpen, setPopupIsOpen]}
-                popUpMessage={[popUpMessage, setPopupMessage]}
+                popUpMessage={popUpMessage}
               />
             </div>
             <div className="mt-4 mb-4 flex justify-center">
