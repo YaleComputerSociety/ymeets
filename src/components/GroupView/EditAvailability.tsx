@@ -1,58 +1,30 @@
 import React, { useState } from 'react';
-import ChartRow from './UserChartRow';
 import { userData } from '../../types';
-import {
-  IconAdjustments,
-  IconAdjustmentsFilled,
-  IconSquare,
-  IconSquareCheck,
-  IconSquareFilled,
-} from '@tabler/icons-react';
+import { IconSquare, IconSquareCheck } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 
 interface EditAvailabilityProps {
-  chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined;
+  chartedUsers: userData;
   allPeople: string[];
   thePeopleStatus: [
     Record<string, boolean>,
     React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
   ];
-  theParticipantToggleClicked: [
-    boolean,
-    React.Dispatch<React.SetStateAction<boolean>>,
-  ];
-  calendarHeight: number | null;
+  participantToggleClicked: boolean;
 }
 
 const EditAvailability: React.FC<EditAvailabilityProps> = ({
-  chartedUsersData,
+  chartedUsers,
   allPeople,
   thePeopleStatus,
-  theParticipantToggleClicked,
-  calendarHeight
+  participantToggleClicked,
 }) => {
-  const [chartedUsers, setChartedUsers] = chartedUsersData || [
-    { available: [], unavailable: [] },
-    () => {},
-  ];
-
   const [peoepleStatus, setPeopleStatus] = thePeopleStatus;
 
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    theParticipantToggleClicked;
-
-
-  const [rowHeight, setRowHeight] = useState<number | null>(null);
-  const maxRows = Math.max(
+  const numRows = Math.max(
     chartedUsers.available.length,
     chartedUsers.unavailable.length
   );
-  const numRows =
-    rowHeight && calendarHeight
-      ? Math.min(maxRows, Math.max(1, Math.floor(calendarHeight / rowHeight)))
-      : maxRows;
 
   const rows: Array<[string, string]> = Array.from(
     { length: numRows },
