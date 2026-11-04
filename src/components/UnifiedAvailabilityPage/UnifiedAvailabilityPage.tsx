@@ -395,26 +395,18 @@ export default function UnifiedAvailabilityPage() {
             chartedUsers={chartedUsers}
             setChartedUsers={setChartedUsers}
             eventName={eventName}
-            setEventName={setEventName}
             eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
             locationVotes={locationVotes}
-            setLocationVotes={setLocationVotes}
             locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
             adminChosenLocation={adminChosenLocation}
             setAdminChosenLocation={setAdminChosenLocation}
             loading={loading}
-            setLoading={setLoading}
             allPeople={allPeople}
-            setAllPeople={setAllPeople}
             declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
-            setAllUsers={setAllUsers}
             userHasFilled={userHasFilled}
-            setUserHasFilled={setUserHasFilled}
           />
         )}
       </div>

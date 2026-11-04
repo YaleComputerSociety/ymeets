@@ -18,26 +18,18 @@ export default function ConditionalGroupViewRenderer({
   chartedUsers,
   setChartedUsers,
   eventName,
-  setEventName,
   eventDescription,
-  setEventDescription,
   locationVotes,
-  setLocationVotes,
   locationOptions,
-  setLocationOptions,
   adminChosenLocation,
   setAdminChosenLocation,
   loading,
-  setLoading,
   allPeople,
-  setAllPeople,
   declinedPeople,
   peopleStatus,
   setPeopleStatus,
   allUsers,
-  setAllUsers,
   userHasFilled,
-  setUserHasFilled,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
@@ -49,26 +41,18 @@ export default function ConditionalGroupViewRenderer({
   chartedUsers: userData;
   setChartedUsers: Dispatch<SetStateAction<userData>>;
   eventName: string;
-  setEventName: Dispatch<SetStateAction<string>>;
   eventDescription: string;
-  setEventDescription: Dispatch<SetStateAction<string>>;
   locationVotes: any;
-  setLocationVotes: Dispatch<SetStateAction<any>>;
   locationOptions: string[];
-  setLocationOptions: Dispatch<SetStateAction<string[]>>;
   adminChosenLocation: string | undefined;
   setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
   allPeople: string[];
-  setAllPeople: Dispatch<SetStateAction<string[]>>;
   declinedPeople: string[];
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
-  setAllUsers: Dispatch<SetStateAction<userData>>;
   userHasFilled: boolean;
-  setUserHasFilled: Dispatch<SetStateAction<boolean>>;
 }) {
   const [isAdmin, setIsAdmin] = useState(checkIfAdmin());
 
@@ -99,26 +83,18 @@ export default function ConditionalGroupViewRenderer({
       chartedUsers={chartedUsers}
       setChartedUsers={setChartedUsers}
       eventName={eventName}
-      setEventName={setEventName}
       eventDescription={eventDescription}
-      setEventDescription={setEventDescription}
       locationVotes={locationVotes}
-      setLocationVotes={setLocationVotes}
       locationOptions={locationOptions}
-      setLocationOptions={setLocationOptions}
       adminChosenLocation={adminChosenLocation}
       setAdminChosenLocation={setAdminChosenLocation}
       loading={loading}
-      setLoading={setLoading}
       allPeople={allPeople}
-      setAllPeople={setAllPeople}
       declinedPeople={declinedPeople}
       peopleStatus={peopleStatus}
       setPeopleStatus={setPeopleStatus}
       allUsers={allUsers}
-      setAllUsers={setAllUsers}
       userHasFilled={userHasFilled}
-      setUserHasFilled={setUserHasFilled}
     />
   );
 }
