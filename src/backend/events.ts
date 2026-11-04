@@ -398,6 +398,8 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
               iAmCreator: true,
               dateCreated: new Date(),
               lastModified: new Date(),
+              calendarDates: eventDetails.dates,
+              labels: [],
             };
             upsertCachedAccountEvent(eventDetails.adminAccountId, row);
             resolve(newEvent);
