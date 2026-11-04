@@ -1,7 +1,6 @@
 import { checkIfAdmin, getEventOnPageload } from '../../backend/events';
 import GroupViewPage from './GroupViewPage';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { calendarState, calendarDimensions, userData } from '../../types';
 /**
  *
@@ -10,7 +9,6 @@ import { calendarState, calendarDimensions, userData } from '../../types';
  * @returns Page Component
  */
 export default function ConditionalGroupViewRenderer({
-  isEditing,
   toggleEditing,
   calendarState,
   setCalendarState,
@@ -89,80 +87,38 @@ export default function ConditionalGroupViewRenderer({
   }, []);
 
   return (
-    <>
-      {isAdmin ? (
-        <div>
-          <GroupViewPage
-            isAdmin={true}
-            isEditing={false}
-            toggleEditing={toggleEditing}
-            calendarState={calendarState}
-            setCalendarState={setCalendarState}
-            calendarFramework={calendarFramework}
-            setCalendarFramework={setCalendarFramework}
-            code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
-            eventName={eventName}
-            setEventName={setEventName}
-            eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
-            locationVotes={locationVotes}
-            setLocationVotes={setLocationVotes}
-            locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
-            loading={loading}
-            setLoading={setLoading}
-            allPeople={allPeople}
-            setAllPeople={setAllPeople}
-            declinedPeople={declinedPeople}
-            peopleStatus={peopleStatus}
-            setPeopleStatus={setPeopleStatus}
-            allUsers={allUsers}
-            setAllUsers={setAllUsers}
-            userHasFilled={userHasFilled}
-            setUserHasFilled={setUserHasFilled}
-          />
-        </div>
-      ) : (
-        <div>
-          <GroupViewPage
-            isAdmin={false}
-            isEditing={false}
-            toggleEditing={toggleEditing}
-            calendarState={calendarState}
-            setCalendarState={setCalendarState}
-            calendarFramework={calendarFramework}
-            setCalendarFramework={setCalendarFramework}
-            code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
-            eventName={eventName}
-            setEventName={setEventName}
-            eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
-            locationVotes={locationVotes}
-            setLocationVotes={setLocationVotes}
-            locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
-            loading={loading}
-            setLoading={setLoading}
-            allPeople={allPeople}
-            setAllPeople={setAllPeople}
-            declinedPeople={declinedPeople}
-            peopleStatus={peopleStatus}
-            setPeopleStatus={setPeopleStatus}
-            allUsers={allUsers}
-            setAllUsers={setAllUsers}
-            userHasFilled={userHasFilled}
-            setUserHasFilled={setUserHasFilled}
-          />
-        </div>
-      )}
-    </>
+    <GroupViewPage
+      isAdmin={isAdmin}
+      isEditing={false}
+      toggleEditing={toggleEditing}
+      calendarState={calendarState}
+      setCalendarState={setCalendarState}
+      calendarFramework={calendarFramework}
+      setCalendarFramework={setCalendarFramework}
+      code={code}
+      chartedUsers={chartedUsers}
+      setChartedUsers={setChartedUsers}
+      eventName={eventName}
+      setEventName={setEventName}
+      eventDescription={eventDescription}
+      setEventDescription={setEventDescription}
+      locationVotes={locationVotes}
+      setLocationVotes={setLocationVotes}
+      locationOptions={locationOptions}
+      setLocationOptions={setLocationOptions}
+      adminChosenLocation={adminChosenLocation}
+      setAdminChosenLocation={setAdminChosenLocation}
+      loading={loading}
+      setLoading={setLoading}
+      allPeople={allPeople}
+      setAllPeople={setAllPeople}
+      declinedPeople={declinedPeople}
+      peopleStatus={peopleStatus}
+      setPeopleStatus={setPeopleStatus}
+      allUsers={allUsers}
+      setAllUsers={setAllUsers}
+      userHasFilled={userHasFilled}
+      setUserHasFilled={setUserHasFilled}
+    />
   );
 }
