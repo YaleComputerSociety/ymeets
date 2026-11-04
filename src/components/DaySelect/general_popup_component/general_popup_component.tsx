@@ -1,4 +1,4 @@
-import { useEffect} from 'react';
+import { FC, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import './general_popup_component.css';
 import LOGO from './googlelogo.png';
@@ -10,7 +10,7 @@ interface GeneralPopupProps {
   isLogin: boolean;
 }
 
-export const GeneralPopup: React.FC<GeneralPopupProps> = ({
+export const GeneralPopup: FC<GeneralPopupProps> = ({
   onClose,
   message,
   isLogin,
