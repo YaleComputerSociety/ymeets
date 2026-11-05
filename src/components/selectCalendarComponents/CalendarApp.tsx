@@ -280,7 +280,7 @@ export default function Calendar({
               endDate={calendarFramework.endTime}
               theDragState={theDragState}
               theMostRecentSelection={theMostRecentSelection}
-	      calendarFramework={calendarFramework}
+              calendarFramework={calendarFramework}
               chartedUsersData={chartedUsersData}
               googleCalendarEvents={googleCalendarEvents}
               isGeneralDays={isGeneralDays}

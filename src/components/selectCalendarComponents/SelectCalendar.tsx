@@ -150,7 +150,7 @@ function SelectCalendar({
                                 isAdmin={isAdmin}
                                 theDragState={theDragState}
                                 theMostRecentSelection={theMostRecentSelection}
-				calendarFramework={calendarFramework}
+                                calendarFramework={calendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 googleCalendarEvents={googleCalendarEvents}
                                 borderStyle={
