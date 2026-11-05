@@ -327,7 +327,7 @@ export const CalendarComponent = ({
         <GeneralPopup
           onClose={handleGeneralPopupClose}
           isLogin={false}
-	  message={''}
+          message={''}
         />
       )}
     </div>

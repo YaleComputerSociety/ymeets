@@ -542,7 +542,7 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           wrappedSetTimeSelectCalendarState,
                         ]}
-			calendarFramework={calendarFramework}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
@@ -597,7 +597,7 @@ export default function SideBySideView({
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-			calendarFramework={calendarFramework}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={[
                           filteredChartedUsers,
                           setChartedUsers,
@@ -607,7 +607,7 @@ export default function SideBySideView({
                         isAdmin={true}
                         theDragState={theRightDragState}
                         theMostRecentSelection={theMostRecentRightSelection}
-			googleCalendarEvents={[]}
+                        googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {
                             return;

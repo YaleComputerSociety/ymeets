@@ -929,7 +929,7 @@ function TimeSelectPage({
                 onClick={() => {}}
                 theCalendarState={[calendarState, wrappedSetCalendarState]}
                 user={getCurrentUserIndex()}
-		calendarFramework={calendarFramework}
+                calendarFramework={calendarFramework}
                 draggable={true}
                 chartedUsersData={undefined}
                 theDragState={theDragState}

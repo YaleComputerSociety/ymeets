@@ -525,7 +525,7 @@ export default function SharedSidebar({
       {chartedUsers?.hovering && (
         <div className="w-full">
           <UserChart
-	    chartedUsers={filteredChartedUsers}
+            chartedUsers={filteredChartedUsers}
             calendarHeight={calendarHeight ?? null}
           />
         </div>

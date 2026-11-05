@@ -453,7 +453,7 @@ export default function GroupViewPage({
           {chartedUsers.hovering && (
             <div className="hidden lg:block w-full">
               <UserChart
-		chartedUsers={filteredChartedUsers}
+                chartedUsers={filteredChartedUsers}
                 calendarHeight={calendarHeight}
               />
             </div>
