@@ -278,7 +278,6 @@ const PAST_CONTRIBUTORS = [
 interface ContributorCardProps {
   name: string | undefined;
   title: string[] | undefined;
-  founding: boolean | undefined;
   linkedin: string | undefined;
   portfolio: string | undefined;
   github: string | undefined;
@@ -415,7 +414,6 @@ export default function AboutUsPage() {
               <ContributorCard
                 name={c.name}
                 title={c.title}
-                founding={c.founding}
                 linkedin={c.linkedin}
                 portfolio={c.portfolio}
                 github={c.github}
@@ -438,7 +436,6 @@ export default function AboutUsPage() {
               key={c.name}
               name={c.name}
               title={c.title}
-              founding={c.founding}
               linkedin={c.linkedin}
               portfolio={c.portfolio}
               github={c.github}
@@ -456,7 +453,6 @@ export default function AboutUsPage() {
               key={c.name}
               name={c.name}
               title={c.title}
-              founding={c.founding}
               linkedin={c.linkedin}
               portfolio={c.portfolio}
               github={c.github}
