@@ -21,7 +21,6 @@
       "react",
       "react-dom",
       "reactjs-popup",
-      "gapi",
       "gapi.auth2",
       "gapi.client",
       "gapi.client.calendar",
