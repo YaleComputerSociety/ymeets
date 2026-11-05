@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    
 
     "allowJs": true,
     "skipLibCheck": true,
@@ -12,21 +17,11 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "downlevelIteration": true,
     "jsx": "react-jsx",
-    "types": [
-      "react",
-      "react-dom",
-      "reactjs-popup",
-      "gapi.auth2",
-      "gapi.client",
-      "gapi.client.calendar",
-      "jest"
-    ]
+    "types": ["react", "react-dom", "reactjs-popup", "gapi", "gapi.auth2", "gapi.client", "gapi.client.calendar", "jest"]
   },
-
-  "include": ["src", "tailwind.config.js", "src", "Intl.d.ts"]
+  
+  "include": ["src", "tailwind.config.js", "Intl.d.ts"]
 }

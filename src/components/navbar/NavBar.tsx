@@ -1,7 +1,7 @@
 import NavLogo from './NavLogo';
 import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../backend/firebase';
 import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
@@ -19,6 +19,10 @@ import {
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import {
+  LOGOUT_ON_ARRIVAL,
+  shouldLogoutOnArrival,
+} from '../utils/functions/navigationState';
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
@@ -26,8 +30,24 @@ export default function NavBar() {
   const [menuState, setMenuState] = useState('closed');
 
   const nav = useNavigate();
+  const location = useLocation();
 
   const { login, logout } = useAuth();
+
+  // Log out only once the navigation home has gone through, so choosing
+  // "Stay" at the unsaved-changes prompt keeps the user signed in
+  useEffect(() => {
+    if (!shouldLogoutOnArrival(location.state)) return;
+    nav(
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+      },
+      { replace: true, state: null }
+    );
+    logout().catch((error) => console.error('Error logging out:', error));
+  }, [location]);
 
   const [showTutorial, setTutorial] = useState(false);
 
@@ -116,7 +136,8 @@ export default function NavBar() {
                 <a
                   href="#"
                   className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     nav('/useraccount');
                   }}
                 >
@@ -130,7 +151,8 @@ export default function NavBar() {
                 <a
                   href="#"
                   className="flex items-center px-4 text-text dark:text-text-dark hover:text-primary transition hover:scale-105"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     login();
                   }}
                 >
@@ -181,7 +203,8 @@ export default function NavBar() {
                     <a
                       href="#"
                       className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         nav('/about-us');
                         setMenuState('closed');
                       }}
@@ -207,10 +230,10 @@ export default function NavBar() {
                         <a
                           href="#"
                           className="flex items-center justify-start px-4 py-2 text-sm text-gray-700 dark:text-text-dark hover:bg-primary hover:text-white transition-colors duration-200"
-                          onClick={() => {
-                            logout();
+                          onClick={(e) => {
+                            e.preventDefault();
                             setMenuState('closed');
-                            nav('/');
+                            nav('/', { state: LOGOUT_ON_ARRIVAL });
                           }}
                         >
                           <IconLogout className="mr-2" size={17} /> Logout

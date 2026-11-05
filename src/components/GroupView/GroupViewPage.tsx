@@ -42,6 +42,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 
 /**
@@ -292,7 +293,7 @@ export default function GroupViewPage({
                   userHasFilled={userHasFilled}
                   onCancel={async () => {
                     await wrappedSaveDeclinedParticipantDetails();
-                    navigate('/');
+                    navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
                   }}
                 />
               </div>
