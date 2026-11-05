@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { calendarDimensions } from '../../../types';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
@@ -9,7 +9,7 @@ import { getUTCStartAndEndTimes } from '../../../backend/events';
 interface TimezoneChangerProps {
   theCalendarFramework: [
     calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+    Dispatch<SetStateAction<calendarDimensions>>,
   ];
   initialTimezone: string;
 }

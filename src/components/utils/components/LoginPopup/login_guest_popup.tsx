@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login_guest_popup.css';
 import {
@@ -19,7 +19,7 @@ interface LoginPopupProps {
   onOverlayClick?: () => void;
 }
 
-export const LoginPopup: React.FC<LoginPopupProps> = ({
+export const LoginPopup: FC<LoginPopupProps> = ({
   onClose,
   code,
   onOverlayClick,
@@ -86,7 +86,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Add the class when the component mounts
     document.body.classList.add('popup-open');
 

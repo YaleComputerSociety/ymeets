@@ -1,9 +1,14 @@
-import React, {
+import {
   Dispatch,
+  MouseEventHandler,
+  RefObject,
   SetStateAction,
   useCallback,
+  useEffect,
   useRef,
-  useLayoutEffect} from 'react';
+  useState,
+  useLayoutEffect
+} from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalendar from './SelectCalendar';
 import { BoundingBox, DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
@@ -14,26 +19,26 @@ interface CalendarProps {
   calendarFramework: calendarDimensions;
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | [userData, Dispatch<SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   user: number;
   isAdmin: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+    Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
   googleCalendarEvents: calendar_v3.Schema$Event[];
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | [boolean, Dispatch<SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
@@ -43,7 +48,7 @@ interface CalendarProps {
   calendarLabel?: string;
   currentStartPage?: number;
   onPageChange?: (page: number) => void;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef?: RefObject<HTMLDivElement>;
   onScroll?: (scrollTop: number) => void;
 }
 
@@ -105,7 +110,7 @@ export default function Calendar({
     return 4;
   };
 
-  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
+  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = useState(
     calculateColumnsPerPage
   );
 
@@ -121,7 +126,7 @@ export default function Calendar({
       }
     }, [chartedUsers, setChartedUsers]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Recalculate columns when compactMode changes (expand/collapse)
     setNumberOfColumnsPerPage(calculateColumnsPerPage());
 
@@ -135,7 +140,7 @@ export default function Calendar({
     };
   }, [compactMode]);
 
-  const [internalStartPage, setInternalStartPage] = React.useState(0);
+  const [internalStartPage, setInternalStartPage] = useState(0);
   const currentStartPage = controlledPage ?? internalStartPage;
 
   const handlePrev = () => {

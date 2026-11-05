@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import ChartRow from './UserChartRow';
 import { userData } from '../../types';
 import AlertPopup from '../utils/components/AlertPopup';
@@ -15,7 +15,7 @@ interface UserChartProps {
  * @param UserChart
  * @returns Page Support Component - Admin View
  */
-const UserChart: React.FC<UserChartProps> = ({
+const UserChart: FC<UserChartProps> = ({
   chartedUsers,
   calendarHeight,
 }) => {

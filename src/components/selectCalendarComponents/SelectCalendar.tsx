@@ -1,6 +1,8 @@
-import React, { 
+import { 
   Dispatch,
+  MouseEventHandler,
   SetStateAction,
+  useState,
   } from 'react';
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
@@ -22,10 +24,10 @@ import { useEffect } from 'react';
 interface SelectCalendarProps {
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | [userData, Dispatch<SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   isAdmin?: boolean;
@@ -37,17 +39,17 @@ interface SelectCalendarProps {
   renderTime: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+    Dispatch<SetStateAction<BoundingBox | undefined>>
   ]
   calendarFramework: calendarDimensions;
   googleCalendarEvents: calendar_v3.Schema$Event[],
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | [boolean, Dispatch<SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
@@ -74,7 +76,7 @@ function SelectCalendar({
   setChartedUsers,
   chartedUsers,
 }: SelectCalendarProps) {
-  const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
+  const [timeBlocks, setTimeBlocks] = useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
   );
 

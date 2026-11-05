@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import {
+  ChangeEvent,
+  FC,
+  KeyboardEvent,
+  useEffect,
+  useState,
+  useRef
+} from 'react';
 import { IconChevronDown, IconX, IconCheck } from '@tabler/icons-react';
 
 interface LocationSelectionProps {
@@ -11,7 +18,7 @@ interface LocationSelectionProps {
   value?: string[]; // Controlled value from parent
 }
 
-const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
+const LocationSelectionComponent: FC<LocationSelectionProps> = ({
   locations,
   update,
   create = false,
@@ -59,7 +66,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && inputValue.trim() && create) {
       event.preventDefault();
       if (
@@ -75,7 +82,7 @@ const LocationSelectionComponent: React.FC<LocationSelectionProps> = ({
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (create) {
       setInputValue(event.target.value);
       if (event.target.value.trim() && !isOpen) {
