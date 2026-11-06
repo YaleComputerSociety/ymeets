@@ -1,6 +1,8 @@
-import React, { 
+import { 
   Dispatch,
+  MouseEventHandler,
   SetStateAction,
+  useState,
   } from 'react';
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
@@ -18,15 +20,14 @@ import DateBar from './DateBar';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
-import { set } from 'lodash';
 
 interface SelectCalendarProps {
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | [userData, Dispatch<SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   isAdmin?: boolean;
@@ -38,26 +39,17 @@ interface SelectCalendarProps {
   renderTime: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+    Dispatch<SetStateAction<BoundingBox | undefined>>
   ]
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
-  theGoogleCalendarEvents:
-    | [
-        calendar_v3.Schema$Event[],
-        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-      ]
-    | undefined;
-
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  calendarFramework: calendarDimensions;
+  googleCalendarEvents: calendar_v3.Schema$Event[],
+  onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | [boolean, Dispatch<SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
@@ -67,7 +59,7 @@ interface SelectCalendarProps {
 function SelectCalendar({
   theCalendarState,
   chartedUsersData,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   bucket,
@@ -77,14 +69,14 @@ function SelectCalendar({
   endDate,
   theDragState,
   theMostRecentSelection,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   onClick,
   theShowUserChart,
   isGeneralDays,
   setChartedUsers,
   chartedUsers,
 }: SelectCalendarProps) {
-  const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
+  const [timeBlocks, setTimeBlocks] = useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
   );
 
@@ -158,11 +150,9 @@ function SelectCalendar({
                                 isAdmin={isAdmin}
                                 theDragState={theDragState}
                                 theMostRecentSelection={theMostRecentSelection}
-                                theCalendarFramework={theCalendarFramework}
+                                calendarFramework={calendarFramework}
                                 chartedUsersData={chartedUsersData}
-                                theGoogleCalendarEvents={
-                                  theGoogleCalendarEvents
-                                }
+                                googleCalendarEvents={googleCalendarEvents}
                                 borderStyle={
                                   time.slice(3) === '30' ? 'dotted' : 'solid'
                                 }

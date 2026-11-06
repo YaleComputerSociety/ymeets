@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { IconPlus, IconSearch, IconTrash, IconEdit, IconChevronDown } from '@tabler/icons-react';
 
 import {
@@ -9,13 +9,11 @@ import {
 } from '../../backend/events';
 import { useAuth } from '../../backend/authContext';
 import { useNavigate } from 'react-router-dom';
-import { Event } from '../../types';
 import { auth } from '../../backend/firebase';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
-import ButtonSmall from '../utils/components/ButtonSmall';
 import DeletePopup from '../utils/components/DeletePopup';
 import {
   getCachedAccountEvents,
@@ -71,7 +69,6 @@ export default function AccountsPage() {
   const nav = useNavigate();
   const [filter, setFilter] = useState('');
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
-  const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<'dateCreated' | 'lastModified'>(
     'lastModified'
   );
@@ -113,12 +110,11 @@ export default function AccountsPage() {
           if (selectedEventToDelete) {
             deleteEvent(selectedEventToDelete.id)
               .then(() => {
-                setHasDeletedEvent(true);
                 const next =
                   events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
                 setEvents(next);
               })
-              .catch((err) => {});
+              .catch(() => {});
             setSelectedEventToDelete(null);
           }
         }}
@@ -234,13 +230,12 @@ export default function AccountsPage() {
                               if (dontAskAgain) {
                                 deleteEvent(event.id)
                                   .then(() => {
-                                    setHasDeletedEvent(true);
                                     const next =
                                       events?.filter((e) => e.id !== event.id) ??
                                       [];
                                     setEvents(next);
                                   })
-                                  .catch((err) => {});
+                                  .catch(() => {});
                               } else {
                                 setSelectedEventToDelete(event);
                               }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login_guest_popup.css';
 import {
@@ -19,16 +19,15 @@ interface LoginPopupProps {
   onOverlayClick?: () => void;
 }
 
-export const LoginPopup: React.FC<LoginPopupProps> = ({
+export const LoginPopup: FC<LoginPopupProps> = ({
   onClose,
-  enableAnonymousSignIn = false,
   code,
   onOverlayClick,
 }) => {
   const navigate = useNavigate();
   const [inputName, setInputName] = useState('');
 
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Add state for AlertPopup
   const [showManualInput, setShowManualInput] = useState(false);
@@ -87,7 +86,7 @@ export const LoginPopup: React.FC<LoginPopupProps> = ({
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Add the class when the component mounts
     document.body.classList.add('popup-open');
 

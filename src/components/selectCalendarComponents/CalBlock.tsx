@@ -1,4 +1,9 @@
-import React, {
+import {
+  Dispatch,
+  MouseEventHandler,
+  PointerEvent,
+  TouchEvent,
+  SetStateAction,
   useEffect,
   useState,
   useRef,
@@ -22,29 +27,26 @@ interface CalBlockProps {
   columnID: number;
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
-  chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>];
+  calendarFramework: calendarDimensions,
+  chartedUsersData?: [userData, Dispatch<SetStateAction<userData>>];
   draggable: boolean;
   isAdmin?: boolean;
   user: number;
   is30Minute: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+    Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
   isOnGcal: boolean;
   eventNames: (string | null)[];
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  setShowUserChart?: Dispatch<SetStateAction<boolean>>;
   isEventStart: boolean;
   isEventEnd: boolean;
   eventStartingOnBlock: string | null;
@@ -61,7 +63,7 @@ export default function CalBlock({
   blockID,
   columnID,
   theCalendarState,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   user,
@@ -72,7 +74,7 @@ export default function CalBlock({
   onClick,
   is30Minute,
   chartedUsersData,
-  theShowUserChart,
+  setShowUserChart,
   isEventStart,
   isEventEnd,
   eventStartingOnBlock,
@@ -81,9 +83,7 @@ export default function CalBlock({
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
   const [dragState, setDragState] = theDragState;
-  const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
-  const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
   const dragRef = useRef<HTMLDivElement>(null);
   const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
@@ -252,7 +252,7 @@ export default function CalBlock({
   }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
   const handleMobileHoverChartedUser = useCallback(
-    (event: React.TouchEvent) => {
+    (event: TouchEvent) => {
       if (!chartedUsers || !setChartedUsers) return;
 
       const touch = event.touches[0];
@@ -415,7 +415,7 @@ export default function CalBlock({
    * Ends the current drag.
    */
   const endDrag = useCallback(
-    (event: React.PointerEvent): void => {
+    (event: PointerEvent): void => {
       document.removeEventListener('pointermove', handleGlobalPointerMove);
       stopAutoScroll();
 
@@ -435,7 +435,7 @@ export default function CalBlock({
    * Special-cased to reject `calendarState` updates on group calendars.
    */
   const startDrag = useCallback(
-    (event: React.PointerEvent) => {
+    (event: PointerEvent) => {
       if (!draggable) return;
       if (blockID === -1) return;
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import TimeSelectPage from '../TimeSelect/TimeSelectPage';
 import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
-import { SideBySideView } from '../SideBySideView';
+import SideBySideView from '../SideBySideView/SideBySideView';
 import {
   useBlocker,
   useLocation,
@@ -25,7 +25,6 @@ import {
   getParticipantIndex,
   checkIfAdmin,
   workingEvent,
-  wrappedSaveDeclinedParticipantDetails
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
@@ -125,8 +124,6 @@ export default function UnifiedAvailabilityPage() {
   const [isGeneralDays, setIsGeneralDays] = useState(
     timeSelectCalendarFramework?.dates?.[0]?.[0]?.date?.getFullYear() === 2000
   );
-  const [areSelectingGeneralDays, setAreSelectingGeneralDays] = useState(false);
-  const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
   const nav = useNavigate();
 
@@ -263,12 +260,6 @@ export default function UnifiedAvailabilityPage() {
             setTimeSelectCalendarState([...availabilities, avail]);
           }
           setTimeSelectCalendarFramework(dim);
-
-          /* The first date having a year be 2000 means that it was a general days selection */
-          setAreSelectingGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() === 2000 &&
-              theRange === undefined
-          );
 
           // if there's a selection already made, nav to groupview since you're not allowed to edit your avail
           if (theRange !== undefined && theRange[0].getFullYear() !== 1970) {
@@ -572,7 +563,6 @@ export default function UnifiedAvailabilityPage() {
           locationOptions={locationOptions}
           locationVotes={locationVotes}
           adminChosenLocation={adminChosenLocation}
-          setAdminChosenLocation={setAdminChosenLocation}
           code={code}
           isAdmin={isAdmin}
           isGeneralDays={isGeneralDays}
@@ -606,32 +596,17 @@ export default function UnifiedAvailabilityPage() {
             onSavingChange={setIsSavingMobile}
             onSettingsEdited={markMobileSettingsEdited}
             saveRef={mobileSaveRef}
-            onFetchComplete={() => {
-              if (getAccountName() === '' || getAccountName() === undefined) {
-                setPromptUserForLogin(true);
-              }
-            }}
             code={code}
-            chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarState={timeSelectCalendarState}
             setCalendarState={setTimeSelectCalendarState}
             calendarFramework={timeSelectCalendarFramework}
             setCalendarFramework={setTimeSelectCalendarFramework}
             loading={loading}
-            setLoading={setLoading}
             eventName={eventName}
-            setEventName={setEventName}
             eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
             locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
-            areSelectingGeneralDays={areSelectingGeneralDays}
-            setAreSelectingGeneralDays={setAreSelectingGeneralDays}
             isGeneralDays={isGeneralDays}
-            setIsGeneralDays={setIsGeneralDays}
             hasAvailability={hasAvailability}
-            setHasAvailability={setHasAvailability}
           />
         ) : (
           <ConditionalGroupViewRenderer
@@ -648,26 +623,17 @@ export default function UnifiedAvailabilityPage() {
             chartedUsers={chartedUsers}
             setChartedUsers={setChartedUsers}
             eventName={eventName}
-            setEventName={setEventName}
             eventDescription={eventDescription}
-            setEventDescription={setEventDescription}
             locationVotes={locationVotes}
-            setLocationVotes={setLocationVotes}
             locationOptions={locationOptions}
-            setLocationOptions={setLocationOptions}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             loading={loading}
-            setLoading={setLoading}
             allPeople={allPeople}
-            setAllPeople={setAllPeople}
             declinedPeople={declinedPeople}
             peopleStatus={peopleStatus}
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
-            setAllUsers={setAllUsers}
             userHasFilled={userHasFilled}
-            setUserHasFilled={setUserHasFilled}
           />
         )}
       </div>

@@ -31,7 +31,7 @@ import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 
-interface Calendar {
+interface GoogleCalendar {
   id: string;
   summary: string;
   primary?: boolean;
@@ -60,7 +60,6 @@ interface SideBySideViewProps {
   locationOptions: string[];
   locationVotes: any;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
 
   // Other
   code: string | undefined;
@@ -72,8 +71,8 @@ interface SideBySideViewProps {
   setGoogleCalendarEvents: Dispatch<SetStateAction<calendar_v3.Schema$Event[]>>;
 
   // Google Calendar list state
-  googleCalendars: Calendar[];
-  setGoogleCalendars: Dispatch<SetStateAction<Calendar[]>>;
+  googleCalendars: GoogleCalendar[];
+  setGoogleCalendars: Dispatch<SetStateAction<GoogleCalendar[]>>;
   selectedCalendarIds: string[];
   setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
 
@@ -114,7 +113,6 @@ export default function SideBySideView({
   locationOptions,
   locationVotes,
   adminChosenLocation,
-  setAdminChosenLocation,
   code,
   isAdmin,
   isGeneralDays,
@@ -136,8 +134,6 @@ export default function SideBySideView({
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
   const [showUserChart, setShowUserChart] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
@@ -449,12 +445,8 @@ export default function SideBySideView({
             locationOptions={locationOptions}
             locationVotes={locationVotes}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarHeight={calendarHeight}
-            participantToggleClicked={participantToggleClicked}
-            setParticipantToggleClicked={setParticipantToggleClicked}
             googleCalendars={googleCalendars}
             setGoogleCalendars={setGoogleCalendars}
             selectedCalendarIds={selectedCalendarIds}
@@ -550,20 +542,14 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           wrappedSetTimeSelectCalendarState,
                         ]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
                         isAdmin={false}
                         theDragState={theLeftDragState}
                         theMostRecentSelection={theMostRecentLeftSelection}
-                        theGoogleCalendarEvents={[
-                          googleCalendarEvents,
-                          setGoogleCalendarEvents,
-                        ]}
+                        googleCalendarEvents={googleCalendarEvents}
                         onClick={() => {}}
                         theShowUserChart={undefined}
                         isGeneralDays={isGeneralDays}
@@ -611,10 +597,7 @@ export default function SideBySideView({
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={[
                           filteredChartedUsers,
                           setChartedUsers,
@@ -624,7 +607,7 @@ export default function SideBySideView({
                         isAdmin={true}
                         theDragState={theRightDragState}
                         theMostRecentSelection={theMostRecentRightSelection}
-                        theGoogleCalendarEvents={[[], noop]}
+                        googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {
                             return;

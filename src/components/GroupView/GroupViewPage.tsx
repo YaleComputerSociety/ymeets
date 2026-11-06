@@ -1,8 +1,6 @@
 import {
   useState,
-  useEffect,
   useMemo,
-  useRef,
   Dispatch,
   SetStateAction,
 } from 'react';
@@ -30,7 +28,6 @@ import {
 } from '../../backend/events';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
-import EditAvailability from './EditAvailability';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
@@ -38,8 +35,6 @@ import { useAuth } from '../../backend/authContext';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import InformationPopup from '../utils/components/InformationPopup';
 
-import { useContext } from 'react';
-import { Switch, FormControlLabel } from '@mui/material';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import AutoDraftEmailButton from '../utils/components/AutoDraftEmailButton';
 import { IconCheck } from '@tabler/icons-react';
@@ -66,26 +61,17 @@ export default function GroupViewPage({
   chartedUsers,
   setChartedUsers,
   eventName,
-  setEventName,
   eventDescription,
-  setEventDescription,
   locationVotes,
-  setLocationVotes,
   locationOptions,
-  setLocationOptions,
   adminChosenLocation,
-  setAdminChosenLocation,
   loading,
-  setLoading,
   allPeople,
-  setAllPeople,
   declinedPeople,
   peopleStatus,
   setPeopleStatus,
   allUsers,
-  setAllUsers,
   userHasFilled,
-  setUserHasFilled,
 }: {
   isAdmin: boolean;
   isEditing: boolean;
@@ -98,39 +84,26 @@ export default function GroupViewPage({
   chartedUsers: userData;
   setChartedUsers: Dispatch<SetStateAction<userData>>;
   eventName: string;
-  setEventName: Dispatch<SetStateAction<string>>;
   eventDescription: string;
-  setEventDescription: Dispatch<SetStateAction<string>>;
   locationVotes: any;
-  setLocationVotes: Dispatch<SetStateAction<any>>;
   locationOptions: string[];
-  setLocationOptions: Dispatch<SetStateAction<string[]>>;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
   allPeople: string[];
-  setAllPeople: Dispatch<SetStateAction<string[]>>;
   declinedPeople: string[];
   peopleStatus: { [key: string]: boolean };
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
-  setAllUsers: Dispatch<SetStateAction<userData>>;
   userHasFilled: boolean;
-  setUserHasFilled: Dispatch<SetStateAction<boolean>>;
 }) {
   const navigate = useNavigate();
   const [showUserChart, setShowUserChart] = useState(false);
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
-  const [showLocationChart, setShowLocationChart] = useState(false);
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
-  const [generalPopupMessage] = useState('');
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
   const [mostRecentSelection, setMostRecentSelection] = useState<BoundingBox | undefined>(undefined);
 
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
   const createCalendarEventUrl = useCallback((event: any) => {
     const startDateTime = new Date(event.start.dateTime)
@@ -466,10 +439,7 @@ export default function GroupViewPage({
                 Locations
               </div>
               <LocationChart
-                theSelectedLocation={[
-                  adminChosenLocation,
-                  setAdminChosenLocation,
-                ]}
+                selectedLocation={adminChosenLocation}
                 locationOptions={
                   locationOptions.length > 0 ? locationOptions : ['']
                 }
@@ -483,13 +453,7 @@ export default function GroupViewPage({
           {chartedUsers.hovering && (
             <div className="hidden lg:block w-full">
               <UserChart
-                chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                allPeople={allPeople}
-                theParticipantToggleClicked={[
-                  participantToggleClicked,
-                  setParticipantToggleClicked,
-                ]}
+                chartedUsers={filteredChartedUsers}
                 calendarHeight={calendarHeight}
               />
             </div>
@@ -603,7 +567,7 @@ export default function GroupViewPage({
                   setTimeout(() => setShowUserChart(false), 3000);
                 }}
                 theCalendarState={[calendarState, setCalendarState]}
-                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+		calendarFramework={calendarFramework}
                 chartedUsersData={[filteredChartedUsers, setChartedUsers]}
                 draggable={
                   isAdmin
@@ -612,7 +576,7 @@ export default function GroupViewPage({
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
                 theMostRecentSelection={[mostRecentSelection, setMostRecentSelection]}
-                theGoogleCalendarEvents={[[], () => {}]}
+                googleCalendarEvents={[]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}
                 chartedUsers={chartedUsers}
@@ -625,10 +589,7 @@ export default function GroupViewPage({
           {locationOptions.length > 0 && (
             <div className="lg:hidden mt-4">
               <LocationChart
-                theSelectedLocation={[
-                  adminChosenLocation,
-                  setAdminChosenLocation,
-                ]}
+                selectedLocation={adminChosenLocation}
                 locationOptions={
                   locationOptions.length > 0 ? locationOptions : ['']
                 }
@@ -658,13 +619,7 @@ export default function GroupViewPage({
                   </button>
 
                   <UserChart
-                    chartedUsersData={[filteredChartedUsers, setChartedUsers]}
-                    thePeopleStatus={[peopleStatus, setPeopleStatus]}
-                    allPeople={allPeople}
-                    theParticipantToggleClicked={[
-                      participantToggleClicked,
-                      setParticipantToggleClicked,
-                    ]}
+                    chartedUsers={filteredChartedUsers}
                     calendarHeight={calendarHeight}
                   />
                 </div>
@@ -746,7 +701,7 @@ export default function GroupViewPage({
       {showGeneralPopup && (
         <GeneralPopup
           onClose={() => setShowGeneralPopup(false)}
-          message={generalPopupMessage}
+          message={''}
           isLogin={false}
         />
       )}

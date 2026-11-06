@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import stock_meeting_gif from './Meeting.mp4';
-import day_select_pic from './DaySelect-dark.png';
-import copy_link_gif from './Share.mp4';
-import group_view_vid from './ViewAvailable.mp4';
-import delete_vid from './EventDeletion.mp4';
 
 import copy_link_vid from './ymeets-copy-link-vid.mp4';
 import create_event_vid from './ymeets-create-event-vid.mp4';
