@@ -64,29 +64,6 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
     findOptionForDate(props.endDate)
   );
 
-  // Update state when props change (for edit mode)
-  // Convert date to a comparable value (hours + minutes as a string) for dependency tracking
-  const startDateKey = props.startDate 
-    ? `${props.startDate.getHours()}:${props.startDate.getMinutes()}` 
-    : null;
-  const endDateKey = props.endDate 
-    ? `${props.endDate.getHours()}:${props.endDate.getMinutes()}` 
-    : null;
-
-  React.useEffect(() => {
-    if (props.startDate) {
-      const newStart = findOptionForDate(props.startDate);
-      setSelectedStart(newStart);
-    }
-  }, [startDateKey, findOptionForDate, props.startDate]);
-
-  React.useEffect(() => {
-    if (props.endDate) {
-      const newEnd = findOptionForDate(props.endDate);
-      setSelectedEnd(newEnd);
-    }
-  }, [endDateKey, findOptionForDate, props.endDate]);
-
   const handleStartChange = (selected: TimeOption) => {
     setSelectedStart(selected);
     const date = new Date(`January 1, 2023 ${selected.label}`);
