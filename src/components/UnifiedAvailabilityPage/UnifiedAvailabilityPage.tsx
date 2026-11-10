@@ -3,6 +3,7 @@ import TimeSelectPage from '../TimeSelect/TimeSelectPage';
 import ConditionalGroupViewRenderer from '../GroupView/ConditionalGroupViewRenderer';
 import { SideBySideView } from '../SideBySideView';
 import {
+  NavigationType,
   useBlocker,
   useLocation,
   useNavigate,
@@ -356,11 +357,17 @@ export default function UnifiedAvailabilityPage() {
   hasMeaningfulUnsavedChangesRef.current = hasMeaningfulUnsavedChanges;
 
   // In-app navigation guard (navbar links, nav() calls, back/forward within the app)
+  // The skip marker only counts for the navigation that set it. History entries keep
+  // their state, so Back/Forward (POP) onto a page reached by a decline/delete still
+  // carries the marker and must not skip the prompt.
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
+    ({ currentLocation, nextLocation, historyAction }) =>
       hasMeaningfulUnsavedChanges() &&
       currentLocation.pathname !== nextLocation.pathname &&
-      !shouldSkipUnsavedChangesPrompt(nextLocation.state)
+      !(
+        historyAction !== NavigationType.Pop &&
+        shouldSkipUnsavedChangesPrompt(nextLocation.state)
+      )
   );
   const [leaveSaveError, setLeaveSaveError] = useState<string | undefined>();
 
