@@ -442,9 +442,11 @@ export default function SideBySideView({
     peopleStatus
   );
 
-  // Close the participant filter when clicking outside it or pressing Escape
+  // Close the participant filter when clicking outside it or pressing Escape.
+  // While the filter's own alert ("can't remove the last participant") is open,
+  // dismissing it shouldn't also close the filter.
   useEffect(() => {
-    if (!showParticipantFilter) return;
+    if (!showParticipantFilter || alertMessage) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (!participantFilterRef.current?.contains(event.target as Node)) {
         setShowParticipantFilter(false);
@@ -459,7 +461,7 @@ export default function SideBySideView({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [showParticipantFilter]);
+  }, [showParticipantFilter, alertMessage]);
 
   /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
   const handleExportToGCal = () => {
@@ -599,7 +601,8 @@ export default function SideBySideView({
                             Filter Participants ({participantCounts.shownCount}/
                             {participantCounts.people.length})
                           </div>
-                          <div className="max-h-64 overflow-y-auto">
+                          {/* -mx-1 px-1 matches the rows' -mx-1 hover bleed, so it doesn't overflow sideways */}
+                          <div className="max-h-64 overflow-y-auto -mx-1 px-1">
                             <ParticipantFilterList
                               allPeople={allPeople}
                               declinedPeople={declinedPeople}
@@ -607,7 +610,7 @@ export default function SideBySideView({
                               setPeopleStatus={setPeopleStatus}
                               onRemoveLastParticipant={() =>
                                 setAlertMessage(
-                                  "You can't remove the last participant"
+                                  "You can't remove the last participant!"
                                 )
                               }
                             />

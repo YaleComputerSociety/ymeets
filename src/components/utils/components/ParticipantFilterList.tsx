@@ -51,7 +51,7 @@ export default function ParticipantFilterList({
       {people.map((name) => (
         <div
           key={name}
-          className={`flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded ${
+          className={`flex items-center justify-between gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded ${
             size === 'md' ? 'py-2 px-2 -mx-2' : 'py-1.5 px-1 -mx-1'
           }`}
           onClick={() => {
@@ -66,12 +66,12 @@ export default function ParticipantFilterList({
           }}
         >
           <span
-            className={`text-sm ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
+            className={`text-sm min-w-0 break-words ${peopleStatus[name] ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}
           >
             {name}
           </span>
           <div
-            className={`${size === 'md' ? 'w-5 h-5' : 'w-4 h-4'} rounded border flex items-center justify-center ${
+            className={`${size === 'md' ? 'w-5 h-5' : 'w-4 h-4'} shrink-0 rounded border flex items-center justify-center ${
               peopleStatus[name]
                 ? 'bg-primary border-primary'
                 : 'border-gray-300 dark:border-gray-600'

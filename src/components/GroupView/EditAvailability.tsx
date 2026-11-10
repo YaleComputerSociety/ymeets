@@ -125,7 +125,7 @@ const EditAvailability: React.FC<EditAvailabilityProps> = ({
                           peoepleStatus[name]
                         ) {
                           setAlertMessage(
-                            "You can't remove the last participant"
+                            "You can't remove the last participant!"
                           ); // Replace alert with AlertPopup
                           return;
                         }

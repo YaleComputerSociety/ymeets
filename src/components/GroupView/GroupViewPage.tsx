@@ -342,7 +342,7 @@ export default function GroupViewPage({
                         peopleStatus[name]
                       ) {
                         setAlertMessage(
-                          "You can't remove the last participant"
+                          "You can't remove the last participant!"
                         );
                         return;
                       }
@@ -623,14 +623,15 @@ export default function GroupViewPage({
                   {participantCounts.people.length})
                 </div>
 
-                <div className="max-h-64 overflow-y-auto">
+                {/* -mx-2 px-2 matches the rows' -mx-2 hover bleed, so it doesn't overflow sideways */}
+                <div className="max-h-64 overflow-y-auto -mx-2 px-2">
                   <ParticipantFilterList
                     allPeople={allPeople}
                     declinedPeople={declinedPeople}
                     peopleStatus={peopleStatus}
                     setPeopleStatus={setPeopleStatus}
                     onRemoveLastParticipant={() =>
-                      setAlertMessage("You can't remove the last participant")
+                      setAlertMessage("You can't remove the last participant!")
                     }
                     size="md"
                   />

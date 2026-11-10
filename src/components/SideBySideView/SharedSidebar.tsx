@@ -441,7 +441,7 @@ export default function SharedSidebar({
               peopleStatus={peopleStatus}
               setPeopleStatus={setPeopleStatus}
               onRemoveLastParticipant={() =>
-                setAlertMessage("You can't remove the last participant")
+                setAlertMessage("You can't remove the last participant!")
               }
             />
           </div>
