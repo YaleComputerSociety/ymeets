@@ -33,6 +33,7 @@ const createTimeOptions = (): TimeOption[] => {
     value: i + 1,
     label: turnToTimeString(i),
   }));
+  opts.push({ value: 25, label: '12:00 AM' });
   return opts;
 };
 
@@ -66,13 +67,23 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
 
   const handleStartChange = (selected: TimeOption) => {
     setSelectedStart(selected);
-    const date = new Date(`January 1, 2023 ${selected.label}`);
+    let date;
+    if (selected.value !== 25) {
+      date = new Date(`January 1, 2023 ${selected.label}`);
+    } else {
+      date = new Date('January 1, 2023 11:59 PM');
+    }
     props.updateStart(date);
   };
 
   const handleEndChange = (selected: TimeOption) => {
     setSelectedEnd(selected);
-    const date = new Date(`January 1, 2023 ${selected.label}`);
+    let date;
+    if (selected.value !== 25) {
+      date = new Date(`January 1, 2023 ${selected.label}`);
+    } else {
+      date = new Date('January 1, 2023 11:59 PM');
+    }
     props.updateEnd(date);
   };
 
