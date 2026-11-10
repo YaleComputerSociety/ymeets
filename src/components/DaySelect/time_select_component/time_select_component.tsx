@@ -50,7 +50,11 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
     
     // Find matching hour - options array is indexed by hour (0-23)
     // TIME_OPTIONS[hour] gives us the correct option for that hour
-    if (hour >= 0 && hour < 24) {
+    // Exception: last midnight on the list (i.e. 12:00 A.M. next day) is hard-coded as 23:59
+    if (hour === 23 && date.getMinutes() === 59) {
+      return TIME_OPTIONS[24];
+    }
+    else if (hour >= 0 && hour < 24) {
       return TIME_OPTIONS[hour];
     }
     
@@ -64,6 +68,29 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
   const [selectedEnd, setSelectedEnd] = React.useState<TimeOption>(() => 
     findOptionForDate(props.endDate)
   );
+
+  // Update state when props change (for edit mode)
+  // Convert date to a comparable value (hours + minutes as a string) for dependency tracking
+  const startDateKey = props.startDate 
+    ? `${props.startDate.getHours()}:${props.startDate.getMinutes()}` 
+    : null;
+  const endDateKey = props.endDate 
+    ? `${props.endDate.getHours()}:${props.endDate.getMinutes()}` 
+    : null;
+
+  React.useEffect(() => {
+    if (props.startDate) {
+      const newStart = findOptionForDate(props.startDate);
+      setSelectedStart(newStart);
+    }
+  }, [startDateKey, findOptionForDate, props.startDate]);
+
+  React.useEffect(() => {
+    if (props.endDate) {
+      const newEnd = findOptionForDate(props.endDate);
+      setSelectedEnd(newEnd);
+    }
+  }, [endDateKey, findOptionForDate, props.endDate]);
 
   const handleStartChange = (selected: TimeOption) => {
     setSelectedStart(selected);
