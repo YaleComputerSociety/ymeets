@@ -810,6 +810,18 @@ export default function CalBlock({
               return newState;
             });
             onClick(e as any);
+          } else if (draggable && isAdmin) {
+            // A tap selects just this block, replacing any earlier selection,
+            // the same as a single mouse click does
+            const point: [number, number] = [columnID, blockID];
+            setDragState({
+              isSelecting: false,
+              startPoint: point,
+              endPoint: point,
+              selectionMode: true,
+              lastPosition: point,
+              completedSelections: [getBoundingBox(point, point)],
+            });
           }
         } else if (dragState.isSelecting) {
           handleDragEnd();
