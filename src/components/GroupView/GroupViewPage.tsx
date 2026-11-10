@@ -513,8 +513,10 @@ export default function GroupViewPage({
               <Calendar
                 theShowUserChart={[showUserChart, setShowUserChart]}
                 onClick={() => {
-                  if (isAdmin) {
-                    // Reset drag selection when the calendar is clicked
+                  // A tap or click clears the admin's selection. CalBlock also calls onClick
+                  // at the end of a touch drag, while dragState.isSelecting is still true;
+                  // skip the reset then so the selection just made stays.
+                  if (isAdmin && !dragState.isSelecting) {
                     setDragState({
                       isSelecting: false,
                       startPoint: null,

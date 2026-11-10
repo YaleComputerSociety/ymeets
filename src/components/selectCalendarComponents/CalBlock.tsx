@@ -633,6 +633,8 @@ export default function CalBlock({
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       isDraggingRef.current = false;
       stopAutoScroll();
+      // Apply the last pending end point so the selection ends where the pointer stopped
+      debouncedSetDragState.flush();
 
       if (isAdmin && dragStartPointRef.current) {
         setDragState((prev) => {
@@ -660,7 +662,6 @@ export default function CalBlock({
       dragOriginClientRef.current = null;
       pointerHasMovedRef.current = false;
       scrollContainerRef.current = null;
-      debouncedSetDragState.cancel();
     },
     [
       isAdmin,
@@ -705,7 +706,8 @@ export default function CalBlock({
         endPoint: [columnID, blockID],
         selectionMode: newSelectionMode,
         lastPosition: [columnID, blockID],
-        completedSelections: dragState.completedSelections || [],
+        // Admins export a single range, so a new admin drag replaces earlier ones
+        completedSelections: isAdmin ? [] : dragState.completedSelections || [],
       });
 
       previousBoundingBox.current = {
