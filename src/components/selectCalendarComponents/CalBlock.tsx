@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
   calendarState,
@@ -38,6 +38,8 @@ interface CalBlockProps {
   isEventEnd: boolean;
   eventName: string | null;
   additionalEventCount: number;
+  /** Most shown participants free in any one block, computed once in SelectCalendar. Sets the darkest shade. */
+  maxUsers: number;
 }
 
 interface BoundingBox {
@@ -69,6 +71,7 @@ export default function CalBlock({
   isEventEnd,
   eventName,
   additionalEventCount,
+  maxUsers,
 }: CalBlockProps) {
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
@@ -150,56 +153,6 @@ export default function CalBlock({
     return theme === 'light' ? 'white' : '#2d3748';
   }, [theme, calendarFramework]);
 
-
-  // Participants the group calendar is showing, as a stable key so hovering
-  // (which rebuilds chartedUsers) doesn't trigger a recount
-  const shownUserIdsKey = chartedUsers?.users.map((u) => u.id).join(',');
-
-  // use Memo should ensure it only runs when calendarState or the shown participants change
-  const maxUsers = useMemo<number>(() => {
-    let maxCount = 0;
-
-    // Only count shown participants, so the darkest shade means the most of them are free
-    const shownUserIds =
-      shownUserIdsKey !== undefined
-        ? new Set(shownUserIdsKey.split(',').filter(Boolean).map(Number))
-        : null;
-
-    // define counts array
-    const counts: number[][] = [];
-
-    // interate through all blocks and find number of users on each
-    for (let i = 0; i < calendarState.length; i++) {
-      if (shownUserIds && !shownUserIds.has(i)) continue;
-      for (let j = 0; j < calendarState[i].length; j++) {
-
-        // create row if needed
-        if (!counts[j]) {
-          counts[j] = new Array(calendarState[i][j].length).fill(0);
-        }
-
-        for (let k = 0; k < calendarState[i][j].length; k++) {
-          // check if user is on block
-          if (calendarState[i][j][k]) {
-            
-            // update to new value
-            const newVal = (counts[j][k] ?? 0) + 1;
-            counts[j][k] = newVal;
-
-            // update max
-            if (newVal > maxCount) {
-              maxCount = newVal;
-            }
-            
-          }
-        }
-      }
-      
-    }
-    return maxCount;
-    
-  }, [calendarState, shownUserIdsKey]);
-   
 
   const getGroupPercentageColor = useCallback(() => {
     if (blockID == -1) {

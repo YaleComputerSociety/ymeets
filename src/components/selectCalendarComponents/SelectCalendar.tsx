@@ -59,6 +59,34 @@ interface SelectCalendarProps {
   chartedUsers?: userData;
 }
 
+/**
+ * Returns the most participants free in any single block, counting only the
+ * shown participants (all of them when `shownUserIds` is null). The group
+ * calendar uses it as the darkest shade.
+ */
+function getMaxAvailableCount(
+  calendarState: calendarState,
+  shownUserIds: Set<number> | null
+): number {
+  let maxCount = 0;
+  const counts: number[][] = [];
+
+  for (let i = 0; i < calendarState.length; i++) {
+    if (shownUserIds && !shownUserIds.has(i)) continue;
+    for (let j = 0; j < calendarState[i].length; j++) {
+      if (!counts[j]) counts[j] = [];
+      for (let k = 0; k < calendarState[i][j].length; k++) {
+        if (calendarState[i][j][k]) {
+          const newVal = (counts[j][k] ?? 0) + 1;
+          counts[j][k] = newVal;
+          if (newVal > maxCount) maxCount = newVal;
+        }
+      }
+    }
+  }
+  return maxCount;
+}
+
 function SelectCalendar({
   theCalendarState,
   chartedUsersData,
@@ -89,6 +117,23 @@ function SelectCalendar({
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const [dragState, setDragState] = theDragState;
+
+  // Computed once here rather than in every CalBlock. The shown participants are
+  // keyed as a string so hovering (which rebuilds chartedUsers) doesn't trigger a recount.
+  const calendarStateValue = theCalendarState[0];
+  const shownUserIdsKey = chartedUsersData?.[0]?.users
+    .map((u) => u.id)
+    .join(',');
+  const maxUsers = React.useMemo(
+    () =>
+      getMaxAvailableCount(
+        calendarStateValue,
+        shownUserIdsKey !== undefined
+          ? new Set(shownUserIdsKey.split(',').filter(Boolean).map(Number))
+          : null
+      ),
+    [calendarStateValue, shownUserIdsKey]
+  );
 
 const handleDisappear = useCallback(() => {
         if (chartedUsers && setChartedUsers) {
@@ -178,6 +223,7 @@ const handleDisappear = useCallback(() => {
                                   time.slice(3) === '30' ? 'dotted' : 'solid'
                                 }
                                 groupIndex={groupIndex}
+                                maxUsers={maxUsers}
                               />
                             </div>
                           );

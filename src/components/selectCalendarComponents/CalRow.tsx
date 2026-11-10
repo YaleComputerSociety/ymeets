@@ -50,6 +50,7 @@ interface CalRowProps {
     | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     | undefined;
   groupIndex: number;
+  maxUsers: number;
 }
 
 interface CalBlockData {
@@ -81,6 +82,7 @@ export default function CalRow({
   time,
   onClick,
   groupIndex,
+  maxUsers,
 }: CalRowProps) {
   const [googleCalendarEvents, setGoogleCalendarEvents] =
     theGoogleCalendarEvents || [];
@@ -337,6 +339,7 @@ export default function CalRow({
             isEventEnd={blockData.isEventEnd}
             eventName={blockData.eventName}
             additionalEventCount={blockData.additionalEventCount}
+            maxUsers={maxUsers}
           />
         );
       })}
