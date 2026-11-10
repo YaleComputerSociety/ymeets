@@ -9,10 +9,11 @@ import {
 } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
-  dragProperties,
 } from '../../types';
 import {
   getParticipantIndex,
@@ -41,7 +42,7 @@ import ParticipantFilterList, {
   getFilterableParticipants,
 } from '../utils/components/ParticipantFilterList';
 
-interface Calendar {
+interface GoogleCalendar {
   id: string;
   summary: string;
   primary?: boolean;
@@ -70,7 +71,6 @@ interface SideBySideViewProps {
   locationOptions: string[];
   locationVotes: any;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
 
   // Other
   code: string | undefined;
@@ -82,8 +82,8 @@ interface SideBySideViewProps {
   setGoogleCalendarEvents: Dispatch<SetStateAction<calendar_v3.Schema$Event[]>>;
 
   // Google Calendar list state
-  googleCalendars: Calendar[];
-  setGoogleCalendars: Dispatch<SetStateAction<Calendar[]>>;
+  googleCalendars: GoogleCalendar[];
+  setGoogleCalendars: Dispatch<SetStateAction<GoogleCalendar[]>>;
   selectedCalendarIds: string[];
   setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
 
@@ -124,7 +124,6 @@ export default function SideBySideView({
   locationOptions,
   locationVotes,
   adminChosenLocation,
-  setAdminChosenLocation,
   code,
   isAdmin,
   isGeneralDays,
@@ -146,8 +145,6 @@ export default function SideBySideView({
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
   const [showUserChart, setShowUserChart] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
@@ -381,22 +378,12 @@ export default function SideBySideView({
   };
 
   // Drag state for left calendar (TimeSelect - user editing)
-  const [leftDragState, setLeftDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  const theLeftDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentLeftSelection = useState<BoundingBox | undefined>(undefined);
 
   // Drag state for right calendar (GroupView - only admins can drag, to pick a meeting time)
-  const [rightDragState, setRightDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  const theRightDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentRightSelection = useState<BoundingBox | undefined>(undefined);
 
   // Shared pagination and scroll sync
   const [sharedPage, setSharedPage] = useState(0);
@@ -466,7 +453,7 @@ export default function SideBySideView({
   /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
   const handleExportToGCal = () => {
     const result = getGCalUrlForSelection(
-      rightDragState,
+      theMostRecentRightSelection[0],
       calendarFramework,
       adminChosenLocation
     );
@@ -527,12 +514,8 @@ export default function SideBySideView({
             locationOptions={locationOptions}
             locationVotes={locationVotes}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarHeight={calendarHeight}
-            participantToggleClicked={participantToggleClicked}
-            setParticipantToggleClicked={setParticipantToggleClicked}
             googleCalendars={googleCalendars}
             setGoogleCalendars={setGoogleCalendars}
             selectedCalendarIds={selectedCalendarIds}
@@ -680,19 +663,14 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           wrappedSetTimeSelectCalendarState,
                         ]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
                         isAdmin={false}
-                        theDragState={[leftDragState, setLeftDragState]}
-                        theGoogleCalendarEvents={[
-                          googleCalendarEvents,
-                          setGoogleCalendarEvents,
-                        ]}
+                        theDragState={theLeftDragState}
+                        theMostRecentSelection={theMostRecentLeftSelection}
+                        googleCalendarEvents={googleCalendarEvents}
                         onClick={() => {}}
                         theShowUserChart={undefined}
                         isGeneralDays={isGeneralDays}
@@ -740,10 +718,7 @@ export default function SideBySideView({
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={[
                           filteredChartedUsers,
                           setChartedUsers,
@@ -751,8 +726,9 @@ export default function SideBySideView({
                         draggable={isAdmin}
                         user={getCurrentUserIndex()}
                         isAdmin={true}
-                        theDragState={[rightDragState, setRightDragState]}
-                        theGoogleCalendarEvents={[[], noop]}
+                        theDragState={theRightDragState}
+                        theMostRecentSelection={theMostRecentRightSelection}
+                        googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {
                             return;

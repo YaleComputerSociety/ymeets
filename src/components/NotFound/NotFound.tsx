@@ -1,9 +1,9 @@
-import React from 'react';
+import { useState } from 'react';
 import Button from '../utils/components/Button';
 import { useNavigate } from 'react-router-dom';
 
 export default function NotFound() {
-  const [changeIcon, setChangeIcon] = React.useState(false);
+  const [changeIcon, setChangeIcon] = useState(false);
   const nav = useNavigate();
   return (
     <div className="flex items-start justify-center h-[80%] bg-background dark:bg-background-dark dark:text-text-dark">

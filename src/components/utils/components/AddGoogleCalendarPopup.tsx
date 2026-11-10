@@ -3,7 +3,6 @@ import { Popup } from './Popup';
 export const AddGoogleCalendarPopup = ({
   isOpen,
   onClose,
-  onCloseAndSubmit,
   children,
 }: any) => {
   const handleContinue = () => {

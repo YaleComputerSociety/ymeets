@@ -1,8 +1,6 @@
 /* eslint-disable */
 
-import React from 'react';
 import no_person from './anon.jpeg';
-// import { FaGithubSquare, FaLinkedin, FaLink } from 'react-icons/fa';
 
 import {
   IconBrandGithub,
@@ -280,7 +278,6 @@ const PAST_CONTRIBUTORS = [
 interface ContributorCardProps {
   name: string | undefined;
   title: string[] | undefined;
-  founding: boolean | undefined;
   linkedin: string | undefined;
   portfolio: string | undefined;
   github: string | undefined;
@@ -296,7 +293,6 @@ interface ContributorCardProps {
 function ContributorCard({
   name,
   title,
-  founding,
   linkedin,
   portfolio,
   github,
@@ -418,7 +414,6 @@ export default function AboutUsPage() {
               <ContributorCard
                 name={c.name}
                 title={c.title}
-                founding={c.founding}
                 linkedin={c.linkedin}
                 portfolio={c.portfolio}
                 github={c.github}
@@ -441,7 +436,6 @@ export default function AboutUsPage() {
               key={c.name}
               name={c.name}
               title={c.title}
-              founding={c.founding}
               linkedin={c.linkedin}
               portfolio={c.portfolio}
               github={c.github}
@@ -459,7 +453,6 @@ export default function AboutUsPage() {
               key={c.name}
               name={c.name}
               title={c.title}
-              founding={c.founding}
               linkedin={c.linkedin}
               portfolio={c.portfolio}
               github={c.github}

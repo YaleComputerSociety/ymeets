@@ -1,4 +1,4 @@
-import { calendarDimensions, dragProperties } from '../../../types';
+import { BoundingBox, calendarDimensions } from '../../../types';
 import { getDates, getEventObjectForGCal } from '../../../backend/events';
 import { generateTimeBlocks } from './generateTimeBlocks';
 
@@ -85,30 +85,28 @@ function createCalendarEventUrl(
 }
 
 /**
- * Turns an admin's drag selection on the group calendar into a Google Calendar
- * event URL. Returns `{ error }` if the selection can't be exported.
+ * Turns an admin's selection on the group calendar (`mostRecentSelection`) into
+ * a Google Calendar event URL. Returns `{ error }` if it can't be exported.
  */
 export function getGCalUrlForSelection(
-  dragState: dragProperties,
+  selection: BoundingBox | undefined,
   calendarFramework: calendarDimensions,
   location: string | undefined
 ): { url: string } | { error: string } {
-  if (!dragState.endPoint || !dragState.startPoint) {
+  if (selection === undefined) {
     return { error: 'No new time selection made!' };
   }
 
-  const [startCol, rawStartBlock] = dragState.startPoint;
-  const [endCol, rawEndBlock] = dragState.endPoint;
-
-  if (startCol !== endCol) {
+  if (selection.left !== selection.right) {
     return { error: 'You must select times that occur on the same day!' };
   }
 
-  // Dragging upward puts the end point above the start point
-  const startBlock = Math.min(rawStartBlock, rawEndBlock);
-  const endBlock = Math.max(rawStartBlock, rawEndBlock);
+  // BoundingBox orders its corners, so upward drags need no special handling
+  const startCol = selection.left;
+  const startBlock = selection.top;
+  const endBlock = selection.bottom;
 
-  // Drag points are stored column/block IDs. A stored column's first block is on
+  // Selection coordinates are stored column/block IDs. A stored column's first block is on
   // the date at the same index, even when a timezone change adds a column.
   const calDate = calendarFramework?.dates.flat()[startCol];
   const { times, dayOffsets } = getStoredBlockTimes(calendarFramework);
