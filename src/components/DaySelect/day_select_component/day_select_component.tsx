@@ -218,18 +218,6 @@ export const DaySelectComponent = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const verifyNextAndSubmitEvent = () => {
-    if (
-      startDate.getHours() === 0 &&
-      startDate.getMinutes() === 0 &&
-      startDate.getSeconds() === 0 &&
-      endDate.getHours() === 0 &&
-      endDate.getMinutes() === 0 &&
-      endDate.getSeconds() === 0
-    ) {
-      setAlertMessage('Make sure to enter times!');
-      return;
-    }
-
     if (startDate >= endDate) {
       setAlertMessage('Make sure your end time is after your start time!');
       return;
