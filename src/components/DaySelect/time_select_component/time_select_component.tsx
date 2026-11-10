@@ -51,6 +51,7 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
     // Find matching hour - options array is indexed by hour (0-23)
     // TIME_OPTIONS[hour] gives us the correct option for that hour
     // Exception: last midnight on the list (i.e. 12:00 A.M. next day) is hard-coded as 23:59
+    // elsewhere, so we need to handle it here.
     if (hour === 23 && date.getMinutes() === 59) {
       return TIME_OPTIONS[24];
     }
