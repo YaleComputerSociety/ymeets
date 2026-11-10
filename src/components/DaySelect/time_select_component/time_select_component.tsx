@@ -33,7 +33,7 @@ const createTimeOptions = (): TimeOption[] => {
     value: i + 1,
     label: turnToTimeString(i),
   }));
-  opts.push({ value: 25, label: '12:00 AM' });
+  opts.push({ value: 25, label: '11:59 PM' });
   return opts;
 };
 
@@ -50,7 +50,7 @@ export const TimeSelectComponent = (props: TimeSelectComponentProps) => {
     
     // Find matching hour - options array is indexed by hour (0-23)
     // TIME_OPTIONS[hour] gives us the correct option for that hour
-    // Exception: last midnight on the list (i.e. 12:00 A.M. next day) is hard-coded as 23:59
+    // Exception: 11:59 P.M. is not uniquely identifiable by its hour, so we need to filter.
     // elsewhere, so we need to handle it here.
     if (hour === 23 && date.getMinutes() === 59) {
       return TIME_OPTIONS[24];
