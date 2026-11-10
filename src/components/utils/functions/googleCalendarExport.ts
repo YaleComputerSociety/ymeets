@@ -1,5 +1,5 @@
 import { calendarDimensions, dragProperties } from '../../../types';
-import { getEventObjectForGCal } from '../../../backend/events';
+import { getDates, getEventObjectForGCal } from '../../../backend/events';
 import { generateTimeBlocks } from './generateTimeBlocks';
 
 /**
@@ -21,6 +21,41 @@ function getNextDayOccurrence(targetDayNum: number): Date {
   }
   date.setDate(date.getDate() + daysToAdd);
   return date;
+}
+
+/**
+ * Returns the time labels in the order of the stored block IDs that drag
+ * selections use, plus, for each block, how many midnights it is past the
+ * column's first block.
+ *
+ * CalRow remaps displayed blocks to stored IDs (adjustBlockIDColumnID). When a
+ * timezone change adds a column, the time blocks come back as
+ * [after-midnight, before-midnight] groups, but a stored column runs
+ * chronologically: its before-midnight blocks, then its after-midnight blocks,
+ * which are on the next day.
+ */
+function getStoredBlockTimes(calendarFramework: calendarDimensions): {
+  times: string[];
+  dayOffsets: number[];
+} {
+  const groups = generateTimeBlocks(
+    calendarFramework.startTime,
+    calendarFramework.endTime
+  );
+  const extraDayAdded = calendarFramework.numOfCols !== getDates().length;
+  const times =
+    extraDayAdded && groups.length === 2
+      ? [...groups[1].flat(), ...groups[0].flat()]
+      : groups.flat(2);
+
+  // A time label lower than the one before it means the column crossed midnight
+  const dayOffsets: number[] = [];
+  times.forEach((time, i) => {
+    const prevOffset = i === 0 ? 0 : dayOffsets[i - 1];
+    dayOffsets.push(i > 0 && time < times[i - 1] ? prevOffset + 1 : prevOffset);
+  });
+
+  return { times, dayOffsets };
 }
 
 /**
@@ -73,28 +108,30 @@ export function getGCalUrlForSelection(
   const startBlock = Math.min(rawStartBlock, rawEndBlock);
   const endBlock = Math.max(rawStartBlock, rawEndBlock);
 
+  // Drag points are stored column/block IDs. A stored column's first block is on
+  // the date at the same index, even when a timezone change adds a column.
   const calDate = calendarFramework?.dates.flat()[startCol];
-  const times = generateTimeBlocks(
-    calendarFramework?.startTime,
-    calendarFramework?.endTime
-  ).flat(2);
+  const { times, dayOffsets } = getStoredBlockTimes(calendarFramework);
+  if (!calDate?.date || !times[startBlock] || !times[endBlock]) {
+    return { error: 'Could not read the selected time. Please select it again.' };
+  }
 
   const [startHour, startMinute] = times[startBlock].split(':').map(Number);
-  let [endHour, endMinute] = times[endBlock]
-    ? times[endBlock].split(':').map(Number)
-    : [0, 0];
+  let [endHour, endMinute] = times[endBlock].split(':').map(Number);
 
-  let startDate = new Date(calDate?.date!);
+  let startDate = new Date(calDate.date);
   if (startDate.getFullYear() === 2000) {
     startDate = getNextDayOccurrence(startDate.getDay());
   }
+  startDate.setDate(startDate.getDate() + dayOffsets[startBlock]);
   startDate.setHours(startHour);
   startDate.setMinutes(startMinute);
 
-  let endDate = new Date(calDate?.date!);
+  let endDate = new Date(calDate.date);
   if (endDate.getFullYear() === 2000) {
     endDate = getNextDayOccurrence(endDate.getDay());
   }
+  endDate.setDate(endDate.getDate() + dayOffsets[endBlock]);
 
   // The end block's label is its start time; the event ends 15 minutes later.
   // setHours(24) correctly rolls over to midnight of the next day.
