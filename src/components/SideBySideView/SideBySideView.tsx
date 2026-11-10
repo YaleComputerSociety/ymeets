@@ -29,6 +29,8 @@ import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import BestTimeFinder from '../BestTimeFinder';
+import type { BestTimeWindow } from '../utils/functions/findBestTimes';
 
 interface Calendar {
   id: string;
@@ -134,6 +136,7 @@ export default function SideBySideView({
   hasUnsavedChanges,
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
+  const [showBestTime, setShowBestTime] = useState(false);
   const [showUserChart, setShowUserChart] = useState(false);
   const [participantToggleClicked, setParticipantToggleClicked] =
     useState(true);
@@ -433,6 +436,63 @@ export default function SideBySideView({
 
   // No-op setter for read-only calendar
   const noop = useCallback(() => {}, []);
+  // People included in the search: checked in the list, not declined
+  const bestTimeUsers = (allUsers?.users ?? []).filter(
+    (u) => peopleStatus[u.name] && !declinedPeople.includes(u.name)
+  );
+
+  // Names indexed by calendarState position (user.id is that position)
+  const bestTimePersonNames: string[] = [];
+  allUsers?.users?.forEach((u) => {
+    bestTimePersonNames[u.id] = u.name;
+  });
+
+  // One label per day column, like "WED OCT 28"
+  const bestTimeDayLabels = (calendarFramework?.dates.flat() ?? []).map(
+    (d) => `${d.shortenedWeekDay} ${d.month} ${d.calendarDay}`
+  );
+
+  // Hour the calendar starts at (9 for 9 AM)
+  const bestTimeStartHour = calendarFramework?.startTime
+    ? calendarFramework.startTime.getHours() +
+      calendarFramework.startTime.getMinutes() / 60
+    : 8;
+  // Called when the admin clicks "Choose this time" in the popup.
+  // Opens Google Calendar with that time prefilled (the admin clicks Save there).
+  const handleBestTimeSelect = (time: BestTimeWindow) => {
+    const day = calendarFramework.dates.flat()[time.col];
+
+    // Turns a block number into a real Date on that day
+    const makeDate = (block: number) => {
+      let d = new Date(day?.date as Date);
+      // "Days of the week" events use year 2000 placeholder dates; use the next real one
+      if (d.getFullYear() === 2000) {
+        const diff = ((d.getDay() - new Date().getDay() + 6) % 7) + 1;
+        d = new Date();
+        d.setDate(d.getDate() + diff);
+      }
+      // minutes since midnight = start time of calendar + 15 minutes per block
+      d.setHours(0, bestTimeStartHour * 60 + block * 15, 0, 0);
+      return d;
+    };
+
+    const start = makeDate(time.startBlock);
+    const end = makeDate(time.endBlock + 1); // +1 = end of the last block
+
+    // Google Calendar wants times like 20261029T153000Z
+    const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: eventName,
+      dates: `${fmt(start)}/${fmt(end)}`,
+      details: eventDescription || '',
+      location: adminChosenLocation || '',
+    });
+
+    window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
+    setShowBestTime(false); // close the popup
+  };
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
@@ -474,9 +534,39 @@ export default function SideBySideView({
             onUserSignIn={() => setUserHasSignedIn(true)}
             userHasFilled={userHasFilled}
             onDecline={onDecline}
+            onFindBestTime={() => setShowBestTime(true)}
           />
         </div>
+        {/* Best Time popup */}
+        {isAdmin && showBestTime && (
+          <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setShowBestTime(false)}
+          >
+            <div
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-3 right-4 z-10 text-2xl text-white hover:text-gray-300"
+                onClick={() => setShowBestTime(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
 
+              <BestTimeFinder
+                availabilities={groupViewCalendarState}
+                personIdx={bestTimeUsers.map((u) => u.id)}
+                personNames={bestTimePersonNames}
+                dayLabels={bestTimeDayLabels}
+                numBlocks={calendarFramework.numOfBlocks}
+                startHour={bestTimeStartHour}
+                onSelect={handleBestTimeSelect}
+              />
+            </div>
+          </div>
+        )}
         {/* Calendar Area - col-span-3 (same as GroupView/TimeSelect) */}
         <div className="col-span-3">
           <div className="w-full">

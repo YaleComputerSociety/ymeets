@@ -11,6 +11,7 @@ interface BestTimeFinderProps
     dayLabels: string[];
     numBlocks: number;
     startHour?: number;
+    onSelect?: (time: BestTimeWindow) => void;
 }
 
 export default function BestTimeFinder
@@ -22,8 +23,13 @@ export default function BestTimeFinder
         dayLabels,
         numBlocks,
         startHour = 8,
+        onSelect,
     }: BestTimeFinderProps)
     {
+        const [sortBy, setSortBy] = useState<'best' | 'earliest'>('best');
+
+        const [selectedKey, setSelectedKey] = useState<string | null>(null);   
+
         //store selected meeting length
         const [duration, setDuration] = useState(60);
 
@@ -36,6 +42,7 @@ export default function BestTimeFinder
         //calculate the suggesteions using the helper funciton
         function handleFindTimes()
         {
+            //logs for debugging the calendar comparison
             console.log("Availability matrix:", availabilities);
             console.log("Number of participants:", availabilities.length);
             console.log("Number of days:", dayLabels.length);
@@ -65,11 +72,15 @@ export default function BestTimeFinder
                 personIdx, 
                 dayLabels.length, 
                 numBlocks, 
-                duration
+                duration,
+                15, // block size in minutes
+                10  // how many to return
             );
+            setSelectedKey(null);
             console.log("Suggested results:", results);
             setSuggestions(results);
             setSearched(true);
+            
         }
 
         //convert calendar block index into readable time
@@ -93,6 +104,12 @@ export default function BestTimeFinder
             );
         }
 
+        const shownSuggestions =
+            sortBy === 'best'
+                ? suggestions
+                : [...suggestions].sort(
+                    (a, b) => a.col - b.col || a.startBlock - b.startBlock
+                );
         return(
             <div className = "mx-auto max-w-4xl rounded-xl bg-slate-700 p-6 text-white shadow-sm">
                 <h2 className="mb-4 text-2xl text-center font-semibold text-white">
@@ -131,16 +148,31 @@ export default function BestTimeFinder
                         <h3 className = "mb-3 text-lg font-medium text-white">
                             Suggested meeting times
                         </h3>
+                        <select
+                            value={sortBy}
+                            onChange={event => setSortBy(event.target.value as 'best' | 'earliest')}
+                            className="mb-3 h-9 rounded-lg border border-slate-500 bg-white px-3 text-sm text-gray-900">
+                            <option value="best">Best match first</option>
+                            <option value="earliest">Earliest first</option>
+                        </select>
 
                         {suggestions.length === 0? (
                             <p className = "text-white">No suitable meeting times avaible.</p>
                         ) : (
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                {suggestions.map((time) => (
-                                    <div
-                                        key={`${time.col}-${time.startBlock}`}
-                                        className = "rounded-lg border p-4 text-white"
-                                    >
+                                {shownSuggestions.map((time, index) => {
+                                    const key = `${time.col}-${time.startBlock}`;
+                                    const isSelected = selectedKey === key;
+                                    return (
+                                        <div
+                                            key={key}
+                                            className={`rounded-lg border p-4 text-white ${
+                                                isSelected ? 'border-blue-400 bg-slate-600' : ''
+                                            }`}
+                                        >
+                                            {sortBy === 'best' && index === 0 && (
+                                                <p className="mb-1 text-xs font-semibold text-blue-300">BEST MATCH</p>
+                                            )}
                                         <h4 className="font-semibold text-white">
                                             {dayLabels[time.col] ?? `Day ${time.col + 1}`}
                                         </h4>
@@ -172,9 +204,19 @@ export default function BestTimeFinder
                                             .map(i => personNames[i] ?? `Person ${i}`)
                                             .join(', ') || 'Everyone can attend'}
                                         </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedKey(key);
+                                                onSelect?.(time);
+                                            }}
+                                            className="mt-3 w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white transition hover:bg-blue-500">
+                                            {isSelected ? 'Selected ✓' : 'Choose this time'}
+                                        </button>
                                     </div>
-                                ))}
-                            </div>
+                                );
+                            })}
+                        </div>
                         )}
                     </div>
                 )}
