@@ -1,3 +1,5 @@
+import BestTimeFinder from '../BestTimeFinder';
+import type { BestTimeWindow } from '../utils/functions/findBestTimes';
 import {
   useState,
   useMemo,
@@ -103,6 +105,7 @@ export default function GroupViewPage({
   const [showGeneralPopup, setShowGeneralPopup] = useState(false);
   const [dragState, setDragState] = useState<DraggedSelection | undefined>(undefined);
   const [mostRecentSelection, setMostRecentSelection] = useState<BoundingBox | undefined>(undefined);
+  const [showBestTime, setShowBestTime] = useState(false);
 
   const { login } = useAuth();
 
@@ -148,6 +151,55 @@ export default function GroupViewPage({
     declinedPeople,
     peopleStatus
   );
+  // ----- Best time finder (admins) -----
+  // People included in the search: checked in the list, not declined
+  const bestTimeUsers = (allUsers?.users ?? []).filter(
+    (u) => peopleStatus[u.name] && !declinedPeople.includes(u.name)
+  );
+
+  // Names indexed by calendarState position (user.id is that position)
+  const bestTimePersonNames: string[] = [];
+  allUsers?.users?.forEach((u) => {
+    bestTimePersonNames[u.id] = u.name;
+  });
+
+  // One label per day column, like "WED OCT 28"
+  const bestTimeDayLabels = (calendarFramework?.dates.flat() ?? []).map(
+    (d) => `${d.shortenedWeekDay} ${d.month} ${d.calendarDay}`
+  );
+
+  // Hour the calendar starts at (9 for 9 AM)
+  const bestTimeStartHour = calendarFramework?.startTime
+    ? calendarFramework.startTime.getHours() +
+      calendarFramework.startTime.getMinutes() / 60
+    : 8;
+
+  // Called when the admin clicks "Choose this time" in the popup.
+  // Opens a prefilled Google Calendar event (same export as "Export to GCal").
+  const handleBestTimeSelect = (time: BestTimeWindow) => {
+    const selection = new BoundingBox(
+      { col: time.col, block: time.startBlock },
+      { col: time.col, block: time.endBlock }
+    );
+
+    const result = getGCalUrlForSelection(
+      selection,
+      calendarFramework,
+      adminChosenLocation
+    );
+    if ('error' in result) {
+      setAlertMessage(result.error);
+      return;
+    }
+
+    if (getAccountId() !== '') {
+      window.open(result.url, '_blank');
+    } else {
+      login();
+    }
+    setShowBestTime(false); // close the popup
+  };
+
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
@@ -175,6 +227,36 @@ export default function GroupViewPage({
         isOpen={!!alertMessage}
         onClose={() => setAlertMessage(null)}
       />
+            {/* Best Time popup */}
+      {isAdmin && showBestTime && (
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setShowBestTime(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-4 z-10 text-2xl text-white hover:text-gray-300"
+              onClick={() => setShowBestTime(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            <BestTimeFinder
+              availabilities={calendarState}
+              personIdx={bestTimeUsers.map((u) => u.id)}
+              personNames={bestTimePersonNames}
+              dayLabels={bestTimeDayLabels}
+              numBlocks={calendarFramework.numOfBlocks}
+              startHour={bestTimeStartHour}
+              onSelect={handleBestTimeSelect}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
@@ -386,6 +468,15 @@ export default function GroupViewPage({
                     >
                       {editAvailabilityButtonLabel}
                     </ButtonSmall>
+                    {isAdmin && (
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        onClick={() => setShowBestTime(true)}
+                        className="!rounded-lg flex-1">
+                        Find best time
+                      </ButtonSmall>
+                    )}
                   </div>
                   {/* Timezone and Export row */}
                   <div className="flex items-center gap-3 w-full">
@@ -456,6 +547,16 @@ export default function GroupViewPage({
                       onClick={() => setShowParticipantFilter(true)}
                       aria-label="Filter participants"
                     />
+                    {isAdmin && (
+                      <ButtonSmall
+                        bgColor="primary"
+                        textColor="white"
+                        onClick={() => setShowBestTime(true)}
+                        className="!rounded-lg"
+                      >
+                        Find best time
+                      </ButtonSmall>
+                    )}
                     {isAdmin ? (
                       <AddToGoogleCalendarButton
                         onClick={handleSelectionSubmission}
