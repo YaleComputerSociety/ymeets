@@ -56,6 +56,7 @@ interface CalRowProps {
   theShowUserChart:
     [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined;
   groupIndex: number;
+  maxUsers: number;
 }
 
 /**
@@ -95,6 +96,7 @@ export default function CalRow({
   time,
   onClick,
   groupIndex,
+  maxUsers,
 }: CalRowProps) {
   // TODO: remove this cast after upgrading Typescript
   const parsedGoogleCalendarEvents = googleCalendarEvents
@@ -208,6 +210,7 @@ export default function CalRow({
             isEventEnd={blockData.isEventEnd}
             eventStartingOnBlock={blockData.eventStartingOnBlock}
             additionalEventCount={blockData.additionalEventCount}
+            maxUsers={maxUsers}
           />
         );
       })}

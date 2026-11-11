@@ -8,7 +8,6 @@ import {
   useState,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
 import {
   BoundingBox,
@@ -51,6 +50,8 @@ interface CalBlockProps {
   isEventEnd: boolean;
   eventStartingOnBlock: string | null;
   additionalEventCount: number;
+  /** Most shown participants free in any one block, computed once in SelectCalendar. Sets the darkest shade. */
+  maxUsers: number;
 }
 
 const AUTO_SCROLL_EDGE_PX = 56;
@@ -79,6 +80,7 @@ export default function CalBlock({
   isEventEnd,
   eventStartingOnBlock,
   additionalEventCount,
+  maxUsers,
 }: CalBlockProps) {
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
@@ -122,42 +124,6 @@ export default function CalBlock({
     }
     return theme === 'light' ? '#a8a8a8' : '#404040';
   }, [chartedUsers, draggable, theme]);
-
-  /**
-   * Determine the maximum number of users currently available during the same block in the calendar.
-   */
-  // use Memo should ensure it only runs when calendarState changes
-  const maxUsers = useMemo<number>(() => {
-    let maxCount = 0;
-
-    // define counts array
-    const counts: number[][] = [];
-
-    // iterate through all blocks and find number of users on each
-    for (let i = 0; i < calendarState.length; i++) {
-      for (let j = 0; j < calendarState[i].length; j++) {
-        // create row if needed
-        if (!counts[j]) {
-          counts[j] = new Array(calendarState[i][j].length).fill(0);
-        }
-
-        for (let k = 0; k < calendarState[i][j].length; k++) {
-          // check if user is on block
-          if (calendarState[i][j][k]) {
-            // update to new value
-            const newVal = (counts[j][k] ?? 0) + 1;
-            counts[j][k] = newVal;
-
-            // update max
-            if (newVal > maxCount) {
-              maxCount = newVal;
-            }
-          }
-        }
-      }
-    }
-    return maxCount;
-  }, [calendarState]);
 
   /**
    * Picks a shade of blue based on how many users are available during this block relative to the maximum.
