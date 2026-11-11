@@ -449,9 +449,10 @@ export default function GroupViewPage({
                     />
                   </div>
                   <div className="flex items-center space-x-2">
+                    {/* The filter sheet is lg:hidden; at lg+ the sidebar holds the participant list */}
                     <IconAdjustments
                       size={30}
-                      className="cursor-pointer dark:text-text-dark"
+                      className="cursor-pointer dark:text-text-dark lg:hidden"
                       onClick={() => setShowParticipantFilter(true)}
                       aria-label="Filter participants"
                     />

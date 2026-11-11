@@ -119,7 +119,7 @@ function SelectCalendar({
   // keyed as a string so hovering (which rebuilds chartedUsers) doesn't trigger a recount.
   const calendarStateValue = theCalendarState[0];
   const shownUserIdsKey = chartedUsersData?.[0]?.users
-    .map((u) => u.id)
+    ?.map((u) => u.id)
     .join(',');
   const maxUsers = useMemo(
     () =>
