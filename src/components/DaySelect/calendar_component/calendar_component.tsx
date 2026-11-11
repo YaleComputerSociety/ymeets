@@ -1,10 +1,8 @@
 import * as React from 'react';
 import './calendar_component.css';
 import Calendar from 'react-calendar';
-// import 'react-calendar/dist/Calendar.css';
 import CircleComponent from '../circle_component';
 import TimeSelectComponent from '../time_select_component';
-import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import { useState, useEffect, useRef } from 'react';
 import GeneralPopup from '../general_popup_component';
@@ -46,30 +44,22 @@ function getRangePosition(
 }
 
 interface CalendarComponentProps {
-  theEventName: [string, React.Dispatch<React.SetStateAction<string>>];
   selectedStartDate: [Date, React.Dispatch<React.SetStateAction<Date>>];
   selectedEndDate: [Date, React.Dispatch<React.SetStateAction<Date>>];
   theSelectedDates: [Date[], React.Dispatch<React.SetStateAction<Date[]>>];
   popUpOpen: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-  popUpMessage: [string, React.Dispatch<React.SetStateAction<string>>];
-  theSelectGeneralDays: [
-    boolean,
-    React.Dispatch<React.SetStateAction<boolean>>,
-  ];
+  selectGeneralDays: boolean,
   theGeneralDays: [any, React.Dispatch<React.SetStateAction<any>>];
 }
 
 export const CalendarComponent = ({
-  theEventName,
   selectedStartDate,
   selectedEndDate,
   theSelectedDates,
   popUpOpen,
-  popUpMessage,
-  theSelectGeneralDays,
+  selectGeneralDays,
   theGeneralDays,
 }: CalendarComponentProps) => {
-  const [selectGeneralDays, setSelectGeneralDays] = theSelectGeneralDays;
   const [selectedDays, setSelectedDays] = theGeneralDays;
 
   const { theme } = useTheme();
@@ -94,8 +84,6 @@ export const CalendarComponent = ({
   const handleGeneralPopupClose = () => {
     setGeneralPopup(false);
   };
-
-  const [generalPopupMessage, setGeneralPopupMessage] = popUpMessage;
 
   const [selectedDates, setSelectedDates] = theSelectedDates;
   const [lastSelectedDate, setLastSelectedDate] = useState<Date | null>(null);
@@ -204,7 +192,7 @@ export const CalendarComponent = ({
       }
       const range = getDatesFromRange(dates);
       let arr = [...selectedDates];
-      range.forEach(({ date, dayOfWeek }) => {
+      range.forEach(({ date }) => {
         arr = toggleDate(arr, date);
       });
       arr = toggleDate(arr, lastSelectedDate);
@@ -218,7 +206,6 @@ export const CalendarComponent = ({
 
   const [startDate, setStartDate] = selectedStartDate;
   const [popupIsOpen, setPopupIsOpen] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
 
   const handleUpdateStartTime = (time: Date) => {
     setStartDate(time);
@@ -228,12 +215,6 @@ export const CalendarComponent = ({
 
   const handleUpdateEndTime = (time: Date) => {
     setEndDate(time);
-  };
-
-  const [eventName, updateEventName] = theEventName;
-
-  const handleUpdateEventName = (name: any) => {
-    updateEventName(name);
   };
 
   return (
@@ -267,7 +248,7 @@ export const CalendarComponent = ({
           showNeighboringMonth={true}
           minDetail="month"
           tileClassName={tileClassName}
-          tileContent={({ date, view }) => {
+          tileContent={({ date }) => {
             const rangePosition = getRangePosition(date, selectedDates);
             return (
               <div
@@ -288,7 +269,7 @@ export const CalendarComponent = ({
               </div>
             );
           }}
-          navigationLabel={({ date, label, locale, view }) => {
+          navigationLabel={({ date }) => {
             return (
               <div className="dark:text-text-dark">
                 {date.toLocaleString('default', { month: 'long' })}
@@ -317,7 +298,6 @@ export const CalendarComponent = ({
                 setPopupIsOpen(false);
               }}
             ></button>
-            <p>{popupMessage}</p>
           </div>
         </Popup>
       </div>
@@ -325,8 +305,8 @@ export const CalendarComponent = ({
       {showGeneralPopup && (
         <GeneralPopup
           onClose={handleGeneralPopupClose}
-          message={generalPopupMessage}
           isLogin={false}
+          message={''}
         />
       )}
     </div>

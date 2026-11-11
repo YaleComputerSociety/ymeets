@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import Dropdown from '../../utils/components/Dropdown';
 import { timezones } from '../../utils/constants/timezones';
 import { formatTimezoneLabel } from '../functions/timzoneConversions';
@@ -8,7 +8,7 @@ interface TimezonePickerProps {
   setTimezone: (timezone: string) => void;
 }
 
-const TimezonePicker: React.FC<TimezonePickerProps> = ({
+const TimezonePicker: FC<TimezonePickerProps> = ({
   timezone,
   setTimezone,
 }) => {

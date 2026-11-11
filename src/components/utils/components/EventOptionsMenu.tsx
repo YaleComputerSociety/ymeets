@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IconDotsVertical, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { deleteEvent } from '../../../backend/events';
 import DeletePopup from './DeletePopup';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../functions/navigationState';
 
 interface EventOptionsMenuProps {
   eventCode: string | undefined;
@@ -41,7 +42,7 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
   const handleDeleteEvent = async () => {
     if (eventCode) {
       await deleteEvent(eventCode);
-      nav('/');
+      nav('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
     }
   };
 

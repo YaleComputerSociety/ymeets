@@ -4,7 +4,6 @@ import {
   doc,
   collection,
   getDoc,
-  getDocFromServer,
   setDoc,
   updateDoc,
   CollectionReference,
@@ -12,8 +11,6 @@ import {
   getDocs,
   Timestamp,
   arrayUnion,
-  query,
-  where,
   writeBatch,
 } from 'firebase/firestore';
 import {
@@ -393,7 +390,7 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
       ...newEvent,
       participants: [eventDetails.adminAccountId],
     })
-      .then((result: void) => {
+      .then(() => {
         // Add event to admin user's events field
         const userRef = doc(db, 'users', eventDetails.adminAccountId); // Reference to the user's document
         const eventDetailsForUser = {
@@ -472,29 +469,6 @@ const getParticipants = async (
       });
   });
 };
-
-// For internal use
-// Updates (overwrites) the event details of the working event
-// with the eventDetails parameter
-async function saveEventDetails(eventDetails: EventDetails) {
-  // Update local copy
-  workingEvent.details = eventDetails;
-
-  // Update backend
-  await new Promise<void>((resolve, reject) => {
-    const eventsRef = collection(db, 'events');
-    updateDoc(doc(eventsRef, workingEvent.publicId), {
-      details: eventDetails,
-    })
-      .then(() => {
-        resolve();
-      })
-      .catch((err) => {
-        console.error(err.msg);
-        reject(err);
-      });
-  });
-}
 
 async function updateUserCollectionEventsWith(accountId: string) {
   const userRef = doc(db, 'users', accountId);
@@ -694,50 +668,6 @@ async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
   }, true);
 }
 
-// Sets the official date for the event; must be called by the admin
-async function setChosenDate(
-  chosenStartDate: Date | undefined,
-  chosenEndDate: Date | undefined
-): Promise<void> {
-  if (
-    (chosenStartDate === undefined && chosenEndDate !== undefined) ||
-    (chosenStartDate !== undefined && chosenEndDate === undefined)
-  ) {
-    throw 'Both start and end dates must be defined or undefined, not one of each!';
-
-    // unselect chosen date
-  } else if (chosenStartDate === undefined && chosenEndDate === undefined) {
-    delete workingEvent.details.chosenStartDate;
-    delete workingEvent.details.chosenEndDate;
-
-    // make sure the order is correct
-  } else if (
-    chosenStartDate !== undefined &&
-    chosenEndDate !== undefined &&
-    chosenEndDate > chosenStartDate
-  ) {
-    workingEvent.details.chosenStartDate = chosenStartDate;
-    workingEvent.details.chosenEndDate = chosenEndDate;
-  } else {
-    workingEvent.details.chosenStartDate = chosenEndDate;
-    workingEvent.details.chosenEndDate = chosenStartDate;
-  }
-
-  await saveEventDetails(workingEvent.details);
-}
-
-// Sets the official location for the event; must be called by the admin
-async function setChosenLocation(
-  chosenLocation: Location | undefined
-): Promise<void> {
-  if (chosenLocation === undefined) {
-    delete workingEvent.details.chosenLocation;
-  }
-  workingEvent.details.chosenLocation = chosenLocation;
-
-  await saveEventDetails(workingEvent.details);
-}
-
 // Retrieves the list of locations to be considered for the event
 function getLocationOptions(): Location[] {
   return workingEvent.details.plausibleLocations;
@@ -757,15 +687,6 @@ function getEventDescription(): string {
 async function getEventOnPageload(id: string): Promise<void> {
   await getEventById(id.toUpperCase());
   return;
-
-  // To avoid caching (TODO?)
-  if (workingEvent && workingEvent.publicId == id.toUpperCase()) {
-    await Promise.resolve();
-    return;
-  } else {
-    await getEventById(id.toUpperCase());
-    return;
-  }
 }
 
 // Retrieves the availability object of the participant matching `name`
@@ -903,40 +824,6 @@ function getLocationsVotes(): Record<Location, number> | any {
   return votes;
 }
 
-// Retrieves the availability object of the participant matching `name`
-function getLocationVotesByName(name: string): Location[] | undefined {
-  for (let i = 0; i < workingEvent.participants.length; i++) {
-    if (workingEvent.participants[i].name == name) {
-      return workingEvent.participants[i].location;
-    }
-  }
-  return undefined;
-}
-
-// Retrieves the availability object of the participant matching `accountId`
-function getLocationVotesByAccountId(
-  accountId: string
-): Location[] | undefined {
-  for (let i = 0; i < workingEvent.participants.length; i++) {
-    if (workingEvent.participants[i].accountId == accountId) {
-      return workingEvent.participants[i].location;
-    }
-  }
-}
-
-function getEmails(): string[] {
-  const emails: string[] = [];
-  for (let i = 0; i < workingEvent.participants.length; i++) {
-    if (
-      workingEvent.participants[i].email !== undefined &&
-      workingEvent.participants[i].email !== ''
-    ) {
-      emails.push(workingEvent.participants[i].email || '');
-    }
-  }
-  return emails;
-}
-
 function getZoomLink(): string | undefined {
   return workingEvent.details.zoomLink || undefined;
 }
@@ -1012,69 +899,6 @@ function getEventObjectForGCal(
   };
 }
 
-async function setNewEventName(newName: string | undefined) {
-  if (newName == undefined) {
-    return Promise.resolve();
-  }
-  workingEvent.details.name = newName;
-  await saveEventDetails(workingEvent.details);
-}
-
-async function setNewEventDescription(newDescription: string | undefined) {
-  if (newDescription == undefined) {
-    return Promise.resolve();
-  }
-  workingEvent.details.description = newDescription;
-  await saveEventDetails(workingEvent.details);
-}
-
-async function setNewStartTimes(newStartTime: Date | undefined) {
-  if (newStartTime == undefined) {
-    return Promise.resolve();
-  }
-  workingEvent.details.startTime = newStartTime;
-  await saveEventDetails(workingEvent.details);
-}
-
-async function setNewEndTimes(newEndTime: Date | undefined) {
-  if (newEndTime == undefined) {
-    return Promise.resolve();
-  }
-
-  workingEvent.details.endTime = newEndTime;
-  await saveEventDetails(workingEvent.details);
-}
-
-async function setNewDates(newDates: Date[] | undefined) {
-  if (newDates == undefined) {
-    return Promise.resolve();
-  }
-
-  // Update the dates in the working event
-  workingEvent.details.dates = newDates;
-
-  // Update availability arrays for all participants to match new dates
-  for (let p = 0; p < workingEvent.participants.length; p++) {
-    let timeBlocks = generateTimeBlocks(
-      workingEvent.details.startTime,
-      workingEvent.details.endTime
-    );
-    let availability: Availability = [];
-    for (let i = 0; i < timeBlocks.length; i++) {
-      availability.push(new Array(newDates.length).fill(false));
-    }
-    workingEvent.participants[p].availability = availability;
-  }
-  await saveEventDetails(workingEvent.details);
-}
-
-async function undoAdminSelections() {
-  workingEvent.details.chosenLocation = '';
-  workingEvent.details.chosenStartDate = new Date(1970, 1, 1, 10, 15, 30);
-  workingEvent.details.chosenEndDate = new Date(1970, 1, 1, 10, 15, 30);
-  await saveEventDetails(workingEvent.details);
-}
-
 function getEmailAdmin(): boolean {
   return workingEvent.details.emailAdmin === true;
 }
@@ -1146,14 +970,11 @@ export {
   getAllAvailabilitiesIDs,
   getAvailabilityByAccountId,
   getAvailabilityByName,
-  getLocationVotesByName,
-  getLocationVotesByAccountId,
   getEventDescription,
   getEventName,
   getLocationOptions,
   getLocationsVotes,
   getEventObjectForGCal,
-  getEmails,
   getZoomLink,
   getTimezone,
   getEmailAdmin,
@@ -1166,27 +987,10 @@ export {
   // setLocationPreference,
 
   // Admin Only (Async)
-  setChosenLocation,
-  setChosenDate,
   deleteEvent,
-  setNewEventName,
-  setNewEventDescription,
-  undoAdminSelections,
-  setNewStartTimes,
-  setNewEndTimes,
-  setNewDates,
   setEmailAdmin,
-  getParticipantIndex,
-  removeEventFromUserCollection,
+  getParticipantIndex
 };
-
-function dateToObject(dateArray: number[][]): Record<number, number[]> {
-  const dateObject: Record<number, number[]> = {};
-  dateArray.forEach((date: number[], index: number) => {
-    dateObject[index + 1] = date;
-  });
-  return dateObject;
-}
 
 function dateToArray(obj: Record<number, Date>): Date[] {
   const result: Date[] = [];

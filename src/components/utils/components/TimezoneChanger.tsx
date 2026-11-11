@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { calendarDimensions } from '../../../types';
-import { getDates } from '../../../backend/events';
-import { DateTime } from 'luxon';
 import { datesToCalendarDates } from '../functions/dateToCalendarDate';
 import Dropdown from './Dropdown';
 import { timezones } from '../constants/timezones';
@@ -11,7 +9,7 @@ import { getUTCStartAndEndTimes } from '../../../backend/events';
 interface TimezoneChangerProps {
   theCalendarFramework: [
     calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
+    Dispatch<SetStateAction<calendarDimensions>>,
   ];
   initialTimezone: string;
 }

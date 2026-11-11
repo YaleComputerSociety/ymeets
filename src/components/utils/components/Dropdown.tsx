@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { IconChevronDown } from '@tabler/icons-react'; // Import Tabler icon
 
 interface DropdownProps<T> {
@@ -6,7 +6,7 @@ interface DropdownProps<T> {
   selectedOption: T;
   onSelect: (option: T) => void;
   placeholder?: string;
-  renderOption?: (option: T) => React.ReactNode;
+  renderOption?: (option: T) => ReactNode;
   className?: string;
   searchable?: boolean;
   searchPlaceholder?: string;

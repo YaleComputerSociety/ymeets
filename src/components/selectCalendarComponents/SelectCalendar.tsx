@@ -1,6 +1,9 @@
-import React, { 
+import { 
   Dispatch,
+  MouseEventHandler,
   SetStateAction,
+  useMemo,
+  useState,
   } from 'react';
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
@@ -18,15 +21,14 @@ import DateBar from './DateBar';
 import { useRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
-import { set } from 'lodash';
 
 interface SelectCalendarProps {
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | [userData, Dispatch<SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   isAdmin?: boolean;
@@ -38,36 +40,55 @@ interface SelectCalendarProps {
   renderTime: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>
+    Dispatch<SetStateAction<BoundingBox | undefined>>
   ]
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
-  theGoogleCalendarEvents:
-    | [
-        calendar_v3.Schema$Event[],
-        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-      ]
-    | undefined;
-
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  calendarFramework: calendarDimensions;
+  googleCalendarEvents: calendar_v3.Schema$Event[],
+  onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | [boolean, Dispatch<SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
   chartedUsers?: userData;
 }
 
+/**
+ * Returns the most participants free in any single block, counting only the
+ * shown participants (all of them when `shownUserIds` is null). The group
+ * calendar uses it as the darkest shade.
+ */
+function getMaxAvailableCount(
+  calendarState: calendarState,
+  shownUserIds: Set<number> | null
+): number {
+  let maxCount = 0;
+  const counts: number[][] = [];
+
+  for (let i = 0; i < calendarState.length; i++) {
+    if (shownUserIds && !shownUserIds.has(i)) continue;
+    for (let j = 0; j < calendarState[i].length; j++) {
+      if (!counts[j]) counts[j] = [];
+      for (let k = 0; k < calendarState[i][j].length; k++) {
+        if (calendarState[i][j][k]) {
+          const newVal = (counts[j][k] ?? 0) + 1;
+          counts[j][k] = newVal;
+          if (newVal > maxCount) maxCount = newVal;
+        }
+      }
+    }
+  }
+  return maxCount;
+}
+
 function SelectCalendar({
   theCalendarState,
   chartedUsersData,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   bucket,
@@ -77,14 +98,14 @@ function SelectCalendar({
   endDate,
   theDragState,
   theMostRecentSelection,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   onClick,
   theShowUserChart,
   isGeneralDays,
   setChartedUsers,
   chartedUsers,
 }: SelectCalendarProps) {
-  const [timeBlocks, setTimeBlocks] = React.useState<string[][][]>(
+  const [timeBlocks, setTimeBlocks] = useState<string[][][]>(
     generateTimeBlocks(startDate, endDate)
   );
 
@@ -93,6 +114,23 @@ function SelectCalendar({
   }, [startDate, endDate]);
 
   const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Computed once here rather than in every CalBlock. The shown participants are
+  // keyed as a string so hovering (which rebuilds chartedUsers) doesn't trigger a recount.
+  const calendarStateValue = theCalendarState[0];
+  const shownUserIdsKey = chartedUsersData?.[0]?.users
+    ?.map((u) => u.id)
+    .join(',');
+  const maxUsers = useMemo(
+    () =>
+      getMaxAvailableCount(
+        calendarStateValue,
+        shownUserIdsKey !== undefined
+          ? new Set(shownUserIdsKey.split(',').filter(Boolean).map(Number))
+          : null
+      ),
+    [calendarStateValue, shownUserIdsKey]
+  );
 
   const handleMouseLeave = useCallback(() => {
     if (chartedUsers && setChartedUsers) {
@@ -153,21 +191,19 @@ function SelectCalendar({
                                 theCalendarState={theCalendarState}
                                 draggable={draggable}
                                 columnIndexOffSet={columnIndexOffset}
-                                blockIDOffset={blockIndexWithinHour}
                                 blockID={blockIndexWithinHour * 4 + blockID}
                                 user={user}
                                 isAdmin={isAdmin}
                                 theDragState={theDragState}
                                 theMostRecentSelection={theMostRecentSelection}
-                                theCalendarFramework={theCalendarFramework}
+                                calendarFramework={calendarFramework}
                                 chartedUsersData={chartedUsersData}
-                                theGoogleCalendarEvents={
-                                  theGoogleCalendarEvents
-                                }
+                                googleCalendarEvents={googleCalendarEvents}
                                 borderStyle={
                                   time.slice(3) === '30' ? 'dotted' : 'solid'
                                 }
                                 groupIndex={groupIndex}
+                                maxUsers={maxUsers}
                               />
                             </div>
                           );

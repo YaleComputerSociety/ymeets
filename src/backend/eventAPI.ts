@@ -24,15 +24,6 @@ import { getUserTimezone } from '../components/utils/functions/timzoneConversion
 
 // TODO fetch event details -> calendarFramework
 
-interface testData {
-  userData: userData;
-  scheduleDataEmpty: calendarState;
-  scheduleDataFull: calendarState;
-  dateData: calendarDimensions;
-}
-
-// frontendEventAPI().method()
-
 export default class FrontendEventAPI {
   /**
    *
@@ -599,7 +590,6 @@ export default class FrontendEventAPI {
 
     // if its a general day
     if (theDates[0].getFullYear() === 2000) {
-      const weekdayDates = [...theDates].sort((a, b) => a.getDay() - b.getDay());
       for (let i = 0; i < theDates.length; i++) {
         if (i == 0) {
           curCalendarBucket.push({
@@ -721,35 +711,6 @@ export default class FrontendEventAPI {
 
     for (let i = 0; i < ids.length; i++) {
       userData.userIDs.push(ids[i]);
-    }
-
-    const availMatrix: calendarState = [];
-    for (let i = 0; i < avails.length; i++) {
-      availMatrix.push(avails[i]);
-    }
-
-    return {
-      availabilities: availMatrix,
-      participants: userData,
-    };
-  }
-
-  static getCalendarWithSelectNames(selectNames: string[]): calendar {
-    const avails = getAllAvailabilities();
-    const names = getAllAvailabilitiesNames();
-
-    const userData: userData = {
-      users: [],
-      userIDs: [],
-      available: [],
-      unavailable: [],
-    };
-
-    for (let i = 0; i < names.length; i++) {
-      userData.users.push({
-        name: names[i],
-        id: i,
-      });
     }
 
     const availMatrix: calendarState = [];

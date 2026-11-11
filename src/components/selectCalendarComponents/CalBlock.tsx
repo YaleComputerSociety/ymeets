@@ -1,11 +1,14 @@
-import React, {
+import {
+  Dispatch,
+  MouseEventHandler,
+  PointerEvent,
+  TouchEvent,
+  SetStateAction,
   useEffect,
   useState,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
-import { calendar_v3 } from 'googleapis';
 import {
   BoundingBox,
   DraggedSelection,
@@ -23,33 +26,32 @@ interface CalBlockProps {
   columnID: number;
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
-  chartedUsersData?: [userData, React.Dispatch<React.SetStateAction<userData>>];
+  calendarFramework: calendarDimensions,
+  chartedUsersData?: [userData, Dispatch<SetStateAction<userData>>];
   draggable: boolean;
   isAdmin?: boolean;
   user: number;
   is30Minute: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+    Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
   isOnGcal: boolean;
-  associatedEvents?: calendar_v3.Schema$Event[];
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  theShowUserChart?: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  eventNames: (string | null)[];
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  setShowUserChart?: Dispatch<SetStateAction<boolean>>;
   isEventStart: boolean;
   isEventEnd: boolean;
-  eventName: string | null;
+  eventStartingOnBlock: string | null;
   additionalEventCount: number;
+  /** Most shown participants free in any one block, computed once in SelectCalendar. Sets the darkest shade. */
+  maxUsers: number;
 }
 
 const AUTO_SCROLL_EDGE_PX = 56;
@@ -62,29 +64,28 @@ export default function CalBlock({
   blockID,
   columnID,
   theCalendarState,
-  theCalendarFramework,
+  calendarFramework,
   draggable,
   isAdmin,
   user,
   theDragState,
   theMostRecentSelection: [mostRecentSelection, setMostRecentSelection],
   isOnGcal,
-  associatedEvents,
+  eventNames,
   onClick,
   is30Minute,
   chartedUsersData,
-  theShowUserChart,
+  setShowUserChart,
   isEventStart,
   isEventEnd,
-  eventName,
+  eventStartingOnBlock,
   additionalEventCount,
+  maxUsers,
 }: CalBlockProps) {
   const { theme } = useTheme();
   const [calendarState, setCalendarState] = theCalendarState;
   const [dragState, setDragState] = theDragState;
-  const [calendarFramework] = theCalendarFramework;
   const [showTooltip, setShowTooltip] = useState(false);
-  const [, setShowUserChart] = theShowUserChart ?? [null, null];
   const [chartedUsers, setChartedUsers] = chartedUsersData || [null, null];
   const dragRef = useRef<HTMLDivElement>(null);
   const pointerClientRef = useRef<{ x: number; y: number } | null>(null);
@@ -123,42 +124,6 @@ export default function CalBlock({
     }
     return theme === 'light' ? '#a8a8a8' : '#404040';
   }, [chartedUsers, draggable, theme]);
-
-  /**
-   * Determine the maximum number of users currently available during the same block in the calendar.
-   */
-  // use Memo should ensure it only runs when calendarState changes
-  const maxUsers = useMemo<number>(() => {
-    let maxCount = 0;
-
-    // define counts array
-    const counts: number[][] = [];
-
-    // iterate through all blocks and find number of users on each
-    for (let i = 0; i < calendarState.length; i++) {
-      for (let j = 0; j < calendarState[i].length; j++) {
-        // create row if needed
-        if (!counts[j]) {
-          counts[j] = new Array(calendarState[i][j].length).fill(0);
-        }
-
-        for (let k = 0; k < calendarState[i][j].length; k++) {
-          // check if user is on block
-          if (calendarState[i][j][k]) {
-            // update to new value
-            const newVal = (counts[j][k] ?? 0) + 1;
-            counts[j][k] = newVal;
-
-            // update max
-            if (newVal > maxCount) {
-              maxCount = newVal;
-            }
-          }
-        }
-      }
-    }
-    return maxCount;
-  }, [calendarState]);
 
   /**
    * Picks a shade of blue based on how many users are available during this block relative to the maximum.
@@ -253,7 +218,7 @@ export default function CalBlock({
   }, [chartedUsers, setChartedUsers, calendarState, columnID, blockID]);
 
   const handleMobileHoverChartedUser = useCallback(
-    (event: React.TouchEvent) => {
+    (event: TouchEvent) => {
       if (!chartedUsers || !setChartedUsers) return;
 
       const touch = event.touches[0];
@@ -416,7 +381,7 @@ export default function CalBlock({
    * Ends the current drag.
    */
   const endDrag = useCallback(
-    (event: React.PointerEvent): void => {
+    (event: PointerEvent): void => {
       document.removeEventListener('pointermove', handleGlobalPointerMove);
       stopAutoScroll();
 
@@ -436,7 +401,7 @@ export default function CalBlock({
    * Special-cased to reject `calendarState` updates on group calendars.
    */
   const startDrag = useCallback(
-    (event: React.PointerEvent) => {
+    (event: PointerEvent) => {
       if (!draggable) return;
       if (blockID === -1) return;
 
@@ -612,19 +577,19 @@ export default function CalBlock({
         />
       )}
 
-      {isEventStart && eventName && (
+      {isEventStart && eventStartingOnBlock && (
         <div
           className="absolute top-0 left-1 text-xs font-bold text-[#5191f2] dark:text-white overflow-visible whitespace-normal"
           style={{
             zIndex: 10,
           }}
         >
-          {eventName}
+          {eventStartingOnBlock}
           {additionalEventCount > 0 && ` +${additionalEventCount}`}
         </div>
       )}
 
-      {showTooltip && associatedEvents && associatedEvents.length > 0 && (
+      {showTooltip && eventNames && eventNames.length > 0 && (
         <div
           className={`
           absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 min-w-48 max-w-64 left-0 -top-2 
@@ -632,9 +597,9 @@ export default function CalBlock({
         `}
         >
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            {associatedEvents.map((event, index) => (
+            {eventNames.map((name, index) => (
               <div key={index} className="mb-1 last:mb-0 truncate">
-                {event.summary}
+                {name || 'Unnamed Event'}
               </div>
             ))}
           </div>

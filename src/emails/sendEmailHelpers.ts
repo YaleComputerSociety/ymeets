@@ -27,7 +27,7 @@ interface SendEmailResult {
   };
 }
 
-export async function sendEmail(
+async function sendEmail(
   options: SendEmailOptions
 ): Promise<SendEmailResult> {
   const functions = getFunctions();
@@ -51,7 +51,7 @@ function getEventThreadMessageId(eventId: string): string {
  * Send notification to event creator when someone fills out their availability
  * Exported for testing purposes
  */
-export async function sendAvailabilityUpdatedEmail(
+async function sendAvailabilityUpdatedEmail(
   to: string,
   data: AvailabilityUpdatedData,
   eventId: string
@@ -69,26 +69,6 @@ export async function sendAvailabilityUpdatedEmail(
   });
 }
 
-
-// for inviting people to the event
-export async function sendEventEmail(
-  to: string,
-  subject: string,
-  html: string,
-  eventId: string
-): Promise<SendEmailResult> {
-  const threadMessageId = getEventThreadMessageId(eventId);
-
-  return sendEmail({
-    to,
-    subject,
-    html,
-    headers: {
-      'In-Reply-To': threadMessageId,
-      References: threadMessageId,
-    },
-  });
-}
 
 /**
  * Send an invitation email to invite someone to join an event

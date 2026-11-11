@@ -1,46 +1,44 @@
-import React, {
+import {
   Dispatch,
+  MouseEventHandler,
+  RefObject,
   SetStateAction,
   useCallback,
+  useEffect,
   useRef,
-  useLayoutEffect} from 'react';
+  useState,
+  useLayoutEffect
+} from 'react';
 import { calendar_v3 } from 'googleapis';
 import SelectCalendar from './SelectCalendar';
 import { BoundingBox, DraggedSelection, calendarDimensions, calendarState, userData } from '../../types';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-// import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
 
 interface CalendarProps {
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
+  calendarFramework: calendarDimensions;
   theCalendarState: [
     calendarState,
-    React.Dispatch<React.SetStateAction<calendarState>>,
+    Dispatch<SetStateAction<calendarState>>,
   ];
   chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
+    | [userData, Dispatch<SetStateAction<userData>>]
     | undefined;
   draggable: boolean;
   user: number;
   isAdmin: boolean;
   theDragState: [
     DraggedSelection | undefined,
-    React.Dispatch<React.SetStateAction<DraggedSelection | undefined>>,
+    Dispatch<SetStateAction<DraggedSelection | undefined>>,
   ];
   theMostRecentSelection: [
     BoundingBox | undefined,
-    React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
+    Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
-  theGoogleCalendarEvents: [
-    calendar_v3.Schema$Event[],
-    React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-  ];
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  googleCalendarEvents: calendar_v3.Schema$Event[];
+  onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
-    | [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    | [boolean, Dispatch<SetStateAction<boolean>>]
     | undefined;
   isGeneralDays: boolean;
   setChartedUsers?: Dispatch<SetStateAction<userData>>;
@@ -50,12 +48,12 @@ interface CalendarProps {
   calendarLabel?: string;
   currentStartPage?: number;
   onPageChange?: (page: number) => void;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef?: RefObject<HTMLDivElement>;
   onScroll?: (scrollTop: number) => void;
 }
 
 export default function Calendar({
-  theCalendarFramework,
+  calendarFramework,
   theCalendarState,
   chartedUsersData,
   draggable,
@@ -63,7 +61,7 @@ export default function Calendar({
   isAdmin,
   theDragState,
   theMostRecentSelection,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   theShowUserChart,
   onClick,
   isGeneralDays,
@@ -77,7 +75,6 @@ export default function Calendar({
   scrollRef,
   onScroll,
 }: CalendarProps) {
-  const [calendarFramework, setCalendarFramework] = theCalendarFramework;
   const [calendarState, setCalendarState] = theCalendarState;
 
   const militaryConvert = (time: string) => {
@@ -113,7 +110,7 @@ export default function Calendar({
     return 4;
   };
 
-  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = React.useState(
+  const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = useState(
     calculateColumnsPerPage
   );
 
@@ -129,7 +126,7 @@ export default function Calendar({
       }
     }, [chartedUsers, setChartedUsers]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Recalculate columns when compactMode changes (expand/collapse)
     setNumberOfColumnsPerPage(calculateColumnsPerPage());
 
@@ -143,7 +140,7 @@ export default function Calendar({
     };
   }, [compactMode]);
 
-  const [internalStartPage, setInternalStartPage] = React.useState(0);
+  const [internalStartPage, setInternalStartPage] = useState(0);
   const currentStartPage = controlledPage ?? internalStartPage;
 
   const handlePrev = () => {
@@ -283,9 +280,9 @@ export default function Calendar({
               endDate={calendarFramework.endTime}
               theDragState={theDragState}
               theMostRecentSelection={theMostRecentSelection}
-              theCalendarFramework={theCalendarFramework}
+              calendarFramework={calendarFramework}
               chartedUsersData={chartedUsersData}
-              theGoogleCalendarEvents={theGoogleCalendarEvents}
+              googleCalendarEvents={googleCalendarEvents}
               isGeneralDays={isGeneralDays}
               setChartedUsers={setChartedUsers}
               chartedUsers={chartedUsers}
