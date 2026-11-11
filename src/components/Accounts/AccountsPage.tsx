@@ -182,12 +182,11 @@ export default function AccountsPage() {
           if (selectedEventToDelete) {
             deleteEvent(selectedEventToDelete.id)
               .then(() => {
-                setHasDeletedEvent(true);
                 const next =
                   events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
                 setEvents(next);
               })
-              .catch((err) => {});
+              .catch(() => {});
             setSelectedEventToDelete(null);
           }
         }}

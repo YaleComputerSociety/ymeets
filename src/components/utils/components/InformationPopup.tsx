@@ -34,7 +34,6 @@ export default function InformationPopup({
   useEffect(() => {
     if (isVisible && iconRef.current) {
       const iconRect = iconRef.current.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
 
       // Get numeric width value from the width class
       const widthValue =

@@ -1,4 +1,4 @@
-import React, {
+import {
   FC,
   ReactNode,
   createContext,
@@ -16,7 +16,7 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+export const ThemeProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [theme, setTheme] = useState<string>('light'); // Default to light during SSR
@@ -24,10 +24,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   // On first load, synchronize with localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)')
-      .matches
-      ? 'dark'
-      : 'light';
 
     // Use saved theme if available, else fall back to dark mode
     const initialTheme = savedTheme || 'dark';

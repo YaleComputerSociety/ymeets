@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import TimeSelectComponent from '../time_select_component';
 import './DaysNotDates.css';
 
 interface DaysNotDatesProps {

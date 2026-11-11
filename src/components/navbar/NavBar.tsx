@@ -1,4 +1,3 @@
-import React from 'react';
 import NavLogo from './NavLogo';
 import { checkIfLoggedIn, getAccountName } from '../../backend/events';
 import { useState, useEffect } from 'react';
@@ -9,22 +8,17 @@ import TutorialModal from '../utils/components/TutorialModal/TutorialModal';
 
 import {
   IconMenu2,
-  IconInfoCircleFilled,
   IconInfoCircle,
-  IconCalendarWeek,
-  IconCalendarFilled,
   IconCalendarEvent,
   IconLogin2,
   IconLogout,
   IconMessageReport,
   IconMoonFilled,
-  IconMoon,
   IconSun,
   IconBook,
 } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { log } from 'console';
 import {
   LOGOUT_ON_ARRIVAL,
   shouldLogoutOnArrival,
@@ -32,14 +26,13 @@ import {
 
 export default function NavBar() {
   const { theme, toggleTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [menuState, setMenuState] = useState('closed');
 
   const nav = useNavigate();
   const location = useLocation();
 
-  const { login, logout, currentUser } = useAuth();
+  const { login, logout } = useAuth();
 
   // Log out only once the navigation home has gone through, so choosing
   // "Stay" at the unsaved-changes prompt keeps the user signed in
@@ -57,10 +50,6 @@ export default function NavBar() {
   }, [location]);
 
   const [showTutorial, setTutorial] = useState(false);
-
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
 
   const handleGearClick = () => {
     if (menuState === 'closed') {

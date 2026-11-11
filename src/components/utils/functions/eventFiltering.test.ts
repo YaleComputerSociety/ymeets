@@ -1,7 +1,6 @@
 import {
   parse,
   timeToMinutes,
-  dateToMinutes,
   areSameDate,
   doesBlockOverlapEvent,
   doesEventStartInBlock,
@@ -64,17 +63,6 @@ test('timeToMinutes returns minutes since 00:00', () => {
   ];
   for (const { timeString, minutes } of times) {
     expect(timeToMinutes(timeString)).toBe(minutes);
-  }
-});
-
-test('dateToMinutes returns minutes since 00:00', () => {
-  const dates = [
-    { date: new Date(2000, 1, 1, 0, 0), minutes: 0 },
-    { date: new Date(2005, 5, 5, 12, 0), minutes: 720 },
-    { date: new Date(2010, 10, 10, 23, 59), minutes: 1439 },
-  ];
-  for (const { date, minutes } of dates) {
-    expect(dateToMinutes(date)).toBe(minutes);
   }
 });
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import Favicon from 'react-favicon';
 
 export default function CalendarIcon() {
@@ -79,9 +78,7 @@ export default function CalendarIcon() {
 }
 
 export function Favi() {
-  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const currDate = new Date(Date.now());
-  const currWeekDay = weekdays[currDate.getDay()];
   const currMonthDay = currDate.getDate().toString();
 
   // SVG content with dynamic values

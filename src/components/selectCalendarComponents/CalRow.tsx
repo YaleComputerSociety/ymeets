@@ -52,22 +52,15 @@ interface CalRowProps {
     BoundingBox | undefined,
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
-  theCalendarFramework: [
-    calendarDimensions,
-    React.Dispatch<React.SetStateAction<calendarDimensions>>,
-  ];
+  calendarFramework: calendarDimensions;
   borderStyle?: string;
-  theGoogleCalendarEvents:
-    | [
-        calendar_v3.Schema$Event[],
-        React.Dispatch<React.SetStateAction<calendar_v3.Schema$Event[]>>,
-      ]
-    | undefined;
+  googleCalendarEvents: calendar_v3.Schema$Event[];
   time: string;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
     [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined;
   groupIndex: number;
+  maxUsers: number;
 }
 
 /**
@@ -97,23 +90,22 @@ export default function CalRow({
   draggable,
   user,
   columnIndexOffSet,
-  theCalendarFramework,
+  calendarFramework,
   blockID,
   is30Minute,
   theDragState,
   theMostRecentSelection,
   chartedUsersData,
-  theGoogleCalendarEvents,
+  googleCalendarEvents,
   time,
   onClick,
   groupIndex,
+  maxUsers,
 }: CalRowProps) {
-  const [googleCalendarEvents] = theGoogleCalendarEvents ?? [[]];
   // TODO: remove this cast after upgrading Typescript
   const parsedGoogleCalendarEvents = googleCalendarEvents
     .map(parse)
     .filter((e) => e !== undefined) as GoogleCalendarEvent[];
-  const [calendarFramework] = theCalendarFramework;
   // Intentionally stale when the date changes. Users won't expect calendar events to move around without a page reload.
   const [currentDate] = useState<Date>(() => new Date());
 
@@ -177,7 +169,7 @@ export default function CalRow({
       groupIndex,
       blockID,
       columnIndex + columnIndexOffSet,
-      theCalendarFramework[0].numOfCols,
+      calendarFramework.numOfCols,
       getDates().length
     );
 
@@ -205,7 +197,7 @@ export default function CalRow({
           <CalBlock
             key={columnIndex + columnIndexOffSet}
             onClick={onClick}
-            theCalendarFramework={theCalendarFramework}
+            calendarFramework={calendarFramework}
             is30Minute={is30Minute}
             theCalendarState={theCalendarState}
             blockID={blockData.adjustedBlockID}
@@ -222,6 +214,7 @@ export default function CalRow({
             isEventEnd={blockData.isEventEnd}
             eventStartingOnBlock={blockData.eventStartingOnBlock}
             additionalEventCount={blockData.additionalEventCount}
+            maxUsers={maxUsers}
           />
         );
       })}
