@@ -42,30 +42,6 @@ export default function BestTimeFinder
         //calculate the suggesteions using the helper funciton
         function handleFindTimes()
         {
-            //logs for debugging the calendar comparison
-            console.log("Availability matrix:", availabilities);
-            console.log("Number of participants:", availabilities.length);
-            console.log("Number of days:", dayLabels.length);
-            console.log("Number of blocks:", numBlocks);
-            console.log("First participant:", availabilities[0]);
-            console.log("Selected participant indices:", personIdx);
-            console.log("Meeting duration:", duration);
-            console.log(
-                "Full availability data:",
-                JSON.stringify(availabilities, null, 2)
-            );
-
-            console.log(
-                "Availability dimensions:",
-                availabilities.map(person =>
-                    person.map(day => day.length)
-                )
-            );
-
-            console.log(
-                "Calendar start time:",
-                startHour
-            );
             const results = findBestTimes
             (
                 availabilities,
@@ -77,7 +53,6 @@ export default function BestTimeFinder
                 10  // how many to return
             );
             setSelectedKey(null);
-            console.log("Suggested results:", results);
             setSuggestions(results);
             setSearched(true);
             

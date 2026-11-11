@@ -298,23 +298,6 @@ export default function UnifiedAvailabilityPage() {
       </div>
     );
   }
-  console.log(
-      "Calendar dates:",
-      groupViewCalendarFramework.dates
-  );
-
-  console.log(
-      "Calendar dimensions:",
-      groupViewCalendarFramework.numOfCols,
-      groupViewCalendarFramework.numOfBlocks
-  );
-
-  console.log(
-      "Availability lengths:",
-      groupViewCalendarState.map(person =>
-          person.map(day => day.length)
-      )
-  );
   return (
     <div>
       {/* Desktop: Side-by-side view */}
