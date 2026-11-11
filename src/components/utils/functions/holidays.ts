@@ -4,8 +4,6 @@
  * Yale academic calendar: https://yalecollege.yale.edu/academics/academic-calendar
  */
 
-export type Holidays = Record<string, Date | Date[]>;
-
 /** 0 = Sunday, 1 = Monday, ... 6 = Saturday */
 function getNthWeekdayOfMonth(
   year: number,
@@ -96,8 +94,8 @@ const YALE_SPRING_BREAK: Record<number, [number, number]> = {
  * Returns all holidays (federal + Yale academic) for the given year.
  * Dates are in local time; month is 0-indexed in Date.
  */
-export function getHolidaysForYear(year: number): Holidays {
-  const result: Holidays = {};
+function getHolidaysForYear(year: number): Record<string, Date | Date[]> {
+  const result: Record<string, Date | Date[]> = {};
 
   // Fixed federal
   result["New Year's Day"] = new Date(year, 0, 1);

@@ -2,7 +2,7 @@ import { useAuth } from '../../../backend/authContext';
 import Button from './Button';
 
 export default function LoginButton() {
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
 
   return (
     <Button

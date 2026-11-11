@@ -1,10 +1,6 @@
 // GoogleCalendarService.ts
 // A service to handle Google Calendar API interactions with modern authentication flow
 
-import { time } from "console";
-import { getUserTimezone } from "../components/utils/functions/timzoneConversions";
-
-
 // Why we feel this is secure: https://stackoverflow.com/questions/18280827/localstorage-vs-cookies-for-oauth2-in-html5-web-app
 // combined with the fact that there is a expiration date for the token.
 

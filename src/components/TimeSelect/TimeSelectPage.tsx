@@ -1,29 +1,27 @@
 import LocationSelectionComponent from './LocationSelectionComponent';
-import { calendar_v3, google } from 'googleapis';
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DateTime } from 'luxon';
+import { calendar_v3 } from 'googleapis';
 import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  Dispatch,
+  SetStateAction,
+  MutableRefObject,
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  BoundingBox,
+  DraggedSelection,
   calendarState,
-  userData,
   calendarDimensions,
   Availability,
-  calendarDate,
-  dragProperties,
 } from '../../types';
-import eventAPI from '../../backend/eventAPI';
 import {
   getAccountId,
   getAccountName,
-  getAvailabilityByAccountId,
-  getAvailabilityByName,
-  getEventOnPageload,
   wrappedSaveParticipantDetails,
-  getEventName,
-  getEventDescription,
-  getLocationOptions,
   getParticipantIndex,
-  getChosenDayAndTime,
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
@@ -38,19 +36,14 @@ import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
-import { getDates } from '../../backend/events';
-import {
-  adjustBlockIDColumnID,
-  getUserTimezone,
-} from '../utils/functions/timzoneConversions';
+import { getUserTimezone, } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
-import CopyCodeButton from '../utils/components/CopyCodeButton';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
-import { get } from 'lodash';
+import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 
 /**
  *
@@ -59,59 +52,83 @@ import { get } from 'lodash';
 function TimeSelectPage({
   isEditing,
   toggleEditing,
-  onFetchComplete,
   code,
-  chartedUsers,
-  setChartedUsers,
   calendarState,
   setCalendarState,
   calendarFramework,
   setCalendarFramework,
   loading,
-  setLoading,
   eventName,
-  setEventName,
   eventDescription,
-  setEventDescription,
   locationOptions,
-  setLocationOptions,
-  areSelectingGeneralDays,
-  setAreSelectingGeneralDays,
   isGeneralDays,
-  setIsGeneralDays,
   hasAvailability,
-  setHasAvailability,
+  setHasUnsavedChanges,
+  onSaveComplete,
+  onSavingChange,
+  onSettingsEdited,
+  saveRef,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
-  onFetchComplete: () => void;
   code: string | undefined;
-  chartedUsers: userData;
-  setChartedUsers: Dispatch<SetStateAction<userData>>;
   calendarState: calendarState;
   setCalendarState: Dispatch<SetStateAction<calendarState>>;
   calendarFramework: calendarDimensions;
   setCalendarFramework: Dispatch<SetStateAction<calendarDimensions>>;
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
   eventName: string;
-  setEventName: Dispatch<SetStateAction<string>>;
   eventDescription: string;
-  setEventDescription: Dispatch<SetStateAction<string>>;
   locationOptions: string[];
-  setLocationOptions: Dispatch<SetStateAction<string[]>>;
-  areSelectingGeneralDays: boolean;
-  setAreSelectingGeneralDays: Dispatch<SetStateAction<boolean>>;
   isGeneralDays: boolean;
-  setIsGeneralDays: Dispatch<SetStateAction<boolean>>;
   hasAvailability: boolean;
-  setHasAvailability: Dispatch<SetStateAction<boolean>>;
+  // Unsaved changes tracking (optional so the page still works standalone)
+  setHasUnsavedChanges?: (value: boolean) => void;
+  // Called after a successful save instead of toggleEditing, which may be guarded
+  onSaveComplete?: () => void;
+  // Reports when a save is in flight, so the unsaved-changes popup can't start another
+  onSavingChange?: (saving: boolean) => void;
+  // Reports location or calendar selection changes, which the parent can't compare
+  onSettingsEdited?: () => void;
+  // Exposes this page's save so the unsaved-changes popup can run it
+  saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
   const navigate = useNavigate();
+
   const [isGcalPopupOpen, setGcalPopupOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Pending post-save exit from edit mode. Cleared on unmount (e.g. the user
+  // left mid-save), or it would reload the old event from the next page
+  const saveCompleteTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(saveCompleteTimerRef.current), []);
+
+  // Bumped on every edit, so a save can tell whether edits arrived while it ran
+  const editVersionRef = useRef(0);
+
+  /**
+   * Records an edit and marks changes as unsaved. Also cancels a pending
+   * "Saved!" exit, since leaving would reload and drop the new edit.
+   */
+  const markUnsaved = useCallback(() => {
+    editVersionRef.current += 1;
+    setHasUnsavedChanges?.(true);
+    clearTimeout(saveCompleteTimerRef.current);
+    setIsSaved(false);
+  }, [setHasUnsavedChanges]);
+
+  // Wrapped setter that marks changes as unsaved. Must be stable: CalBlock's
+  // drag listeners depend on it, and a new identity mid-drag detaches them.
+  const wrappedSetCalendarState: Dispatch<SetStateAction<calendarState>> =
+    useCallback(
+      (action) => {
+        setCalendarState(action);
+        markUnsaved();
+      },
+      [setCalendarState, markUnsaved]
+    );
 
   const closeGcalPopup = () => {
     setGcalPopupOpen(false);
@@ -119,11 +136,9 @@ function TimeSelectPage({
 
   const {
     hasAccess,
-    initialized,
     requestAccess,
     getCalendars,
     getEvents,
-    disconnect,
   } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
@@ -131,35 +146,32 @@ function TimeSelectPage({
 
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
 
-  useEffect(() => {
-    onFetchComplete();
-  }, [onFetchComplete]);
-
   const endPromptUserForLogin = () => {
     setPromptUserForLogin(false);
     window.location.reload();
   };
   
-  const [dragState, setDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false, // true for selecting, false for deselecting
-    lastPosition: null,
-  });
+  const theDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentSelection = useState<BoundingBox | undefined>(undefined);
 
   const [googleCalendarEvents, setGoogleCalendarEvents] = useState<
     calendar_v3.Schema$Event[]
   >([]);
   const [idsOfCurrentlySelectedGCals, setIdsOfCurrentlySelectedGCals] =
     useState<string[]>([]);
+
+  // Wrapped setter for user-made calendar selections, which are saved with availability
+  const wrappedSetIdsOfCurrentlySelectedGCals: Dispatch<
+    SetStateAction<string[]>
+  > = (action) => {
+    setIdsOfCurrentlySelectedGCals(action);
+    onSettingsEdited?.();
+    markUnsaved();
+  };
   const [googleCalendars, setGoogleCalendars] = useState<any[]>([]);
 
-  const [shouldFillAvailability, setShouldFillAvailability] = useState(false);
+  const shouldFillAvailability = false;
   const [isFillingAvailability, setIsFillingAvailability] = useState(false);
-  const [hasGCalScope, setHasGCalScope] = useState(
-    localStorage.getItem('hasGCalScope') === 'true'
-  );
 
   const [showSlowMessage, setShowSlowMessage] = useState(false);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
@@ -171,10 +183,6 @@ function TimeSelectPage({
 
     return () => clearTimeout(timer);
   }, []);
-
-  // New state to track if calendar scope request is in progress
-  const [isRequestingCalendarScope, setIsRequestingCalendarScope] =
-    useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -332,7 +340,6 @@ function TimeSelectPage({
 
       if (!hasAccess) {
         console.warn('Attempting to fetch calendars without proper scope');
-        setHasGCalScope(false);
         return [];
       }
 
@@ -351,7 +358,6 @@ function TimeSelectPage({
           error.message.includes('unauthorized') ||
           error.message.includes('login required'))
       ) {
-        setHasGCalScope(false);
         localStorage.setItem('hasGCalScope', 'false');
       }
 
@@ -506,7 +512,7 @@ function TimeSelectPage({
 
       const newCalendarState = { ...calendarState };
       newCalendarState[getCurrentUserIndex()] = newAvailability;
-      setCalendarState(newCalendarState);
+      wrappedSetCalendarState(newCalendarState);
     } finally {
       setIsFillingAvailability(false);
       setGcalPopupOpen(false);
@@ -522,36 +528,64 @@ function TimeSelectPage({
     return user;
   };
 
+  // Persists availability, locations, and calendar selection without any UI side effects
+  const persistChanges = async () => {
+    const versionAtSaveStart = editVersionRef.current;
+    onSavingChange?.(true);
+    try {
+      const user = getCurrentUserIndex();
+      const avail: Availability = calendarState
+        ? (calendarState[user] ?? [])
+        : [];
+
+      await wrappedSaveParticipantDetails(avail, selectedLocations);
+      await setUserSelectedCalendarIDs(
+        getAccountId(),
+        idsOfCurrentlySelectedGCals
+      );
+
+      // Email event admin if they opted in
+      if (workingEvent.details.emailAdmin === true) {
+        notifyAdminOfNewResponse(
+          workingEvent.details.adminAccountId,
+          getAccountId(),
+          getAccountName(),
+          workingEvent.details.name,
+          workingEvent.publicId
+        );
+      }
+
+      // Edits made while the save was in flight weren't saved, so keep them flagged
+      if (editVersionRef.current === versionAtSaveStart) {
+        setHasUnsavedChanges?.(false);
+      }
+    } finally {
+      onSavingChange?.(false);
+    }
+  };
+
+
+  if (saveRef) {
+    saveRef.current = persistChanges;
+  }
+
   const saveAvailAndLocationChanges = async () => {
     setIsSaving(true);
-    const user = getCurrentUserIndex();
-    const avail: Availability = calendarState
-      ? (calendarState[user] ?? [])
-      : [];
-
-    await wrappedSaveParticipantDetails(avail, selectedLocations);
-    await setUserSelectedCalendarIDs(
-      getAccountId(),
-      idsOfCurrentlySelectedGCals
-    );
-
-    // Email event admin if they opted in
-    if (workingEvent.details.emailAdmin === true) {
-      notifyAdminOfNewResponse(
-        workingEvent.details.adminAccountId,
-        getAccountId(),
-        getAccountName(),
-        workingEvent.details.name,
-        workingEvent.publicId
-      );
-    }
+    const versionAtSaveStart = editVersionRef.current;
+    await persistChanges();
 
     setIsSaving(false);
+
+    // Edits made during the save are still unsaved, so don't claim "Saved!" or
+    // leave (which reloads and drops them); the Save button stays available
+    if (editVersionRef.current !== versionAtSaveStart) return;
+
     setIsSaved(true);
 
-    setTimeout(() => {
+    // Any edit during the "Saved!" window cancels this (see markUnsaved)
+    saveCompleteTimerRef.current = setTimeout(() => {
       setIsSaved(false);
-      toggleEditing();
+      (onSaveComplete ?? toggleEditing)();
     }, 600);
   };
 
@@ -600,7 +634,7 @@ function TimeSelectPage({
                 userHasFilled={hasAvailability}
                 onCancel={async () => {
                   await wrappedSaveDeclinedParticipantDetails();
-                  navigate('/');
+                  navigate('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
                 }}
               />
             </div>
@@ -632,7 +666,11 @@ function TimeSelectPage({
               </div>
               <LocationSelectionComponent
                 locations={locationOptions}
-                update={setSelectedLocations}
+                update={(selected) => {
+                  setSelectedLocations(selected);
+                  onSettingsEdited?.();
+                  markUnsaved();
+                }}
               />
             </div>
           )}
@@ -650,7 +688,7 @@ function TimeSelectPage({
                     key={cal.id}
                     className="flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
                     onClick={() => {
-                      setIdsOfCurrentlySelectedGCals((prevState) => {
+                      wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                         if (prevState?.includes(cal.id)) {
                           return prevState.filter((id) => id !== cal.id);
                         } else {
@@ -749,7 +787,7 @@ function TimeSelectPage({
                           // );
                         } else {
                           login()
-                            .then((User) => {
+                            .then(() => {
                               updateAnonymousUserToAuthUser(getAccountName());
                               requestAccess();
                               // .then(() =>
@@ -834,7 +872,7 @@ function TimeSelectPage({
                           flex items-center justify-center transform transition-transform hover:scale-95 active:scale-100"
                           onClick={() => {
                             login()
-                              .then((User) => {
+                              .then(() => {
                                 updateAnonymousUserToAuthUser(getAccountName());
                               })
                               .catch((error) => {
@@ -889,17 +927,15 @@ function TimeSelectPage({
               <Calendar
                 theShowUserChart={undefined}
                 onClick={() => {}}
-                theCalendarState={[calendarState, setCalendarState]}
+                theCalendarState={[calendarState, wrappedSetCalendarState]}
                 user={getCurrentUserIndex()}
-                theCalendarFramework={[calendarFramework, setCalendarFramework]}
+                calendarFramework={calendarFramework}
                 draggable={true}
                 chartedUsersData={undefined}
-                theDragState={[dragState, setDragState]}
+                theDragState={theDragState}
+                theMostRecentSelection={theMostRecentSelection}
                 isAdmin={false}
-                theGoogleCalendarEvents={[
-                  googleCalendarEvents,
-                  setGoogleCalendarEvents,
-                ]}
+                googleCalendarEvents={googleCalendarEvents}
                 isGeneralDays={isGeneralDays}
                 setCalendarHeight={setCalendarHeight}
               />
@@ -921,7 +957,7 @@ function TimeSelectPage({
               key={cal.id}
               className="flex items-center py-1 px-2 hover:bg-gray-100 rounded-md cursor-pointer"
               onClick={() => {
-                setIdsOfCurrentlySelectedGCals((prevState) => {
+                wrappedSetIdsOfCurrentlySelectedGCals((prevState) => {
                   if (prevState?.includes(cal.id)) {
                     return prevState.filter((id) => id !== cal.id);
                   } else {

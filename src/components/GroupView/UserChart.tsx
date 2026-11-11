@@ -1,28 +1,10 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import ChartRow from './UserChartRow';
 import { userData } from '../../types';
-import {
-  IconAdjustments,
-  IconAdjustmentsFilled,
-  IconSquare,
-  IconSquareCheck,
-  IconSquareFilled,
-} from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 
 interface UserChartProps {
-  chartedUsersData:
-    | [userData, React.Dispatch<React.SetStateAction<userData>>]
-    | undefined;
-  allPeople: string[];
-  thePeopleStatus: [
-    Record<string, boolean>,
-    React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
-  ];
-  theParticipantToggleClicked: [
-    boolean,
-    React.Dispatch<React.SetStateAction<boolean>>,
-  ];
+  chartedUsers: userData;
   calendarHeight: number | null;
 }
 
@@ -33,23 +15,10 @@ interface UserChartProps {
  * @param UserChart
  * @returns Page Support Component - Admin View
  */
-const UserChart: React.FC<UserChartProps> = ({
-  chartedUsersData,
-  allPeople,
-  thePeopleStatus,
-  theParticipantToggleClicked,
+const UserChart: FC<UserChartProps> = ({
+  chartedUsers,
   calendarHeight,
 }) => {
-  const [chartedUsers, setChartedUsers] = chartedUsersData || [
-    { available: [], unavailable: [] },
-    () => {},
-  ];
-
-  const [peoepleStatus, setPeopleStatus] = thePeopleStatus;
-
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    theParticipantToggleClicked;
-
   const [rowHeight, setRowHeight] = useState<number | null>(null);
   const maxRows = Math.max(
     chartedUsers.available.length,
@@ -67,13 +36,6 @@ const UserChart: React.FC<UserChartProps> = ({
       chartedUsers.unavailable[i]?.name || '',
     ]
   );
-
-  // if (chartedUsers.available.length > numRows || chartedUsers.unavailable.length > numRows) {
-  //   rows.push([
-  //     ((chartedUsers.available.length - numRows) > 0) ? `...and ${(chartedUsers.available.length - numRows)} more` : '',
-  //     ((chartedUsers.unavailable.length - numRows) > 0) ? `...and ${(chartedUsers.unavailable.length - numRows)} more` : '',
-  //   ]);
-  // }
 
   if (chartedUsers.available.length > numRows) {
     rows[numRows - 1][0] = `...and ${

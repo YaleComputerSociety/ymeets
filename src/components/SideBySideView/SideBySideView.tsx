@@ -9,10 +9,11 @@ import {
 } from 'react';
 import { calendar_v3 } from 'googleapis';
 import {
+  BoundingBox,
+  DraggedSelection,
   calendarState,
   userData,
   calendarDimensions,
-  dragProperties,
 } from '../../types';
 import {
   getParticipantIndex,
@@ -25,14 +26,25 @@ import SharedSidebar from './SharedSidebar';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import { IconArrowsMaximize, IconArrowsMinimize } from '@tabler/icons-react';
+import {
+  IconAdjustments,
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+} from '@tabler/icons-react';
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import BestTimeFinder from '../BestTimeFinder';
 import type { BestTimeWindow } from '../utils/functions/findBestTimes';
+import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
+import AddToGoogleCalendarButton from '../GroupView/AddToCalendarButton';
+import InformationPopup from '../utils/components/InformationPopup';
+import AlertPopup from '../utils/components/AlertPopup';
+import ParticipantFilterList, {
+  getFilterableParticipants,
+} from '../utils/components/ParticipantFilterList';
 
-interface Calendar {
+interface GoogleCalendar {
   id: string;
   summary: string;
   primary?: boolean;
@@ -61,7 +73,6 @@ interface SideBySideViewProps {
   locationOptions: string[];
   locationVotes: any;
   adminChosenLocation: string | undefined;
-  setAdminChosenLocation: Dispatch<SetStateAction<string | undefined>>;
 
   // Other
   code: string | undefined;
@@ -73,8 +84,8 @@ interface SideBySideViewProps {
   setGoogleCalendarEvents: Dispatch<SetStateAction<calendar_v3.Schema$Event[]>>;
 
   // Google Calendar list state
-  googleCalendars: Calendar[];
-  setGoogleCalendars: Dispatch<SetStateAction<Calendar[]>>;
+  googleCalendars: GoogleCalendar[];
+  setGoogleCalendars: Dispatch<SetStateAction<GoogleCalendar[]>>;
   selectedCalendarIds: string[];
   setSelectedCalendarIds: Dispatch<SetStateAction<string[]>>;
 
@@ -115,7 +126,6 @@ export default function SideBySideView({
   locationOptions,
   locationVotes,
   adminChosenLocation,
-  setAdminChosenLocation,
   code,
   isAdmin,
   isGeneralDays,
@@ -138,8 +148,6 @@ export default function SideBySideView({
 }: SideBySideViewProps) {
   const [showBestTime, setShowBestTime] = useState(false);
   const [showUserChart, setShowUserChart] = useState(false);
-  const [participantToggleClicked, setParticipantToggleClicked] =
-    useState(true);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
   // Track which calendar is expanded (null = side-by-side, 'left' = edit expanded, 'right' = group expanded)
@@ -373,22 +381,12 @@ export default function SideBySideView({
   };
 
   // Drag state for left calendar (TimeSelect - user editing)
-  const [leftDragState, setLeftDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  const theLeftDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentLeftSelection = useState<BoundingBox | undefined>(undefined);
 
-  // Drag state for right calendar (GroupView - read-only, no drag)
-  const [rightDragState, setRightDragState] = useState<dragProperties>({
-    isSelecting: false,
-    startPoint: null,
-    endPoint: null,
-    selectionMode: false,
-    lastPosition: null,
-  });
+  // Drag state for right calendar (GroupView - only admins can drag, to pick a meeting time)
+  const theRightDragState = useState<DraggedSelection | undefined>(undefined);
+  const theMostRecentRightSelection = useState<BoundingBox | undefined>(undefined);
 
   // Shared pagination and scroll sync
   const [sharedPage, setSharedPage] = useState(0);
@@ -422,6 +420,57 @@ export default function SideBySideView({
       });
     });
   }, []);
+
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  // Participant filter dropdown in the top bar
+  const [showParticipantFilter, setShowParticipantFilter] = useState(false);
+  const participantFilterRef = useRef<HTMLDivElement>(null);
+  const participantCounts = getFilterableParticipants(
+    allPeople,
+    declinedPeople,
+    peopleStatus
+  );
+
+  // Close the participant filter when clicking outside it or pressing Escape.
+  // While the filter's own alert ("can't remove the last participant") is open,
+  // dismissing it shouldn't also close the filter.
+  useEffect(() => {
+    if (!showParticipantFilter || alertMessage) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!participantFilterRef.current?.contains(event.target as Node)) {
+        setShowParticipantFilter(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowParticipantFilter(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showParticipantFilter, alertMessage]);
+
+  /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
+  const handleExportToGCal = () => {
+    const result = getGCalUrlForSelection(
+      theMostRecentRightSelection[0],
+      calendarFramework,
+      adminChosenLocation
+    );
+    if ('error' in result) {
+      setAlertMessage(result.error);
+      return;
+    }
+
+    if (getAccountId() !== '') {
+      window.open(result.url, '_blank');
+    } else {
+      login();
+    }
+  };
 
   // Filter charted users based on people status
   const filteredChartedUsers = useMemo(
@@ -496,6 +545,13 @@ export default function SideBySideView({
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
+      <AlertPopup
+        title="Alert"
+        message={alertMessage || ''}
+        isOpen={!!alertMessage}
+        onClose={() => setAlertMessage(null)}
+      />
+
       {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
       <div className="lg:grid lg:grid-cols-4 lg:gap-0 flex flex-col">
         {/* Sidebar - col-span-1 (same as GroupView/TimeSelect) */}
@@ -518,12 +574,8 @@ export default function SideBySideView({
             locationOptions={locationOptions}
             locationVotes={locationVotes}
             adminChosenLocation={adminChosenLocation}
-            setAdminChosenLocation={setAdminChosenLocation}
             chartedUsers={chartedUsers}
-            setChartedUsers={setChartedUsers}
             calendarHeight={calendarHeight}
-            participantToggleClicked={participantToggleClicked}
-            setParticipantToggleClicked={setParticipantToggleClicked}
             googleCalendars={googleCalendars}
             setGoogleCalendars={setGoogleCalendars}
             selectedCalendarIds={selectedCalendarIds}
@@ -600,6 +652,58 @@ export default function SideBySideView({
                       })()}
                     />
                   </div>
+                  {participantCounts.people.length > 0 && (
+                    <div className="relative" ref={participantFilterRef}>
+                      <button
+                        onClick={() => setShowParticipantFilter((prev) => !prev)}
+                        className={`p-1 rounded-lg transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                          participantCounts.shownCount <
+                          participantCounts.people.length
+                            ? 'text-primary dark:text-primary-dark'
+                            : 'dark:text-text-dark'
+                        }`}
+                        title="Filter participants"
+                        aria-label="Filter participants"
+                        aria-expanded={showParticipantFilter}
+                      >
+                        <IconAdjustments size={30} />
+                      </button>
+                      {showParticipantFilter && (
+                        <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 p-3">
+                          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Filter Participants ({participantCounts.shownCount}/
+                            {participantCounts.people.length})
+                          </div>
+                          {/* -mx-1 px-1 matches the rows' -mx-1 hover bleed, so it doesn't overflow sideways */}
+                          <div className="max-h-64 overflow-y-auto -mx-1 px-1">
+                            <ParticipantFilterList
+                              allPeople={allPeople}
+                              declinedPeople={declinedPeople}
+                              peopleStatus={peopleStatus}
+                              setPeopleStatus={setPeopleStatus}
+                              onRemoveLastParticipant={() =>
+                                setAlertMessage(
+                                  "You can't remove the last participant!"
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {isAdmin && (
+                    <div className="flex items-center space-x-2">
+                      <AddToGoogleCalendarButton onClick={handleExportToGCal} />
+                      <InformationPopup
+                        content={
+                          locationOptions.length === 0
+                            ? 'NOTE: Click and drag on the Group Availability calendar to select your ideal time to meet. Then, press Export to GCal.'
+                            : 'NOTE: Click and drag on the Group Availability calendar to select your ideal time to meet. Click on a location to select it as the place to meet. Then, press Export to GCal.'
+                        }
+                      />
+                    </div>
+                  )}
                   {userHasSignedIn && hasUnsavedChanges && (
                     <ButtonSmall
                       bgColor="primary"
@@ -649,19 +753,14 @@ export default function SideBySideView({
                           timeSelectCalendarState,
                           wrappedSetTimeSelectCalendarState,
                         ]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={undefined}
                         draggable={true}
                         user={getCurrentUserIndex()}
                         isAdmin={false}
-                        theDragState={[leftDragState, setLeftDragState]}
-                        theGoogleCalendarEvents={[
-                          googleCalendarEvents,
-                          setGoogleCalendarEvents,
-                        ]}
+                        theDragState={theLeftDragState}
+                        theMostRecentSelection={theMostRecentLeftSelection}
+                        googleCalendarEvents={googleCalendarEvents}
                         onClick={() => {}}
                         theShowUserChart={undefined}
                         isGeneralDays={isGeneralDays}
@@ -709,19 +808,17 @@ export default function SideBySideView({
                       <Calendar
                         compactMode={expandedCalendar !== 'right'}
                         theCalendarState={[groupViewCalendarState, noop]}
-                        theCalendarFramework={[
-                          calendarFramework,
-                          setCalendarFramework,
-                        ]}
+                        calendarFramework={calendarFramework}
                         chartedUsersData={[
                           filteredChartedUsers,
                           setChartedUsers,
                         ]}
-                        draggable={false}
+                        draggable={isAdmin}
                         user={getCurrentUserIndex()}
                         isAdmin={true}
-                        theDragState={[rightDragState, setRightDragState]}
-                        theGoogleCalendarEvents={[[], noop]}
+                        theDragState={theRightDragState}
+                        theMostRecentSelection={theMostRecentRightSelection}
+                        googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {
                             return;
