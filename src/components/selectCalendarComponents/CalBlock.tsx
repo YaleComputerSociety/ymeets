@@ -93,6 +93,8 @@ export default function CalBlock({
   const pointerHasMovedRef = useRef(false);
   const autoDragIntervalId = useRef<number | null>(null);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
+  // Set when an admin presses the block that is already the whole selection, so releasing on it clears the selection
+  const deselectOnReleaseRef = useRef(false);
 
   // Initialize chartedUsers
   useEffect(() => {
@@ -388,12 +390,28 @@ export default function CalBlock({
       event.preventDefault();
       setDragState(undefined);
 
+      // Re-clicking the only selected block toggles it off, like on the personal calendar. If the drag moved to
+      // other blocks, the selection is no longer just this block and is kept.
+      if (deselectOnReleaseRef.current) {
+        deselectOnReleaseRef.current = false;
+        setMostRecentSelection((prev) =>
+          prev && isSingleBlock(prev, columnID, blockID) ? undefined : prev
+        );
+      }
+
       pointerClientRef.current = null;
       dragOriginClientRef.current = null;
       pointerHasMovedRef.current = false;
       scrollContainerRef.current = null;
     },
-    [blockID, setDragState, setShowTooltip, stopAutoScroll]
+    [
+      blockID,
+      columnID,
+      setDragState,
+      setMostRecentSelection,
+      setShowTooltip,
+      stopAutoScroll,
+    ]
   );
 
   /**
@@ -419,6 +437,10 @@ export default function CalBlock({
         coords
       );
       setDragState(drag);
+      deselectOnReleaseRef.current =
+        !!isAdmin &&
+        !!mostRecentSelection &&
+        isSingleBlock(mostRecentSelection, columnID, blockID);
       setMostRecentSelection(selection);
       // Right now, `!isAdmin` is the most stable way to confirm that we're looking at a personal calendar.
       if (!isAdmin) {
@@ -444,6 +466,7 @@ export default function CalBlock({
       endDrag,
       handleGlobalPointerMove,
       isAdmin,
+      mostRecentSelection,
       setDragState,
       setCalendarState,
       setMostRecentSelection,
@@ -607,6 +630,18 @@ export default function CalBlock({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Returns `true` if `box` covers exactly the one block at (`col`, `block`).
+ */
+function isSingleBlock(box: BoundingBox, col: number, block: number): boolean {
+  return (
+    box.left === col &&
+    box.right === col &&
+    box.top === block &&
+    box.bottom === block
   );
 }
 
