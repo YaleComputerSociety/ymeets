@@ -509,37 +509,26 @@ export default function SideBySideView({
   // Called when the admin clicks "Choose this time" in the popup.
   // Opens Google Calendar with that time prefilled (the admin clicks Save there).
   const handleBestTimeSelect = (time: BestTimeWindow) => {
-    const day = calendarFramework.dates.flat()[time.col];
+    const selection = new BoundingBox(
+      { col: time.col, block: time.startBlock },
+      { col: time.col, block: time.endBlock }
+    );
 
-    // Turns a block number into a real Date on that day
-    const makeDate = (block: number) => {
-      let d = new Date(day?.date as Date);
-      // "Days of the week" events use year 2000 placeholder dates; use the next real one
-      if (d.getFullYear() === 2000) {
-        const diff = ((d.getDay() - new Date().getDay() + 6) % 7) + 1;
-        d = new Date();
-        d.setDate(d.getDate() + diff);
-      }
-      // minutes since midnight = start time of calendar + 15 minutes per block
-      d.setHours(0, bestTimeStartHour * 60 + block * 15, 0, 0);
-      return d;
-    };
+    const result = getGCalUrlForSelection(
+      selection,
+      calendarFramework,
+      adminChosenLocation
+    );
+    if ('error' in result) {
+      setAlertMessage(result.error);
+      return;
+    }
 
-    const start = makeDate(time.startBlock);
-    const end = makeDate(time.endBlock + 1); // +1 = end of the last block
-
-    // Google Calendar wants times like 20261029T153000Z
-    const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
-
-    const params = new URLSearchParams({
-      action: 'TEMPLATE',
-      text: eventName,
-      dates: `${fmt(start)}/${fmt(end)}`,
-      details: eventDescription || '',
-      location: adminChosenLocation || '',
-    });
-
-    window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
+    if (getAccountId() !== '') {
+      window.open(result.url, '_blank');
+    } else {
+      login();
+    }
     setShowBestTime(false); // close the popup
   };
 
