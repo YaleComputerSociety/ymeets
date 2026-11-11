@@ -63,7 +63,7 @@ export default function BestTimeFinder
         function formatTime(block: number): string
         {
             const totalMinutes = startHour * 60 + block * 15;
-            const hour = Math.floor(totalMinutes/60);
+            const hour = Math.floor(totalMinutes / 60) % 24;
             const minutes = totalMinutes % 60;
 
             const period = hour >= 12 ? 'PM' : 'AM';

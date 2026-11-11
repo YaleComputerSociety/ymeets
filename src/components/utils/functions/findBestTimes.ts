@@ -20,6 +20,7 @@ export function findBestTimes
     topN = 5
 ): BestTimeWindow[] 
 {
+    if (personIdx.length === 0) return [];
     const windowSize = Math.ceil(durationMinutes/blockMinutes);
     const all:BestTimeWindow[]=[];
 
