@@ -5,7 +5,6 @@ import {
   SetStateAction,
 } from 'react';
 import ButtonSmall from '../utils/components/ButtonSmall';
-import BestTimeFinder from '../BestTimeFinder';
 import {
   BoundingBox,
   DraggedSelection,
@@ -134,21 +133,7 @@ export default function GroupViewPage({
     }
     return user;
   };
-  //start of code for automatic best time finder
-  const personNames: string[] = [];
-  allUsers?.users?.forEach((u) => {
-    personNames[u.id] = u.name;
-  });
 
-  const dayLabels = (calendarFramework?.dates.flat() ?? []).map(
-    (d) => `${d.shortenedWeekDay} ${d.month} ${d.calendarDay}`
-  );
-
-  const calendarStartHour = calendarFramework?.startTime
-    ? calendarFramework.startTime.getHours() +
-      calendarFramework.startTime.getMinutes() / 60
-    : 8;
-  //end of code for automatic best time finder
   const filteredChartedUsers = useMemo(
     () => ({
       ...chartedUsers,
@@ -167,7 +152,6 @@ export default function GroupViewPage({
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
-  const [showBestTime, setShowBestTime] = useState(false);
   const editAvailabilityButtonLabel = isEditing
     ? 'View Availabilities'
     : userHasFilled
@@ -191,36 +175,6 @@ export default function GroupViewPage({
         isOpen={!!alertMessage}
         onClose={() => setAlertMessage(null)}
       />
-      {/* Best Time popup */}
-      {isAdmin && showBestTime && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setShowBestTime(false)}
-        >
-          <div
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-4 z-10 text-2xl text-white hover:text-gray-300"
-              onClick={() => setShowBestTime(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-
-            <BestTimeFinder
-              availabilities={calendarState}
-              personIdx={filteredChartedUsers.users.map((u) => u.id)}
-              personNames={personNames}
-              dayLabels={dayLabels}
-              numBlocks={calendarFramework.numOfBlocks}
-              startHour={calendarStartHour}
-            />
-          </div>
-        </div>
-      )}
-      {/* best time finder code end*/}
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-2 flex flex-col">
         <div
@@ -388,18 +342,7 @@ export default function GroupViewPage({
               </div>
             </div>
           )}
-          {/* Best Time button: admins only, opens the popup */}
-          {isAdmin && !chartedUsers.hovering && (
-            <div className="w-full">
-              <ButtonSmall
-                bgColor="primary"
-                textColor="white"
-                onClick={() => setShowBestTime(true)}
-              >
-                Find best time
-              </ButtonSmall>
-            </div>
-          )}
+
           {/* Location Chart Section */}
           {locationOptions.length > 0 && !chartedUsers.hovering && (
             <div className="hidden lg:block w-full">
