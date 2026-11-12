@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import {
   doc,
   collection,
@@ -203,7 +201,7 @@ async function deleteEvent(id: EventId): Promise<void> {
 
   // Commit the batch
   await batch.commit().catch((err) => {
-    console.log('Error: ', err);
+    console.error('Error: ', err);
   });
 
   removeEventFromUserCollection(getAccountId(), id);
@@ -217,8 +215,8 @@ async function deleteEvent(id: EventId): Promise<void> {
 // Structure of the userEvents array in the user document
 interface UserEvent {
   code: string;
-  lastModified: any; // This could be Timestamp or Date
-  dateCreated: any; // This could be Timestamp or Date
+  lastModified: Date | Timestamp;
+  dateCreated: Date | Timestamp;
   isAdmin: boolean;
 }
 
@@ -230,7 +228,7 @@ async function removeEventFromUserCollection(
   const userDoc = await getDoc(userRef);
 
   if (!userDoc.exists()) {
-    console.log('User document not found: User does not exist in the database');
+    console.warn('User document not found: User does not exist in the database');
     return;
   }
 
@@ -255,7 +253,7 @@ async function getParsedAccountPageEventsForUser(
   const userDoc = await getDoc(userRef);
 
   if (!userDoc.exists()) {
-    console.log('User document not found: User does not exist in the database');
+    console.warn('User document not found: User does not exist in the database');
     return [];
   }
 
@@ -274,8 +272,6 @@ async function getParsedAccountPageEventsForUser(
     const eventDoc = await getDoc(doc(eventsRef, eventCode));
     if (eventDoc.exists()) {
       const event = eventDoc.data();
-      console.log('Firestore Event:', event);
-
       const eventIndex = eventCodes.indexOf(eventCode);
 
       // Safely handle dateCreated - prefer userEvents array, fallback to event document, then current date
@@ -316,7 +312,7 @@ async function getParsedAccountPageEventsForUser(
       } else if (lastModifiedValue instanceof Date) {
         lastModifiedDate = lastModifiedValue;
       } else {
-        lastModifiedDate = (lastModifiedValue as unknown as Timestamp).toDate();
+        lastModifiedDate = lastModifiedValue.toDate();
       }
 
       accountPageEvents.push({
@@ -483,10 +479,7 @@ async function updateUserCollectionEventsWith(accountId: string) {
     }
 
     const data = snap.data();
-    console.log('Data: ', data);
-
     const userEvents: UserEvent[] = data.userEvents || [];
-
     const existingIdx = userEvents.findIndex((ev) => ev.code === eventCode);
 
     // Update existing entry
@@ -577,7 +570,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
   try {
     if (accountName === '') throw new Error('User is not signed in');
 
-    let availability: any;
+    let availability: unknown;
     workingEvent.participants.forEach((part, index) => {
       if (part.name == name && part.accountId == '') {
         workingEvent.participants[index].name = accountName;
@@ -598,7 +591,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
       const anonymousDoc = await transaction.get(anonymousPartRef);
 
       if (!anonymousDoc.exists()) {
-        console.log('Anonymous document not found:', name);
+        console.warn('Anonymous document not found:', name);
         return;
       }
 
@@ -691,18 +684,6 @@ async function getEventOnPageload(id: string): Promise<void> {
 
 // Retrieves the availability object of the participant matching `name`
 function getAvailabilityByName(name: string): Availability | undefined {
-  const parseAvail = (val: any): Availability | undefined => {
-    if (val === undefined || val === null) return undefined;
-    if (Array.isArray(val)) return val as Availability;
-    if (typeof val === 'string') {
-      try {
-        return JSON.parse(val) as Availability;
-      } catch {
-        return undefined;
-      }
-    }
-    return undefined;
-  };
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
       return parseAvail(workingEvent.participants[i].availability);
@@ -711,22 +692,23 @@ function getAvailabilityByName(name: string): Availability | undefined {
   }
 }
 
+function parseAvail(val: unknown): Availability | undefined {
+  if (val === undefined || val === null) return undefined;
+  if (Array.isArray(val)) return val as Availability;
+  if (typeof val === 'string') {
+    try {
+      return JSON.parse(val) as Availability;
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
 // Retrieves the availability object of the participant matching `accountId`
 function getAvailabilityByAccountId(
   accountId: string
 ): Availability | undefined {
-  const parseAvail = (val: any): Availability | undefined => {
-    if (val === undefined || val === null) return undefined;
-    if (Array.isArray(val)) return val as Availability;
-    if (typeof val === 'string') {
-      try {
-        return JSON.parse(val) as Availability;
-      } catch {
-        return undefined;
-      }
-    }
-    return undefined;
-  };
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].accountId == accountId) {
       return parseAvail(workingEvent.participants[i].availability);
@@ -995,7 +977,7 @@ export {
 function dateToArray(obj: Record<number, Date>): Date[] {
   const result: Date[] = [];
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       result.push((obj[key] as unknown as Timestamp).toDate());
     }
   }
