@@ -50,11 +50,11 @@ let workingEvent: Event = {
   participants: [],
 };
 
-const checkIfLoggedIn = (): boolean => {
+export const checkIfLoggedIn = (): boolean => {
   return (auth.currentUser && !auth.currentUser.isAnonymous) || false;
 };
 
-const checkIfAdmin = (): boolean => {
+export const checkIfAdmin = (): boolean => {
   if (workingEvent && auth.currentUser) {
     if (
       workingEvent.details.adminAccountId &&
@@ -67,11 +67,11 @@ const checkIfAdmin = (): boolean => {
 };
 
 // Lite events have no admin and expire; see `EventMode`
-const isLiteEvent = (): boolean => {
+export const isLiteEvent = (): boolean => {
   return workingEvent?.details.mode === 'lite';
 };
 
-const getExpireAt = (): Date | undefined => {
+export const getExpireAt = (): Date | undefined => {
   return workingEvent?.expireAt;
 };
 
@@ -79,7 +79,7 @@ const getExpireAt = (): Date | undefined => {
  *
  * @returns Account ID, if and only if the user is not anonymously logged in.
  */
-const getAccountId = (): string => {
+export const getAccountId = (): string => {
   if (auth.currentUser !== null && !auth.currentUser.isAnonymous) {
     return auth.currentUser.uid;
   } else {
@@ -87,11 +87,11 @@ const getAccountId = (): string => {
   }
 };
 
-const getAccountName = (): string => {
+export const getAccountName = (): string => {
   return auth.currentUser?.displayName ? auth.currentUser.displayName : '';
 };
 
-const getAccountEmail = (): string => {
+export const getAccountEmail = (): string => {
   return auth.currentUser?.email ? auth.currentUser.email : '';
 };
 
@@ -118,7 +118,7 @@ async function generateUniqueEventKey(): Promise<string> {
 // Will throw an error if the document cannot be found
 // Event is not return; rather, it is stored internally
 // for other getters and settings defined in this file.
-async function getEventById(id: EventId): Promise<void> {
+export async function getEventById(id: EventId): Promise<void> {
   const eventsRef = collection(db, 'events');
   await new Promise<void>((resolve, reject) => {
     getDoc(doc(eventsRef, id))
@@ -174,7 +174,7 @@ async function getEventById(id: EventId): Promise<void> {
   });
 }
 
-async function deleteEvent(id: EventId): Promise<void> {
+export async function deleteEvent(id: EventId): Promise<void> {
   // Prevent any user other than the admin to delete event
   if (
     getAccountId() !==
@@ -245,7 +245,7 @@ async function removeEventFromUserCollection(
 }
 
 // returns array of
-async function getParsedAccountPageEventsForUser(
+export async function getParsedAccountPageEventsForUser(
   accountID: string
 ): Promise<AccountsPageEvent[]> {
   // get event ids and lastModified info
@@ -350,7 +350,7 @@ async function getParsedAccountPageEventsForUser(
 }
 
 // Stores a new event passed in as a parameter to the backend
-async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
+export async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
   const id = await generateUniqueEventKey();
   const newEvent: Event = {
     details: {
@@ -425,7 +425,7 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
 
 // For internal use
 // Returns undefined when participant has not been added yet
-const getParticipantIndex = (
+export const getParticipantIndex = (
   name: string,
   accountId: string = ''
 ): number | undefined => {
@@ -563,7 +563,7 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
 }
 
 
-async function updateAnonymousUserToAuthUser(name: string) {
+export async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName();
   const accountId = getAccountId();
 
@@ -618,7 +618,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
   }
 }
 
-async function wrappedSaveParticipantDetails(
+export async function wrappedSaveParticipantDetails(
   availability: Availability,
   locations: Location[] | undefined
 ): Promise<void> {
@@ -639,7 +639,7 @@ async function wrappedSaveParticipantDetails(
   });
 }
 
-async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
+export async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
   let name = getAccountName();
   if (!name) {
     console.warn('User not signed in');
@@ -662,28 +662,28 @@ async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
 }
 
 // Retrieves the list of locations to be considered for the event
-function getLocationOptions(): Location[] {
+export function getLocationOptions(): Location[] {
   return workingEvent.details.plausibleLocations;
 }
 
 // Retrieves the name of the event
-function getEventName(): string {
+export function getEventName(): string {
   return workingEvent.details.name;
 }
 
 // Retrieves the description of the event
-function getEventDescription(): string {
+export function getEventDescription(): string {
   return workingEvent.details.description;
 }
 
 // To be called on render when a page loads with event id in url
-async function getEventOnPageload(id: string): Promise<void> {
+export async function getEventOnPageload(id: string): Promise<void> {
   await getEventById(id.toUpperCase());
   return;
 }
 
 // Retrieves the availability object of the participant matching `name`
-function getAvailabilityByName(name: string): Availability | undefined {
+export function getAvailabilityByName(name: string): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
       return parseAvail(workingEvent.participants[i].availability);
@@ -706,7 +706,7 @@ function parseAvail(val: unknown): Availability | undefined {
 };
 
 // Retrieves the availability object of the participant matching `accountId`
-function getAvailabilityByAccountId(
+export function getAvailabilityByAccountId(
   accountId: string
 ): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
@@ -718,7 +718,7 @@ function getAvailabilityByAccountId(
 
 // Retrieves the list of participants
 // GUARANTEED to be the in the same order as getAllAvailabilities
-function getAllAvailabilitiesNames(): string[] {
+export function getAllAvailabilitiesNames(): string[] {
   const names: string[] = [];
   for (let i = 0; i < workingEvent.participants.length; i++) {
     names.push(workingEvent.participants[i].name);
@@ -726,7 +726,7 @@ function getAllAvailabilitiesNames(): string[] {
   return names;
 }
 
-function getAllAvailabilitiesIDs(): string[] {
+export function getAllAvailabilitiesIDs(): string[] {
   const ids: string[] = [];
   for (let i = 0; i < workingEvent.details.participants.length; i++) {
     ids.push(workingEvent.details.participants[i]);
@@ -736,7 +736,7 @@ function getAllAvailabilitiesIDs(): string[] {
 
 // Retrieves the list of availabilities
 // GUARANTEED to be the in the same order as getAllAvailabilitiesNames
-function getAllAvailabilities(): Availability[] {
+export function getAllAvailabilities(): Availability[] {
   const avails: Availability[] = [];
 
   const makeEmptyAvailability = (): Availability => {
@@ -773,7 +773,7 @@ function getAllAvailabilities(): Availability[] {
 }
 
 // Retrieves the official datetime (start and end) of the event as chosen by the admin
-function getChosenDayAndTime(): [Date, Date] | undefined {
+export function getChosenDayAndTime(): [Date, Date] | undefined {
   if (
     workingEvent.details.chosenStartDate &&
     workingEvent.details.chosenEndDate
@@ -786,12 +786,12 @@ function getChosenDayAndTime(): [Date, Date] | undefined {
 }
 
 // Retrieves the official location of the event as chosen by the admin
-function getChosenLocation(): Location | undefined {
+export function getChosenLocation(): Location | undefined {
   return workingEvent.details.chosenLocation;
 }
 
 // Retrieves the dict objects mapping locations (keys) to number of votes (items)
-function getLocationsVotes(): Record<Location, number> | any {
+export function getLocationsVotes(): Record<Location, number> | any {
   const votes: Record<Location, number> = {};
   for (let i = 0; i < workingEvent.details.plausibleLocations.length; i++) {
     const location = workingEvent.details.plausibleLocations[i];
@@ -806,19 +806,19 @@ function getLocationsVotes(): Record<Location, number> | any {
   return votes;
 }
 
-function getZoomLink(): string | undefined {
+export function getZoomLink(): string | undefined {
   return workingEvent.details.zoomLink || undefined;
 }
 
-function getUTCDates(): Date[] {
+export function getUTCDates(): Date[] {
   return workingEvent.details.dates;
 }
 
-function getUTCStartAndEndTimes(): Date[] {
+export function getUTCStartAndEndTimes(): Date[] {
   return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
-function getDates(): Date[] {
+export function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
   const userTimeZone = getUserTimezone();
@@ -831,7 +831,7 @@ function getDates(): Date[] {
   return adjustedDates;
 }
 
-function getStartAndEndTimes(): Date[] {
+export function getStartAndEndTimes(): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
   let userTimeZone = getUserTimezone();
@@ -849,11 +849,11 @@ function getStartAndEndTimes(): Date[] {
   return [adjustedStartTime, adjustedEndTime];
 }
 
-function getTimezone(): string {
+export function getTimezone(): string {
   return workingEvent.details.timeZone;
 }
 
-function getEventObjectForGCal(
+export function getEventObjectForGCal(
   startDate: Date,
   endDate: Date,
   location?: string
@@ -881,11 +881,11 @@ function getEventObjectForGCal(
   };
 }
 
-function getEmailAdmin(): boolean {
+export function getEmailAdmin(): boolean {
   return workingEvent.details.emailAdmin === true;
 }
 
-async function setEmailAdmin(emailAdmin: boolean) {
+export async function setEmailAdmin(emailAdmin: boolean) {
   workingEvent.details.emailAdmin = emailAdmin;
   // Update only the emailAdmin field to avoid issues with undefined optional fields
   const eventsRef = collection(db, 'events');
@@ -894,7 +894,7 @@ async function setEmailAdmin(emailAdmin: boolean) {
   });
 }
 
-async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+export async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
   // Guests have no user document
   if (!uid) return [];
   try {
@@ -909,7 +909,7 @@ async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
   }
 }
 
-async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
+export async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
   try {
     const userDocRef = doc(db, 'users', uid);
     await setDoc(userDocRef, { selectedCalendarIDs: calIDs }, { merge: true });
@@ -917,62 +917,6 @@ async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
     console.error('Error setting selected calendars:', error);
   }
 }
-
-export { workingEvent }; // For interal use; use getters and setters below
-
-export {
-  // Firebase Wrappers
-  getAccountId,
-  getAccountName,
-  getAccountEmail,
-  checkIfLoggedIn,
-  checkIfAdmin,
-  isLiteEvent,
-  getExpireAt,
-
-  // Misc
-  getSelectedCalendarIDsByUserID,
-  setUserSelectedCalendarIDs,
-
-  // High Level (Async)
-  getEventOnPageload,
-  getEventById,
-  createEvent,
-  getParsedAccountPageEventsForUser,
-
-  // Getters (Sync)
-  getDates,
-  getUTCDates,
-  getUTCStartAndEndTimes,
-  getStartAndEndTimes,
-  getChosenLocation,
-  getChosenDayAndTime,
-  getAllAvailabilities,
-  getAllAvailabilitiesNames,
-  getAllAvailabilitiesIDs,
-  getAvailabilityByAccountId,
-  getAvailabilityByName,
-  getEventDescription,
-  getEventName,
-  getLocationOptions,
-  getLocationsVotes,
-  getEventObjectForGCal,
-  getZoomLink,
-  getTimezone,
-  getEmailAdmin,
-
-  // All Participants (Async)
-  wrappedSaveParticipantDetails,
-  wrappedSaveDeclinedParticipantDetails,
-  updateAnonymousUserToAuthUser,
-  // setAvailability,
-  // setLocationPreference,
-
-  // Admin Only (Async)
-  deleteEvent,
-  setEmailAdmin,
-  getParticipantIndex
-};
 
 function dateToArray(obj: Record<number, Date>): Date[] {
   const result: Date[] = [];
@@ -983,3 +927,5 @@ function dateToArray(obj: Record<number, Date>): Date[] {
   }
   return result;
 }
+
+export { workingEvent }; // For internal use; use getters and setters below
