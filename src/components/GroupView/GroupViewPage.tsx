@@ -1,4 +1,5 @@
 import BestTimeFinder from '../BestTimeFinder';
+import { windowToSelection } from '../utils/functions/findBestTimes';
 import type { BestTimeWindow } from '../utils/functions/findBestTimes';
 import {
   useState,
@@ -152,42 +153,22 @@ export default function GroupViewPage({
     peopleStatus
   );
   // ----- Best time finder (admins) -----
-  // People included in the search: checked in the list, not declined
-  const bestTimeUsers = (allUsers?.users ?? []).filter(
-    (u) => peopleStatus[u.name] && !declinedPeople.includes(u.name)
-  );
-
   // Names indexed by calendarState position (user.id is that position)
   const bestTimePersonNames: string[] = [];
   allUsers?.users?.forEach((u) => {
     bestTimePersonNames[u.id] = u.name;
   });
 
-  // One label per day column, like "WED OCT 28"
-  const bestTimeDayLabels = (calendarFramework?.dates.flat() ?? []).map(
-    (d) => `${d.shortenedWeekDay} ${d.month} ${d.calendarDay}`
-  );
-
-  // Hour the calendar starts at (9 for 9 AM)
-  const bestTimeStartHour = calendarFramework?.startTime
-    ? calendarFramework.startTime.getHours() +
-      calendarFramework.startTime.getMinutes() / 60
-    : 8;
-
   // Called when the admin clicks "Choose this time" in the popup.
   // Opens a prefilled Google Calendar event (same export as "Export to GCal").
   const handleBestTimeSelect = (time: BestTimeWindow) => {
-    const selection = new BoundingBox(
-      { col: time.col, block: time.startBlock },
-      { col: time.col, block: time.endBlock }
-    );
-
     const result = getGCalUrlForSelection(
-      selection,
+      windowToSelection(time),
       calendarFramework,
       adminChosenLocation
     );
     if ('error' in result) {
+      setShowBestTime(false); // close first, or the alert is hidden behind it
       setAlertMessage(result.error);
       return;
     }
@@ -247,11 +228,10 @@ export default function GroupViewPage({
 
             <BestTimeFinder
               availabilities={calendarState}
-              personIdx={bestTimeUsers.map((u) => u.id)}
+              // Same people the group calendar shows: checked and not declined
+              personIdx={(filteredChartedUsers.users ?? []).map((u) => u.id)}
               personNames={bestTimePersonNames}
-              dayLabels={bestTimeDayLabels}
-              numBlocks={calendarFramework.numOfBlocks}
-              startHour={bestTimeStartHour}
+              calendarFramework={calendarFramework}
               onSelect={handleBestTimeSelect}
             />
           </div>

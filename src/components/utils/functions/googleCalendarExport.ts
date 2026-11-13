@@ -59,6 +59,19 @@ function getStoredBlockTimes(calendarFramework: calendarDimensions): {
 }
 
 /**
+ * Start time of each stored block, in minutes after midnight of its column's
+ * first day (so a 00:30 block past midnight is 1470, not 30). Consecutive
+ * blocks of one continuous time range are exactly 15 apart.
+ */
+export function getBlockMinutes(calendarFramework: calendarDimensions): number[] {
+  const { times, dayOffsets } = getStoredBlockTimes(calendarFramework);
+  return times.map((time, i) => {
+    const [hour, minute] = time.split(':').map(Number);
+    return dayOffsets[i] * 24 * 60 + hour * 60 + minute;
+  });
+}
+
+/**
  * Builds a pre-filled Google Calendar "create event" URL for the event.
  */
 function createCalendarEventUrl(
@@ -85,14 +98,14 @@ function createCalendarEventUrl(
 }
 
 /**
- * Turns an admin's selection on the group calendar (`mostRecentSelection`) into
- * a Google Calendar event URL. Returns `{ error }` if it can't be exported.
+ * Turns a selection on the group calendar into the real start and end dates of
+ * that meeting. Returns `{ error }` if it can't be read. Export and the best
+ * time finder both use this, so what a suggestion shows is what gets exported.
  */
-export function getGCalUrlForSelection(
+export function getSelectionDates(
   selection: BoundingBox | undefined,
-  calendarFramework: calendarDimensions,
-  location: string | undefined
-): { url: string } | { error: string } {
+  calendarFramework: calendarDimensions
+): { start: Date; end: Date } | { error: string } {
   if (selection === undefined) {
     return { error: 'No new time selection made!' };
   }
@@ -141,5 +154,21 @@ export function getGCalUrlForSelection(
   endDate.setHours(endHour);
   endDate.setMinutes(endMinute);
 
-  return { url: createCalendarEventUrl(startDate, endDate, location) };
+  return { start: startDate, end: endDate };
+}
+
+/**
+ * Turns an admin's selection on the group calendar (`mostRecentSelection`) into
+ * a Google Calendar event URL. Returns `{ error }` if it can't be exported.
+ */
+export function getGCalUrlForSelection(
+  selection: BoundingBox | undefined,
+  calendarFramework: calendarDimensions,
+  location: string | undefined
+): { url: string } | { error: string } {
+  const dates = getSelectionDates(selection, calendarFramework);
+  if ('error' in dates) {
+    return dates;
+  }
+  return { url: createCalendarEventUrl(dates.start, dates.end, location) };
 }

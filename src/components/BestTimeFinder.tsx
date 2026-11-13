@@ -1,18 +1,33 @@
-import { findBestTimes } from './utils/functions/findBestTimes';
+import {
+    findBestTimes,
+    windowToSelection,
+} from './utils/functions/findBestTimes';
 import type { BestTimeWindow } from './utils/functions/findBestTimes';
-import { useState } from 'react';
-import { Availability} from '../types';
+import {
+    getBlockMinutes,
+    getSelectionDates,
+} from './utils/functions/googleCalendarExport';
+import { useMemo, useState } from 'react';
+import { Availability, calendarDimensions } from '../types';
 
 interface BestTimeFinderProps
 {
     availabilities: Availability[];
     personIdx: number[];
     personNames: string[];
-    dayLabels: string[];
-    numBlocks: number;
-    startHour?: number;
+    calendarFramework: calendarDimensions;
     onSelect?: (time: BestTimeWindow) => void;
 }
+
+const formatDay = (date: Date): string =>
+    date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+    });
+
+const formatTime = (date: Date): string =>
+    date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
 export default function BestTimeFinder
 (
@@ -20,12 +35,17 @@ export default function BestTimeFinder
         availabilities,
         personIdx,
         personNames,
-        dayLabels,
-        numBlocks,
-        startHour = 8,
+        calendarFramework,
         onSelect,
     }: BestTimeFinderProps)
     {
+        // Real start time of each block, so windows never jump a gap in the grid
+        const blockStartMinutes = useMemo(
+            () => getBlockMinutes(calendarFramework),
+            [calendarFramework]
+        );
+        const numCols = calendarFramework.dates.flat().length;
+
         const [sortBy, setSortBy] = useState<'best' | 'earliest'>('best');
 
         const [selectedKey, setSelectedKey] = useState<string | null>(null);   
@@ -55,9 +75,9 @@ export default function BestTimeFinder
             const results = findBestTimes
             (
                 availabilities,
-                personIdx, 
-                dayLabels.length, 
-                numBlocks, 
+                personIdx,
+                numCols,
+                blockStartMinutes,
                 duration,
                 15, // block size in minutes
                 10  // how many to return
@@ -65,35 +85,16 @@ export default function BestTimeFinder
             setSelectedKey(null);
             setSuggestions(results);
             setSearched(true);
-            
-        }
 
-        //convert calendar block index into readable time
-
-        function formatTime(block: number): string
-        {
-            const totalMinutes = startHour * 60 + block * 15;
-            const hour = Math.floor(totalMinutes / 60) % 24;
-            const minutes = totalMinutes % 60;
-
-            const period = hour >= 12 ? 'PM' : 'AM';
-            const displayHour = hour % 12 || 12;
-            const displayMinutes = String(minutes).padStart(2, '0');
-            
-            return (
-                String(displayHour) +
-                ':' +
-                displayMinutes +
-                ' ' +
-                period
-            );
         }
 
         const shownSuggestions =
             sortBy === 'best'
                 ? suggestions
                 : [...suggestions].sort(
-                    (a, b) => a.col - b.col || a.startBlock - b.startBlock
+                    (a, b) =>
+                        a.col - b.col ||
+                        blockStartMinutes[a.startBlock] - blockStartMinutes[b.startBlock]
                 );
         return(
             <div className = "mx-auto max-w-4xl rounded-xl bg-slate-700 p-6 text-white shadow-sm">
@@ -175,6 +176,11 @@ export default function BestTimeFinder
                             {shownSuggestions.map((time, index) => {
                                 const key = `${time.col}-${time.startBlock}`;
                                 const isSelected = selectedKey === key;
+                                // The same dates "Choose this time" exports
+                                const dates = getSelectionDates(
+                                    windowToSelection(time),
+                                    calendarFramework
+                                );
                                 return (
                                     <div
                                         key={key}
@@ -189,14 +195,21 @@ export default function BestTimeFinder
                                             </p>
                                         )}
 
-                                        <h4 className="font-semibold text-white">
-                                            {dayLabels[time.col] ?? `Day ${time.col + 1}`}
-                                        </h4>
-
-                                        <p>
-                                            {formatTime(time.startBlock)} –{' '}
-                                            {formatTime(time.endBlock + 1)}
-                                        </p>
+                                        {'error' in dates ? (
+                                            <p className="font-semibold text-white">
+                                                Time unavailable
+                                            </p>
+                                        ) : (
+                                            <>
+                                                <h4 className="font-semibold text-white">
+                                                    {formatDay(dates.start)}
+                                                </h4>
+                                                <p>
+                                                    {formatTime(dates.start)} –{' '}
+                                                    {formatTime(dates.end)}
+                                                </p>
+                                            </>
+                                        )}
 
                                         <p className="mt-2">
                                             <strong>
