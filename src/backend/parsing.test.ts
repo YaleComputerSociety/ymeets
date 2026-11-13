@@ -101,6 +101,12 @@ describe("parseAvailability", () => {
     it("handles JSON whitespace", () => {
       expect(parseAvailability(' \n [[true], null] \t')).toEqual([[true], []]);
     });
+
+    it("parses an older twice-stringified row after getParticipants' single parse", () => {
+      const stored = JSON.stringify(JSON.stringify([[true, null], null]));
+      // getParticipants runs JSON.parse once, leaving the inner JSON string
+      expect(parseAvailability(JSON.parse(stored))).toEqual([[true, false], []]);
+    });
   });
 
   describe("invalid values", () => {

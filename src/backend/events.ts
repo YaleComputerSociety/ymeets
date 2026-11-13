@@ -478,9 +478,15 @@ const getParticipants = async (
       .then((docs) => {
         const parts: Participant[] = [];
         docs.forEach((data) => {
-          // unstringify availability
+          // Unstringify availability once. The getters validate the result with parseAvailability,
+          // which also parses older rows that were stringified twice. A malformed value is kept
+          // as-is rather than failing the whole event load.
           const participant = data.data();
-          participant.availability = JSON.parse(participant.availability);
+          try {
+            participant.availability = JSON.parse(participant.availability);
+          } catch {
+            // Left as-is; getAllAvailabilities falls back to an empty grid
+          }
 
           parts.push(participant as Participant);
         });
@@ -777,20 +783,10 @@ export function getAllAvailabilities(): Availability[] {
   };
 
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    // availability may be string or already an array
+    // Validates and fills null columns/blocks, which crashed the calendars (#421). Unreadable
+    // availability becomes an empty grid matching the current framework.
     const val = workingEvent.participants[i].availability;
-    if (Array.isArray(val)) {
-      avails.push(val as Availability);
-    } else if (typeof val === 'string') {
-      try {
-        avails.push(JSON.parse(val) as Availability);
-      } catch {
-        // if parsing fails, push an empty availability matching current framework
-        avails.push(makeEmptyAvailability());
-      }
-    } else {
-      avails.push(makeEmptyAvailability());
-    }
+    avails.push(parseAvailability(val) ?? makeEmptyAvailability());
   }
   return avails;
 }
