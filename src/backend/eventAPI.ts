@@ -24,6 +24,31 @@ import { getUserTimezone } from '../components/utils/functions/timzoneConversion
 
 // TODO fetch event details -> calendarFramework
 
+const getShortDay = [
+  'SUN',
+  'MON',
+  'TUE',
+  'WED',
+  'THU',
+  'FRI',
+  'SAT',
+] as const;
+
+const getMonth = [
+  'JAN',
+  'FEB',
+  'MAR',
+  'APR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AUG',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DEC',
+] as const;
+
 export default class FrontendEventAPI {
   /**
    *
@@ -36,14 +61,10 @@ export default class FrontendEventAPI {
   static getEmptyAvailability(dims: calendarDimensions): Availability {
     const blocksLength =
       generateTimeBlocks(dims.startTime, dims.endTime).length * 4;
-    const days: boolean[][] = [];
-    for (let i = 0; i < dims.dates.length; i++) {
-      for (let k = 0; k < dims.dates[i].length; k++) {
-        days.push(Array.from({ length: blocksLength }, () => false));
-      }
-    }
-
-    return days;
+    // One all-false row per date
+    return dims.dates
+      .flat()
+      .map(() => Array.from({ length: blocksLength }, () => false));
   }
 
   /**
@@ -80,7 +101,7 @@ export default class FrontendEventAPI {
     mode: EventMode = 'full'
   ): Promise<Event | null> {
     try {
-      const ev: Event | null = await createEvent({
+      return await createEvent({
         name: title,
         description,
         adminName,
@@ -97,8 +118,6 @@ export default class FrontendEventAPI {
         participants: [],
         dateCreated: dateCreated,
       });
-
-      return ev;
     } catch (error) {
       console.error('Error creating event:', error);
       throw error;
@@ -215,7 +234,7 @@ export default class FrontendEventAPI {
       
       // Helper function to convert time block indices to absolute times
       const indicesToAbsoluteTimes = (
-        availability: boolean[][],
+        availability: Availability,
         oldTimeBlocks: string[][][]
       ): Set<string>[] => {
         const absoluteTimes: Set<string>[] = [];
@@ -253,7 +272,7 @@ export default class FrontendEventAPI {
         absoluteTimes: Set<string>[],
         newTimeBlocks: string[][][],
         numDates: number
-      ): boolean[][] => {
+      ): Availability => {
         // Flatten new time blocks
         const flatNewBlocks: string[] = [];
         for (const group of newTimeBlocks) {
@@ -269,9 +288,9 @@ export default class FrontendEventAPI {
         });
         
         // Build new availability array
-        const newAvailability: boolean[][] = [];
+        const newAvailability: Availability = [];
         for (let colIdx = 0; colIdx < numDates; colIdx++) {
-          const column = new Array(flatNewBlocks.length).fill(false);
+          const column = flatNewBlocks.map(() => false);
           
           if (colIdx < absoluteTimes.length) {
             const times = absoluteTimes[colIdx];
@@ -323,7 +342,7 @@ export default class FrontendEventAPI {
         // Generate empty availability for new structure
         const emptyAvailability: Availability = [];
         for (let i = 0; i < dates.length; i++) {
-          emptyAvailability.push(Array.from({ length: flatNewBlocks.length }, () => false));
+          emptyAvailability.push(flatNewBlocks.map(() => false));
         }
         
           // Process each participant
@@ -390,7 +409,7 @@ export default class FrontendEventAPI {
               });
             }
 
-            let normalizedAvailability: boolean[][] = oldAvailability;
+            let normalizedAvailability: Availability = oldAvailability;
 
             // Detect and fix transposed data [block][date] -> [date][block]
             if (
@@ -402,9 +421,9 @@ export default class FrontendEventAPI {
             ) {
               const numBlocks = oldDatesCount;
               const numDates = oldBlocksPerDate;
-              const transposed: boolean[][] = [];
+              const transposed: Availability = [];
               for (let d = 0; d < numDates; d++) {
-                const col: boolean[] = new Array(numBlocks).fill(false);
+                const col: boolean[] = Array.from({ length: numBlocks }, () => false);
                 for (let b = 0; b < numBlocks; b++) {
                   if (oldAvailability[b] && oldAvailability[b][d] !== undefined) {
                     col[b] = oldAvailability[b][d] === true;
@@ -423,7 +442,7 @@ export default class FrontendEventAPI {
               });
             }
 
-            let newAvailability: boolean[][] = [];
+            let newAvailability: Availability = [];
 
             if (needsDateMapping && needsTimeRemapping) {
               // Both changed: map dates AND remap times
@@ -482,13 +501,13 @@ export default class FrontendEventAPI {
               // Only timeframe changed: remap times, keep same dates
               // Trim/pad to match expected date count (use dates.length since dates didn't change)
               const expectedDateCount = dates.length;
-              const trimmedAvailability: boolean[][] = [];
+              const trimmedAvailability: Availability = [];
               for (let i = 0; i < expectedDateCount; i++) {
                 if (i < normalizedAvailability.length) {
                   trimmedAvailability.push(normalizedAvailability[i]);
                 } else {
                   // Pad with empty row if we have fewer dates than expected
-                  trimmedAvailability.push(Array.from({ length: flatOldBlocks.length }, () => false));
+                  trimmedAvailability.push(flatOldBlocks.map(() => false));
                 }
               }
               
@@ -562,31 +581,6 @@ export default class FrontendEventAPI {
         ? generateTimeBlocks(startAndEndTimes[0], startAndEndTimes[1]).length *
           4
         : 0;
-
-    const getShortDay: { [key: number]: string } = {
-      0: 'SUN',
-      1: 'MON',
-      2: 'TUE',
-      3: 'WED',
-      4: 'THU',
-      5: 'FRI',
-      6: 'SAT',
-    };
-
-    const getMonth: { [key: number]: string } = {
-      0: 'JAN',
-      1: 'FEB',
-      2: 'MAR',
-      3: 'APR',
-      4: 'MAY',
-      5: 'JUN',
-      6: 'JUL',
-      7: 'AUG',
-      8: 'SEP',
-      9: 'OCT',
-      10: 'NOV',
-      11: 'DEC',
-    };
 
     // if its a general day
     if (theDates[0].getFullYear() === 2000) {
