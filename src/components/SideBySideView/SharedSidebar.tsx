@@ -23,10 +23,12 @@ import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import GCAL_LOGO from './gcal-logo.png'
 import LoginPopup from '../utils/components/LoginPopup';
+import { useIsDesktop } from '../utils/functions/useIsDesktop';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
+import LiteEventNotice from '../utils/components/LiteEventNotice';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import ParticipantFilterList, {
   getFilterableParticipants,
@@ -74,6 +76,9 @@ interface SharedSidebarProps {
   // User signed-in state
   userHasSignedIn: boolean;
   onUserSignIn: () => void;
+  // Ask for a name right away when someone without one arrives to add their availability (e.g. just after
+  // creating an event without signing in)
+  promptForName?: boolean;
 
   userHasFilled: boolean;
   onDecline: () => void;
@@ -102,6 +107,7 @@ export default function SharedSidebar({
   setSelectedLocations,
   userHasSignedIn,
   onUserSignIn,
+  promptForName = false,
   userHasFilled,
   onDecline,
   onFindBestTime,
@@ -111,7 +117,11 @@ export default function SharedSidebar({
   const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(
+    () => promptForName && getAccountName() === ''
+  );
+  // Only on desktop: on mobile this sidebar is mounted but hidden, and TimeSelectPage prompts instead
+  const isDesktop = useIsDesktop();
 
   const { hasAccess, requestAccess, getCalendars } = useGoogleCalendar();
   const { login, currentUser } = useAuth();
@@ -244,6 +254,8 @@ export default function SharedSidebar({
           )}
         </div>
       )}
+
+      {!chartedUsers?.hovering && <LiteEventNotice />}
 
       {/* Add My Availability Button - shown when user is not signed in */}
       {!chartedUsers?.hovering && !userHasSignedIn && (
@@ -525,7 +537,7 @@ export default function SharedSidebar({
       )}
 
       {/* Login Popup */}
-      {showLoginPopup && (
+      {showLoginPopup && isDesktop && (
         <LoginPopup
           onClose={(successFlag) => {
             setShowLoginPopup(false);

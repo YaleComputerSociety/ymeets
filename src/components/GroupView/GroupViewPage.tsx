@@ -43,6 +43,7 @@ import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconAdjustments } from '@tabler/icons-react';
 import AlertPopup from '../utils/components/AlertPopup';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
+import LiteEventNotice from '../utils/components/LiteEventNotice';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import { getUserTimezone } from '../utils/functions/timzoneConversions';
 import ParticipantFilterList, {
@@ -283,6 +284,8 @@ export default function GroupViewPage({
               )}
             </div>
           )}
+
+          {!chartedUsers.hovering && <LiteEventNotice />}
 
           {/* Primary Action */}
           {!chartedUsers.hovering && (

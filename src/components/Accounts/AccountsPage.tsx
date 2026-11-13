@@ -7,7 +7,6 @@ import {
   deleteEvent,
   getParsedAccountPageEventsForUser,
 } from '../../backend/events';
-import { useAuth } from '../../backend/authContext';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../backend/firebase';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
@@ -15,6 +14,7 @@ import LoginButton from '../utils/components/LoginButton';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import DeletePopup from '../utils/components/DeletePopup';
+import { LOGOUT_ON_ARRIVAL } from '../utils/functions/navigationState';
 import {
   getCachedAccountEvents,
   setCachedAccountEvents,
@@ -39,8 +39,6 @@ export interface AccountsPageEvent {
  * @returns Page Component Render
  */
 export default function AccountsPage() {
-  const { logout } = useAuth();
-
   useEffect(() => {
     const retrieveAndSetEvents = () => {
       const accountID = getAccountId();
@@ -282,8 +280,10 @@ export default function AccountsPage() {
           {checkIfLoggedIn() ? (
             <button
               onClick={() => {
-                logout();
-                nav('/');
+                // Log out on arrival (handled in NavBar): logging out first and
+                // then going to '/' could still see the user as signed in, and
+                // '/' would send them straight back to My Events
+                nav('/', { state: LOGOUT_ON_ARRIVAL });
               }}
               className="text-lg bg-primary w-fit flex items-left gap-2 text-white font-medium py-0.5 sm:py-1 md:py-1.5 px-5 rounded-lg hover:bg-ymeets-med-blue active:bg-ymeets-light-blue transition-colors"
             >

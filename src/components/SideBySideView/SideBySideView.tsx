@@ -102,6 +102,7 @@ interface SideBySideViewProps {
   // User signed-in state
   userHasSignedIn: boolean;
   setUserHasSignedIn: Dispatch<SetStateAction<boolean>>;
+  promptForName?: boolean;
 
   // Save functionality
   onSave: () => Promise<void>;
@@ -145,6 +146,7 @@ export default function SideBySideView({
   setSelectedLocations,
   userHasSignedIn,
   setUserHasSignedIn,
+  promptForName,
   onSave,
   onDecline,
   isSaving,
@@ -531,6 +533,7 @@ export default function SideBySideView({
             setSelectedLocations={wrappedSetSelectedLocations}
             userHasSignedIn={userHasSignedIn}
             onUserSignIn={() => setUserHasSignedIn(true)}
+            promptForName={promptForName}
             userHasFilled={userHasFilled}
             onDecline={onDecline}
             onFindBestTime={() => setShowBestTime(true)}

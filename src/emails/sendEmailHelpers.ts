@@ -101,7 +101,8 @@ export async function notifyAdminOfNewResponse(
   eventId: string
 ): Promise<void> {
   // Don't email the admin when they save their own availability
-  if (adminAccountId === currentUserAccountId) {
+  // Lite events have no admin to notify
+  if (!adminAccountId || adminAccountId === currentUserAccountId) {
     return;
   }
 
