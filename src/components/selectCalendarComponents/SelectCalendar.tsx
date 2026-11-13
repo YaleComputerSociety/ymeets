@@ -73,10 +73,6 @@ function getMaxAvailableCount(
     if (shownUserIds && !shownUserIds.has(i)) continue;
     for (let j = 0; j < calendarState[i].length; j++) {
       if (!counts[j]) counts[j] = [];
-      // TODO: figure out why columns are sometimes null. Stop that from happening.
-      if (calendarState[i][j] === null) {
-        continue;
-      }
       for (let k = 0; k < calendarState[i][j].length; k++) {
         if (calendarState[i][j][k]) {
           const newVal = (counts[j][k] ?? 0) + 1;
