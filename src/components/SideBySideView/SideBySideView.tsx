@@ -38,6 +38,9 @@ import {
   MINUTES_PER_BLOCK,
   doesBlockOverlapAnyEvent,
 } from '../utils/functions/eventFiltering';
+import BestTimeFinder from '../BestTimeFinder';
+import { windowToSelection } from '../utils/functions/findBestTimes';
+import type { BestTimeWindow } from '../utils/functions/findBestTimes';
 import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
 import AddToGoogleCalendarButton from '../GroupView/AddToCalendarButton';
 import InformationPopup from '../utils/components/InformationPopup';
@@ -148,6 +151,7 @@ export default function SideBySideView({
   hasUnsavedChanges,
   setHasUnsavedChanges,
 }: SideBySideViewProps) {
+  const [showBestTime, setShowBestTime] = useState(false);
   const [showUserChart, setShowUserChart] = useState(false);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
 
@@ -452,6 +456,33 @@ export default function SideBySideView({
 
   // No-op setter for read-only calendar
   const noop = useCallback(() => {}, []);
+  // Names indexed by calendarState position (user.id is that position)
+  const bestTimePersonNames: string[] = [];
+  allUsers?.users?.forEach((u) => {
+    bestTimePersonNames[u.id] = u.name;
+  });
+
+  // Called when the admin clicks "Choose this time" in the popup.
+  // Opens Google Calendar with that time prefilled (the admin clicks Save there).
+  const handleBestTimeSelect = (time: BestTimeWindow) => {
+    const result = getGCalUrlForSelection(
+      windowToSelection(time),
+      calendarFramework,
+      adminChosenLocation
+    );
+    if ('error' in result) {
+      setShowBestTime(false); // close first, or the alert is hidden behind it
+      setAlertMessage(result.error);
+      return;
+    }
+
+    if (getAccountId() !== '') {
+      window.open(result.url, '_blank');
+    } else {
+      login();
+    }
+    setShowBestTime(false); // close the popup
+  };
 
   return (
     <div className="w-full px-0 lg:px-8 mb-5 lg:mb-0">
@@ -496,9 +527,38 @@ export default function SideBySideView({
             onUserSignIn={() => setUserHasSignedIn(true)}
             userHasFilled={userHasFilled}
             onDecline={onDecline}
+            onFindBestTime={() => setShowBestTime(true)}
           />
         </div>
+        {/* Best Time popup */}
+        {isAdmin && showBestTime && (
+          <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setShowBestTime(false)}
+          >
+            <div
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-3 right-4 z-10 text-2xl text-white hover:text-gray-300"
+                onClick={() => setShowBestTime(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
 
+              <BestTimeFinder
+                availabilities={groupViewCalendarState}
+                // Same people the group calendar shows: checked and not declined
+                personIdx={(filteredChartedUsers.users ?? []).map((u) => u.id)}
+                personNames={bestTimePersonNames}
+                calendarFramework={calendarFramework}
+                onSelect={handleBestTimeSelect}
+              />
+            </div>
+          </div>
+        )}
         {/* Calendar Area - col-span-3 (same as GroupView/TimeSelect) */}
         <div className="col-span-3">
           <div className="w-full">
