@@ -12,6 +12,7 @@ import {
   BoundingBox,
   DraggedSelection,
   calendarState,
+  copyAndReplace,
   userData,
   calendarDimensions,
 } from '../../types';
@@ -34,6 +35,10 @@ import {
 import { useGoogleCalendar } from '../../backend/useGoogleCalService';
 import { useAuth } from '../../backend/authContext';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import {
+  MINUTES_PER_BLOCK,
+  doesBlockOverlapAnyEvent,
+} from '../utils/functions/eventFiltering';
 import BestTimeFinder from '../BestTimeFinder';
 import { windowToSelection } from '../utils/functions/findBestTimes';
 import type { BestTimeWindow } from '../utils/functions/findBestTimes';
@@ -161,43 +166,6 @@ export default function SideBySideView({
     useGoogleCalendar();
   const { login, currentUser } = useAuth();
 
-  // Helper functions for autofill
-  const timeToMinutes = (timeString: string): number => {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
-
-  const dateToMinutes = (date: Date): number => {
-    return date.getHours() * 60 + date.getMinutes();
-  };
-
-  const isSameDate = (date1: Date, date2: Date): boolean => {
-    return date1.toDateString() === date2.toDateString();
-  };
-
-  const doesBlockOverlapEvent = (
-    blockTime: string,
-    blockDate: Date,
-    event: calendar_v3.Schema$Event
-  ): boolean => {
-    if (!event.start?.dateTime || !event.end?.dateTime) return false;
-
-    const eventStart = new Date(event.start.dateTime);
-    const eventEnd = new Date(event.end.dateTime);
-
-    if (!isSameDate(eventStart, blockDate)) return false;
-
-    const blockStartMinutes = timeToMinutes(blockTime);
-    const blockEndMinutes = blockStartMinutes + 15;
-    const eventStartMinutes = dateToMinutes(eventStart);
-    const eventEndMinutes = dateToMinutes(eventEnd);
-
-    return (
-      blockStartMinutes <= eventEndMinutes &&
-      blockEndMinutes > eventStartMinutes
-    );
-  };
-
   const autofillAvailabilityFromCalendar = (
     events: calendar_v3.Schema$Event[],
     dates: any[],
@@ -212,8 +180,11 @@ export default function SideBySideView({
       for (let blockIndex = 0; blockIndex < timeBlocks.length; blockIndex++) {
         const timeBlock = timeBlocks[blockIndex];
 
-        const hasEvent = events.some((event) =>
-          doesBlockOverlapEvent(timeBlock, date, event)
+        const hasEvent = doesBlockOverlapAnyEvent(
+          events,
+          timeBlock,
+          date,
+          MINUTES_PER_BLOCK
         );
 
         newAvailability[colIndex][blockIndex] = !hasEvent;
@@ -375,9 +346,14 @@ export default function SideBySideView({
       timeSelectCalendarState[getCurrentUserIndex()]
     );
 
-    const newCalendarState = { ...timeSelectCalendarState };
-    newCalendarState[getCurrentUserIndex()] = newAvailability;
-    setTimeSelectCalendarState(newCalendarState);
+    // Must stay an array: CalBlock's drag handlers call state.slice()
+    setTimeSelectCalendarState(
+      copyAndReplace(
+        timeSelectCalendarState,
+        getCurrentUserIndex(),
+        newAvailability
+      )
+    );
     setHasUnsavedChanges(true);
   };
 
