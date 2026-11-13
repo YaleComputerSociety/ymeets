@@ -61,13 +61,10 @@ export default class FrontendEventAPI {
   static getEmptyAvailability(dims: calendarDimensions): Availability {
     const blocksLength =
       generateTimeBlocks(dims.startTime, dims.endTime).length * 4;
-    const availability: Availability = [];
-    for (const dateGroup of dims.dates) {
-      for (const _date of dateGroup) {
-        availability.push(Array.from({ length: blocksLength }, () => false));
-      }
-    }
-    return availability;
+    // One all-false row per date
+    return dims.dates
+      .flat()
+      .map(() => Array.from({ length: blocksLength }, () => false));
   }
 
   /**
