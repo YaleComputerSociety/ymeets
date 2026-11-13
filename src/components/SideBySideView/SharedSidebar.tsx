@@ -77,6 +77,7 @@ interface SharedSidebarProps {
 
   userHasFilled: boolean;
   onDecline: () => void;
+  onFindBestTime?: () => void;
 }
 
 export default function SharedSidebar({
@@ -103,6 +104,7 @@ export default function SharedSidebar({
   onUserSignIn,
   userHasFilled,
   onDecline,
+  onFindBestTime,
 }: SharedSidebarProps) {
   const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -435,6 +437,19 @@ export default function SharedSidebar({
               }
             />
           </div>
+        </div>
+      )}
+      
+      {/* Best Time button: admins only, opens the popup */}
+      {isAdmin && !chartedUsers?.hovering && onFindBestTime && (
+        <div className="w-full">
+          <ButtonSmall
+            bgColor="primary"
+            textColor="white"
+            onClick={onFindBestTime}
+          >
+            Find best time
+          </ButtonSmall>
         </div>
       )}
 
