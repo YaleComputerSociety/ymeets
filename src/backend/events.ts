@@ -20,6 +20,7 @@ import {
   Participant,
   computeLiteExpiry,
 } from '../types';
+import { parseAvailability } from './parsing';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 import { runTransaction } from 'firebase/firestore';
@@ -477,9 +478,15 @@ const getParticipants = async (
       .then((docs) => {
         const parts: Participant[] = [];
         docs.forEach((data) => {
-          // unstringify availability
+          // Unstringify availability once. The getters validate the result with parseAvailability,
+          // which also parses older rows that were stringified twice. A malformed value is kept
+          // as-is rather than failing the whole event load.
           const participant = data.data();
-          participant.availability = JSON.parse(participant.availability);
+          try {
+            participant.availability = JSON.parse(participant.availability);
+          } catch {
+            // Left as-is; getAllAvailabilities falls back to an empty grid
+          }
 
           parts.push(participant as Participant);
         });
@@ -714,24 +721,12 @@ export async function getEventOnPageload(id: string): Promise<void> {
 export function getAvailabilityByName(name: string): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
-      return parseAvail(workingEvent.participants[i].availability);
+      return parseAvailability(workingEvent.participants[i].availability);
       // this arises because to store an availability object in Firestore, it must be stringified, but the frontend uses a JSON object
     }
   }
 }
 
-function parseAvail(val: unknown): Availability | undefined {
-  if (val === undefined || val === null) return undefined;
-  if (Array.isArray(val)) return val as Availability;
-  if (typeof val === 'string') {
-    try {
-      return JSON.parse(val) as Availability;
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-};
 
 /** Retrieves the availability object of the participant matching `accountId`. */
 export function getAvailabilityByAccountId(
@@ -739,7 +734,7 @@ export function getAvailabilityByAccountId(
 ): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].accountId == accountId) {
-      return parseAvail(workingEvent.participants[i].availability);
+      return parseAvailability(workingEvent.participants[i].availability);
     }
   }
 }
@@ -788,20 +783,10 @@ export function getAllAvailabilities(): Availability[] {
   };
 
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    // availability may be string or already an array
+    // Validates and fills null columns/blocks, which crashed the calendars (#421). Unreadable
+    // availability becomes an empty grid matching the current framework.
     const val = workingEvent.participants[i].availability;
-    if (Array.isArray(val)) {
-      avails.push(val as Availability);
-    } else if (typeof val === 'string') {
-      try {
-        avails.push(JSON.parse(val) as Availability);
-      } catch {
-        // if parsing fails, push an empty availability matching current framework
-        avails.push(makeEmptyAvailability());
-      }
-    } else {
-      avails.push(makeEmptyAvailability());
-    }
+    avails.push(parseAvailability(val) ?? makeEmptyAvailability());
   }
   return avails;
 }
