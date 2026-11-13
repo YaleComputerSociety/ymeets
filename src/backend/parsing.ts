@@ -21,13 +21,13 @@ export function parseAvailability(val: unknown): Availability | undefined {
   // Nullish filling protects against a corner case that was causing site crashes. The bug was
   // rare, so be very, very sure that it's been fixed and that the fix works in prod before
   // removing the nullish filling.
+  // See https://github.com/YaleComputerSociety/ymeets/issues/421
   const filledTopLevel = fillNullish(arr, () => []);
   if (!filledTopLevel.every(isNullishBooleanArray)) {
     return undefined;
   }
-
-  return filledTopLevel.map((arr) => fillNullish(arr, () => false));
-};
+  return filledTopLevel.map((col) => fillNullish(col, () => false));
+}
 
 /**
  * Extracts an array from a given value, either by returning the value unchanged or parsing it as
@@ -59,20 +59,23 @@ function parseArray(val: unknown): unknown[] | undefined {
 
 /**
  * Fills all nullish slots in an array with the return value of the given callback. Also fills
- * empty slots in sparse arrays.
+ * sparse array holes.
  *
- * @param arr - an array that may have nullish elements.
+ * @param array - an array that may have nullish elements.
  * @param fillWith - a callback that returns a value to fill one element with.
  * @returns - an array with all nullish gaps filled.
  */
-function fillNullish<T>(arr: ReadonlyArray<T | undefined | null>, fillWith: () => T): T[] {
+function fillNullish<T>(array: ReadonlyArray<T | undefined | null>, fillWith: () => T): T[] {
   // arr.map wouldn't properly fill sparse arrays.
-  const newArray = Array.from({ length: arr.length }, fillWith);
-  return newArray.map((v, i) => arr[i] ?? v);
+  const newArray = [];
+  for (const element of array) {
+    newArray.push(element ?? fillWith());
+  }
+  return newArray;
 }
 
 /**
- * Validates that `val` is an array of potentially-nullish booleans.
+ * Validates that `val` is an array of potentially-nullish booleans. Permits sparse arrays.
  *
  * @param val - Any JavaScript value.
  * @returns true if `val` is an array and all its elements are booleans or nullish.
