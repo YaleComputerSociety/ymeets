@@ -12,6 +12,7 @@ import {
   BoundingBox,
   DraggedSelection,
   calendarState,
+  copyAndReplace,
   userData,
   calendarDimensions,
 } from '../../types';
@@ -345,9 +346,14 @@ export default function SideBySideView({
       timeSelectCalendarState[getCurrentUserIndex()]
     );
 
-    const newCalendarState = { ...timeSelectCalendarState };
-    newCalendarState[getCurrentUserIndex()] = newAvailability;
-    setTimeSelectCalendarState(newCalendarState);
+    // Must stay an array: CalBlock's drag handlers call state.slice()
+    setTimeSelectCalendarState(
+      copyAndReplace(
+        timeSelectCalendarState,
+        getCurrentUserIndex(),
+        newAvailability
+      )
+    );
     setHasUnsavedChanges(true);
   };
 

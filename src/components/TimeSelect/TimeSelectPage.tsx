@@ -16,6 +16,7 @@ import {
   calendarState,
   calendarDimensions,
   Availability,
+  copyAndReplace,
 } from '../../types';
 import {
   getAccountId,
@@ -480,9 +481,10 @@ function TimeSelectPage({
         calendarState[getCurrentUserIndex()]
       );
 
-      const newCalendarState = { ...calendarState };
-      newCalendarState[getCurrentUserIndex()] = newAvailability;
-      wrappedSetCalendarState(newCalendarState);
+      // Must stay an array: CalBlock's drag handlers call state.slice()
+      wrappedSetCalendarState(
+        copyAndReplace(calendarState, getCurrentUserIndex(), newAvailability)
+      );
     } finally {
       setIsFillingAvailability(false);
       setGcalPopupOpen(false);
