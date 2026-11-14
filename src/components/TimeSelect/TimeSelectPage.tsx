@@ -16,6 +16,7 @@ import {
   calendarState,
   calendarDimensions,
   Availability,
+  copyAndReplace,
 } from '../../types';
 import {
   getAccountId,
@@ -33,12 +34,17 @@ import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import { AddGoogleCalendarPopup } from '../utils/components/AddGoogleCalendarPopup';
 import { LoginPopup } from '../utils/components/LoginPopup/login_guest_popup';
+import { useIsDesktop } from '../utils/functions/useIsDesktop';
 import { LoadingAnim } from '../utils/components/LoadingAnim';
 import EventOptionsMenu from '../utils/components/EventOptionsMenu';
 import LOGO from '../DaySelect/general_popup_component/googlelogo.png';
 import { getUserTimezone, } from '../utils/functions/timzoneConversions';
 import ButtonSmall from '../utils/components/ButtonSmall';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
+import {
+  MINUTES_PER_BLOCK,
+  doesBlockOverlapAnyEvent,
+} from '../utils/functions/eventFiltering';
 import TimezoneChanger from '../utils/components/TimezoneChanger';
 import { IconCheck } from '@tabler/icons-react';
 import { useAuth } from '../../backend/authContext';
@@ -145,6 +151,7 @@ function TimeSelectPage({
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const [promptUserForLogin, setPromptUserForLogin] = useState(false);
+  const isDesktop = useIsDesktop();
 
   const endPromptUserForLogin = () => {
     setPromptUserForLogin(false);
@@ -414,43 +421,6 @@ function TimeSelectPage({
     }
   };
 
-  function timeToMinutes(timeString: string): number {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  function dateToMinutes(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
-  }
-
-  function isSameDate(date1: Date, date2: Date): boolean {
-    return date1.toDateString() === date2.toDateString();
-  }
-
-  function doesBlockOverlapEvent(
-    blockTime: string,
-    blockDate: Date,
-    event: calendar_v3.Schema$Event
-  ): boolean {
-    if (!event.start?.dateTime || !event.end?.dateTime) return false;
-
-    // Google Calendar API already returns properly formatted datetime strings with timezone info
-    const eventStart = new Date(event.start.dateTime);
-    const eventEnd = new Date(event.end.dateTime);
-
-    if (!isSameDate(eventStart, blockDate)) return false;
-
-    const blockStartMinutes = timeToMinutes(blockTime);
-    const blockEndMinutes = blockStartMinutes + 15;
-    const eventStartMinutes = dateToMinutes(eventStart);
-    const eventEndMinutes = dateToMinutes(eventEnd);
-
-    return (
-      blockStartMinutes <= eventEndMinutes &&
-      blockEndMinutes > eventStartMinutes
-    );
-  }
-
   function autofillAvailabilityFromCalendar(
     googleCalendarEvents: calendar_v3.Schema$Event[],
     dates: any[],
@@ -465,8 +435,11 @@ function TimeSelectPage({
       for (let blockIndex = 0; blockIndex < timeBlocks.length; blockIndex++) {
         const timeBlock = timeBlocks[blockIndex];
 
-        const hasEvent = googleCalendarEvents.some((event) =>
-          doesBlockOverlapEvent(timeBlock, date, event)
+        const hasEvent = doesBlockOverlapAnyEvent(
+          googleCalendarEvents,
+          timeBlock,
+          date,
+          MINUTES_PER_BLOCK
         );
 
         newAvailability[colIndex][blockIndex] = !hasEvent;
@@ -510,9 +483,10 @@ function TimeSelectPage({
         calendarState[getCurrentUserIndex()]
       );
 
-      const newCalendarState = { ...calendarState };
-      newCalendarState[getCurrentUserIndex()] = newAvailability;
-      wrappedSetCalendarState(newCalendarState);
+      // Must stay an array: CalBlock's drag handlers call state.slice()
+      wrappedSetCalendarState(
+        copyAndReplace(calendarState, getCurrentUserIndex(), newAvailability)
+      );
     } finally {
       setIsFillingAvailability(false);
       setGcalPopupOpen(false);
@@ -985,7 +959,9 @@ function TimeSelectPage({
         </ul>
       </AddGoogleCalendarPopup>
 
-      {promptUserForLogin && (
+      {/* On desktop this page is mounted but hidden (lg:hidden), so its popup would be invisible while still
+          disabling clicks on the whole page (popup-open). SharedSidebar prompts desktop users instead. */}
+      {promptUserForLogin && !isDesktop && !getAccountName() && (
         <LoginPopup
           onClose={endPromptUserForLogin}
           enableAnonymousSignIn={true}

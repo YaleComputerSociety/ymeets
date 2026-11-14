@@ -21,7 +21,9 @@ import {
   EventDetails,
   EventId,
   Participant,
+  computeLiteExpiry,
 } from '../types';
+import { parseAvailability } from './parsing';
 import { auth, db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 import { runTransaction } from 'firebase/firestore';
@@ -34,6 +36,11 @@ import {
 } from '../components/Accounts/accountEventsCache';
 // ASSUME names are unique within an event
 
+/**
+ * AVOID EXTERNAL USE. USE EXPORTED FUNCTIONS INSTEAD.
+ *
+ * The current event being modified.
+ */
 let workingEvent: Event = {
   publicId: 'ABABAB',
   details: {
@@ -52,11 +59,13 @@ let workingEvent: Event = {
   participants: [],
 };
 
-const checkIfLoggedIn = (): boolean => {
+/** @returns whether there is currently a non-anonymous user. */
+export const checkIfLoggedIn = (): boolean => {
   return (auth.currentUser && !auth.currentUser.isAnonymous) || false;
 };
 
-const checkIfAdmin = (): boolean => {
+/** @returns whether there is user whose ID matches the working event's admin ID. */
+export const checkIfAdmin = (): boolean => {
   if (workingEvent && auth.currentUser) {
     if (
       workingEvent.details.adminAccountId &&
@@ -68,11 +77,18 @@ const checkIfAdmin = (): boolean => {
   return false;
 };
 
-/**
- *
- * @returns Account ID, if and only if the user is not anonymously logged in.
- */
-const getAccountId = (): string => {
+/** @returns whether the working event is a lite event (no admin, expires; see `EventMode`). */
+export const isLiteEvent = (): boolean => {
+  return workingEvent?.details.mode === 'lite';
+};
+
+/** @returns when the working event expires, or `undefined` for events that don't (full events). */
+export const getExpireAt = (): Date | undefined => {
+  return workingEvent?.expireAt;
+};
+
+/** @returns Account ID. Missing/anonymous users default to `''`. */
+export const getAccountId = (): string => {
   if (auth.currentUser !== null && !auth.currentUser.isAnonymous) {
     return auth.currentUser.uid;
   } else {
@@ -80,14 +96,17 @@ const getAccountId = (): string => {
   }
 };
 
-const getAccountName = (): string => {
+/** @returns the current user's display name. Missing users/names default to `''`. */
+export const getAccountName = (): string => {
   return auth.currentUser?.displayName ? auth.currentUser.displayName : '';
 };
 
-const getAccountEmail = (): string => {
+/** @returns the current user's email. Missing users/emails default to `''`. */
+export const getAccountEmail = (): string => {
   return auth.currentUser?.email ? auth.currentUser.email : '';
 };
 
+/** @returns a unique six-character event ID. Can have collisions. */
 async function generateUniqueEventKey(): Promise<string> {
   let uniqueKeyFound = false;
   let newKey = '';
@@ -106,12 +125,13 @@ async function generateUniqueEventKey(): Promise<string> {
   return newKey;
 }
 
-// PURPOSE: Internal use and to check if event of id exists.
-// Retreives an event from the backend given the id
-// Will throw an error if the document cannot be found
-// Event is not return; rather, it is stored internally
-// for other getters and settings defined in this file.
-async function getEventById(id: EventId): Promise<void> {
+/**
+ * AVOID EXTERNAL USE. Attempts to load the event with the given ID into `workingEvent` from
+ * Firestore. Throws an error if the event cannot be found. Does not return the event; instead,
+ * stores it for use in the file's other getters/setters.
+ */
+// TODO: remove export.
+export async function getEventById(id: EventId): Promise<void> {
   const eventsRef = collection(db, 'events');
   await new Promise<void>((resolve, reject) => {
     getDoc(doc(eventsRef, id))
@@ -137,6 +157,9 @@ async function getEventById(id: EventId): Promise<void> {
               ).toDate()
             : workingEvent.details.chosenEndDate;
           workingEvent.details.dates = dateToArray(workingEvent.details.dates);
+          workingEvent.expireAt = workingEvent.expireAt
+            ? (workingEvent.expireAt as unknown as Timestamp).toDate()
+            : workingEvent.expireAt;
 
           // Retrieve all participants as sub-collection
           await getParticipants(collection(db, 'events', id, 'participants'))
@@ -164,7 +187,15 @@ async function getEventById(id: EventId): Promise<void> {
   });
 }
 
-async function deleteEvent(id: EventId): Promise<void> {
+/**
+ * Attempts to delete an event from Firestore. Validates that the user attempting the deletion is
+ * the event's admin.
+ *
+ * Writes a console error if a write fails.
+ *
+ * @throws an `Error` if the user is not the event's admin.
+ */
+export async function deleteEvent(id: EventId): Promise<void> {
   // Prevent any user other than the admin to delete event
   if (
     getAccountId() !==
@@ -191,7 +222,7 @@ async function deleteEvent(id: EventId): Promise<void> {
 
   // Commit the batch
   await batch.commit().catch((err) => {
-    console.log('Error: ', err);
+    console.error('Error: ', err);
   });
 
   removeEventFromUserCollection(getAccountId(), id);
@@ -202,14 +233,19 @@ async function deleteEvent(id: EventId): Promise<void> {
   }
 }
 
-// Structure of the userEvents array in the user document
+/** Structure of the userEvents array in the user document. */
 interface UserEvent {
   code: string;
-  lastModified: any; // This could be Timestamp or Date
-  dateCreated: any; // This could be Timestamp or Date
+  lastModified: Date | Timestamp;
+  dateCreated: Date | Timestamp;
   isAdmin: boolean;
 }
 
+/**
+ * Attempts to remove the given event from the given user's Firestore collection.
+ *
+ * Writes console warnings on failure.
+ */
 async function removeEventFromUserCollection(
   userID: string,
   eventCode: string
@@ -218,7 +254,7 @@ async function removeEventFromUserCollection(
   const userDoc = await getDoc(userRef);
 
   if (!userDoc.exists()) {
-    console.log('User document not found: User does not exist in the database');
+    console.warn('User document not found: User does not exist in the database');
     return;
   }
 
@@ -234,8 +270,8 @@ async function removeEventFromUserCollection(
   });
 }
 
-// returns array of
-async function getParsedAccountPageEventsForUser(
+// TODO: fix safety (remove unsafe narrowing casts and `any`).
+export async function getParsedAccountPageEventsForUser(
   accountID: string
 ): Promise<AccountsPageEvent[]> {
   // get event ids and lastModified info
@@ -243,7 +279,7 @@ async function getParsedAccountPageEventsForUser(
   const userDoc = await getDoc(userRef);
 
   if (!userDoc.exists()) {
-    console.log('User document not found: User does not exist in the database');
+    console.warn('User document not found: User does not exist in the database');
     return [];
   }
 
@@ -262,8 +298,6 @@ async function getParsedAccountPageEventsForUser(
     const eventDoc = await getDoc(doc(eventsRef, eventCode));
     if (eventDoc.exists()) {
       const event = eventDoc.data();
-      console.log('Firestore Event:', event);
-
       const eventIndex = eventCodes.indexOf(eventCode);
 
       // Safely handle dateCreated - prefer userEvents array, fallback to event document, then current date
@@ -304,7 +338,7 @@ async function getParsedAccountPageEventsForUser(
       } else if (lastModifiedValue instanceof Date) {
         lastModifiedDate = lastModifiedValue;
       } else {
-        lastModifiedDate = (lastModifiedValue as unknown as Timestamp).toDate();
+        lastModifiedDate = lastModifiedValue.toDate();
       }
 
       const confirmedStart = event.details.chosenStartDate?.toDate();
@@ -348,8 +382,8 @@ async function getParsedAccountPageEventsForUser(
   return accountPageEvents;
 }
 
-// Stores a new event passed in as a parameter to the backend
-async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
+/** Stores a new event passed in as a parameter to the backend. */
+export async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
   const id = await generateUniqueEventKey();
   const newEvent: Event = {
     details: {
@@ -361,8 +395,21 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
     participants: [],
   };
 
+  if (eventDetails.mode === 'lite') {
+    newEvent.expireAt = computeLiteExpiry(
+      eventDetails.dates,
+      eventDetails.dateCreated
+    );
+  }
+
   // Update local copy
   workingEvent = newEvent;
+
+  // Lite events have no admin, so there's no user document to add the event to
+  if (eventDetails.mode === 'lite') {
+    await setDoc(doc(collection(db, 'events'), id), newEvent);
+    return newEvent;
+  }
 
   // Update backend
   return await new Promise((resolve, reject) => {
@@ -411,9 +458,14 @@ async function createEvent(eventDetails: EventDetails): Promise<Event | null> {
   });
 }
 
-// For internal use
-// Returns undefined when participant has not been added yet
-const getParticipantIndex = (
+/**
+ * AVOID EXTERNAL USE. Finds the location of the user with the given name and accountId in the
+ * working event's participants array.
+ *
+ * @returns the index of the participant, or `undefined` if they're absent.
+ */
+// TODO: remove export.
+export const getParticipantIndex = (
   name: string,
   accountId: string = ''
 ): number | undefined => {
@@ -438,9 +490,15 @@ const getParticipants = async (
       .then((docs) => {
         const parts: Participant[] = [];
         docs.forEach((data) => {
-          // unstringify availability
+          // Unstringify availability once. The getters validate the result with parseAvailability,
+          // which also parses older rows that were stringified twice. A malformed value is kept
+          // as-is rather than failing the whole event load.
           const participant = data.data();
-          participant.availability = JSON.parse(participant.availability);
+          try {
+            participant.availability = JSON.parse(participant.availability);
+          } catch {
+            // Left as-is; getAllAvailabilities falls back to an empty grid
+          }
 
           parts.push(participant as Participant);
         });
@@ -467,10 +525,7 @@ async function updateUserCollectionEventsWith(accountId: string) {
     }
 
     const data = snap.data();
-    console.log('Data: ', data);
-
     const userEvents: UserEvent[] = data.userEvents || [];
-
     const existingIdx = userEvents.findIndex((ev) => ev.code === eventCode);
 
     // Update existing entry
@@ -499,9 +554,10 @@ async function updateUserCollectionEventsWith(accountId: string) {
   });
 }
 
-// For internal use
-// Updates the participants list of the working event
-// with the participant passed in, overwriting if they already exist
+/**
+ * Updates the participants list of the working event with the participant passed in, overwriting
+ * if they already exist.
+ */
 async function saveParticipantDetails(participant: Participant, skipUserCollection = false): Promise<void> {
   participant.email = getAccountEmail();
 
@@ -548,18 +604,20 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
     declined: participant.declined || false,
+    // TTL doesn't delete subcollections, so lite participants expire alongside their event
+    ...(workingEvent.expireAt ? { expireAt: workingEvent.expireAt } : {}),
   });
 }
 
 
-async function updateAnonymousUserToAuthUser(name: string) {
+export async function updateAnonymousUserToAuthUser(name: string) {
   const accountName = getAccountName();
   const accountId = getAccountId();
 
   try {
     if (accountName === '') throw new Error('User is not signed in');
 
-    let availability: any;
+    let availability: unknown;
     workingEvent.participants.forEach((part, index) => {
       if (part.name == name && part.accountId == '') {
         workingEvent.participants[index].name = accountName;
@@ -580,7 +638,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
       const anonymousDoc = await transaction.get(anonymousPartRef);
 
       if (!anonymousDoc.exists()) {
-        console.log('Anonymous document not found:', name);
+        console.warn('Anonymous document not found:', name);
         return;
       }
 
@@ -589,6 +647,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
         email: getAccountEmail(),
         accountId,
         availability: JSON.stringify(availability),
+        ...(workingEvent.expireAt ? { expireAt: workingEvent.expireAt } : {}),
       });
 
       transaction.update(eventDocRef, {
@@ -606,7 +665,7 @@ async function updateAnonymousUserToAuthUser(name: string) {
   }
 }
 
-async function wrappedSaveParticipantDetails(
+export async function wrappedSaveParticipantDetails(
   availability: Availability,
   locations: Location[] | undefined
 ): Promise<void> {
@@ -627,7 +686,7 @@ async function wrappedSaveParticipantDetails(
   });
 }
 
-async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
+export async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
   let name = getAccountName();
   if (!name) {
     console.warn('User not signed in');
@@ -649,75 +708,55 @@ async function wrappedSaveDeclinedParticipantDetails(): Promise<void> {
   }, true);
 }
 
-// Retrieves the list of locations to be considered for the event
-function getLocationOptions(): Location[] {
+/** Retrieves the list of locations to be considered for the event. */
+export function getLocationOptions(): Location[] {
   return workingEvent.details.plausibleLocations;
 }
 
-// Retrieves the name of the event
-function getEventName(): string {
+/** Retrieves the name of the event. */
+export function getEventName(): string {
   return workingEvent.details.name;
 }
 
-// Retrieves the description of the event
-function getEventDescription(): string {
+/** Retrieves the description of the event. */
+export function getEventDescription(): string {
   return workingEvent.details.description;
 }
 
-// To be called on render when a page loads with event id in url
-async function getEventOnPageload(id: string): Promise<void> {
+/** To be called on render when a page loads with event id in url. */
+export async function getEventOnPageload(id: string): Promise<void> {
   await getEventById(id.toUpperCase());
   return;
 }
 
-// Retrieves the availability object of the participant matching `name`
-function getAvailabilityByName(name: string): Availability | undefined {
-  const parseAvail = (val: any): Availability | undefined => {
-    if (val === undefined || val === null) return undefined;
-    if (Array.isArray(val)) return val as Availability;
-    if (typeof val === 'string') {
-      try {
-        return JSON.parse(val) as Availability;
-      } catch {
-        return undefined;
-      }
-    }
-    return undefined;
-  };
+/** Retrieves the availability object of the participant matching `name`. */
+export function getAvailabilityByName(name: string): Availability | undefined {
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].name == name) {
-      return parseAvail(workingEvent.participants[i].availability);
+      return parseAvailability(workingEvent.participants[i].availability);
       // this arises because to store an availability object in Firestore, it must be stringified, but the frontend uses a JSON object
     }
   }
 }
 
-// Retrieves the availability object of the participant matching `accountId`
-function getAvailabilityByAccountId(
+
+/** Retrieves the availability object of the participant matching `accountId`. */
+export function getAvailabilityByAccountId(
   accountId: string
 ): Availability | undefined {
-  const parseAvail = (val: any): Availability | undefined => {
-    if (val === undefined || val === null) return undefined;
-    if (Array.isArray(val)) return val as Availability;
-    if (typeof val === 'string') {
-      try {
-        return JSON.parse(val) as Availability;
-      } catch {
-        return undefined;
-      }
-    }
-    return undefined;
-  };
   for (let i = 0; i < workingEvent.participants.length; i++) {
     if (workingEvent.participants[i].accountId == accountId) {
-      return parseAvail(workingEvent.participants[i].availability);
+      return parseAvailability(workingEvent.participants[i].availability);
     }
   }
 }
 
-// Retrieves the list of participants
-// GUARANTEED to be the in the same order as getAllAvailabilities
-function getAllAvailabilitiesNames(): string[] {
+/**
+ * Retrieves the list of participants.
+ *
+ * GUARANTEED to be the in the same order as getAllAvailabilities.
+ */
+export function getAllAvailabilitiesNames(): string[] {
   const names: string[] = [];
   for (let i = 0; i < workingEvent.participants.length; i++) {
     names.push(workingEvent.participants[i].name);
@@ -725,7 +764,7 @@ function getAllAvailabilitiesNames(): string[] {
   return names;
 }
 
-function getAllAvailabilitiesIDs(): string[] {
+export function getAllAvailabilitiesIDs(): string[] {
   const ids: string[] = [];
   for (let i = 0; i < workingEvent.details.participants.length; i++) {
     ids.push(workingEvent.details.participants[i]);
@@ -733,9 +772,12 @@ function getAllAvailabilitiesIDs(): string[] {
   return ids;
 }
 
-// Retrieves the list of availabilities
-// GUARANTEED to be the in the same order as getAllAvailabilitiesNames
-function getAllAvailabilities(): Availability[] {
+/**
+ * Retrieves the list of availabilities.
+ *
+ * GUARANTEED to be the in the same order as getAllAvailabilitiesNames.
+ */
+export function getAllAvailabilities(): Availability[] {
   const avails: Availability[] = [];
 
   const makeEmptyAvailability = (): Availability => {
@@ -753,26 +795,16 @@ function getAllAvailabilities(): Availability[] {
   };
 
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    // availability may be string or already an array
+    // Validates and fills null columns/blocks, which crashed the calendars (#421). Unreadable
+    // availability becomes an empty grid matching the current framework.
     const val = workingEvent.participants[i].availability;
-    if (Array.isArray(val)) {
-      avails.push(val as Availability);
-    } else if (typeof val === 'string') {
-      try {
-        avails.push(JSON.parse(val) as Availability);
-      } catch {
-        // if parsing fails, push an empty availability matching current framework
-        avails.push(makeEmptyAvailability());
-      }
-    } else {
-      avails.push(makeEmptyAvailability());
-    }
+    avails.push(parseAvailability(val) ?? makeEmptyAvailability());
   }
   return avails;
 }
 
-// Retrieves the official datetime (start and end) of the event as chosen by the admin
-function getChosenDayAndTime(): [Date, Date] | undefined {
+/** Retrieves the official datetime (start and end) of the event as chosen by the admin. */
+export function getChosenDayAndTime(): [Date, Date] | undefined {
   if (
     workingEvent.details.chosenStartDate &&
     workingEvent.details.chosenEndDate
@@ -784,13 +816,13 @@ function getChosenDayAndTime(): [Date, Date] | undefined {
   }
 }
 
-// Retrieves the official location of the event as chosen by the admin
-function getChosenLocation(): Location | undefined {
+/** Retrieves the official location of the event as chosen by the admin. */
+export function getChosenLocation(): Location | undefined {
   return workingEvent.details.chosenLocation;
 }
 
-// Retrieves the dict objects mapping locations (keys) to number of votes (items)
-function getLocationsVotes(): Record<Location, number> | any {
+/** Retrieves the dict objects mapping locations (keys) to number of votes (items). */
+export function getLocationsVotes(): Record<Location, number> | any {
   const votes: Record<Location, number> = {};
   for (let i = 0; i < workingEvent.details.plausibleLocations.length; i++) {
     const location = workingEvent.details.plausibleLocations[i];
@@ -805,19 +837,19 @@ function getLocationsVotes(): Record<Location, number> | any {
   return votes;
 }
 
-function getZoomLink(): string | undefined {
+export function getZoomLink(): string | undefined {
   return workingEvent.details.zoomLink || undefined;
 }
 
-function getUTCDates(): Date[] {
+export function getUTCDates(): Date[] {
   return workingEvent.details.dates;
 }
 
-function getUTCStartAndEndTimes(): Date[] {
+export function getUTCStartAndEndTimes(): Date[] {
   return [workingEvent.details.startTime, workingEvent.details.endTime];
 }
 
-function getDates(): Date[] {
+export function getDates(): Date[] {
   const { timeZone, startTime, endTime } = workingEvent.details;
   let dates = workingEvent.details.dates;
   const userTimeZone = getUserTimezone();
@@ -830,7 +862,7 @@ function getDates(): Date[] {
   return adjustedDates;
 }
 
-function getStartAndEndTimes(): Date[] {
+export function getStartAndEndTimes(): Date[] {
   let startTime = workingEvent.details.startTime;
   let endTime = workingEvent.details.endTime;
   let userTimeZone = getUserTimezone();
@@ -848,11 +880,11 @@ function getStartAndEndTimes(): Date[] {
   return [adjustedStartTime, adjustedEndTime];
 }
 
-function getTimezone(): string {
+export function getTimezone(): string {
   return workingEvent.details.timeZone;
 }
 
-function getEventObjectForGCal(
+export function getEventObjectForGCal(
   startDate: Date,
   endDate: Date,
   location?: string
@@ -880,11 +912,11 @@ function getEventObjectForGCal(
   };
 }
 
-function getEmailAdmin(): boolean {
+export function getEmailAdmin(): boolean {
   return workingEvent.details.emailAdmin === true;
 }
 
-async function setEmailAdmin(emailAdmin: boolean) {
+export async function setEmailAdmin(emailAdmin: boolean) {
   workingEvent.details.emailAdmin = emailAdmin;
   // Update only the emailAdmin field to avoid issues with undefined optional fields
   const eventsRef = collection(db, 'events');
@@ -893,7 +925,9 @@ async function setEmailAdmin(emailAdmin: boolean) {
   });
 }
 
-async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+export async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
+  // Guests have no user document
+  if (!uid) return [];
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
@@ -906,7 +940,7 @@ async function getSelectedCalendarIDsByUserID(uid: string): Promise<string[]> {
   }
 }
 
-async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
+export async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
   try {
     const userDocRef = doc(db, 'users', uid);
     await setDoc(userDocRef, { selectedCalendarIDs: calIDs }, { merge: true });
@@ -915,64 +949,10 @@ async function setUserSelectedCalendarIDs(uid: string, calIDs: string[]) {
   }
 }
 
-export { workingEvent }; // For interal use; use getters and setters below
-
-export {
-  // Firebase Wrappers
-  getAccountId,
-  getAccountName,
-  getAccountEmail,
-  checkIfLoggedIn,
-  checkIfAdmin,
-
-  // Misc
-  getSelectedCalendarIDsByUserID,
-  setUserSelectedCalendarIDs,
-
-  // High Level (Async)
-  getEventOnPageload,
-  getEventById,
-  createEvent,
-  getParsedAccountPageEventsForUser,
-
-  // Getters (Sync)
-  getDates,
-  getUTCDates,
-  getUTCStartAndEndTimes,
-  getStartAndEndTimes,
-  getChosenLocation,
-  getChosenDayAndTime,
-  getAllAvailabilities,
-  getAllAvailabilitiesNames,
-  getAllAvailabilitiesIDs,
-  getAvailabilityByAccountId,
-  getAvailabilityByName,
-  getEventDescription,
-  getEventName,
-  getLocationOptions,
-  getLocationsVotes,
-  getEventObjectForGCal,
-  getZoomLink,
-  getTimezone,
-  getEmailAdmin,
-
-  // All Participants (Async)
-  wrappedSaveParticipantDetails,
-  wrappedSaveDeclinedParticipantDetails,
-  updateAnonymousUserToAuthUser,
-  // setAvailability,
-  // setLocationPreference,
-
-  // Admin Only (Async)
-  deleteEvent,
-  setEmailAdmin,
-  getParticipantIndex
-};
-
 function dateToArray(obj: Record<number, Date>): Date[] {
   const result: Date[] = [];
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       result.push((obj[key] as unknown as Timestamp).toDate());
     }
   }

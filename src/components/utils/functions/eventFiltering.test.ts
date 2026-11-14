@@ -5,6 +5,7 @@ import {
   doesBlockOverlapEvent,
   doesEventStartInBlock,
   doesEventEndInBlock,
+  doesBlockOverlapAnyEvent,
 } from './eventFiltering';
 
 /**
@@ -128,4 +129,32 @@ test('event boundary checkers return true when same-side boundaries match', () =
 test('event boundary checkers return false when opposite boundaries match', () => {
   expect(doesEventStartInBlock(eventBoundary, 25, 25)).toBe(false);
   expect(doesEventEndInBlock(eventBoundary, 50, 25)).toBe(false);
+});
+
+describe('doesBlockOverlapAnyEvent', () => {
+  const day = new Date(2026, 10, 10);
+  const event = (start: string, end: string) => ({
+    summary: 'e',
+    start: { dateTime: `2026-11-10T${start}:00` },
+    end: { dateTime: `2026-11-10T${end}:00` },
+  });
+
+  test('block starting exactly when an event ends is free', () => {
+    const events = [event('16:00', '17:00')];
+    expect(doesBlockOverlapAnyEvent(events, '17:00', day, 15)).toBe(false);
+    expect(doesBlockOverlapAnyEvent(events, '16:45', day, 15)).toBe(true);
+  });
+
+  test('off-grid event marks only the blocks it overlaps', () => {
+    const events = [event('16:56', '17:10')];
+    expect(doesBlockOverlapAnyEvent(events, '16:45', day, 15)).toBe(true);
+    expect(doesBlockOverlapAnyEvent(events, '17:00', day, 15)).toBe(true);
+    expect(doesBlockOverlapAnyEvent(events, '17:15', day, 15)).toBe(false);
+  });
+
+  test('ignores all-day events and other days', () => {
+    const allDay = { summary: 'x', start: { date: '2026-11-10' }, end: { date: '2026-11-11' } };
+    expect(doesBlockOverlapAnyEvent([allDay], '12:00', day, 15)).toBe(false);
+    expect(doesBlockOverlapAnyEvent([event('16:00', '17:00')], '16:00', new Date(2026, 10, 11), 15)).toBe(false);
+  });
 });

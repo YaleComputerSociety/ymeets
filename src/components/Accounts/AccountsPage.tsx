@@ -22,6 +22,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import DeletePopup from '../utils/components/DeletePopup';
+import { LOGOUT_ON_ARRIVAL } from '../utils/functions/navigationState';
 import {
   getCachedAccountEvents,
   setCachedAccountEvents,

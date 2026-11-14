@@ -11,6 +11,7 @@ import { useState } from 'react';
 import CalBlock from './CalBlock';
 import {
   GoogleCalendarEvent,
+  MINUTES_PER_BLOCK,
   areSameDate,
   doesBlockOverlapEvent,
   doesEventEndInBlock,
@@ -21,11 +22,6 @@ import {
 } from '../utils/functions/eventFiltering';
 import { generateTimeBlocks } from '../utils/functions/generateTimeBlocks';
 import { getDates } from '../../backend/events';
-
-/**
- * The number of minutes that a single calendar block represents.
- */
-const MINUTES_PER_BLOCK = 15;
 
 /**
  * The properties needed to render a CalRow.

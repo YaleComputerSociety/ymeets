@@ -1,6 +1,11 @@
 import { calendar_v3 } from 'googleapis';
 
 /**
+ * The number of minutes that a single calendar block represents.
+ */
+export const MINUTES_PER_BLOCK = 15;
+
+/**
  * Given an event from the API, extracts relevant details. Interprets `.summary` properties as
  * event names; if the property is missing, defaults to `null`. Returns `undefined` if start or
  * end date strings are missing or are not valid according to `Date.parse`.
@@ -146,4 +151,30 @@ export function isInAnyEvent(
   events: readonly GoogleCalendarEvent[]
 ): boolean {
   return events.some((event) => event.start < time && event.end > time);
+}
+
+/**
+ * Determines whether a calendar block on a given day overlaps with any of the raw API events.
+ * Events without a parseable start and end time (e.g. all-day events) are ignored.
+ *
+ * @param events - Raw events from the API.
+ * @param blockTime - The block's start as a 24-hour HH:MM string.
+ * @param blockDate - The day the block is on.
+ * @param blockDurationMinutes - The length of the block in minutes.
+ */
+export function doesBlockOverlapAnyEvent(
+  events: readonly calendar_v3.Schema$Event[],
+  blockTime: string,
+  blockDate: Date,
+  blockDurationMinutes: number
+): boolean {
+  const blockStartMinutes = timeToMinutes(blockTime);
+  return events.some((raw) => {
+    const event = parse(raw);
+    return (
+      event !== undefined &&
+      areSameDate(event.start, blockDate) &&
+      doesBlockOverlapEvent(event, blockStartMinutes, blockDurationMinutes)
+    );
+  });
 }

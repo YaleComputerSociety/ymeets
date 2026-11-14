@@ -14,6 +14,7 @@ import {
   getTimezone,
   getZoomLink,
   checkIfAdmin,
+  checkIfLoggedIn,
   getParsedAccountPageEventsForUser,
 } from '../../../backend/events';
 import { setCachedAccountEvents } from '../../Accounts/accountEventsCache';
@@ -23,6 +24,12 @@ import Button from '../../utils/components/Button';
 import TimezonePicker from '../../utils/components/TimezonePicker';
 import TextareaAutosize from 'react-textarea-autosize';
 import AlertPopup from '../../utils/components/AlertPopup';
+import { useAuth } from '../../../backend/authContext';
+import {
+  LITE_EVENT_LIFETIME_DAYS,
+  LITE_EVENT_MAX_EXPIRY_DAYS,
+  computeLiteExpiry,
+} from '../../../types';
 
 const DEFAULT_LOCATION_PRESETS = [
   '17 Hillhouse',
@@ -95,6 +102,10 @@ export const DaySelectComponent = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const navigate = useNavigate();
+
+  // Anonymous users are guests who entered a name, not Google accounts
+  const { currentUser, login } = useAuth();
+  const isGoogleUser = !!currentUser && !currentUser.isAnonymous;
   
   // Load event data if in edit mode
   useEffect(() => {
@@ -284,7 +295,9 @@ export const DaySelectComponent = () => {
       return;
     }
 
-    // Create new event
+    // Create new event. Decided at submit time so users can sign in while filling out the form.
+    const eventMode = checkIfLoggedIn() ? 'full' : 'lite';
+
     if (selectGeneralDays) {
       const generallySelectedDates: Date[] = [];
 
@@ -311,7 +324,8 @@ export const DaySelectComponent = () => {
           endDate,
           zoomLink,
           timezone,
-          new Date() // dateCreated
+          new Date(), // dateCreated
+          eventMode
         )
         .then((ev) => {
           const accountID = getAccountId();
@@ -321,10 +335,28 @@ export const DaySelectComponent = () => {
             );
           }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
+        })
+        .catch(() => {
+          setAlertMessage('Failed to create event');
         });
     } else {
       if (selectedDates.length == 0) {
         setAlertMessage('Make sure to enter dates!');
+        return;
+      }
+
+      // Firestore rules reject lite events that expire too far ahead. Leave a day of slack for clock differences.
+      const maxLiteExpiry = new Date();
+      maxLiteExpiry.setDate(
+        maxLiteExpiry.getDate() + LITE_EVENT_MAX_EXPIRY_DAYS - 1
+      );
+      if (
+        eventMode === 'lite' &&
+        computeLiteExpiry(selectedDates, new Date()) > maxLiteExpiry
+      ) {
+        setAlertMessage(
+          'Quick events can only be scheduled up to about 3 years ahead. Sign in with Google to create one further out.'
+        );
         return;
       }
 
@@ -340,7 +372,8 @@ export const DaySelectComponent = () => {
           endDate,
           zoomLink,
           timezone,
-          new Date() // dateCreated
+          new Date(), // dateCreated
+          eventMode
         )
         .then((ev) => {
           const accountID = getAccountId();
@@ -350,6 +383,9 @@ export const DaySelectComponent = () => {
             );
           }
           navigate('/dashboard/' + ev?.publicId, { state: { isEditing: true } });
+        })
+        .catch(() => {
+          setAlertMessage('Failed to create event');
         });
     }
   };
@@ -537,6 +573,22 @@ export const DaySelectComponent = () => {
                 {isEditMode ? 'Update Event' : 'Create Event'}
               </Button>
             </div>
+            {!isEditMode && !isGoogleUser && (
+              <p className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                You&apos;re not signed in, so this will be a quick event: anyone
+                with the link can respond, but it can&apos;t be edited and it
+                expires {LITE_EVENT_LIFETIME_DAYS} days after its last date
+                (or after it&apos;s created, for general days).{' '}
+                <button
+                  type="button"
+                  onClick={() => login().catch(() => {})}
+                  className="font-medium text-primary underline"
+                >
+                  Sign in with Google
+                </button>{' '}
+                to create an event you can manage.
+              </p>
+            )}
           </div>
         </div>
       </div>

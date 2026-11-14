@@ -4,8 +4,10 @@ import {
   RouterProvider,
   Outlet,
   Navigate,
+  useLocation,
   useParams,
 } from 'react-router-dom';
+import { useState } from 'react';
 import HomePage from './components/Home/HomePage';
 import DaySelectComponent from './components/DaySelect/day_select_component';
 import NavBar from './components/navbar/NavBar';
@@ -17,6 +19,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './backend/authContext';
 import UnifiedAvailabilityPage from './components/UnifiedAvailabilityPage/UnifiedAvailabilityPage';
 import GoogleOneTapPrompt from './components/utils/components/GoogleOneTap/GoogleOneTapPrompt';
+import { checkIfLoggedIn } from './backend/events';
+import { shouldLogoutOnArrival } from './components/utils/functions/navigationState';
 
 // legacy support for /groupview/:code
 function GroupViewRedirect() {
@@ -29,6 +33,22 @@ function GroupViewRedirect() {
 function DashboardRoute() {
   const { code } = useParams();
   return <UnifiedAvailabilityPage key={code} />;
+}
+
+// '/' sends signed-in users to My Events; everyone else (including anonymous
+// guests) gets the create page. Decided once on arrival, so signing in midway
+// through creating an event doesn't navigate away, and arriving to log out
+// (LOGOUT_ON_ARRIVAL, while still signed in) shows the create page.
+function LandingRoute() {
+  const location = useLocation();
+  const [goToMyEvents] = useState(
+    () => checkIfLoggedIn() && !shouldLogoutOnArrival(location.state)
+  );
+  return goToMyEvents ? (
+    <Navigate to="/useraccount" replace />
+  ) : (
+    <DaySelectComponent />
+  );
 }
 
 // Shared layout so NavBar and One Tap stay inside the router context
@@ -47,7 +67,9 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <HomePage /> },
+      // My Events if signed in, otherwise the create page; /dayselect keeps old links working
+      { path: '/', element: <LandingRoute /> },
+      { path: '/home', element: <HomePage /> },
       { path: '/dayselect', element: <DaySelectComponent /> },
       { path: '/edit/:eventId', element: <DaySelectComponent /> },
       { path: '/dashboard/:code', element: <DashboardRoute /> },
