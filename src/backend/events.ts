@@ -59,6 +59,11 @@ let workingEvent: Event = {
   participants: [],
 };
 
+export const getWorkingEvent = () => workingEvent;
+export const setWorkingEvent = (e: Event) => {
+  workingEvent = e;
+};
+
 /** @returns whether there is currently a non-anonymous user. */
 export const checkIfLoggedIn = (): boolean => {
   return (auth.currentUser && !auth.currentUser.isAnonymous) || false;

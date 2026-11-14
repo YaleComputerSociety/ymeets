@@ -26,7 +26,7 @@ import {
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
-  workingEvent,
+  getWorkingEvent,
   checkIfAdmin,
   wrappedSaveDeclinedParticipantDetails,
 } from '../../backend/events';
@@ -519,13 +519,13 @@ function TimeSelectPage({
       );
 
       // Email event admin if they opted in
-      if (workingEvent.details.emailAdmin === true) {
+      if (getWorkingEvent().details.emailAdmin === true) {
         notifyAdminOfNewResponse(
-          workingEvent.details.adminAccountId,
+          getWorkingEvent().details.adminAccountId,
           getAccountId(),
           getAccountName(),
-          workingEvent.details.name,
-          workingEvent.publicId
+          getWorkingEvent().details.name,
+          getWorkingEvent().publicId
         );
       }
 

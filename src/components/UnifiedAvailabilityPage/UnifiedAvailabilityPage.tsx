@@ -25,7 +25,7 @@ import {
   wrappedSaveParticipantDetails,
   getParticipantIndex,
   checkIfAdmin,
-  workingEvent,
+  getWorkingEvent,
 } from '../../backend/events';
 import { notifyAdminOfNewResponse } from '../../emails/sendEmailHelpers';
 import {
@@ -151,16 +151,16 @@ export default function UnifiedAvailabilityPage() {
       await wrappedSaveParticipantDetails(avail, selectedLocations);
 
       // Email event admin if they opted in (only once per session to avoid spam)
-      const eventId = workingEvent.publicId;
+      const eventId = getWorkingEvent().publicId;
       if (
-        workingEvent.details.emailAdmin === true &&
+        getWorkingEvent().details.emailAdmin === true &&
         !notifiedEventsThisSession.has(eventId)
       ) {
         notifyAdminOfNewResponse(
-          workingEvent.details.adminAccountId,
+          getWorkingEvent().details.adminAccountId,
           getAccountId(),
           getAccountName(),
-          workingEvent.details.name,
+          getWorkingEvent().details.name,
           eventId
         );
         notifiedEventsThisSession.add(eventId);
@@ -196,7 +196,7 @@ export default function UnifiedAvailabilityPage() {
           });
           setAllPeople(participants.users.map((user) => user.name));
           setDeclinedPeople(
-            workingEvent.participants
+            getWorkingEvent().participants
               .filter((p) => p.declined === true)
               .map((p) => p.name)
           );
@@ -430,16 +430,16 @@ export default function UnifiedAvailabilityPage() {
     await wrappedSaveParticipantDetails(avail, selectedLocations);
 
     // Email event admin if they opted in (only once per session to avoid spam)
-    const eventId = workingEvent.publicId;
+    const eventId = getWorkingEvent().publicId;
     if (
-      workingEvent.details.emailAdmin === true &&
+      getWorkingEvent().details.emailAdmin === true &&
       !notifiedEventsThisSession.has(eventId)
     ) {
       notifyAdminOfNewResponse(
-        workingEvent.details.adminAccountId,
+        getWorkingEvent().details.adminAccountId,
         getAccountId(),
         getAccountName(),
-        workingEvent.details.name,
+        getWorkingEvent().details.name,
         eventId
       );
       notifiedEventsThisSession.add(eventId);
