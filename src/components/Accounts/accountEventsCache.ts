@@ -1,4 +1,5 @@
 import type { AccountsPageEvent } from './AccountsPage';
+import type { LabelColors } from './EventLabels';
 
 const STORAGE_KEY_PREFIX = 'ymeets_account_events_';
 
@@ -13,6 +14,11 @@ interface CachedEventRow {
   iAmCreator: boolean;
   dateCreated: string;
   lastModified: string;
+  calendarDates?: string[];
+  confirmedStart?: string;
+  confirmedEnd?: string;
+  labels?: string[];
+  labelColors?: LabelColors;
 }
 
 function reviveDates(rows: CachedEventRow[]): AccountsPageEvent[] {
@@ -20,6 +26,11 @@ function reviveDates(rows: CachedEventRow[]): AccountsPageEvent[] {
     ...row,
     dateCreated: new Date(row.dateCreated),
     lastModified: new Date(row.lastModified),
+    calendarDates: (row.calendarDates ?? []).map((d) => new Date(d)),
+    confirmedStart: row.confirmedStart ? new Date(row.confirmedStart) : undefined,
+    confirmedEnd: row.confirmedEnd ? new Date(row.confirmedEnd) : undefined,
+    labels: Array.isArray(row.labels) ? row.labels : [],
+    labelColors: row.labelColors,
   }));
 }
 

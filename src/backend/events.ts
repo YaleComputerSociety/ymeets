@@ -1,3 +1,6 @@
+import type { LabelColors } from '../components/Accounts/EventLabels';
+/* eslint-disable */
+
 import {
   doc,
   collection,
@@ -54,6 +57,11 @@ let workingEvent: Event = {
     dateCreated: new Date(),
   },
   participants: [],
+};
+
+export const getWorkingEvent = () => workingEvent;
+export const setWorkingEvent = (e: Event) => {
+  workingEvent = e;
 };
 
 /** @returns whether there is currently a non-anonymous user. */
@@ -338,21 +346,28 @@ export async function getParsedAccountPageEventsForUser(
         lastModifiedDate = lastModifiedValue.toDate();
       }
 
+      const confirmedStart = event.details.chosenStartDate?.toDate();
+      const confirmedEnd = event.details.chosenEndDate?.toDate();
       accountPageEvents.push({
+        calendarDates: confirmedStart ? [confirmedStart] : dateToArray(event.details.dates || {}),
+        confirmedStart,
+        confirmedEnd,
+        labelColors: userData.eventLabelColors?.[eventCode] || {},
+        labels: Array.isArray(userData.eventLabels?.[eventCode]) ? userData.eventLabels[eventCode].filter((label: unknown) => typeof label === 'string') : [],
         name: event.details.name,
         id: event.publicId,
         dates: event.details.chosenStartDate
-          ? event.details.chosenStartDate?.toLocaleDateString()
+          ? confirmedStart?.toLocaleDateString()
           : 'TBD',
         startTime: event.details.chosenStartDate
-          ? event.details.chosenStartDate?.toLocaleTimeString('en-US', {
+          ? confirmedStart?.toLocaleTimeString('en-US', {
               hour: '2-digit',
               minute: '2-digit',
               hour12: true,
             })
           : 'TBD',
         endTime: event.details.chosenEndDate
-          ? event.details.chosenEndDate?.toLocaleTimeString('en-US', {
+          ? confirmedEnd?.toLocaleTimeString('en-US', {
               hour: '2-digit',
               minute: '2-digit',
               hour12: true,
@@ -432,6 +447,8 @@ export async function createEvent(eventDetails: EventDetails): Promise<Event | n
               iAmCreator: true,
               dateCreated: new Date(),
               lastModified: new Date(),
+              calendarDates: eventDetails.dates,
+              labels: [],
             };
             upsertCachedAccountEvent(eventDetails.adminAccountId, row);
             resolve(newEvent);
@@ -947,5 +964,8 @@ function dateToArray(obj: Record<number, Date>): Date[] {
   return result;
 }
 
-// TODO: Remove export.
-export { workingEvent }; // For internal use; use getters and setters.
+export async function saveAccountEventLabels(eventId: string, labels: string[], colors: LabelColors) {
+  const uid = getAccountId();
+  if (!uid) throw new Error('Sign in to save labels.');
+  await setDoc(doc(db, 'users', uid), { eventLabels: { [eventId]: labels }, eventLabelColors: { [eventId]: colors } }, { merge: true });
+}
