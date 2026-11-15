@@ -19,8 +19,6 @@ import {
   getLocationsVotes,
   getChosenLocation,
   getAccountName,
-  getAvailabilityByAccountId,
-  getAvailabilityByName,
   getChosenDayAndTime,
   wrappedSaveParticipantDetails,
   getParticipantIndex,
@@ -227,19 +225,11 @@ export default function UnifiedAvailabilityPage() {
             return;
           }
 
-          // Prefer the saved availability from the event if it exists.
-          // Only append a row if the current user has no saved availability yet.
-          let avail: Availability | undefined =
-            getAccountId() !== ''
-              ? getAvailabilityByAccountId(getAccountId())
-              : getAvailabilityByName(accountName);
-          const currentUserId = getAccountId();
-          const hasSavedRowById =
-            currentUserId && participants.userIDs.includes(currentUserId);
-          const hasSavedRowByName =
-            !!accountName &&
-            (participants.users || []).some((u) => u.name === accountName);
-          const hasSavedRow = Boolean(hasSavedRowById || hasSavedRowByName);
+          // Use the same lookup as getCurrentUserIndex, so the row shown is the row saved. A
+          // signed-in user only matches their own row by account ID, so one who has a guest's
+          // name gets a new row instead of the guest's.
+          const hasSavedRow =
+            getParticipantIndex(accountName, getAccountId()) !== undefined;
 
           const theRange = getChosenDayAndTime();
           setIsGeneralDays(
@@ -247,18 +237,26 @@ export default function UnifiedAvailabilityPage() {
               theRange === undefined
           );
 
+          // Declining saves an empty row (`[]`), and dragging and autofill index
+          // `availability[col][block]`, so they crash on a row with missing columns.
+          // Fill missing columns with empty ones; existing columns are kept as-is.
+          const padToGrid = (row: Availability): Availability => {
+            const empty = eventAPI.getEmptyAvailability(dim);
+            return row.length >= empty.length
+              ? row
+              : [...row, ...empty.slice(row.length)];
+          };
+
           // If user already has a saved availability row, use the backend-provided matrix as-is.
           // Otherwise, append an empty row to allow first-time entry.
           if (hasSavedRow) {
             setHasAvailability(true);
-            setTimeSelectCalendarState(availabilities);
+            setTimeSelectCalendarState(availabilities.map(padToGrid));
           } else {
-            if (avail === undefined) {
-              avail = eventAPI.getEmptyAvailability(dim);
-            } else {
-              setHasAvailability(true);
-            }
-            setTimeSelectCalendarState([...availabilities, avail]);
+            setTimeSelectCalendarState([
+              ...availabilities,
+              eventAPI.getEmptyAvailability(dim),
+            ]);
           }
           setTimeSelectCalendarFramework(dim);
 

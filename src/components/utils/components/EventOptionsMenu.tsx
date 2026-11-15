@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IconDotsVertical, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
 import { deleteEvent } from '../../../backend/events';
 import DeletePopup from './DeletePopup';
+import AlertPopup from './AlertPopup';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../functions/navigationState';
 
 interface EventOptionsMenuProps {
@@ -16,6 +17,7 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showCancelPopup, setShowCancelPopup] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const nav = useNavigate();
 
   const showMenu = isAdmin || (!!userHasFilled && !!onCancel);
@@ -41,7 +43,14 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
 
   const handleDeleteEvent = async () => {
     if (eventCode) {
-      await deleteEvent(eventCode);
+      try {
+        await deleteEvent(eventCode);
+      } catch (err) {
+        console.error('Error deleting event:', err);
+        setShowDeletePopup(false);
+        setDeleteError('Could not delete this event. Please try again.');
+        return;
+      }
       nav('/', { state: SKIP_UNSAVED_CHANGES_PROMPT });
     }
   };
@@ -110,6 +119,13 @@ export default function EventOptionsMenu({ eventCode, isAdmin, userHasFilled, on
         isOpen={showDeletePopup}
         onConfirm={handleDeleteEvent}
         onCancel={() => setShowDeletePopup(false)}
+      />
+
+      <AlertPopup
+        title="Delete failed"
+        message={deleteError || ''}
+        isOpen={!!deleteError}
+        onClose={() => setDeleteError(null)}
       />
 
       <DeletePopup
