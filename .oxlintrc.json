@@ -3,7 +3,9 @@
   "plugins": [
     "typescript",
     "unicorn",
-    "oxc"
+    "oxc",
+    "import",
+    "promise"
   ],
   "categories": {
     "correctness": "error"

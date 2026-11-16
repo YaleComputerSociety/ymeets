@@ -180,11 +180,8 @@ export default function AccountsPage() {
         onConfirm={() => {
           if (selectedEventToDelete) {
             deleteEvent(selectedEventToDelete.id)
-              .then(() => {
-                const next =
-                  events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [];
-                setEvents(next);
-              })
+              .then(() => events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [])
+              .then(setEvents)
               .catch(() => {});
             setSelectedEventToDelete(null);
           }
