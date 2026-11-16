@@ -93,8 +93,7 @@ export const LITE_EVENT_MAX_EXPIRY_DAYS = 1100;
  * @returns The time after which Firestore TTL may delete the event.
  */
 export function computeLiteExpiry(dates: Date[], dateCreated: Date): Date {
-  const isGeneralDays =
-    dates.length === 0 || dates.every((date) => date.getFullYear() === 2000);
+  const isGeneralDays = dates.every((date) => date.getFullYear() === 2000);
 
   // Never before creation, so events for past dates don't expire immediately
   const lastDay = isGeneralDays
@@ -144,11 +143,7 @@ export interface calendarDimensions {
  * @param numOfBlocks - The number of blocks (minor axis).
  */
 export function makeAvailability(numOfCols: number, numOfBlocks: number): Availability {
-  const availability: Availability = new Array(numOfCols);
-  for (let i = 0; i < availability.length; i++) {
-    availability[i] = new Array(numOfBlocks).fill(false);
-  }
-  return availability;
+  return Array.from({ length: numOfCols }, () => Array.from({ length: numOfBlocks }, () => false));
 }
 
 /**

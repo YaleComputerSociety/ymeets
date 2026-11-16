@@ -22,7 +22,6 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import DeletePopup from '../utils/components/DeletePopup';
-import { LOGOUT_ON_ARRIVAL } from '../utils/functions/navigationState';
 import {
   getCachedAccountEvents,
   setCachedAccountEvents,
@@ -84,7 +83,6 @@ export default function AccountsPage() {
   const nav = useNavigate();
   const [filter, setFilter] = useState('');
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
-  const [hasDeletedEvent, setHasDeletedEvent] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<
     'dateCreated' | 'lastModified' | 'label' | ''
   >('');
@@ -471,14 +469,13 @@ export default function AccountsPage() {
                                       if (dontAskAgain) {
                                         deleteEvent(event.id)
                                           .then(() => {
-                                            setHasDeletedEvent(true);
                                             setEvents(
                                               events?.filter(
                                                 (e) => e.id !== event.id
                                               )
                                             );
                                           })
-                                          .catch((err) => {});
+                                          .catch(() => {});
                                       } else {
                                         setSelectedEventToDelete(event);
                                       }
@@ -579,14 +576,13 @@ export default function AccountsPage() {
                                             if (dontAskAgain) {
                                               deleteEvent(event.id)
                                                 .then(() => {
-                                                  setHasDeletedEvent(true);
                                                   setEvents(
                                                     events?.filter(
                                                       (e) => e.id !== event.id
                                                     )
                                                   );
                                                 })
-                                                .catch((err) => {});
+                                                .catch(() => {});
                                             } else {
                                               setSelectedEventToDelete(event);
                                             }
