@@ -10,6 +10,16 @@
   },
   "rules": {},
   "env": {
-    "builtin": true
-  }
+    "builtin": true,
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "plugins": ["jest"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
 }
