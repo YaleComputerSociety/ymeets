@@ -15,6 +15,9 @@
     "builtin": true,
     "browser": true
   },
+  "options": {
+    "maxWarnings": 0
+  },
   "overrides": [
     {
       "files": ["**/*.test.ts"],
