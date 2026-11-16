@@ -216,12 +216,11 @@ export const DaySelectComponent = () => {
       };
       loadEventData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, eventId]);
 
   // Check if eventName or eventDescription are blank spaces or invisible characters
   const isBlankspaceOrInvisible = (str: string): boolean => {
-    // eslint-disable-next-line no-control-regex
+    // oxlint-disable-next-line no-control-regex
     const invisibleChars = new RegExp('[^\x00-\x7F]', 'gu');
     return str.replace(invisibleChars, '').trim().length === 0;
   };
