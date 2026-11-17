@@ -164,35 +164,17 @@ export default class FrontendEventAPI {
       const currentStartTime = currentEventDoc.data()?.details?.startTime;
       const currentEndTime = currentEventDoc.data()?.details?.endTime;
 
-      // Convert current start/end times to Date objects
-      const oldStartTime = convertToDate(currentStartTime);
-      const oldEndTime = convertToDate(currentEndTime);
-
-      // Check if timeframe (start/end time) has changed
-      const timeframeChanged = 
-        oldStartTime.getHours() !== startTime.getHours() ||
-        oldStartTime.getMinutes() !== startTime.getMinutes() ||
-        oldEndTime.getHours() !== endTime.getHours() ||
-        oldEndTime.getMinutes() !== endTime.getMinutes();
-
       // Handle both array and Record formats (Firestore might store dates as Record)
-      let currentDates: Date[] = [];
-      if (Array.isArray(currentDatesRaw)) {
-        currentDates = currentDatesRaw.map(convertToDate);
-      } else if (currentDatesRaw && typeof currentDatesRaw === 'object') {
-        // It's a Record - convert to array (similar to dateToArray in events.ts)
-        currentDates = Object.values(currentDatesRaw).map((date: any) => {
-          if (date && date.seconds !== undefined) {
-            return new Timestamp(date.seconds, date.nanoseconds || 0).toDate();
-          }
-          return convertToDate(date);
-        });
-      }
+      const currentDates = toDates(currentDatesRaw);
 
       // Check what changed
-      const datesChanged = !datesEqual(currentDates, dates);
-      const needsDateMapping = datesChanged;
-      const needsTimeRemapping = timeframeChanged;
+      const needsDateMapping = !datesEqual(currentDates, dates);
+      const oldStartTime = convertToDate(currentStartTime);
+      const oldEndTime = convertToDate(currentEndTime);
+      const needsTimeRemapping = timeframeChanged(
+        { start: oldStartTime, end: oldEndTime },
+        { start: startTime, end: endTime }
+      );
 
       // If dates or timeframe changed, update availability
       if (needsDateMapping || needsTimeRemapping) {
@@ -206,10 +188,7 @@ export default class FrontendEventAPI {
         const flatNewBlocks = newTimeBlocks.flat().flat();
 
         // Create date mapping: map old date string to old date index
-        const oldDateToIndex = new Map<string, number>();
-        currentDates.forEach((date, idx) => {
-          oldDateToIndex.set(normalizeDate(date), idx);
-        });
+        const oldDateToIndex = lookupTable(currentDates);
 
         // Generate empty availability for new structure
         const emptyAvailability: Availability = [];
@@ -281,30 +260,14 @@ export default class FrontendEventAPI {
               });
             }
 
-            let normalizedAvailability: Availability = oldAvailability;
-
-            // Detect and fix transposed data [block][date] -> [date][block]
-            if (
-              needsTimeRemapping && // Only check if we're remapping times
-              oldDatesCount === flatOldBlocks.length &&
-              oldBlocksPerDate > 0 &&
-              oldBlocksPerDate === currentDates.length &&
-              oldBlocksPerDate !== flatOldBlocks.length
-            ) {
-              const numBlocks = oldDatesCount;
-              const numDates = oldBlocksPerDate;
-              const transposed: Availability = [];
-              for (let d = 0; d < numDates; d++) {
-                const col: boolean[] = Array.from({ length: numBlocks }, () => false);
-                for (let b = 0; b < numBlocks; b++) {
-                  if (oldAvailability[b] && oldAvailability[b][d] !== undefined) {
-                    col[b] = oldAvailability[b][d] === true;
-                  }
-                }
-                transposed.push(col);
-              }
-              normalizedAvailability = transposed;
-            }
+            const normalizedAvailability = normalize(
+              oldAvailability,
+              needsTimeRemapping,
+              oldDatesCount,
+              flatOldBlocks,
+              oldBlocksPerDate,
+              currentDates
+            );
 
             // Validate date count matches old dates (allow small discrepancy)
             if (needsTimeRemapping && Math.abs(normalizedAvailability.length - currentDates.length) > 10) {
@@ -315,77 +278,29 @@ export default class FrontendEventAPI {
             }
 
             let newAvailability: Availability = [];
-
             if (needsDateMapping && needsTimeRemapping) {
-              // Both changed: map dates AND remap times
-              // Step 1: Convert old availability to absolute times per date
-              const absoluteTimesByOldDate = indicesToAbsoluteTimes(normalizedAvailability, oldTimeBlocks);
-
-              // Step 2: Map absolute times to new dates
-              const absoluteTimesByNewDate: Set<string>[] = [];
-              for (let newIdx = 0; newIdx < dates.length; newIdx++) {
-                const newDateStr = normalizeDate(dates[newIdx]);
-                const oldIdx = oldDateToIndex.get(newDateStr);
-
-                if (oldIdx !== undefined && oldIdx < absoluteTimesByOldDate.length) {
-                  // Date exists in both old and new - preserve its availability
-                  absoluteTimesByNewDate.push(new Set(absoluteTimesByOldDate[oldIdx]));
-                } else {
-                  // New date - start with empty availability
-                  absoluteTimesByNewDate.push(new Set());
-                }
-              }
-
-              // Step 3: Convert absolute times to new time block indices
-              newAvailability = absoluteTimesToIndices(absoluteTimesByNewDate, newTimeBlocks, dates.length);
-
+              newAvailability = remapDatesAndTimes(
+                normalizedAvailability,
+                oldTimeBlocks,
+                newTimeBlocks,
+                dates,
+                oldDateToIndex
+              );
             } else if (needsDateMapping) {
-              // Only dates changed: map dates, keep same times
-              // Map availability from old dates to new dates
-              // Since timeframe didn't change, old and new blocks should be the same length
-              const blocksLength = flatNewBlocks.length;
-              newAvailability = [];
-              for (let newIdx = 0; newIdx < dates.length; newIdx++) {
-                const newDateStr = normalizeDate(dates[newIdx]);
-                const oldIdx = oldDateToIndex.get(newDateStr);
-
-                if (oldIdx !== undefined && oldIdx < normalizedAvailability.length) {
-                  // Date exists in both - copy availability (times haven't changed)
-                  // Ensure the array length matches (should be same, but pad/trim if needed)
-                  const oldAvail = normalizedAvailability[oldIdx];
-                  if (oldAvail.length === blocksLength) {
-                    newAvailability.push([...oldAvail]);
-                  } else {
-                    // Length mismatch - pad or trim to match
-                    const adjusted: boolean[] = [];
-                    for (let i = 0; i < blocksLength; i++) {
-                      adjusted.push(i < oldAvail.length ? oldAvail[i] : false);
-                    }
-                    newAvailability.push(adjusted);
-                  }
-                } else {
-                  // New date - empty availability
-                  newAvailability.push(Array.from({ length: blocksLength }, () => false));
-                }
-              }
-
+              newAvailability = remapDates(
+                normalizedAvailability,
+                flatNewBlocks.length,
+                dates,
+                oldDateToIndex
+              );
             } else if (needsTimeRemapping) {
-              // Only timeframe changed: remap times, keep same dates
-              // Trim/pad to match expected date count (use dates.length since dates didn't change)
-              const expectedDateCount = dates.length;
-              const trimmedAvailability: Availability = [];
-              for (let i = 0; i < expectedDateCount; i++) {
-                if (i < normalizedAvailability.length) {
-                  trimmedAvailability.push(normalizedAvailability[i]);
-                } else {
-                  // Pad with empty row if we have fewer dates than expected
-                  trimmedAvailability.push(flatOldBlocks.map(() => false));
-                }
-              }
-
-              // Convert to absolute times and back to new time blocks
-              const absoluteTimes = indicesToAbsoluteTimes(trimmedAvailability, oldTimeBlocks);
-              newAvailability = absoluteTimesToIndices(absoluteTimes, newTimeBlocks, expectedDateCount);
+              newAvailability = remapTimes(
+                normalizedAvailability,
+                dates.length,
+                flatOldBlocks.length,
+                oldTimeBlocks,
+                newTimeBlocks
+              );
             } else {
               // Nothing changed - shouldn't happen, but just use old availability
               newAvailability = normalizedAvailability;
@@ -591,6 +506,26 @@ export default class FrontendEventAPI {
   }
 }
 
+/**
+ * Convert a group of dates from Firestore to a JavaScript date array.
+ *
+ * Handles both arrays and Records since Firestore might store dates as Record.
+ */
+function toDates(rawDates: unknown): Date[] {
+  if (Array.isArray(rawDates)) {
+    return rawDates.map(convertToDate);
+  } else if (rawDates && typeof rawDates === 'object') {
+    // It's a Record - convert to array (similar to dateToArray in events.ts)
+    return Object.values(rawDates).map((date: any) => {
+      if (date && date.seconds !== undefined) {
+        return new Timestamp(date.seconds, date.nanoseconds || 0).toDate();
+      }
+      return convertToDate(date);
+    });
+  }
+  return [];
+}
+
 /** Convert Firestore Timestamps to Date objects if needed. */
 function convertToDate(date: any): Date {
   if (date instanceof Date) return date;
@@ -636,6 +571,140 @@ function normalizeDate(d: Date): string {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+/**
+ * A span between two dates.
+ */
+interface Timeframe {
+  start: Date;
+  end: Date;
+}
+
+/**
+ * Determines whether two timeframes are different. Only considers hours and minutes.
+ */
+function timeframeChanged(oldTimeframe: Timeframe, newTimeframe: Timeframe) {
+  return oldTimeframe.start.getHours() !== newTimeframe.start.getHours() ||
+    oldTimeframe.start.getMinutes() !== newTimeframe.start.getMinutes() ||
+    oldTimeframe.end.getHours() !== newTimeframe.end.getHours() ||
+    oldTimeframe.end.getMinutes() !== newTimeframe.end.getMinutes();
+}
+
+/**
+ * Creates a map from stringified dates to their positions in the given array.
+ *
+ * @remarks
+ * Stringification is based on `normalizeDate`. Uses the last index for each date if there are
+ * duplicates.
+ */
+function lookupTable(dates: Date[]): Map<string, number> {
+  const map = new Map<string, number>();
+  dates.forEach((date, i) => {
+    map.set(normalizeDate(date), i);
+  });
+  return map;
+}
+
+function normalize(
+  availability: Availability,
+  needsTimeRemapping: boolean,
+  oldDatesCount: number,
+  flatOldBlocks: string[],
+  oldBlocksPerDate: number,
+  currentDates: Date[],
+): Availability {
+  if (needsTranspose(needsTimeRemapping, oldDatesCount, flatOldBlocks, oldBlocksPerDate, currentDates)) {
+    return transpose(availability, oldDatesCount, oldBlocksPerDate);
+  }
+  return availability;
+}
+
+function needsTranspose(
+  needsTimeRemapping: boolean,
+  oldDatesCount: number,
+  flatOldBlocks: string[],
+  oldBlocksPerDate: number,
+  currentDates: Date[],
+): boolean {
+  return needsTimeRemapping &&
+    oldDatesCount === flatOldBlocks.length &&
+    oldBlocksPerDate > 0 &&
+    oldBlocksPerDate === currentDates.length &&
+    oldBlocksPerDate !== flatOldBlocks.length;
+}
+
+function transpose(availability: Availability, newBlocks: number, newDates: number): Availability {
+  return Array.from({ length: newDates }, (_, date) =>
+    Array.from({ length: newBlocks }, (_, block) => 
+      availability[block]?.[date] === true
+    )
+  );
+}
+
+function remapDatesAndTimes(
+  availability: Availability,
+  oldTimeBlocks: string[][][],
+  newTimeBlocks: string[][][],
+  dates: Date[],
+  oldDateToIndex: Map<string, number>
+) {
+    const absoluteTimesByOldDate = indicesToAbsoluteTimes(availability, oldTimeBlocks);
+    const absoluteTimesByNewDate = Array.from({ length: dates.length }, (_, newIdx) => {
+      const newDateStr = normalizeDate(dates[newIdx]);
+      const oldIdx = oldDateToIndex.get(newDateStr);
+
+      if (oldIdx !== undefined && oldIdx < absoluteTimesByOldDate.length) {
+        return new Set(absoluteTimesByOldDate[oldIdx]);
+      } else {
+        return new Set<string>();
+      }
+    });
+
+    return absoluteTimesToIndices(absoluteTimesByNewDate, newTimeBlocks, dates.length);
+}
+
+function remapDates(
+  availability: Availability,
+  blocksLength: number,
+  dates: Date[],
+  oldDateToIndex: Map<string, number>
+) {
+  return Array.from({ length: dates.length }, (_, newIdx) => {
+    const newDateStr = normalizeDate(dates[newIdx]);
+    const oldIdx = oldDateToIndex.get(newDateStr);
+
+    if (oldIdx !== undefined && oldIdx < availability.length) {
+      const oldAvailability = availability[oldIdx];
+      if (oldAvailability.length === blocksLength) {
+        return oldAvailability.slice();
+      } else {
+        return Array.from({ length: blocksLength }, (_, i) => oldAvailability[i] ?? false);
+      }
+    } else {
+      return Array.from({ length: blocksLength }, () => false);
+    }
+  });
+}
+
+function remapTimes(
+  availability: Availability,
+  expectedDateCount: number,
+  blockCount: number,
+  oldTimeBlocks: string[][][],
+  newTimeBlocks: string[][][]
+) {
+  const trimmedAvailability: Availability = [];
+  for (let i = 0; i < expectedDateCount; i++) {
+    if (i < availability.length) {
+      trimmedAvailability.push(availability[i]);
+    } else {
+      trimmedAvailability.push(Array.from({ length: blockCount },() => false));
+    }
+  }
+
+  const absoluteTimes = indicesToAbsoluteTimes(trimmedAvailability, oldTimeBlocks);
+  return absoluteTimesToIndices(absoluteTimes, newTimeBlocks, expectedDateCount);
+}
 
 /** Converts time block indices to absolute times. */
 function indicesToAbsoluteTimes(
