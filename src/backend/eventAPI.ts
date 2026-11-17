@@ -1,4 +1,4 @@
-import {
+import type {
   calendarDimensions,
   calendarState,
   userData,
@@ -24,12 +24,10 @@ import {
   getDoc,
   getDocs,
   Timestamp,
-} from 'firebase/firestore';
-import type {
-  DocumentData,
-  DocumentReference,
-  QueryDocumentSnapshot,
-  QuerySnapshot,
+  type DocumentData,
+  type DocumentReference,
+  type QueryDocumentSnapshot,
+  type QuerySnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { parseAvailability } from './parsing';
