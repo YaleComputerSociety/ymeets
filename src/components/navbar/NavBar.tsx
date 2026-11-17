@@ -48,7 +48,7 @@ export default function NavBar() {
       { replace: true, state: null }
     );
     logout().catch((error) => console.error('Error logging out:', error));
-  }, [location]);
+  }, [location, nav, logout]);
 
   const [showTutorial, setTutorial] = useState(false);
 

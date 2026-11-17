@@ -99,6 +99,17 @@ export const CalendarComponent = ({
   dragHasMovedRef.current = dragHasMoved;
   dragStartDateRef.current = dragStartDate;
 
+  const toggleDate = (arr: Date[], date: Date) => {
+    const index = arr.findIndex(
+      (selected) => selected.getTime() === date.getTime()
+    );
+    if (index === -1) {
+      return [...arr, date];
+    } else {
+      return arr.filter((_, i) => i !== index);
+    }
+  };
+
   // Event listener for user dragging mouse
   useEffect(() => {
     if (!isDragging) return;
@@ -112,7 +123,7 @@ export const CalendarComponent = ({
     };
     document.addEventListener('mouseup', handleMouseUp);
     return () => document.removeEventListener('mouseup', handleMouseUp);
-  }, [isDragging]);
+  }, [isDragging, setSelectedDates]);
 
   const handleDragStart = (date: Date) => {
     const startWasSelected = selectedDates.some((d) => isSameDay(d, date));
@@ -168,17 +179,6 @@ export const CalendarComponent = ({
     const arr = selectedDates.filter((obj) => obj.getTime() != date.getTime());
     setLastSelectedDate(date);
     setSelectedDates(arr);
-  };
-
-  const toggleDate = (arr: Date[], date: Date) => {
-    const index = arr.findIndex(
-      (selected) => selected.getTime() === date.getTime()
-    );
-    if (index === -1) {
-      return [...arr, date];
-    } else {
-      return arr.filter((_, i) => i !== index);
-    }
   };
 
   const handleRange = (date: Date) => {

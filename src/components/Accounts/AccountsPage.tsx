@@ -55,6 +55,22 @@ export interface AccountsPageEvent {
  * @returns Page Component Render
  */
 export default function AccountsPage() {
+  const nav = useNavigate();
+  const [filter, setFilter] = useState('');
+  const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
+  const [sortBy, setSortBy] = useState<
+    'dateCreated' | 'lastModified' | 'label' | ''
+  >('');
+  const [selectedEventToDelete, setSelectedEventToDelete] =
+    useState<AccountsPageEvent | null>(null);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>(
+    'grid'
+  );
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'participant'>(
+    'all'
+  );
+
   useEffect(() => {
     const retrieveAndSetEvents = () => {
       const accountID = getAccountId();
@@ -79,22 +95,6 @@ export default function AccountsPage() {
       retrieveAndSetEvents();
     });
   }, []);
-
-  const nav = useNavigate();
-  const [filter, setFilter] = useState('');
-  const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
-  const [sortBy, setSortBy] = useState<
-    'dateCreated' | 'lastModified' | 'label' | ''
-  >('');
-  const [selectedEventToDelete, setSelectedEventToDelete] =
-    useState<AccountsPageEvent | null>(null);
-  const [dontAskAgain, setDontAskAgain] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>(
-    'grid'
-  );
-  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'participant'>(
-    'all'
-  );
 
   const handleInputChange = (e: any) => {
     setFilter(e.target.value.toLowerCase());

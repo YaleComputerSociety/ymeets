@@ -140,41 +140,7 @@ export default function UnifiedAvailabilityPage() {
     return user;
   }, [timeSelectCalendarState]);
 
-  // Save handler for side-by-side view
-  const handleSideBySideSave = useCallback(async () => {
-    setIsSaving(true);
-    try {
-      const user = getCurrentUserIndex();
-      const avail: Availability = timeSelectCalendarState
-        ? (timeSelectCalendarState[user] ?? [])
-        : [];
-      await wrappedSaveParticipantDetails(avail, selectedLocations);
-
-      // Email event admin if they opted in (only once per session to avoid spam)
-      const eventId = getWorkingEvent().publicId;
-      if (
-        getWorkingEvent().details.emailAdmin === true &&
-        !notifiedEventsThisSession.has(eventId)
-      ) {
-        notifyAdminOfNewResponse(
-          getWorkingEvent().details.adminAccountId,
-          getAccountId(),
-          getAccountName(),
-          getWorkingEvent().details.name,
-          eventId
-        );
-        notifiedEventsThisSession.add(eventId);
-      }
-
-      // Refresh data after save
-      await fetchData(false);
-      setHasUnsavedChanges(false);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [timeSelectCalendarState, getCurrentUserIndex, selectedLocations]);
-
-  const fetchData = async (
+  const fetchData = useCallback(async (
     setLoadingState: boolean = true,
     onSuccess?: () => void
   ) => {
@@ -283,11 +249,46 @@ export default function UnifiedAvailabilityPage() {
       // URL is malformed
       nav('/notfound');
     }
-  };
+  }, [nav, code]);
+
+
+  // Save handler for side-by-side view
+  const handleSideBySideSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const user = getCurrentUserIndex();
+      const avail: Availability = timeSelectCalendarState
+        ? (timeSelectCalendarState[user] ?? [])
+        : [];
+      await wrappedSaveParticipantDetails(avail, selectedLocations);
+
+      // Email event admin if they opted in (only once per session to avoid spam)
+      const eventId = getWorkingEvent().publicId;
+      if (
+        getWorkingEvent().details.emailAdmin === true &&
+        !notifiedEventsThisSession.has(eventId)
+      ) {
+        notifyAdminOfNewResponse(
+          getWorkingEvent().details.adminAccountId,
+          getAccountId(),
+          getAccountName(),
+          getWorkingEvent().details.name,
+          eventId
+        );
+        notifiedEventsThisSession.add(eventId);
+      }
+
+      // Refresh data after save
+      await fetchData(false);
+      setHasUnsavedChanges(false);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [fetchData, timeSelectCalendarState, getCurrentUserIndex, selectedLocations]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   /**
    * Serializes what the user has actually chosen: the selected cells of their
@@ -295,7 +296,7 @@ export default function UnifiedAvailabilityPage() {
    * than raw arrays matters because dragging can add `false` entries or holes
    * (e.g. cells the stored arrays didn't have yet), which look identical on screen.
    */
-  const getEditableSnapshot = () => {
+  const getEditableSnapshot = useCallback(() => {
     const availability = timeSelectCalendarState?.[getCurrentUserIndex()];
     const selectedCells: string[] = [];
     Object.entries(availability ?? {}).forEach(([col, blocks]) => {
@@ -307,7 +308,7 @@ export default function UnifiedAvailabilityPage() {
       selectedCells,
       locations: [...selectedLocations].sort(),
     });
-  };
+  }, [timeSelectCalendarState, getCurrentUserIndex, selectedLocations]);
 
   // Snapshot of the last loaded or saved state. Whenever the unsaved flag is
   // clear, the state on screen is what's in Firestore, so record it then.
@@ -315,7 +316,7 @@ export default function UnifiedAvailabilityPage() {
   const savedSnapshotRef = useRef<string | null>(null);
   useEffect(() => {
     if (!hasUnsavedChanges) savedSnapshotRef.current = getEditableSnapshot();
-  }, [hasUnsavedChanges, timeSelectCalendarState, selectedLocations]);
+  }, [getEditableSnapshot, hasUnsavedChanges, timeSelectCalendarState, selectedLocations]);
 
   // Mobile location and calendar choices live inside TimeSelectPage, so they
   // can't be compared here; any change to them counts as unsaved
@@ -400,10 +401,10 @@ export default function UnifiedAvailabilityPage() {
   }, [isUnsavedChangesPopupOpen]);
 
   /** Leaves mobile edit mode and reloads availability, without any guard. */
-  const exitMobileEditing = () => {
+  const exitMobileEditing = useCallback(() => {
     setIsEditing(false);
     fetchData(false);
-  };
+  }, [setIsEditing, fetchData]);
 
   /** Leaves mobile edit mode, asking first if there are unsaved changes. */
   const requestExitMobileEditing = () => {
@@ -466,14 +467,14 @@ export default function UnifiedAvailabilityPage() {
   };
 
   /** Completes whatever the popup interrupted: the mobile view switch or the blocked navigation. */
-  const finishPendingAction = () => {
+  const finishPendingAction = useCallback(() => {
     if (pendingViewSwitch) {
       setPendingViewSwitch(false);
       exitMobileEditing();
     } else if (blocker.state === 'blocked') {
       blocker.proceed();
     }
-  };
+  }, [pendingViewSwitch, blocker, exitMobileEditing]);
 
   // Set while the popup's own save runs, so the auto-continue effect below
   // doesn't also finish the pending action (proceeding twice throws)
@@ -523,7 +524,7 @@ export default function UnifiedAvailabilityPage() {
     ) {
       finishPendingAction();
     }
-  }, [isUnsavedChangesPopupOpen, hasUnsavedChanges, isAnySaveInFlight]);
+  }, [isUnsavedChangesPopupOpen, hasUnsavedChanges, isAnySaveInFlight, finishPendingAction]);
 
   const unsavedChangesPopup = (
     <UnsavedChangesPopup

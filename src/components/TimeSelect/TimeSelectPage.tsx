@@ -191,6 +191,48 @@ function TimeSelectPage({
     return () => clearTimeout(timer);
   }, []);
 
+  // Fetch the user's Google Calendars
+  const fetchUserCalendars = useCallback(async () => {
+    try {
+      // if (!gapi || !isGapiInitialized) {
+      //   await initializeGapi();
+
+      //   // Check again after initialization attempt
+      //   if (!gapi || !gapi.client || !gapi.client.calendar) {
+      //     throw new Error('Failed to initialize Google Calendar API');
+      //   }
+      // }
+
+      // Verify we have the calendar scope before attempting to fetch
+
+      if (!hasAccess) {
+        console.warn('Attempting to fetch calendars without proper scope');
+        return [];
+      }
+
+      const calendars = await getCalendars();
+
+      setGoogleCalendars(calendars);
+      return calendars;
+    } catch (error) {
+      console.error('Error fetching Google Calendars:', error);
+
+      // Check if the error is scope-related and handle accordingly
+      if (
+        error instanceof Error &&
+        (error.message.includes('scope') ||
+          error.message.includes('permission') ||
+          error.message.includes('unauthorized') ||
+          error.message.includes('login required'))
+      ) {
+        localStorage.setItem('hasGCalScope', 'false');
+      }
+
+      return [];
+    }
+  }, [getCalendars, hasAccess]);
+
+
   useEffect(() => {
     const fetchData = async () => {
       const uid = getAccountId();
@@ -218,7 +260,7 @@ function TimeSelectPage({
         console.error('Unhandled error in data fetching:', err);
       }
     })();
-  }, []);
+  }, [hasAccess, fetchUserCalendars]);
 
   useEffect(() => {
     if (!isGeneralDays) return;
@@ -272,9 +314,9 @@ function TimeSelectPage({
       ...prev,
       dates: updatedDates,
     }));
-  }, [isGeneralDays, calendarFramework.dates]);
+  }, [setCalendarFramework, isGeneralDays, calendarFramework.dates]);
 
-  const fetchGoogleCalEvents = async (
+  const fetchGoogleCalEvents = useCallback(async (
     calIds: string[]
   ): Promise<calendar_v3.Schema$Event[]> => {
     if (!hasAccess || calIds.length === 0) { 
@@ -316,13 +358,15 @@ function TimeSelectPage({
 
     setGoogleCalendarEvents(allEvents);
     return allEvents;
-  };
+  }, [calendarFramework, hasAccess, getEvents]);
 
   useEffect(() => {
     if (hasAccess && idsOfCurrentlySelectedGCals?.length !== undefined) {
       fetchGoogleCalEvents(idsOfCurrentlySelectedGCals);
     }
   }, [
+    fetchGoogleCalEvents,
+    fetchUserCalendars,
     googleCalendars,
     idsOfCurrentlySelectedGCals,
     hasAccess,
@@ -330,47 +374,6 @@ function TimeSelectPage({
     calendarFramework.timezone,
     calendarFramework.dates,
   ]);
-
-  // Fetch the user's Google Calendars
-  const fetchUserCalendars = async () => {
-    try {
-      // if (!gapi || !isGapiInitialized) {
-      //   await initializeGapi();
-
-      //   // Check again after initialization attempt
-      //   if (!gapi || !gapi.client || !gapi.client.calendar) {
-      //     throw new Error('Failed to initialize Google Calendar API');
-      //   }
-      // }
-
-      // Verify we have the calendar scope before attempting to fetch
-
-      if (!hasAccess) {
-        console.warn('Attempting to fetch calendars without proper scope');
-        return [];
-      }
-
-      const calendars = await getCalendars();
-
-      setGoogleCalendars(calendars);
-      return calendars;
-    } catch (error) {
-      console.error('Error fetching Google Calendars:', error);
-
-      // Check if the error is scope-related and handle accordingly
-      if (
-        error instanceof Error &&
-        (error.message.includes('scope') ||
-          error.message.includes('permission') ||
-          error.message.includes('unauthorized') ||
-          error.message.includes('login required'))
-      ) {
-        localStorage.setItem('hasGCalScope', 'false');
-      }
-
-      return [];
-    }
-  };
 
   // Check and maintain state about Google login and calendar permissions
   useEffect(() => {
@@ -383,7 +386,7 @@ function TimeSelectPage({
     };
 
     checkGoogleAuthStatus();
-  }, [currentUser, hasAccess]);
+  }, [currentUser, hasAccess, fetchUserCalendars]);
 
   const handleToggleGCalAvailabilitiesClick = async () => {
     if (!currentUser) {

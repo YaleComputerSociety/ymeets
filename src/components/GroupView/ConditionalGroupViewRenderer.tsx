@@ -55,18 +55,18 @@ export default function ConditionalGroupViewRenderer({
   const [isAdmin, setIsAdmin] = useState(checkIfAdmin());
 
   useEffect(() => {
-    if (code !== undefined) {
-      getEventOnPageload(code)
-        .then(() => {
-          setIsAdmin(checkIfAdmin());
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    } else {
+    if (code === undefined) {
       alert('code is missing');
+      return;
     }
-  }, []);
+    getEventOnPageload(code)
+      .then(() => {
+        setIsAdmin(checkIfAdmin());
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [code]);
 
   return (
     <GroupViewPage

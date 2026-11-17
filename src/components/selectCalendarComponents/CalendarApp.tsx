@@ -95,7 +95,7 @@ export default function Calendar({
     calendarFramework.endTime
   );
 
-  const calculateColumnsPerPage = () => {
+  const calculateColumnsPerPage = useCallback(() => {
     const width = window.innerWidth;
     if (compactMode) {
       // Side-by-side mode: each calendar gets half the width
@@ -108,7 +108,7 @@ export default function Calendar({
     if (width > 800) return 6;
     if (width > 600) return 5;
     return 4;
-  };
+  }, [compactMode]);
 
   const [numberOfColumnsPerPage, setNumberOfColumnsPerPage] = useState(
     calculateColumnsPerPage
@@ -138,7 +138,7 @@ export default function Calendar({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [compactMode]);
+  }, [compactMode, calculateColumnsPerPage, setNumberOfColumnsPerPage]);
 
   const [internalStartPage, setInternalStartPage] = useState(0);
   const currentStartPage = controlledPage ?? internalStartPage;

@@ -3,8 +3,7 @@ import {
   MouseEventHandler,
   SetStateAction,
   useMemo,
-  useState,
-  } from 'react';
+} from 'react';
 import { calendar_v3 } from 'googleapis';
 import 'tailwindcss/tailwind.css';
 import {
@@ -105,14 +104,7 @@ function SelectCalendar({
   setChartedUsers,
   chartedUsers,
 }: SelectCalendarProps) {
-  const [timeBlocks, setTimeBlocks] = useState<string[][][]>(
-    generateTimeBlocks(startDate, endDate)
-  );
-
-  useEffect(() => {
-    setTimeBlocks(generateTimeBlocks(startDate, endDate));
-  }, [startDate, endDate]);
-
+  const timeBlocks = useMemo(() => generateTimeBlocks(startDate, endDate), [startDate, endDate]);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Computed once here rather than in every CalBlock. The shown participants are

@@ -216,7 +216,7 @@ export const DaySelectComponent = () => {
       };
       loadEventData();
     }
-  }, [isEditMode, eventId]);
+  }, [isEditMode, eventId, navigate]);
 
   // Check if eventName or eventDescription are blank spaces or invisible characters
   const isBlankspaceOrInvisible = (str: string): boolean => {

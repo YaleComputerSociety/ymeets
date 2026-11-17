@@ -5,6 +5,7 @@ import {
   TouchEvent,
   SetStateAction,
   useEffect,
+  useMemo,
   useState,
   useRef,
   useCallback,
@@ -107,7 +108,7 @@ export default function CalBlock({
         hovering: false,
       });
     }
-  }, []);
+  }, [chartedUsers, setChartedUsers]);
 
   /**
    * Returns `true` if this block is selected (even if it's not saved) for the current user's calendar. Returns `false`
@@ -158,39 +159,35 @@ export default function CalBlock({
     columnID,
     blockID,
     getDefaultColor,
-    chartedUsers?.users,
+    chartedUsers,
     maxUsers,
   ]);
 
-  const [shadeColor, setShadeColor] = useState(getDefaultColor);
-
-  // Update shade color when relevant props change
-  useEffect(() => {
+  const shadeColor = useMemo(() => {
     if (blockID === -1) {
-      setShadeColor(getDefaultColor());
-      return;
+      return getDefaultColor();
     }
 
     if (!isAdmin && draggable) {
-      setShadeColor(isBlockSelected() ? '#afcdfa' : getDefaultColor());
+      return isBlockSelected() ? '#afcdfa' : getDefaultColor();
     } else if (isAdmin) {
       const inRecentSelection = mostRecentSelection?.contains({
         col: columnID,
         block: blockID,
       });
-      setShadeColor(inRecentSelection ? '#73dd64' : getGroupPercentageColor());
+      return inRecentSelection ? '#73dd64' : getGroupPercentageColor();
     } else {
-      setShadeColor(getGroupPercentageColor());
+      return getGroupPercentageColor();
     }
   }, [
     blockID,
     columnID,
+    draggable,
     getDefaultColor,
     getGroupPercentageColor,
     isAdmin,
     isBlockSelected,
     mostRecentSelection,
-    setShadeColor,
   ]);
 
   const handleDesktopHoverChartedUser = useCallback(() => {
@@ -407,9 +404,9 @@ export default function CalBlock({
     [
       blockID,
       columnID,
+      handleGlobalPointerMove,
       setDragState,
       setMostRecentSelection,
-      setShowTooltip,
       stopAutoScroll,
     ]
   );
@@ -460,6 +457,7 @@ export default function CalBlock({
     [
       draggable,
       user,
+      calendarFramework,
       columnID,
       blockID,
       calendarState,
