@@ -3,8 +3,8 @@ import { parseAvailability } from "./parsing";
 const nullish = [null, undefined] as const;
 
 describe("parseAvailability", () => {
-  describe("plain JavaScript arrays", () => {
-    it("parses a valid availability array", () => {
+  describe("on plain JavaScript arrays", () => {
+    it("parses a valid 2x2", () => {
       expect(
         parseAvailability([
           [true, false],
@@ -16,7 +16,7 @@ describe("parseAvailability", () => {
       ]);
     });
 
-    it("parses an empty availability array", () => {
+    it("parses an empty array", () => {
       expect(parseAvailability([])).toEqual([]);
     });
 
@@ -52,7 +52,7 @@ describe("parseAvailability", () => {
       },
     );
 
-    it("replaces sparse top-level array entries with empty arrays", () => {
+    it("replaces holes in sparse top-level arrays", () => {
       const value = [];
       value[0] = [true];
       value[2] = [false];
@@ -60,7 +60,7 @@ describe("parseAvailability", () => {
       expect(parseAvailability(value)).toEqual([[true], [], [false]]);
     });
 
-    it("replaces sparse nested array entries with false", () => {
+    it("replaces holes in sparse nested array", () => {
       const column = [];
       column[0] = true;
       column[2] = false;
@@ -69,8 +69,8 @@ describe("parseAvailability", () => {
     });
   });
 
-  describe("JSON-serialized arrays", () => {
-    it("parses a JSON availability array", () => {
+  describe("on JSON-serialized arrays", () => {
+    it("parses a valid array", () => {
       expect(
         parseAvailability("[[true, false], [false, true]]"),
       ).toEqual([
@@ -79,17 +79,17 @@ describe("parseAvailability", () => {
       ]);
     });
 
-    it("parses a JSON empty array", () => {
+    it("parses an empty array", () => {
       expect(parseAvailability("[]")).toEqual([]);
     });
 
-    it("replaces null JSON columns with empty arrays", () => {
+    it("replaces null columns with empty arrays", () => {
       expect(
         parseAvailability("[[true, false], null, [false]]"),
       ).toEqual([[true, false], [], [false]]);
     });
 
-    it("replaces null JSON blocks with false", () => {
+    it("replaces null blocks with false", () => {
       expect(
         parseAvailability("[[true, null, false], [null]]"),
       ).toEqual([
@@ -98,7 +98,7 @@ describe("parseAvailability", () => {
       ]);
     });
 
-    it("handles JSON whitespace", () => {
+    it("handles whitespace", () => {
       expect(parseAvailability(' \n [[true], null] \t')).toEqual([[true], []]);
     });
 
@@ -109,7 +109,7 @@ describe("parseAvailability", () => {
     });
   });
 
-  describe("invalid values", () => {
+  describe("on invalid values", () => {
     it.each([
       ["invalid JSON", "{not valid JSON}"],
       ["a JSON object", '{"column":[true]}'],
