@@ -591,7 +591,7 @@ export default class FrontendEventAPI {
   }
 }
 
-// Convert Firestore Timestamps to Date objects if needed
+/** Convert Firestore Timestamps to Date objects if needed. */
 function convertToDate(date: any): Date {
   if (date instanceof Date) return date;
   if (date && typeof date.toDate === 'function') return date.toDate();
@@ -599,8 +599,10 @@ function convertToDate(date: any): Date {
   return new Date(date);
 };
 
-// Helper function to compare date sets (ignoring order, comparing only date part)
-// Returns true only if both arrays have the same set of dates
+/**
+ * Compare date sets (ignoring order, comparing only date part)
+ * @returns true only if both arrays have the same set of dates
+ */
 function datesEqual(dates1: Date[], dates2: Date[]): boolean {
   // If lengths differ, dates definitely changed
   if (dates1.length !== dates2.length) {
