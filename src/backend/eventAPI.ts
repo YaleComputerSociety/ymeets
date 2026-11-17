@@ -168,14 +168,14 @@ export default class FrontendEventAPI {
       } = await fetchEventDetails(eventsRef);
 
       // Check what changed
-      const needsDateMapping = !datesEqual(currentDates, dates);
+      const needsDateRemapping = !datesEqual(currentDates, dates);
       const needsTimeRemapping = timeframeChanged(
         { start: oldStartTime, end: oldEndTime },
         { start: startTime, end: endTime }
       );
 
       // If dates or timeframe changed, update availability
-      if (needsDateMapping || needsTimeRemapping) {
+      if (needsDateRemapping || needsTimeRemapping) {
         const participantsRef = collection(eventsRef, 'participants');
         const participantsSnapshot: QuerySnapshot<DocumentData> =
           await getDocs(participantsRef);
@@ -295,34 +295,17 @@ export default class FrontendEventAPI {
                 });
               }
 
-              let newAvailability: Availability = [];
-              if (needsDateMapping && needsTimeRemapping) {
-                newAvailability = remapDatesAndTimes(
-                  normalizedAvailability,
-                  oldTimeBlocks,
-                  newTimeBlocks,
-                  dates,
-                  oldDateToIndex
-                );
-              } else if (needsDateMapping) {
-                newAvailability = remapDates(
-                  normalizedAvailability,
-                  flatNewBlocks.length,
-                  dates,
-                  oldDateToIndex
-                );
-              } else if (needsTimeRemapping) {
-                newAvailability = remapTimes(
-                  normalizedAvailability,
-                  dates.length,
-                  flatOldBlocks.length,
-                  oldTimeBlocks,
-                  newTimeBlocks
-                );
-              } else {
-                // Nothing changed - shouldn't happen, but just use old availability
-                newAvailability = normalizedAvailability;
-              }
+              const newAvailability = remap(
+                normalizedAvailability,
+                needsDateRemapping,
+                needsTimeRemapping,
+                oldTimeBlocks,
+                newTimeBlocks,
+                flatOldBlocks,
+                flatNewBlocks,
+                dates,
+                oldDateToIndex
+              );
 
               // Validate size before saving
               const jsonString = JSON.stringify(newAvailability);
@@ -704,6 +687,44 @@ function transpose(
   );
 }
 
+function remap(
+  availability: Availability,
+  needsDateRemapping: boolean,
+  needsTimeRemapping: boolean,
+  oldTimeBlocks: string[][][],
+  newTimeBlocks: string[][][],
+  flatOldBlocks: string[],
+  flatNewBlocks: string[],
+  dates: Date[],
+  oldDateToIndex: Map<string, number>
+) {
+  if (needsDateRemapping && needsTimeRemapping) {
+    return remapDatesAndTimes(
+      availability,
+      oldTimeBlocks,
+      newTimeBlocks,
+      dates,
+      oldDateToIndex
+    );
+  } else if (needsDateRemapping) {
+    return remapDates(
+      availability,
+      flatNewBlocks.length,
+      dates,
+      oldDateToIndex
+    );
+  } else if (needsTimeRemapping) {
+    return remapTimes(
+      availability,
+      dates.length,
+      flatOldBlocks.length,
+      oldTimeBlocks,
+      newTimeBlocks
+    );
+  }
+  return availability;
+}
+
 function remapDatesAndTimes(
   availability: Availability,
   oldTimeBlocks: string[][][],
@@ -738,7 +759,7 @@ function remapDatesAndTimes(
 
 function remapDates(
   availability: Availability,
-  blocksLength: number,
+  blockCount: number,
   dates: Date[],
   oldDateToIndex: Map<string, number>
 ) {
@@ -748,16 +769,16 @@ function remapDates(
 
     if (oldIdx !== undefined && oldIdx < availability.length) {
       const oldAvailability = availability[oldIdx];
-      if (oldAvailability.length === blocksLength) {
+      if (oldAvailability.length === blockCount) {
         return oldAvailability.slice();
       } else {
         return Array.from(
-          { length: blocksLength },
+          { length: blockCount },
           (_, i) => oldAvailability[i] ?? false
         );
       }
     } else {
-      return Array.from({ length: blocksLength }, () => false);
+      return Array.from({ length: blockCount }, () => false);
     }
   });
 }
