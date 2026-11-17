@@ -190,151 +190,26 @@ export default class FrontendEventAPI {
         const oldDateToIndex = lookupTable(currentDates);
 
         // Generate empty availability for new structure
-        const emptyAvailability: Availability = [];
-        for (let i = 0; i < dates.length; i++) {
-          emptyAvailability.push(flatNewBlocks.map(() => false));
-        }
+        const emptyAvailability: Availability = Array.from(
+          { length: dates.length },
+          () => flatNewBlocks.map(() => false)
+        );
 
         // Process each participant
-        const updatePromises = participantsSnapshot.docs.map(
-          async (participantDoc: QueryDocumentSnapshot<DocumentData>) => {
-            const participantData = participantDoc.data();
-            try {
-              const rawAvailability = participantData.availability;
-
-              // Parse old availability
-              let oldAvailability: Availability;
-              try {
-                // Handle both string and already-parsed array
-                if (typeof rawAvailability === 'string') {
-                  // Parse once
-                  let parsed = JSON.parse(rawAvailability || '[]');
-
-                  // Handle double-stringification (from before the fix)
-                  // If we got a string after parsing, it was double-stringified
-                  if (typeof parsed === 'string') {
-                    parsed = JSON.parse(parsed);
-                  }
-
-                  oldAvailability = parsed;
-                } else if (Array.isArray(rawAvailability)) {
-                  oldAvailability = rawAvailability;
-                } else {
-                  console.warn(
-                    `Unexpected availability type for ${participantData.name}, using empty`
-                  );
-                  oldAvailability = [];
-                }
-              } catch (parseError) {
-                console.warn(
-                  `Failed to parse availability for ${participantData.name}, using empty:`,
-                  parseError
-                );
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              // Validate structure
-              if (!Array.isArray(oldAvailability)) {
-                console.warn(
-                  `Invalid availability for ${participantData.name}, using empty`
-                );
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              // Empty arrays are valid - just means no availability set yet
-              // Update structure to match new timeframe/dates but keep it empty
-              if (oldAvailability.length === 0) {
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              const oldDatesCount = oldAvailability.length;
-              const oldBlocksPerDate = oldAvailability[0]?.length ?? 0;
-
-              // Check for corruption
-              const MAX_REASONABLE_DATES = 1000;
-              const MAX_REASONABLE_BLOCKS = 1000;
-
-              if (
-                oldDatesCount > MAX_REASONABLE_DATES ||
-                oldBlocksPerDate > MAX_REASONABLE_BLOCKS
-              ) {
-                console.warn(
-                  `Corrupted availability for ${participantData.name}, using empty`
-                );
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              const normalizedAvailability = normalize(
-                oldAvailability,
-                needsTimeRemapping,
-                oldDatesCount,
-                flatOldBlocks,
-                oldBlocksPerDate,
-                currentDates
-              );
-
-              // Validate date count matches old dates (allow small discrepancy)
-              if (
-                needsTimeRemapping &&
-                Math.abs(normalizedAvailability.length - currentDates.length) >
-                  10
-              ) {
-                console.warn(
-                  `Date count mismatch for ${participantData.name} (${normalizedAvailability.length} vs ${currentDates.length}), using empty`
-                );
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              const newAvailability = remap(
-                normalizedAvailability,
-                needsDateRemapping,
-                needsTimeRemapping,
-                oldTimeBlocks,
-                newTimeBlocks,
-                flatOldBlocks,
-                flatNewBlocks,
-                dates,
-                oldDateToIndex
-              );
-
-              // Validate size before saving
-              const jsonString = JSON.stringify(newAvailability);
-              const sizeInBytes = new Blob([jsonString]).size;
-              const MAX_SIZE_BYTES = 900000;
-
-              if (sizeInBytes > MAX_SIZE_BYTES) {
-                console.warn(
-                  `Availability too large for ${participantData.name} (${sizeInBytes} bytes), using empty`
-                );
-                return updateDoc(participantDoc.ref, {
-                  availability: JSON.stringify(emptyAvailability),
-                });
-              }
-
-              return updateDoc(participantDoc.ref, {
-                availability: JSON.stringify(newAvailability),
-              });
-            } catch (participantError) {
-              console.error(
-                `Error updating availability for ${participantData.name}:`,
-                participantError
-              );
-              // On error, use empty availability
-              return updateDoc(participantDoc.ref, {
-                availability: JSON.stringify(emptyAvailability),
-              });
-            }
-          }
+        const updatePromises = participantsSnapshot.docs.map((participantDoc) =>
+          updateParticipant(
+            participantDoc,
+            emptyAvailability,
+            needsDateRemapping,
+            needsTimeRemapping,
+            oldTimeBlocks,
+            newTimeBlocks,
+            flatOldBlocks,
+            flatNewBlocks,
+            dates,
+            currentDates,
+            oldDateToIndex
+          )
         );
 
         await Promise.all(updatePromises);
@@ -634,6 +509,156 @@ function lookupTable(dates: Date[]): Map<string, number> {
     map.set(normalizeDate(date), i);
   });
   return map;
+}
+
+async function updateParticipant(
+  participantDoc: QueryDocumentSnapshot<DocumentData>,
+  emptyAvailability: Availability,
+  needsDateRemapping: boolean,
+  needsTimeRemapping: boolean,
+  oldTimeBlocks: string[][][],
+  newTimeBlocks: string[][][],
+  flatOldBlocks: string[],
+  flatNewBlocks: string[],
+  dates: Date[],
+  currentDates: Date[],
+  oldDateToIndex: Map<string, number>
+): Promise<void> {
+  const participantData = participantDoc.data();
+  try {
+    const rawAvailability = participantData.availability;
+
+    // Parse old availability
+    let oldAvailability: Availability;
+    try {
+      // Handle both string and already-parsed array
+      if (typeof rawAvailability === 'string') {
+        // Parse once
+        let parsed = JSON.parse(rawAvailability || '[]');
+
+        // Handle double-stringification (from before the fix)
+        // If we got a string after parsing, it was double-stringified
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+
+        oldAvailability = parsed;
+      } else if (Array.isArray(rawAvailability)) {
+        oldAvailability = rawAvailability;
+      } else {
+        console.warn(
+          `Unexpected availability type for ${participantData.name}, using empty`
+        );
+        oldAvailability = [];
+      }
+    } catch (parseError) {
+      console.warn(
+        `Failed to parse availability for ${participantData.name}, using empty:`,
+        parseError
+      );
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    // Validate structure
+    if (!Array.isArray(oldAvailability)) {
+      console.warn(
+        `Invalid availability for ${participantData.name}, using empty`
+      );
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    // Empty arrays are valid - just means no availability set yet
+    // Update structure to match new timeframe/dates but keep it empty
+    if (oldAvailability.length === 0) {
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    const oldDatesCount = oldAvailability.length;
+    const oldBlocksPerDate = oldAvailability[0]?.length ?? 0;
+
+    // Check for corruption
+    const MAX_REASONABLE_DATES = 1000;
+    const MAX_REASONABLE_BLOCKS = 1000;
+
+    if (
+      oldDatesCount > MAX_REASONABLE_DATES ||
+      oldBlocksPerDate > MAX_REASONABLE_BLOCKS
+    ) {
+      console.warn(
+        `Corrupted availability for ${participantData.name}, using empty`
+      );
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    const normalizedAvailability = normalize(
+      oldAvailability,
+      needsTimeRemapping,
+      oldDatesCount,
+      flatOldBlocks,
+      oldBlocksPerDate,
+      currentDates
+    );
+
+    // Validate date count matches old dates (allow small discrepancy)
+    if (
+      needsTimeRemapping &&
+      Math.abs(normalizedAvailability.length - currentDates.length) > 10
+    ) {
+      console.warn(
+        `Date count mismatch for ${participantData.name} (${normalizedAvailability.length} vs ${currentDates.length}), using empty`
+      );
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    const newAvailability = remap(
+      normalizedAvailability,
+      needsDateRemapping,
+      needsTimeRemapping,
+      oldTimeBlocks,
+      newTimeBlocks,
+      flatOldBlocks,
+      flatNewBlocks,
+      dates,
+      oldDateToIndex
+    );
+
+    // Validate size before saving
+    const jsonString = JSON.stringify(newAvailability);
+    const sizeInBytes = new Blob([jsonString]).size;
+    const MAX_SIZE_BYTES = 900000;
+
+    if (sizeInBytes > MAX_SIZE_BYTES) {
+      console.warn(
+        `Availability too large for ${participantData.name} (${sizeInBytes} bytes), using empty`
+      );
+      return updateDoc(participantDoc.ref, {
+        availability: JSON.stringify(emptyAvailability),
+      });
+    }
+
+    return updateDoc(participantDoc.ref, {
+      availability: JSON.stringify(newAvailability),
+    });
+  } catch (participantError) {
+    console.error(
+      `Error updating availability for ${participantData.name}:`,
+      participantError
+    );
+    // On error, use empty availability
+    return updateDoc(participantDoc.ref, {
+      availability: JSON.stringify(emptyAvailability),
+    });
+  }
 }
 
 function normalize(
