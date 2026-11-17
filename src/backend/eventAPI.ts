@@ -17,23 +17,27 @@ import {
   getDates,
   getStartAndEndTimes,
 } from './events';
-import { doc, collection, updateDoc, getDoc, getDocs, Timestamp }  from 'firebase/firestore';
-import type { DocumentData, DocumentReference, QueryDocumentSnapshot, QuerySnapshot } from 'firebase/firestore';
+import {
+  doc,
+  collection,
+  updateDoc,
+  getDoc,
+  getDocs,
+  Timestamp,
+} from 'firebase/firestore';
+import type {
+  DocumentData,
+  DocumentReference,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+} from 'firebase/firestore';
 import { db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 
 // TODO fetch event details -> calendarFramework
 
-const getShortDay = [
-  'SUN',
-  'MON',
-  'TUE',
-  'WED',
-  'THU',
-  'FRI',
-  'SAT',
-] as const;
+const getShortDay = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const;
 
 const getMonth = [
   'JAN',
@@ -160,7 +164,7 @@ export default class FrontendEventAPI {
       const {
         dates: currentDates,
         startTime: oldStartTime,
-        endTime: oldEndTime
+        endTime: oldEndTime,
       } = await fetchEventDetails(eventsRef);
 
       // Check what changed
@@ -173,7 +177,8 @@ export default class FrontendEventAPI {
       // If dates or timeframe changed, update availability
       if (needsDateMapping || needsTimeRemapping) {
         const participantsRef = collection(eventsRef, 'participants');
-        const participantsSnapshot: QuerySnapshot<DocumentData> = await getDocs(participantsRef);
+        const participantsSnapshot: QuerySnapshot<DocumentData> =
+          await getDocs(participantsRef);
 
         // Generate time blocks
         const oldTimeBlocks = generateTimeBlocks(oldStartTime, oldEndTime);
@@ -190,8 +195,9 @@ export default class FrontendEventAPI {
           emptyAvailability.push(flatNewBlocks.map(() => false));
         }
 
-          // Process each participant
-          const updatePromises = participantsSnapshot.docs.map(async (participantDoc: QueryDocumentSnapshot<DocumentData>) => {
+        // Process each participant
+        const updatePromises = participantsSnapshot.docs.map(
+          async (participantDoc: QueryDocumentSnapshot<DocumentData>) => {
             const participantData = participantDoc.data();
             try {
               const rawAvailability = participantData.availability;
@@ -214,11 +220,16 @@ export default class FrontendEventAPI {
                 } else if (Array.isArray(rawAvailability)) {
                   oldAvailability = rawAvailability;
                 } else {
-                  console.warn(`Unexpected availability type for ${participantData.name}, using empty`);
+                  console.warn(
+                    `Unexpected availability type for ${participantData.name}, using empty`
+                  );
                   oldAvailability = [];
                 }
               } catch (parseError) {
-                console.warn(`Failed to parse availability for ${participantData.name}, using empty:`, parseError);
+                console.warn(
+                  `Failed to parse availability for ${participantData.name}, using empty:`,
+                  parseError
+                );
                 return updateDoc(participantDoc.ref, {
                   availability: JSON.stringify(emptyAvailability),
                 });
@@ -226,7 +237,9 @@ export default class FrontendEventAPI {
 
               // Validate structure
               if (!Array.isArray(oldAvailability)) {
-                console.warn(`Invalid availability for ${participantData.name}, using empty`);
+                console.warn(
+                  `Invalid availability for ${participantData.name}, using empty`
+                );
                 return updateDoc(participantDoc.ref, {
                   availability: JSON.stringify(emptyAvailability),
                 });
@@ -240,89 +253,106 @@ export default class FrontendEventAPI {
                 });
               }
 
-            const oldDatesCount = oldAvailability.length;
-            const oldBlocksPerDate = oldAvailability[0]?.length ?? 0;
+              const oldDatesCount = oldAvailability.length;
+              const oldBlocksPerDate = oldAvailability[0]?.length ?? 0;
 
-            // Check for corruption
-            const MAX_REASONABLE_DATES = 1000;
-            const MAX_REASONABLE_BLOCKS = 1000;
+              // Check for corruption
+              const MAX_REASONABLE_DATES = 1000;
+              const MAX_REASONABLE_BLOCKS = 1000;
 
-            if (oldDatesCount > MAX_REASONABLE_DATES || oldBlocksPerDate > MAX_REASONABLE_BLOCKS) {
-              console.warn(`Corrupted availability for ${participantData.name}, using empty`);
+              if (
+                oldDatesCount > MAX_REASONABLE_DATES ||
+                oldBlocksPerDate > MAX_REASONABLE_BLOCKS
+              ) {
+                console.warn(
+                  `Corrupted availability for ${participantData.name}, using empty`
+                );
+                return updateDoc(participantDoc.ref, {
+                  availability: JSON.stringify(emptyAvailability),
+                });
+              }
+
+              const normalizedAvailability = normalize(
+                oldAvailability,
+                needsTimeRemapping,
+                oldDatesCount,
+                flatOldBlocks,
+                oldBlocksPerDate,
+                currentDates
+              );
+
+              // Validate date count matches old dates (allow small discrepancy)
+              if (
+                needsTimeRemapping &&
+                Math.abs(normalizedAvailability.length - currentDates.length) >
+                  10
+              ) {
+                console.warn(
+                  `Date count mismatch for ${participantData.name} (${normalizedAvailability.length} vs ${currentDates.length}), using empty`
+                );
+                return updateDoc(participantDoc.ref, {
+                  availability: JSON.stringify(emptyAvailability),
+                });
+              }
+
+              let newAvailability: Availability = [];
+              if (needsDateMapping && needsTimeRemapping) {
+                newAvailability = remapDatesAndTimes(
+                  normalizedAvailability,
+                  oldTimeBlocks,
+                  newTimeBlocks,
+                  dates,
+                  oldDateToIndex
+                );
+              } else if (needsDateMapping) {
+                newAvailability = remapDates(
+                  normalizedAvailability,
+                  flatNewBlocks.length,
+                  dates,
+                  oldDateToIndex
+                );
+              } else if (needsTimeRemapping) {
+                newAvailability = remapTimes(
+                  normalizedAvailability,
+                  dates.length,
+                  flatOldBlocks.length,
+                  oldTimeBlocks,
+                  newTimeBlocks
+                );
+              } else {
+                // Nothing changed - shouldn't happen, but just use old availability
+                newAvailability = normalizedAvailability;
+              }
+
+              // Validate size before saving
+              const jsonString = JSON.stringify(newAvailability);
+              const sizeInBytes = new Blob([jsonString]).size;
+              const MAX_SIZE_BYTES = 900000;
+
+              if (sizeInBytes > MAX_SIZE_BYTES) {
+                console.warn(
+                  `Availability too large for ${participantData.name} (${sizeInBytes} bytes), using empty`
+                );
+                return updateDoc(participantDoc.ref, {
+                  availability: JSON.stringify(emptyAvailability),
+                });
+              }
+
+              return updateDoc(participantDoc.ref, {
+                availability: JSON.stringify(newAvailability),
+              });
+            } catch (participantError) {
+              console.error(
+                `Error updating availability for ${participantData.name}:`,
+                participantError
+              );
+              // On error, use empty availability
               return updateDoc(participantDoc.ref, {
                 availability: JSON.stringify(emptyAvailability),
               });
             }
-
-            const normalizedAvailability = normalize(
-              oldAvailability,
-              needsTimeRemapping,
-              oldDatesCount,
-              flatOldBlocks,
-              oldBlocksPerDate,
-              currentDates
-            );
-
-            // Validate date count matches old dates (allow small discrepancy)
-            if (needsTimeRemapping && Math.abs(normalizedAvailability.length - currentDates.length) > 10) {
-              console.warn(`Date count mismatch for ${participantData.name} (${normalizedAvailability.length} vs ${currentDates.length}), using empty`);
-              return updateDoc(participantDoc.ref, {
-                availability: JSON.stringify(emptyAvailability),
-              });
-            }
-
-            let newAvailability: Availability = [];
-            if (needsDateMapping && needsTimeRemapping) {
-              newAvailability = remapDatesAndTimes(
-                normalizedAvailability,
-                oldTimeBlocks,
-                newTimeBlocks,
-                dates,
-                oldDateToIndex
-              );
-            } else if (needsDateMapping) {
-              newAvailability = remapDates(
-                normalizedAvailability,
-                flatNewBlocks.length,
-                dates,
-                oldDateToIndex
-              );
-            } else if (needsTimeRemapping) {
-              newAvailability = remapTimes(
-                normalizedAvailability,
-                dates.length,
-                flatOldBlocks.length,
-                oldTimeBlocks,
-                newTimeBlocks
-              );
-            } else {
-              // Nothing changed - shouldn't happen, but just use old availability
-              newAvailability = normalizedAvailability;
-            }
-
-            // Validate size before saving
-            const jsonString = JSON.stringify(newAvailability);
-            const sizeInBytes = new Blob([jsonString]).size;
-            const MAX_SIZE_BYTES = 900000;
-
-            if (sizeInBytes > MAX_SIZE_BYTES) {
-              console.warn(`Availability too large for ${participantData.name} (${sizeInBytes} bytes), using empty`);
-              return updateDoc(participantDoc.ref, {
-                availability: JSON.stringify(emptyAvailability),
-              });
-            }
-
-            return updateDoc(participantDoc.ref, {
-              availability: JSON.stringify(newAvailability),
-            });
-          } catch (participantError) {
-            console.error(`Error updating availability for ${participantData.name}:`, participantError);
-            // On error, use empty availability
-            return updateDoc(participantDoc.ref, {
-              availability: JSON.stringify(emptyAvailability),
-            });
           }
-        });
+        );
 
         await Promise.all(updatePromises);
       }
@@ -351,7 +381,9 @@ export default class FrontendEventAPI {
    * @returns
    */
   static getCalendarDimensions(): calendarDimensions {
-    const theDates: Date[] = [...getDates()].sort((a, b) => a.getTime() - b.getTime());
+    const theDates: Date[] = [...getDates()].sort(
+      (a, b) => a.getTime() - b.getTime()
+    );
     const theCalendarDates: calendarDate[][] = [];
     let curCalendarBucket: calendarDate[] = [];
     const numOfCols = theDates.length;
@@ -455,7 +487,7 @@ export default class FrontendEventAPI {
       endTime: getStartAndEndTimes()[1],
       numOfBlocks,
       numOfCols,
-      timezone: getUserTimezone()
+      timezone: getUserTimezone(),
     };
   }
 
@@ -526,7 +558,9 @@ interface EventDetails {
   endTime: Date;
 }
 
-async function fetchEventDetails(eventsRef: DocumentReference<DocumentData>): Promise<EventDetails> {
+async function fetchEventDetails(
+  eventsRef: DocumentReference<DocumentData>
+): Promise<EventDetails> {
   const currentEventDoc = await getDoc(eventsRef);
   const currentDatesRaw = currentEventDoc.data()?.details?.dates || [];
   const rawStartTime = currentEventDoc.data()?.details?.startTime;
@@ -542,7 +576,8 @@ async function fetchEventDetails(eventsRef: DocumentReference<DocumentData>): Pr
 function convertToDate(date: any): Date {
   if (date instanceof Date) return date;
   if (date && typeof date.toDate === 'function') return date.toDate();
-  if (date && date.seconds) return new Timestamp(date.seconds, date.nanoseconds || 0).toDate();
+  if (date && date.seconds)
+    return new Timestamp(date.seconds, date.nanoseconds || 0).toDate();
   return new Date(date);
 }
 
@@ -574,7 +609,6 @@ function datesEqual(dates1: Date[], dates2: Date[]): boolean {
   return true;
 }
 
-
 /** Converts a date to YYYY-MM-DD fromat. */
 function normalizeDate(d: Date): string {
   const date = convertToDate(d);
@@ -596,10 +630,12 @@ interface Timeframe {
  * Determines whether two timeframes are different. Only considers hours and minutes.
  */
 function timeframeChanged(oldTimeframe: Timeframe, newTimeframe: Timeframe) {
-  return oldTimeframe.start.getHours() !== newTimeframe.start.getHours() ||
+  return (
+    oldTimeframe.start.getHours() !== newTimeframe.start.getHours() ||
     oldTimeframe.start.getMinutes() !== newTimeframe.start.getMinutes() ||
     oldTimeframe.end.getHours() !== newTimeframe.end.getHours() ||
-    oldTimeframe.end.getMinutes() !== newTimeframe.end.getMinutes();
+    oldTimeframe.end.getMinutes() !== newTimeframe.end.getMinutes()
+  );
 }
 
 /**
@@ -623,9 +659,17 @@ function normalize(
   oldDatesCount: number,
   flatOldBlocks: string[],
   oldBlocksPerDate: number,
-  currentDates: Date[],
+  currentDates: Date[]
 ): Availability {
-  if (needsTranspose(needsTimeRemapping, oldDatesCount, flatOldBlocks, oldBlocksPerDate, currentDates)) {
+  if (
+    needsTranspose(
+      needsTimeRemapping,
+      oldDatesCount,
+      flatOldBlocks,
+      oldBlocksPerDate,
+      currentDates
+    )
+  ) {
     return transpose(availability, oldDatesCount, oldBlocksPerDate);
   }
   return availability;
@@ -636,19 +680,26 @@ function needsTranspose(
   oldDatesCount: number,
   flatOldBlocks: string[],
   oldBlocksPerDate: number,
-  currentDates: Date[],
+  currentDates: Date[]
 ): boolean {
-  return needsTimeRemapping &&
+  return (
+    needsTimeRemapping &&
     oldDatesCount === flatOldBlocks.length &&
     oldBlocksPerDate > 0 &&
     oldBlocksPerDate === currentDates.length &&
-    oldBlocksPerDate !== flatOldBlocks.length;
+    oldBlocksPerDate !== flatOldBlocks.length
+  );
 }
 
-function transpose(availability: Availability, newBlocks: number, newDates: number): Availability {
+function transpose(
+  availability: Availability,
+  newBlocks: number,
+  newDates: number
+): Availability {
   return Array.from({ length: newDates }, (_, date) =>
-    Array.from({ length: newBlocks }, (_, block) => 
-      availability[block]?.[date] === true
+    Array.from(
+      { length: newBlocks },
+      (_, block) => availability[block]?.[date] === true
     )
   );
 }
@@ -660,8 +711,13 @@ function remapDatesAndTimes(
   dates: Date[],
   oldDateToIndex: Map<string, number>
 ) {
-    const absoluteTimesByOldDate = indicesToAbsoluteTimes(availability, oldTimeBlocks);
-    const absoluteTimesByNewDate = Array.from({ length: dates.length }, (_, newIdx) => {
+  const absoluteTimesByOldDate = indicesToAbsoluteTimes(
+    availability,
+    oldTimeBlocks
+  );
+  const absoluteTimesByNewDate = Array.from(
+    { length: dates.length },
+    (_, newIdx) => {
       const newDateStr = normalizeDate(dates[newIdx]);
       const oldIdx = oldDateToIndex.get(newDateStr);
 
@@ -670,9 +726,14 @@ function remapDatesAndTimes(
       } else {
         return new Set<string>();
       }
-    });
+    }
+  );
 
-    return absoluteTimesToIndices(absoluteTimesByNewDate, newTimeBlocks, dates.length);
+  return absoluteTimesToIndices(
+    absoluteTimesByNewDate,
+    newTimeBlocks,
+    dates.length
+  );
 }
 
 function remapDates(
@@ -690,7 +751,10 @@ function remapDates(
       if (oldAvailability.length === blocksLength) {
         return oldAvailability.slice();
       } else {
-        return Array.from({ length: blocksLength }, (_, i) => oldAvailability[i] ?? false);
+        return Array.from(
+          { length: blocksLength },
+          (_, i) => oldAvailability[i] ?? false
+        );
       }
     } else {
       return Array.from({ length: blocksLength }, () => false);
@@ -710,12 +774,19 @@ function remapTimes(
     if (i < availability.length) {
       trimmedAvailability.push(availability[i]);
     } else {
-      trimmedAvailability.push(Array.from({ length: blockCount },() => false));
+      trimmedAvailability.push(Array.from({ length: blockCount }, () => false));
     }
   }
 
-  const absoluteTimes = indicesToAbsoluteTimes(trimmedAvailability, oldTimeBlocks);
-  return absoluteTimesToIndices(absoluteTimes, newTimeBlocks, expectedDateCount);
+  const absoluteTimes = indicesToAbsoluteTimes(
+    trimmedAvailability,
+    oldTimeBlocks
+  );
+  return absoluteTimesToIndices(
+    absoluteTimes,
+    newTimeBlocks,
+    expectedDateCount
+  );
 }
 
 /** Converts time block indices to absolute times. */
@@ -780,7 +851,7 @@ function absoluteTimesToIndices(
 
     if (colIdx < absoluteTimes.length) {
       const times = absoluteTimes[colIdx];
-      times.forEach(time => {
+      times.forEach((time) => {
         const newIdx = timeToIndex.get(time);
         if (newIdx !== undefined && newIdx < column.length) {
           column[newIdx] = true;
