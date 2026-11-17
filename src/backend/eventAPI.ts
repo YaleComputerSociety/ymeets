@@ -32,6 +32,7 @@ import type {
   QuerySnapshot,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { parseAvailability } from './parsing';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
 
@@ -526,46 +527,19 @@ async function updateParticipant(
 ): Promise<void> {
   const participantData = participantDoc.data();
   try {
-    const rawAvailability = participantData.availability;
+    let rawAvailability = participantData.availability;
 
-    // Parse old availability
-    let oldAvailability: Availability;
-    try {
-      // Handle both string and already-parsed array
-      if (typeof rawAvailability === 'string') {
-        // Parse once
-        let parsed = JSON.parse(rawAvailability || '[]');
-
-        // Handle double-stringification (from before the fix)
-        // If we got a string after parsing, it was double-stringified
-        if (typeof parsed === 'string') {
-          parsed = JSON.parse(parsed);
-        }
-
-        oldAvailability = parsed;
-      } else if (Array.isArray(rawAvailability)) {
-        oldAvailability = rawAvailability;
-      } else {
-        console.warn(
-          `Unexpected availability type for ${participantData.name}, using empty`
-        );
-        oldAvailability = [];
+    // Compensate for old double-stringification.
+    if (typeof rawAvailability === 'string') {
+      try {
+        rawAvailability = JSON.parse(rawAvailability);
+      } catch {
+        rawAvailability = undefined;
       }
-    } catch (parseError) {
-      console.warn(
-        `Failed to parse availability for ${participantData.name}, using empty:`,
-        parseError
-      );
-      return updateDoc(participantDoc.ref, {
-        availability: JSON.stringify(emptyAvailability),
-      });
     }
-
-    // Validate structure
-    if (!Array.isArray(oldAvailability)) {
-      console.warn(
-        `Invalid availability for ${participantData.name}, using empty`
-      );
+    const oldAvailability = parseAvailability(rawAvailability || '[]');
+    if (oldAvailability === undefined) {
+      console.warn(`Failed to parse availability for ${participantData.name}, using empty`);
       return updateDoc(participantDoc.ref, {
         availability: JSON.stringify(emptyAvailability),
       });
