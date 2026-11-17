@@ -17,7 +17,8 @@ import {
   getDates,
   getStartAndEndTimes,
 } from './events';
-import { doc, collection, updateDoc, getDoc, getDocs, Timestamp, QuerySnapshot, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
+import { doc, collection, updateDoc, getDoc, getDocs, Timestamp }  from 'firebase/firestore';
+import type { DocumentData, DocumentReference, QueryDocumentSnapshot, QuerySnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { generateTimeBlocks } from '../components/utils/functions/generateTimeBlocks';
 import { getUserTimezone } from '../components/utils/functions/timzoneConversions';
@@ -154,23 +155,16 @@ export default class FrontendEventAPI {
         throw new Error('At least one date must be selected for the event');
       }
 
-      // Normalize to match reads which use toUpperCase() when fetching
       const normalizedId = eventId.toUpperCase();
       const eventsRef = doc(collection(db, 'events'), normalizedId);
-
-      // Check if dates have changed by comparing with current event
-      const currentEventDoc = await getDoc(eventsRef);
-      const currentDatesRaw = currentEventDoc.data()?.details?.dates || [];
-      const currentStartTime = currentEventDoc.data()?.details?.startTime;
-      const currentEndTime = currentEventDoc.data()?.details?.endTime;
-
-      // Handle both array and Record formats (Firestore might store dates as Record)
-      const currentDates = toDates(currentDatesRaw);
+      const {
+        dates: currentDates,
+        startTime: oldStartTime,
+        endTime: oldEndTime
+      } = await fetchEventDetails(eventsRef);
 
       // Check what changed
       const needsDateMapping = !datesEqual(currentDates, dates);
-      const oldStartTime = convertToDate(currentStartTime);
-      const oldEndTime = convertToDate(currentEndTime);
       const needsTimeRemapping = timeframeChanged(
         { start: oldStartTime, end: oldEndTime },
         { start: startTime, end: endTime }
@@ -526,13 +520,31 @@ function toDates(rawDates: unknown): Date[] {
   return [];
 }
 
+interface EventDetails {
+  dates: Date[];
+  startTime: Date;
+  endTime: Date;
+}
+
+async function fetchEventDetails(eventsRef: DocumentReference<DocumentData>): Promise<EventDetails> {
+  const currentEventDoc = await getDoc(eventsRef);
+  const currentDatesRaw = currentEventDoc.data()?.details?.dates || [];
+  const rawStartTime = currentEventDoc.data()?.details?.startTime;
+  const rawEndTime = currentEventDoc.data()?.details?.endTime;
+
+  const dates = toDates(currentDatesRaw);
+  const startTime = convertToDate(rawStartTime);
+  const endTime = convertToDate(rawEndTime);
+  return { dates, startTime, endTime };
+}
+
 /** Convert Firestore Timestamps to Date objects if needed. */
 function convertToDate(date: any): Date {
   if (date instanceof Date) return date;
   if (date && typeof date.toDate === 'function') return date.toDate();
   if (date && date.seconds) return new Timestamp(date.seconds, date.nanoseconds || 0).toDate();
   return new Date(date);
-};
+}
 
 /**
  * Compare date sets (ignoring order, comparing only date part)
@@ -560,7 +572,7 @@ function datesEqual(dates1: Date[], dates2: Date[]): boolean {
   }
 
   return true;
-};
+}
 
 
 /** Converts a date to YYYY-MM-DD fromat. */
@@ -570,7 +582,7 @@ function normalizeDate(d: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-};
+}
 
 /**
  * A span between two dates.
@@ -739,7 +751,7 @@ function indicesToAbsoluteTimes(
   }
 
   return absoluteTimes;
-};
+}
 
 /** Converts absolute times to time block indices. */
 function absoluteTimesToIndices(
@@ -780,4 +792,4 @@ function absoluteTimesToIndices(
   }
 
   return newAvailability;
-};
+}
