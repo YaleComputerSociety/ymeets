@@ -1,5 +1,4 @@
 import type { LabelColors } from '../components/Accounts/EventLabels';
-/* eslint-disable */
 
 import {
   doc,

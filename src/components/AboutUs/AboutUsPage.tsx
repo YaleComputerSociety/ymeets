@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import no_person from './anon.jpeg';
 
 import {

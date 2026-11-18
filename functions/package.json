@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "scripts": {
-    "lint": "eslint --ext .js,.ts .",
+    "lint": "oxlint",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
@@ -20,10 +20,7 @@
     "resend": "^6.9.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
-    "eslint": "^8.9.0",
-    "eslint-plugin-import": "^2.25.4",
+    "oxlint": "^1.94.0",
     "typescript": "^4.9.0"
   },
   "private": true
