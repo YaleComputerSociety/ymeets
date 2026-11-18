@@ -34,18 +34,11 @@ export default function LocationChart({
   locationVotes = combined.map((item: any) => item.votes);
 
   function handleRowClick(loc: string) {
-    if (!checkIfAdmin() || selectionMade) {
-      return;
-    }
 
     setBuilding(loc);
+    setShowInput (true);
+    setIsClicked(true);
 
-    if (showInput) {
-      setShowInput(false);
-      setIsClicked(true);
-    } else {
-      setShowInput(true);
-    }
   }
 
   function getBookingLink(building: string): string {
@@ -82,7 +75,9 @@ export default function LocationChart({
             {locationOptions?.map((loc: Location, idx: number) => (
               <div
                 key={idx}
-                onClick={() => handleRowClick(loc)}
+                onMouseEnter = {() => handleRowClick(loc)}
+                onMouseLeave = {() => setShowInput(false)}
+                onClick = {() => handleRowClick(loc)}
                 className={`flex items-center justify-between px-2 py-1.5 rounded text-sm cursor-pointer transition-colors ${
                   checkIfAdmin() && !selectionMade
                     ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
