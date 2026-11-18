@@ -3,6 +3,7 @@
   "plugins": [
     "typescript",
     "unicorn",
+    "react",
     "oxc",
     "import",
     "promise"
@@ -10,7 +11,12 @@
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    "react/immutability": "off",
+    "react/purity": "off",
+    "react/refs": "off",
+    "react/set-state-in-effect": "off"
+  },
   "env": {
     "builtin": true,
     "browser": true
