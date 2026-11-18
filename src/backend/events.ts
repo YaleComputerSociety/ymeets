@@ -195,9 +195,8 @@ export async function getEventById(id: EventId): Promise<void> {
  * Attempts to delete an event from Firestore. Validates that the user attempting the deletion is
  * the event's admin.
  *
- * Writes a console error if a write fails.
- *
- * @throws an `Error` if the user is not the event's admin.
+ * @throws an `Error` if the user is not the event's admin, or the Firestore error if deleting the
+ * event fails.
  */
 export async function deleteEvent(id: EventId): Promise<void> {
   // Prevent any user other than the admin to delete event
@@ -224,16 +223,21 @@ export async function deleteEvent(id: EventId): Promise<void> {
   // delete the event itself
   batch.delete(doc(db, 'events', id));
 
-  // Commit the batch
-  await batch.commit().catch((err) => {
-    console.error('Error: ', err);
-  });
+  // Commit the batch. Throws on failure so callers don't treat the event as deleted.
+  await batch.commit();
 
-  removeEventFromUserCollection(getAccountId(), id);
   // Keep local account events cache in sync (Accounts page).
   const accountId = getAccountId();
   if (accountId) {
     removeCachedAccountEvent(accountId, id);
+  }
+
+  // The event is already gone, so a failure here isn't a failed delete. The Accounts page also
+  // drops events that no longer exist when it loads.
+  try {
+    await removeEventFromUserCollection(accountId, id);
+  } catch (err) {
+    console.error('Error removing deleted event from user collection:', err);
   }
 }
 
@@ -463,6 +467,17 @@ export async function createEvent(eventDetails: EventDetails): Promise<Event | n
 }
 
 /**
+ * Whether `part` is the row of the user with the given name and accountId. Signed-in users match
+ * only by account ID, and guests match only guest rows by name. Matching by name across the two
+ * would give one person's row to someone else who has the same name.
+ */
+function isParticipantRow(part: Participant, name: string, accountId: string): boolean {
+  return accountId !== ''
+    ? part.accountId === accountId
+    : !part.accountId && part.name === name;
+}
+
+/**
  * AVOID EXTERNAL USE. Finds the location of the user with the given name and accountId in the
  * working event's participants array.
  *
@@ -475,10 +490,7 @@ export const getParticipantIndex = (
 ): number | undefined => {
   let index;
   for (let i = 0; i < workingEvent.participants.length; i++) {
-    if (
-      (accountId === '' && workingEvent.participants[i].name == name) ||
-      (accountId !== '' && workingEvent.participants[i].accountId == accountId)
-    ) {
+    if (isParticipantRow(workingEvent.participants[i], name, accountId)) {
       index = i;
     }
   }
@@ -566,10 +578,8 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
   participant.email = getAccountEmail();
 
   // Update local copy first
-  let existingIndex = workingEvent.participants.findIndex(
-    (part) =>
-      (participant.accountId && part.accountId === participant.accountId) ||
-      (!participant.accountId && part.name === participant.name)
+  let existingIndex = workingEvent.participants.findIndex((part) =>
+    isParticipantRow(part, participant.name, participant.accountId || '')
   );
 
   if (existingIndex !== -1) {

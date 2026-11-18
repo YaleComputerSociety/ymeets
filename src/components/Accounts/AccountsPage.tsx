@@ -22,6 +22,7 @@ import { LoadingAnim } from '../utils/components/LoadingAnim';
 import CopyCodeButton from '../utils/components/CopyCodeButton';
 import Button from '../utils/components/Button';
 import DeletePopup from '../utils/components/DeletePopup';
+import AlertPopup from '../utils/components/AlertPopup';
 import {
   getCachedAccountEvents,
   setCachedAccountEvents,
@@ -83,6 +84,7 @@ export default function AccountsPage() {
   const nav = useNavigate();
   const [filter, setFilter] = useState('');
   const [events, setEvents] = useState<AccountsPageEvent[] | undefined>();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<
     'dateCreated' | 'lastModified' | 'label' | ''
   >('');
@@ -168,6 +170,18 @@ export default function AccountsPage() {
     />
   );
 
+  // Only removes the event from the page once Firestore confirms the delete.
+  const handleDeleteEvent = (id: string) => {
+    deleteEvent(id)
+      .then(() => {
+        setEvents((previous) => previous?.filter((e) => e.id !== id));
+      })
+      .catch((err) => {
+        console.error('Error deleting event:', err);
+        setDeleteError('Could not delete this event. Please try again.');
+      });
+  };
+
   const showCreated = roleFilter === 'all' || roleFilter === 'admin';
   const showFilled = roleFilter === 'all' || roleFilter === 'participant';
 
@@ -179,16 +193,19 @@ export default function AccountsPage() {
         isOpen={selectedEventToDelete !== null && !dontAskAgain}
         onConfirm={() => {
           if (selectedEventToDelete) {
-            deleteEvent(selectedEventToDelete.id)
-              .then(() => events?.filter((e) => e.id !== selectedEventToDelete.id) ?? [])
-              .then(setEvents)
-              .catch(() => {});
+            handleDeleteEvent(selectedEventToDelete.id);
             setSelectedEventToDelete(null);
           }
         }}
         onCancel={() => setSelectedEventToDelete(null)}
         showCheckbox={true}
         onCheckboxChange={() => setDontAskAgain(true)}
+      />
+      <AlertPopup
+        title="Delete failed"
+        message={deleteError || ''}
+        isOpen={!!deleteError}
+        onClose={() => setDeleteError(null)}
       />
       <div className="w-full max-w-full pt-2 sm:pt-4 pb-10 sm:pb-14 px-5 xs:px-8 md:px-12 lg:px-16 xl:px-20 max-w-8xl flex flex-col gap-6 xs:gap-8 sm:gap-10 flex-grow w-full">
         <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-6 md:gap-8">
@@ -464,15 +481,7 @@ export default function AccountsPage() {
                                   <button
                                     onClick={() => {
                                       if (dontAskAgain) {
-                                        deleteEvent(event.id)
-                                          .then(() => {
-                                            setEvents(
-                                              events?.filter(
-                                                (e) => e.id !== event.id
-                                              )
-                                            );
-                                          })
-                                          .catch(() => {});
+                                        handleDeleteEvent(event.id);
                                       } else {
                                         setSelectedEventToDelete(event);
                                       }
@@ -571,15 +580,7 @@ export default function AccountsPage() {
                                         <button
                                           onClick={() => {
                                             if (dontAskAgain) {
-                                              deleteEvent(event.id)
-                                                .then(() => {
-                                                  setEvents(
-                                                    events?.filter(
-                                                      (e) => e.id !== event.id
-                                                    )
-                                                  );
-                                                })
-                                                .catch(() => {});
+                                              handleDeleteEvent(event.id);
                                             } else {
                                               setSelectedEventToDelete(event);
                                             }
