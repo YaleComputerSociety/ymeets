@@ -30,6 +30,9 @@ jobs:
       - name: Check Types
         run: npm run typeCheck
 
+      - name: Lint
+        run: npm run lint
+
   tests:
     name: Tests
     runs-on: ubuntu-latest

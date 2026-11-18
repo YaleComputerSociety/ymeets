@@ -145,7 +145,11 @@ export default function Calendar({
 
   const handlePrev = () => {
     const next = Math.max(currentStartPage - numberOfColumnsPerPage, 0);
-    onPageChange ? onPageChange(next) : setInternalStartPage(next);
+    if (onPageChange) {
+      onPageChange(next);
+    } else {
+      setInternalStartPage(next);
+    }
   };
 
   const handleNext = () => {
@@ -154,7 +158,11 @@ export default function Calendar({
         currentStartPage + numberOfColumnsPerPage,
         calendarFramework.dates.flat().length - numberOfColumnsPerPage
       );
-      onPageChange ? onPageChange(next) : setInternalStartPage(next);
+      if (onPageChange) {
+        onPageChange(next);
+      } else {
+        setInternalStartPage(next);
+      }
     }
   };
 

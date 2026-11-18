@@ -14,7 +14,6 @@ export function generateTimeBlocks(startTime: any, endTime: any) {
   // Loop through hours
   let hour = startHour;
   
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const hourBlocks: string[] = [];
 
