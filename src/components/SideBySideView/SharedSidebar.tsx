@@ -7,6 +7,8 @@ import {
   getChosenLocation,
   getEmailAdmin,
   setEmailAdmin,
+  getEmailAdminLateRequests,
+  setEmailAdminLateRequests,
   updateAnonymousUserToAuthUser,
   getSelectedCalendarIDsByUserID,
   setUserSelectedCalendarIDs,
@@ -29,6 +31,7 @@ import InviteButton from '../utils/components/InviteButton';
 import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
 import LiteEventNotice from '../utils/components/LiteEventNotice';
+import MeetingScheduledCard from '../GroupView/MeetingScheduledCard';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import ParticipantFilterList, {
   getFilterableParticipants,
@@ -83,6 +86,7 @@ interface SharedSidebarProps {
   userHasFilled: boolean;
   onDecline: () => void;
   onFindBestTime?: () => void;
+  onMeetingChanged?: () => void;
 }
 
 export default function SharedSidebar({
@@ -111,11 +115,13 @@ export default function SharedSidebar({
   userHasFilled,
   onDecline,
   onFindBestTime,
+  onMeetingChanged,
 }: SharedSidebarProps) {
   const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [isDeclinePopupOpen, setIsDeclinePopupOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
+  const [lateRequestEmails, setLateRequestEmails] = useState(getEmailAdminLateRequests());
   const [isCalendarsExpanded, setIsCalendarsExpanded] = useState(true);
   const [showLoginPopup, setShowLoginPopup] = useState(
     () => promptForName && getAccountName() === ''
@@ -257,6 +263,10 @@ export default function SharedSidebar({
 
       {!chartedUsers?.hovering && <LiteEventNotice />}
 
+      {!chartedUsers?.hovering && onMeetingChanged && (
+        <MeetingScheduledCard isAdmin={isAdmin} onChanged={onMeetingChanged} />
+      )}
+
       {/* Add My Availability Button - shown when user is not signed in */}
       {!chartedUsers?.hovering && !userHasSignedIn && (
         <div className="w-full">
@@ -320,6 +330,27 @@ export default function SharedSidebar({
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Get notified when someone adds their availability
+            </p>
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Late response requests
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={lateRequestEmails}
+                  onChange={async (e) => {
+                    const newValue = e.target.checked;
+                    setLateRequestEmails(newValue);
+                    await setEmailAdminLateRequests(newValue);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary dark:peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Get notified when someone asks to be added to the calendar invite
             </p>
           </div>
         </div>

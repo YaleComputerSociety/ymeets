@@ -26,10 +26,21 @@ import {
   getEmailAdmin,
   setEmailAdmin,
   wrappedSaveDeclinedParticipantDetails,
+  getChosenDayAndTime,
+  getInviteEmails,
+  setChosenTime,
+  getEmailAdminLateRequests,
+  setEmailAdminLateRequests,
 } from '../../backend/events';
 import LocationChart from './LocationChart';
 import UserChart from './UserChart';
-import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
+import {
+  getGCalUrlForSelection,
+  getSelectionDates,
+  getSelectionForDates,
+} from '../utils/functions/googleCalendarExport';
+import ConfirmPopup from '../utils/components/ConfirmPopup';
+import MeetingScheduledCard from './MeetingScheduledCard';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
 import { useAuth } from '../../backend/authContext';
@@ -77,6 +88,7 @@ export default function GroupViewPage({
   setPeopleStatus,
   allUsers,
   userHasFilled,
+  onMeetingChanged,
 }: {
   isAdmin: boolean;
   isEditing: boolean;
@@ -100,6 +112,8 @@ export default function GroupViewPage({
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
   userHasFilled: boolean;
+  // Reloads the event after the meeting time or invite requests change
+  onMeetingChanged?: () => void;
 }) {
   const navigate = useNavigate();
   const [showUserChart, setShowUserChart] = useState(false);
@@ -110,6 +124,34 @@ export default function GroupViewPage({
   const [showBestTime, setShowBestTime] = useState(false);
 
   const { login } = useAuth();
+
+  // The time just exported to Google Calendar, waiting for the admin to confirm they sent it
+  const [exportedTime, setExportedTime] = useState<{ start: Date; end: Date } | null>(null);
+
+  // The finalized meeting time, shown in green on the group calendar
+  const chosen = getChosenDayAndTime();
+  const chosenStart = chosen?.[0].getTime();
+  const chosenEnd = chosen?.[1].getTime();
+  const finalizedSelection = useMemo(
+    () =>
+      chosenStart !== undefined && chosenEnd !== undefined
+        ? getSelectionForDates(new Date(chosenStart), new Date(chosenEnd), calendarFramework)
+        : undefined,
+    [chosenStart, chosenEnd, calendarFramework]
+  );
+
+  /** Saves the exported time once the admin confirms they sent the invite. */
+  const confirmInviteSent = async () => {
+    if (!exportedTime) return;
+    setExportedTime(null);
+    try {
+      await setChosenTime(exportedTime.start, exportedTime.end, getInviteEmails());
+      onMeetingChanged?.();
+    } catch (error) {
+      console.error('Failed to save the meeting time:', error);
+      setAlertMessage('Could not save the meeting time. Please try again.');
+    }
+  };
 
   /** Opens a pre-filled Google Calendar event for the admin's selected time range. */
   function handleSelectionSubmission() {
@@ -125,6 +167,8 @@ export default function GroupViewPage({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
+      const dates = getSelectionDates(mostRecentSelection, calendarFramework);
+      if (!('error' in dates)) setExportedTime(dates);
     } else {
       login();
     }
@@ -176,6 +220,8 @@ export default function GroupViewPage({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
+      const dates = getSelectionDates(windowToSelection(time), calendarFramework);
+      if (!('error' in dates)) setExportedTime(dates);
     } else {
       login();
     }
@@ -186,6 +232,7 @@ export default function GroupViewPage({
   const [alertMessage, setAlertMessage] = useState<string | null>(null); // Ensure this is at the top level
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null); // State for calendar height
   const [emailNotifications, setEmailNotifications] = useState(getEmailAdmin());
+  const [lateRequestEmails, setLateRequestEmails] = useState(getEmailAdminLateRequests());
   const editAvailabilityButtonLabel = isEditing
     ? 'View Availabilities'
     : userHasFilled
@@ -208,6 +255,15 @@ export default function GroupViewPage({
         message={alertMessage || ''}
         isOpen={!!alertMessage}
         onClose={() => setAlertMessage(null)}
+      />
+      <ConfirmPopup
+        isOpen={!!exportedTime}
+        title="Did you send the invite?"
+        message="After saving the event in Google Calendar, confirm here so everyone sees the meeting time."
+        confirmText="I sent it"
+        cancelText="Not yet"
+        onConfirm={confirmInviteSent}
+        onCancel={() => setExportedTime(null)}
       />
             {/* Best Time popup */}
       {isAdmin && showBestTime && (
@@ -287,6 +343,10 @@ export default function GroupViewPage({
 
           {!chartedUsers.hovering && <LiteEventNotice />}
 
+          {!chartedUsers.hovering && onMeetingChanged && (
+            <MeetingScheduledCard isAdmin={isAdmin} onChanged={onMeetingChanged} />
+          )}
+
           {/* Primary Action */}
           {!chartedUsers.hovering && (
             <div className="hidden md:flex items-center gap-2 w-full">
@@ -351,6 +411,27 @@ export default function GroupViewPage({
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Get notified when someone fills out their availability
+                </p>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Late response requests
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={lateRequestEmails}
+                      onChange={async (e) => {
+                        const newValue = e.target.checked;
+                        setLateRequestEmails(newValue);
+                        await setEmailAdminLateRequests(newValue);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-primary dark:peer-checked:bg-primary-600"></div>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Get notified when someone asks to be added to the calendar invite
                 </p>
               </div>
             </div>
@@ -578,6 +659,7 @@ export default function GroupViewPage({
                 isAdmin={isAdmin}
                 theDragState={[dragState, setDragState]}
                 theMostRecentSelection={[mostRecentSelection, setMostRecentSelection]}
+                finalizedSelection={finalizedSelection}
                 googleCalendarEvents={[]}
                 isGeneralDays={false}
                 setChartedUsers={setChartedUsers}

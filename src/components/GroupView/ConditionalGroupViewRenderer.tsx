@@ -29,6 +29,7 @@ export default function ConditionalGroupViewRenderer({
   setPeopleStatus,
   allUsers,
   userHasFilled,
+  onMeetingChanged,
 }: {
   isEditing: boolean;
   toggleEditing: () => void;
@@ -51,6 +52,7 @@ export default function ConditionalGroupViewRenderer({
   setPeopleStatus: Dispatch<SetStateAction<{ [key: string]: boolean }>>;
   allUsers: userData;
   userHasFilled: boolean;
+  onMeetingChanged?: () => void;
 }) {
   const [isAdmin, setIsAdmin] = useState(checkIfAdmin());
 
@@ -92,6 +94,7 @@ export default function ConditionalGroupViewRenderer({
       setPeopleStatus={setPeopleStatus}
       allUsers={allUsers}
       userHasFilled={userHasFilled}
+      onMeetingChanged={onMeetingChanged}
     />
   );
 }

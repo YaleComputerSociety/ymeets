@@ -46,6 +46,7 @@ interface SelectCalendarProps {
     BoundingBox | undefined,
     Dispatch<SetStateAction<BoundingBox | undefined>>
   ]
+  finalizedSelection?: BoundingBox;
   calendarFramework: calendarDimensions;
   googleCalendarEvents: calendar_v3.Schema$Event[],
   onClick: MouseEventHandler<HTMLButtonElement>;
@@ -98,6 +99,7 @@ function SelectCalendar({
   endDate,
   theDragState,
   theMostRecentSelection,
+  finalizedSelection,
   googleCalendarEvents,
   onClick,
   theShowUserChart,
@@ -196,6 +198,7 @@ function SelectCalendar({
                                 isAdmin={isAdmin}
                                 theDragState={theDragState}
                                 theMostRecentSelection={theMostRecentSelection}
+                                finalizedSelection={finalizedSelection}
                                 calendarFramework={calendarFramework}
                                 chartedUsersData={chartedUsersData}
                                 googleCalendarEvents={googleCalendarEvents}

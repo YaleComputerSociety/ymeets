@@ -48,6 +48,7 @@ interface CalRowProps {
     BoundingBox | undefined,
     React.Dispatch<React.SetStateAction<BoundingBox | undefined>>,
   ];
+  finalizedSelection?: BoundingBox;
   calendarFramework: calendarDimensions;
   borderStyle?: string;
   googleCalendarEvents: calendar_v3.Schema$Event[];
@@ -91,6 +92,7 @@ export default function CalRow({
   is30Minute,
   theDragState,
   theMostRecentSelection,
+  finalizedSelection,
   chartedUsersData,
   googleCalendarEvents,
   time,
@@ -203,6 +205,7 @@ export default function CalRow({
             user={user}
             theDragState={theDragState}
             theMostRecentSelection={theMostRecentSelection}
+            finalizedSelection={finalizedSelection}
             chartedUsersData={chartedUsersData}
             isOnGcal={blockData.isOnGcal}
             eventNames={blockData.eventNames}
