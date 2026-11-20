@@ -17,9 +17,12 @@ import {
 import { notifyAdminOfInviteRequest } from '../../emails/sendEmailHelpers';
 import { getAddToCalendarUrl } from '../utils/functions/googleCalendarExport';
 import ConfirmPopup from '../utils/components/ConfirmPopup';
+import type { BoundingBox } from '../../types';
 
 interface MeetingScheduledCardProps {
   isAdmin: boolean;
+  /** The meeting's box on the group calendar, saved as a new requester's availability. */
+  finalizedSelection?: BoundingBox;
   /** Reloads the event after a change, so everything shows the new state. */
   onChanged: () => void;
 }
@@ -42,7 +45,11 @@ function formatRange(start: Date, end: Date): string {
 }
 
 /** The finalized meeting, shown to everyone once the admin has sent the invite. */
-export default function MeetingScheduledCard({ isAdmin, onChanged }: MeetingScheduledCardProps) {
+export default function MeetingScheduledCard({
+  isAdmin,
+  finalizedSelection,
+  onChanged,
+}: MeetingScheduledCardProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -69,7 +76,7 @@ export default function MeetingScheduledCard({ isAdmin, onChanged }: MeetingSche
 
   const askToBeAdded = () =>
     run(async () => {
-      await requestInvite();
+      await requestInvite(finalizedSelection);
       const event = getWorkingEvent();
       if (getEmailAdminLateRequests()) {
         notifyAdminOfInviteRequest(

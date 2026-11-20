@@ -50,7 +50,6 @@ import {
   getSelectionDates,
   getSelectionForDates,
 } from '../utils/functions/googleCalendarExport';
-import ConfirmPopup from '../utils/components/ConfirmPopup';
 import AddToGoogleCalendarButton from '../GroupView/AddToCalendarButton';
 import InformationPopup from '../utils/components/InformationPopup';
 import AlertPopup from '../utils/components/AlertPopup';
@@ -414,9 +413,6 @@ export default function SideBySideView({
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
-  // The time just exported to Google Calendar, waiting for the admin to confirm they sent it
-  const [exportedTime, setExportedTime] = useState<{ start: Date; end: Date } | null>(null);
-
   // The finalized meeting time, shown in green on the group calendar
   const chosen = getChosenDayAndTime();
   const chosenStart = chosen?.[0].getTime();
@@ -429,12 +425,12 @@ export default function SideBySideView({
     [chosenStart, chosenEnd, calendarFramework]
   );
 
-  /** Saves the exported time once the admin confirms they sent the invite. */
-  const confirmInviteSent = async () => {
-    if (!exportedTime) return;
-    setExportedTime(null);
+  /** Saves an exported time as the meeting time, so everyone sees it. */
+  const saveExportedTime = async (selection: BoundingBox | undefined) => {
+    const dates = getSelectionDates(selection, calendarFramework);
+    if ('error' in dates) return;
     try {
-      await setChosenTime(exportedTime.start, exportedTime.end, getInviteEmails());
+      await setChosenTime(dates.start, dates.end, getInviteEmails());
       onMeetingChanged();
     } catch (error) {
       console.error('Failed to save the meeting time:', error);
@@ -486,8 +482,7 @@ export default function SideBySideView({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
-      const dates = getSelectionDates(theMostRecentRightSelection[0], calendarFramework);
-      if (!('error' in dates)) setExportedTime(dates);
+      saveExportedTime(theMostRecentRightSelection[0]);
     } else {
       login();
     }
@@ -528,8 +523,7 @@ export default function SideBySideView({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
-      const dates = getSelectionDates(windowToSelection(time), calendarFramework);
-      if (!('error' in dates)) setExportedTime(dates);
+      saveExportedTime(windowToSelection(time));
     } else {
       login();
     }
@@ -543,15 +537,6 @@ export default function SideBySideView({
         message={alertMessage || ''}
         isOpen={!!alertMessage}
         onClose={() => setAlertMessage(null)}
-      />
-      <ConfirmPopup
-        isOpen={!!exportedTime}
-        title="Did you send the invite?"
-        message="After saving the event in Google Calendar, confirm here so everyone sees the meeting time."
-        confirmText="I sent it"
-        cancelText="Not yet"
-        onConfirm={confirmInviteSent}
-        onCancel={() => setExportedTime(null)}
       />
 
       {/* Main layout: 4-column grid matching GroupView/TimeSelect */}
@@ -591,6 +576,7 @@ export default function SideBySideView({
             onDecline={onDecline}
             onFindBestTime={() => setShowBestTime(true)}
             onMeetingChanged={onMeetingChanged}
+            finalizedSelection={finalizedSelection}
           />
         </div>
         {/* Best Time popup */}

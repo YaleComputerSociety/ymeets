@@ -39,7 +39,6 @@ import {
   getSelectionDates,
   getSelectionForDates,
 } from '../utils/functions/googleCalendarExport';
-import ConfirmPopup from '../utils/components/ConfirmPopup';
 import MeetingScheduledCard from './MeetingScheduledCard';
 import GeneralPopup from '../DaySelect/general_popup_component';
 import AddToGoogleCalendarButton from './AddToCalendarButton';
@@ -125,9 +124,6 @@ export default function GroupViewPage({
 
   const { login } = useAuth();
 
-  // The time just exported to Google Calendar, waiting for the admin to confirm they sent it
-  const [exportedTime, setExportedTime] = useState<{ start: Date; end: Date } | null>(null);
-
   // The finalized meeting time, shown in green on the group calendar
   const chosen = getChosenDayAndTime();
   const chosenStart = chosen?.[0].getTime();
@@ -140,12 +136,12 @@ export default function GroupViewPage({
     [chosenStart, chosenEnd, calendarFramework]
   );
 
-  /** Saves the exported time once the admin confirms they sent the invite. */
-  const confirmInviteSent = async () => {
-    if (!exportedTime) return;
-    setExportedTime(null);
+  /** Saves an exported time as the meeting time, so everyone sees it. */
+  const saveExportedTime = async (selection: BoundingBox | undefined) => {
+    const dates = getSelectionDates(selection, calendarFramework);
+    if ('error' in dates) return;
     try {
-      await setChosenTime(exportedTime.start, exportedTime.end, getInviteEmails());
+      await setChosenTime(dates.start, dates.end, getInviteEmails());
       onMeetingChanged?.();
     } catch (error) {
       console.error('Failed to save the meeting time:', error);
@@ -167,8 +163,7 @@ export default function GroupViewPage({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
-      const dates = getSelectionDates(mostRecentSelection, calendarFramework);
-      if (!('error' in dates)) setExportedTime(dates);
+      saveExportedTime(mostRecentSelection);
     } else {
       login();
     }
@@ -220,8 +215,7 @@ export default function GroupViewPage({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
-      const dates = getSelectionDates(windowToSelection(time), calendarFramework);
-      if (!('error' in dates)) setExportedTime(dates);
+      saveExportedTime(windowToSelection(time));
     } else {
       login();
     }
@@ -255,15 +249,6 @@ export default function GroupViewPage({
         message={alertMessage || ''}
         isOpen={!!alertMessage}
         onClose={() => setAlertMessage(null)}
-      />
-      <ConfirmPopup
-        isOpen={!!exportedTime}
-        title="Did you send the invite?"
-        message="After saving the event in Google Calendar, confirm here so everyone sees the meeting time."
-        confirmText="I sent it"
-        cancelText="Not yet"
-        onConfirm={confirmInviteSent}
-        onCancel={() => setExportedTime(null)}
       />
             {/* Best Time popup */}
       {isAdmin && showBestTime && (
@@ -344,7 +329,11 @@ export default function GroupViewPage({
           {!chartedUsers.hovering && <LiteEventNotice />}
 
           {!chartedUsers.hovering && onMeetingChanged && (
-            <MeetingScheduledCard isAdmin={isAdmin} onChanged={onMeetingChanged} />
+            <MeetingScheduledCard
+              isAdmin={isAdmin}
+              finalizedSelection={finalizedSelection}
+              onChanged={onMeetingChanged}
+            />
           )}
 
           {/* Primary Action */}

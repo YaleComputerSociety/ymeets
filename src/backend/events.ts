@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import {
   Availability,
+  BoundingBox,
   Event,
   Location,
   EventDetails,
@@ -1028,19 +1029,37 @@ export function canCurrentUserRequestInvite(): boolean {
   );
 }
 
-/** Asks to join the invite, on the signed-in user's own participant row. */
-export async function requestInvite() {
+/**
+ * Asks to join the invite, on the signed-in user's own participant row. Someone who hasn't
+ * responded yet is saved as available for just the meeting's cells (`meetingCells`, the
+ * finalized box on the group calendar), or with no availability if it isn't on the grid.
+ */
+export async function requestInvite(meetingCells?: BoundingBox) {
   const participant = getCurrentParticipant();
   const requestedAt = new Date();
   if (!participant) {
-    // Hasn't responded yet: save a response with no availability, carrying the request
+    // Same shape as an empty response; extra columns from a timezone change are added as needed
+    const blocksLength = generateTimeBlocks(
+      workingEvent.details.startTime,
+      workingEvent.details.endTime
+    ).flat(2).length;
+    const columns = Math.max(getDates().length, (meetingCells?.right ?? -1) + 1);
+    const availability: Availability = Array.from({ length: columns }, () =>
+      Array.from({ length: blocksLength }, () => false)
+    );
+    if (meetingCells && meetingCells.bottom < blocksLength) {
+      for (let block = meetingCells.top; block <= meetingCells.bottom; block++) {
+        availability[meetingCells.left][block] = true;
+      }
+    }
+
     const accountId = getAccountId();
     try {
       await saveParticipantDetails({
         name: getAccountName(),
         accountId,
         email: getAccountEmail(),
-        availability: [],
+        availability,
         location: [],
         declined: false,
         inviteRequestedAt: requestedAt,

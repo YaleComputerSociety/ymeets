@@ -32,6 +32,7 @@ import DeclineButton from '../utils/components/DeclineButton';
 import DeletePopup from '../utils/components/DeletePopup';
 import LiteEventNotice from '../utils/components/LiteEventNotice';
 import MeetingScheduledCard from '../GroupView/MeetingScheduledCard';
+import type { BoundingBox } from '../../types';
 import { SKIP_UNSAVED_CHANGES_PROMPT } from '../utils/functions/navigationState';
 import ParticipantFilterList, {
   getFilterableParticipants,
@@ -87,6 +88,7 @@ interface SharedSidebarProps {
   onDecline: () => void;
   onFindBestTime?: () => void;
   onMeetingChanged?: () => void;
+  finalizedSelection?: BoundingBox;
 }
 
 export default function SharedSidebar({
@@ -116,6 +118,7 @@ export default function SharedSidebar({
   onDecline,
   onFindBestTime,
   onMeetingChanged,
+  finalizedSelection,
 }: SharedSidebarProps) {
   const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -264,7 +267,11 @@ export default function SharedSidebar({
       {!chartedUsers?.hovering && <LiteEventNotice />}
 
       {!chartedUsers?.hovering && onMeetingChanged && (
-        <MeetingScheduledCard isAdmin={isAdmin} onChanged={onMeetingChanged} />
+        <MeetingScheduledCard
+          isAdmin={isAdmin}
+          finalizedSelection={finalizedSelection}
+          onChanged={onMeetingChanged}
+        />
       )}
 
       {/* Add My Availability Button - shown when user is not signed in */}
