@@ -35,6 +35,8 @@ interface CalendarProps {
     BoundingBox | undefined,
     Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
+  /** The finalized meeting time, shown in green on the group calendar. */
+  finalizedSelection?: BoundingBox;
   googleCalendarEvents: calendar_v3.Schema$Event[];
   onClick: MouseEventHandler<HTMLButtonElement>;
   theShowUserChart:
@@ -61,6 +63,7 @@ export default function Calendar({
   isAdmin,
   theDragState,
   theMostRecentSelection,
+  finalizedSelection,
   googleCalendarEvents,
   theShowUserChart,
   onClick,
@@ -288,6 +291,7 @@ export default function Calendar({
               endDate={calendarFramework.endTime}
               theDragState={theDragState}
               theMostRecentSelection={theMostRecentSelection}
+              finalizedSelection={finalizedSelection}
               calendarFramework={calendarFramework}
               chartedUsersData={chartedUsersData}
               googleCalendarEvents={googleCalendarEvents}

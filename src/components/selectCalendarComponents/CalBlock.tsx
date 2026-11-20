@@ -42,6 +42,8 @@ interface CalBlockProps {
     BoundingBox | undefined,
     Dispatch<SetStateAction<BoundingBox | undefined>>,
   ];
+  /** The finalized meeting time, shown in green on the group calendar. */
+  finalizedSelection?: BoundingBox;
   isOnGcal: boolean;
   eventNames: (string | null)[];
   onClick: MouseEventHandler<HTMLButtonElement>;
@@ -70,6 +72,7 @@ export default function CalBlock({
   user,
   theDragState,
   theMostRecentSelection: [mostRecentSelection, setMostRecentSelection],
+  finalizedSelection,
   isOnGcal,
   eventNames,
   onClick,
@@ -178,13 +181,19 @@ export default function CalBlock({
         col: columnID,
         block: blockID,
       });
-      setShadeColor(inRecentSelection ? '#73dd64' : getGroupPercentageColor());
+      const inFinalized = finalizedSelection?.contains({ col: columnID, block: blockID });
+      setShadeColor(
+        inRecentSelection ? '#73dd64' : inFinalized ? '#3fae2d' : getGroupPercentageColor()
+      );
     } else {
-      setShadeColor(getGroupPercentageColor());
+      // Everyone sees the finalized meeting time in green
+      const inFinalized = finalizedSelection?.contains({ col: columnID, block: blockID });
+      setShadeColor(inFinalized ? '#3fae2d' : getGroupPercentageColor());
     }
   }, [
     blockID,
     columnID,
+    finalizedSelection,
     getDefaultColor,
     getGroupPercentageColor,
     isAdmin,

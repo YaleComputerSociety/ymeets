@@ -7,6 +7,10 @@ import {
   type AvailabilityUpdatedData,
 } from './templates/availabilityUpdated';
 import {
+  inviteRequestedEmail,
+  inviteRequestedSubject,
+} from './templates/inviteRequested';
+import {
   invitationEmailHtml,
   invitationEmailSubject,
   type InvitationEmailData,
@@ -131,5 +135,48 @@ export async function notifyAdminOfNewResponse(
     );
   } catch (error) {
     console.error('Failed to send availability notification email:', error);
+  }
+}
+
+// Notify the event admin when someone asks to be added to the meeting's calendar invite
+export async function notifyAdminOfInviteRequest(
+  adminAccountId: string,
+  participantName: string,
+  participantEmail: string,
+  eventTitle: string,
+  eventId: string
+): Promise<void> {
+  // Lite events have no admin to notify
+  if (!adminAccountId) {
+    return;
+  }
+
+  try {
+    // Fetch admin email from users collection
+    const userDoc = await getDoc(doc(db, 'users', adminAccountId));
+    const adminEmail = userDoc.exists() ? userDoc.data().email : undefined;
+    if (!adminEmail) {
+      console.error('Admin email not found');
+      return;
+    }
+
+    const data = {
+      participantName: participantName || 'Someone',
+      participantEmail,
+      eventTitle,
+      eventUrl: `https://ymeets.com/dashboard/${eventId}`,
+    };
+    const threadMessageId = getEventThreadMessageId(eventId);
+    await sendEmail({
+      to: adminEmail,
+      subject: inviteRequestedSubject(data),
+      html: inviteRequestedEmail(data),
+      headers: {
+        'In-Reply-To': threadMessageId,
+        References: threadMessageId,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to send invite request email:', error);
   }
 }

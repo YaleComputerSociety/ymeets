@@ -19,7 +19,6 @@ import {
   getLocationsVotes,
   getChosenLocation,
   getAccountName,
-  getChosenDayAndTime,
   wrappedSaveParticipantDetails,
   getParticipantIndex,
   checkIfAdmin,
@@ -50,6 +49,11 @@ export default function UnifiedAvailabilityPage() {
   const [isEditing, setIsEditing] = useState(initialMode);
 
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Meeting actions update the loaded event in place. Re-rendering shows the change without
+  // reloading, which would renumber participants under unsaved availability edits.
+  const [, setMeetingVersion] = useState(0);
+  const refreshMeeting = () => setMeetingVersion((v) => v + 1);
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -231,11 +235,7 @@ export default function UnifiedAvailabilityPage() {
           const hasSavedRow =
             getParticipantIndex(accountName, getAccountId()) !== undefined;
 
-          const theRange = getChosenDayAndTime();
-          setIsGeneralDays(
-            dim?.dates[0][0].date?.getFullYear() === 2000 &&
-              theRange === undefined
-          );
+          setIsGeneralDays(dim?.dates[0][0].date?.getFullYear() === 2000);
 
           // Declining saves an empty row (`[]`), and dragging and autofill index
           // `availability[col][block]`, so they crash on a row with missing columns.
@@ -259,11 +259,6 @@ export default function UnifiedAvailabilityPage() {
             ]);
           }
           setTimeSelectCalendarFramework(dim);
-
-          // if there's a selection already made, nav to groupview since you're not allowed to edit your avail
-          if (theRange !== undefined && theRange[0].getFullYear() !== 1970) {
-            nav('/dashboard/' + code);
-          }
 
           if (onSuccess) {
             onSuccess();
@@ -588,6 +583,7 @@ export default function UnifiedAvailabilityPage() {
           userHasFilled={userHasFilled}
           hasUnsavedChanges={hasUnsavedChanges}
           setHasUnsavedChanges={setHasUnsavedChanges}
+          onMeetingChanged={refreshMeeting}
         />
       </div>
 
@@ -640,6 +636,7 @@ export default function UnifiedAvailabilityPage() {
             setPeopleStatus={setPeopleStatus}
             allUsers={allUsers}
             userHasFilled={userHasFilled}
+            onMeetingChanged={refreshMeeting}
           />
         )}
       </div>
