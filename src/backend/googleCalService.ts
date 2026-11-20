@@ -5,7 +5,6 @@
 // combined with the fact that there is a expiration date for the token.
 
 // Configuration
-const GOOGLE_API_KEY = process.env.REACT_APP_API_KEY_GAPI;
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_CLIENT_ID_GAPI;
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 const DISCOVERY_DOCS = [
@@ -251,7 +250,6 @@ class GoogleCalendarService {
     try {
       // Initialize GAPI client with API key and discovery docs
       await window.gapi.client.init({
-        apiKey: GOOGLE_API_KEY,
         discoveryDocs: DISCOVERY_DOCS,
       });
       
