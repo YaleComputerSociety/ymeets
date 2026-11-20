@@ -319,6 +319,7 @@ function ContributorCard({
             };
             return (
               <h3
+                key={subtitle}
                 className={
                   'text-md rounded-full border px-4 py-1 mb-2 w-fit ' +
                   style[subtitle]
@@ -410,6 +411,7 @@ export default function AboutUsPage() {
           {CURR_CONTRIBUTORS.map((c) => {
             return (
               <ContributorCard
+                key={c.name}
                 name={c.name}
                 title={c.title}
                 linkedin={c.linkedin}
