@@ -12,9 +12,11 @@ import {
   Timestamp,
   arrayUnion,
   writeBatch,
+  deleteField,
 } from 'firebase/firestore';
 import {
   Availability,
+  BoundingBox,
   Event,
   Location,
   EventDetails,
@@ -516,6 +518,10 @@ const getParticipants = async (
             // Left as-is; getAllAvailabilities falls back to an empty grid
           }
 
+          if (participant.inviteRequestedAt instanceof Timestamp) {
+            participant.inviteRequestedAt = participant.inviteRequestedAt.toDate();
+          }
+
           parts.push(participant as Participant);
         });
 
@@ -583,6 +589,9 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
   );
 
   if (existingIndex !== -1) {
+    // Keep an earlier request to join the meeting's invite
+    participant.inviteRequestedAt ??=
+      workingEvent.participants[existingIndex].inviteRequestedAt;
     workingEvent.participants[existingIndex] = participant;
   } else {
     workingEvent.participants.push(participant);
@@ -618,6 +627,9 @@ async function saveParticipantDetails(participant: Participant, skipUserCollecti
     availability: JSON.stringify(participant.availability),
     location: participant.location || '',
     declined: participant.declined || false,
+    ...(participant.inviteRequestedAt
+      ? { inviteRequestedAt: participant.inviteRequestedAt }
+      : {}),
     // TTL doesn't delete subcollections, so lite participants expire alongside their event
     ...(workingEvent.expireAt ? { expireAt: workingEvent.expireAt } : {}),
   });
@@ -819,15 +831,11 @@ export function getAllAvailabilities(): Availability[] {
 
 /** Retrieves the official datetime (start and end) of the event as chosen by the admin. */
 export function getChosenDayAndTime(): [Date, Date] | undefined {
-  if (
-    workingEvent.details.chosenStartDate &&
-    workingEvent.details.chosenEndDate
-  ) {
-    return [
-      workingEvent.details.chosenStartDate,
-      workingEvent.details.chosenEndDate,
-    ];
-  }
+  const start = workingEvent.details.chosenStartDate;
+  const end = workingEvent.details.chosenEndDate;
+  // Older events may hold a Feb 1, 1970 placeholder from a removed "undo" feature
+  if (!start || !end || start.getFullYear() <= 1970 || end <= start) return undefined;
+  return [start, end];
 }
 
 /** Retrieves the official location of the event as chosen by the admin. */
@@ -928,6 +936,156 @@ export function getEventObjectForGCal(
 
 export function getEmailAdmin(): boolean {
   return workingEvent.details.emailAdmin === true;
+}
+
+/** Whether to email the admin when someone asks to join the invite. Missing means `true`. */
+export function getEmailAdminLateRequests(): boolean {
+  return workingEvent.details.emailAdminLateRequests !== false;
+}
+
+export async function setEmailAdminLateRequests(value: boolean) {
+  workingEvent.details.emailAdminLateRequests = value;
+  await updateDoc(doc(db, 'events', workingEvent.publicId), {
+    'details.emailAdminLateRequests': value,
+  });
+}
+
+const normalizeEmail = (email: string | undefined) => (email ?? '').trim().toLowerCase();
+
+/** The emails the exported invite goes to: every participant email, as the prefilled link adds them. */
+export function getInviteEmails(): string[] {
+  const emails = workingEvent.participants
+    .map((p) => normalizeEmail(p.email))
+    .filter((email) => email !== '');
+  return [...new Set(emails)];
+}
+
+/** Saves the finalized meeting time and who the invite went to. Admin only. */
+export async function setChosenTime(start: Date, end: Date, invitedEmails: string[]) {
+  await updateDoc(doc(db, 'events', workingEvent.publicId), {
+    'details.chosenStartDate': start,
+    'details.chosenEndDate': end,
+    'details.invitedEmails': invitedEmails,
+  });
+  workingEvent.details.chosenStartDate = start;
+  workingEvent.details.chosenEndDate = end;
+  workingEvent.details.invitedEmails = invitedEmails;
+}
+
+/** Clears the finalized meeting time. Admin only. */
+export async function clearChosenTime() {
+  await updateDoc(doc(db, 'events', workingEvent.publicId), {
+    'details.chosenStartDate': deleteField(),
+    'details.chosenEndDate': deleteField(),
+    'details.invitedEmails': deleteField(),
+  });
+  workingEvent.details.chosenStartDate = undefined;
+  workingEvent.details.chosenEndDate = undefined;
+  workingEvent.details.invitedEmails = undefined;
+}
+
+/** Records that the admin added these people to the invite. Admin only. */
+export async function markInvited(emails: string[]) {
+  const added = emails.map(normalizeEmail);
+  await updateDoc(doc(db, 'events', workingEvent.publicId), {
+    'details.invitedEmails': arrayUnion(...added),
+  });
+  workingEvent.details.invitedEmails = [
+    ...new Set([...(workingEvent.details.invitedEmails ?? []), ...added]),
+  ];
+}
+
+/** The signed-in user's participant row, if they have one. */
+function getCurrentParticipant(): Participant | undefined {
+  const accountId = getAccountId();
+  if (!accountId) return undefined;
+  return workingEvent.participants.find((p) => p.accountId === accountId);
+}
+
+function isInvited(email: string | undefined): boolean {
+  const normalized = normalizeEmail(email);
+  return normalized !== '' && (workingEvent.details.invitedEmails ?? []).includes(normalized);
+}
+
+/** Whether the signed-in user is on the finalized meeting's invite. */
+export function isCurrentUserInvited(): boolean {
+  return isInvited(getAccountEmail());
+}
+
+/** Whether the signed-in user has asked to join the invite. */
+export function hasCurrentUserRequestedInvite(): boolean {
+  return !!getCurrentParticipant()?.inviteRequestedAt;
+}
+
+/** Whether the signed-in user can ask to join the invite: they have an email and haven't declined, on a full event. */
+export function canCurrentUserRequestInvite(): boolean {
+  const participant = getCurrentParticipant();
+  return (
+    // Meetings finalized before this feature have no invite list to be added to
+    workingEvent.details.invitedEmails !== undefined &&
+    !participant?.declined &&
+    !!getAccountEmail() &&
+    !isLiteEvent()
+  );
+}
+
+/**
+ * Asks to join the invite, on the signed-in user's own participant row. Someone who hasn't
+ * responded yet is saved as available for just the meeting's cells (`meetingCells`, the
+ * finalized box on the group calendar), or with no availability if it isn't on the grid.
+ */
+export async function requestInvite(meetingCells?: BoundingBox) {
+  const participant = getCurrentParticipant();
+  const requestedAt = new Date();
+  if (!participant) {
+    // Same shape as an empty response; extra columns from a timezone change are added as needed
+    const blocksLength = generateTimeBlocks(
+      workingEvent.details.startTime,
+      workingEvent.details.endTime
+    ).flat(2).length;
+    const columns = Math.max(getDates().length, (meetingCells?.right ?? -1) + 1);
+    const availability: Availability = Array.from({ length: columns }, () =>
+      Array.from({ length: blocksLength }, () => false)
+    );
+    if (meetingCells && meetingCells.bottom < blocksLength) {
+      for (let block = meetingCells.top; block <= meetingCells.bottom; block++) {
+        availability[meetingCells.left][block] = true;
+      }
+    }
+
+    const accountId = getAccountId();
+    try {
+      await saveParticipantDetails({
+        name: getAccountName(),
+        accountId,
+        email: getAccountEmail(),
+        availability,
+        location: [],
+        declined: false,
+        inviteRequestedAt: requestedAt,
+      });
+    } catch (error) {
+      // The save adds the row locally first; drop it so the request isn't shown as sent
+      workingEvent.participants = workingEvent.participants.filter(
+        (p) => p.accountId !== accountId
+      );
+      throw error;
+    }
+    return;
+  }
+  if (!participant.accountId) return;
+  await updateDoc(
+    doc(db, 'events', workingEvent.publicId, 'participants', participant.accountId),
+    { inviteRequestedAt: requestedAt, email: getAccountEmail() }
+  );
+  participant.inviteRequestedAt = requestedAt;
+}
+
+/** Participants who asked to join the invite and haven't been added yet. */
+export function getPendingInviteRequests(): Participant[] {
+  return workingEvent.participants.filter(
+    (p) => p.inviteRequestedAt && !p.declined && p.email && !isInvited(p.email)
+  );
 }
 
 export async function setEmailAdmin(emailAdmin: boolean) {

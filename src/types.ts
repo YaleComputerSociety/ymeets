@@ -34,6 +34,8 @@ export interface EventDetails {
   participants: string[]; // firebase uids
   dateCreated: Date;
   emailAdmin?: boolean; // whether to email admin when participants submit availability
+  emailAdminLateRequests?: boolean; // whether to email admin when someone asks to join the invite; missing means true
+  invitedEmails?: string[]; // emails on the finalized meeting's calendar invite
   mode?: EventMode; // missing means 'full'
 }
 
@@ -44,6 +46,7 @@ export interface Participant {
   availability: Availability | string; // Availability || JSON string of Availability type
   location: Location[];
   declined?: boolean;
+  inviteRequestedAt?: Date; // when they asked to be added to the finalized meeting's invite
 }
 
 export type calendarState = Availability[]; // length = num of people

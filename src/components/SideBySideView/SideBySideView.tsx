@@ -21,6 +21,9 @@ import {
   getAccountId,
   getAccountName,
   updateAnonymousUserToAuthUser,
+  getChosenDayAndTime,
+  getInviteEmails,
+  setChosenTime,
 } from '../../backend/events';
 import Calendar from '../selectCalendarComponents/CalendarApp';
 import SharedSidebar from './SharedSidebar';
@@ -42,7 +45,11 @@ import {
 import BestTimeFinder from '../BestTimeFinder';
 import { windowToSelection } from '../utils/functions/findBestTimes';
 import type { BestTimeWindow } from '../utils/functions/findBestTimes';
-import { getGCalUrlForSelection } from '../utils/functions/googleCalendarExport';
+import {
+  getGCalUrlForSelection,
+  getSelectionDates,
+  getSelectionForDates,
+} from '../utils/functions/googleCalendarExport';
 import AddToGoogleCalendarButton from '../GroupView/AddToCalendarButton';
 import InformationPopup from '../utils/components/InformationPopup';
 import AlertPopup from '../utils/components/AlertPopup';
@@ -113,6 +120,9 @@ interface SideBySideViewProps {
   // Unsaved changes tracking
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: Dispatch<SetStateAction<boolean>>;
+
+  // Reloads the event after the meeting time or invite requests change
+  onMeetingChanged: () => void;
 }
 
 export default function SideBySideView({
@@ -153,6 +163,7 @@ export default function SideBySideView({
   userHasFilled,
   hasUnsavedChanges,
   setHasUnsavedChanges,
+  onMeetingChanged,
 }: SideBySideViewProps) {
   const [showBestTime, setShowBestTime] = useState(false);
   const [showUserChart, setShowUserChart] = useState(false);
@@ -402,6 +413,31 @@ export default function SideBySideView({
 
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
+  // The finalized meeting time, shown in green on the group calendar
+  const chosen = getChosenDayAndTime();
+  const chosenStart = chosen?.[0].getTime();
+  const chosenEnd = chosen?.[1].getTime();
+  const finalizedSelection = useMemo(
+    () =>
+      chosenStart !== undefined && chosenEnd !== undefined
+        ? getSelectionForDates(new Date(chosenStart), new Date(chosenEnd), calendarFramework)
+        : undefined,
+    [chosenStart, chosenEnd, calendarFramework]
+  );
+
+  /** Saves an exported time as the meeting time, so everyone sees it. */
+  const saveExportedTime = async (selection: BoundingBox | undefined) => {
+    const dates = getSelectionDates(selection, calendarFramework);
+    if ('error' in dates) return;
+    try {
+      await setChosenTime(dates.start, dates.end, getInviteEmails());
+      onMeetingChanged();
+    } catch (error) {
+      console.error('Failed to save the meeting time:', error);
+      setAlertMessage('Could not save the meeting time. Please try again.');
+    }
+  };
+
   // Participant filter dropdown in the top bar
   const [showParticipantFilter, setShowParticipantFilter] = useState(false);
   const participantFilterRef = useRef<HTMLDivElement>(null);
@@ -446,6 +482,7 @@ export default function SideBySideView({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
+      saveExportedTime(theMostRecentRightSelection[0]);
     } else {
       login();
     }
@@ -486,6 +523,7 @@ export default function SideBySideView({
 
     if (getAccountId() !== '') {
       window.open(result.url, '_blank');
+      saveExportedTime(windowToSelection(time));
     } else {
       login();
     }
@@ -537,6 +575,8 @@ export default function SideBySideView({
             userHasFilled={userHasFilled}
             onDecline={onDecline}
             onFindBestTime={() => setShowBestTime(true)}
+            onMeetingChanged={onMeetingChanged}
+            finalizedSelection={finalizedSelection}
           />
         </div>
         {/* Best Time popup */}
@@ -767,6 +807,7 @@ export default function SideBySideView({
                         isAdmin={true}
                         theDragState={theRightDragState}
                         theMostRecentSelection={theMostRecentRightSelection}
+                        finalizedSelection={finalizedSelection}
                         googleCalendarEvents={[]}
                         onClick={() => {
                           if (showUserChart === true) {

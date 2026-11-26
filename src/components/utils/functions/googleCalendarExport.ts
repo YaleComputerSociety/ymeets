@@ -1,6 +1,8 @@
 import { BoundingBox, calendarDimensions } from '../../../types';
 import { getDates, getEventObjectForGCal } from '../../../backend/events';
 import { generateTimeBlocks } from './generateTimeBlocks';
+import { DateTime } from 'luxon';
+import { getUserTimezone } from './timzoneConversions';
 
 /**
  * Formats a date as the UTC `YYYYMMDDTHHMMSSZ` string Google Calendar expects.
@@ -77,7 +79,8 @@ export function getBlockMinutes(calendarFramework: calendarDimensions): number[]
 function createCalendarEventUrl(
   startDate: Date,
   endDate: Date,
-  location: string | undefined
+  location: string | undefined,
+  includeAttendees = true
 ): string {
   const event = getEventObjectForGCal(startDate, endDate, location);
   const attendeesEmails = (event.attendees || [])
@@ -91,7 +94,7 @@ function createCalendarEventUrl(
     details: event.description,
     location: event.location || '',
     spropname: 'Add Event',
-    add: attendeesEmails,
+    add: includeAttendees ? attendeesEmails : '',
   });
 
   return `https://calendar.google.com/calendar/render?${queryParams.toString()}`;
@@ -171,4 +174,67 @@ export function getGCalUrlForSelection(
     return dates;
   }
   return { url: createCalendarEventUrl(dates.start, dates.end, location) };
+}
+
+/**
+ * A pre-filled Google Calendar URL that adds the finalized meeting to the viewer's own calendar,
+ * without inviting anyone.
+ */
+export function getAddToCalendarUrl(
+  start: Date,
+  end: Date,
+  location: string | undefined
+): string {
+  return createCalendarEventUrl(start, end, location, false);
+}
+
+/**
+ * The reverse of `getSelectionDates`: the box on the group calendar for a saved meeting time, or
+ * `undefined` if it isn't on the grid. General-days events match on weekday and time of day,
+ * since their columns stand for every week.
+ */
+export function getSelectionForDates(
+  start: Date,
+  end: Date,
+  calendarFramework: calendarDimensions
+): BoundingBox | undefined {
+  const columns = calendarFramework?.dates?.flat() ?? [];
+  const { times, dayOffsets } = getStoredBlockTimes(calendarFramework);
+
+  // The grid's labels are in the browser's time until another zone is picked in the menu
+  const zone = calendarFramework?.timezone;
+  const pickedZone = zone && zone !== getUserTimezone() ? zone : undefined;
+  /** A time as the grid shows it: as a local Date whose fields are the grid's wall time. */
+  const asGridTime = (date: Date) => {
+    if (!pickedZone) return date;
+    const wall = DateTime.fromJSDate(date).setZone(pickedZone);
+    return new Date(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute);
+  };
+  const gridStart = asGridTime(start);
+  const gridLastBlockStart = asGridTime(new Date(end.getTime() - 15 * 60 * 1000));
+
+  // Same date and time to the minute (or, for general days, same weekday and time)
+  const matches = (columnDate: Date, block: number, target: Date) => {
+    const [hour, minute] = times[block].split(':').map(Number);
+    if (hour !== target.getHours() || minute !== target.getMinutes()) return false;
+    if (columnDate.getFullYear() === 2000) {
+      return (columnDate.getDay() + dayOffsets[block]) % 7 === target.getDay();
+    }
+    const day = new Date(columnDate);
+    day.setDate(day.getDate() + dayOffsets[block]);
+    return day.toDateString() === target.toDateString();
+  };
+
+  for (let col = 0; col < columns.length; col++) {
+    const columnDate = columns[col].date;
+    if (!columnDate) continue;
+    const top = times.findIndex((_, block) => matches(columnDate, block, gridStart));
+    if (top === -1) continue;
+    for (let block = top; block < times.length; block++) {
+      if (matches(columnDate, block, gridLastBlockStart)) {
+        return new BoundingBox({ col, block: top }, { col, block });
+      }
+    }
+  }
+  return undefined;
 }
